@@ -6,10 +6,6 @@ env:
   LOCAL_DEPLOY_PACKAGE_NAME: "frontend_package.zip"
   S3_DEPLOY_PACKAGE_NAME: "frontend_production_${{ github.sha }}.zip"
   AWS_REGION_NAME: "ca-central-1"
-
-defaults:
-  run:
-    working-directory: frontend
     
 on:
   push:

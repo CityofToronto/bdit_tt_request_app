@@ -5,10 +5,6 @@ env:
   EB_ENVIRONMENT_NAME: "BackendProduction-env"
   DEPLOY_PACKAGE_NAME: "backend_production_${{ github.sha }}.zip"
   AWS_REGION_NAME: "ca-central-1"
-
-defaults:
-  run:
-    working-directory: backend
     
 on:
   push:
@@ -16,6 +12,9 @@ on:
 
 jobs:
   build-pytest:
+    defaults:
+      run:
+        working-directory: backend
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,6 +41,9 @@ jobs:
         run: |
           pytest
   build-to-s3:
+    defaults:
+      run:
+        working-directory: backend
     runs-on: ubuntu-latest
     needs: [ build-pytest ]
 
