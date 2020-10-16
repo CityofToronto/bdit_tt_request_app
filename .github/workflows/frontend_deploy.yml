@@ -1,17 +1,15 @@
-name: frontend test deployment
+name: frontend production deployment
 env:
-  EB_PACKAGE_S3_BUCKET_NAME: "frontend-s3-test"
-  EB_APPLICATION_NAME: "frontend-test"
-  EB_ENVIRONMENT_NAME: "FrontendTest-env"
-  LOCAL_DEPLOY_PACKAGE_NAME: "frontend_test_deploy.zip"
-  S3_DEPLOY_PACKAGE_NAME: "frontend_test_${{ github.sha }}.zip"
+  EB_PACKAGE_S3_BUCKET_NAME: "frontend-s3-production"
+  EB_APPLICATION_NAME: "frontend-production"
+  EB_ENVIRONMENT_NAME: "FrontendProduction-env"
+  LOCAL_DEPLOY_PACKAGE_NAME: "frontend_production_deploy.zip"
+  S3_DEPLOY_PACKAGE_NAME: "frontend_production_${{ github.sha }}.zip"
   AWS_REGION_NAME: "ca-central-1"
 
 on:
-  pull_request:
-    branches: [ deploy dev ]
   push:
-    branches: [ dev ]
+    branches: [ deploy ]
   
 
 jobs:

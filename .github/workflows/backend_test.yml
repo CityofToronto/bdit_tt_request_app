@@ -8,9 +8,9 @@ env:
 
 on:
   pull_request:
-    branches: [ deploy ]
+    branches: [ deploy dev ]
   push:
-    branches: [ backend ]
+    branches: [ dev ]
 
 jobs:
   build-pytest:
