@@ -7,6 +7,10 @@ env:
   S3_DEPLOY_PACKAGE_NAME: "frontend_production_${{ github.sha }}.zip"
   AWS_REGION_NAME: "ca-central-1"
 
+defaults:
+  run:
+    working-directory: frontend
+    
 on:
   push:
     branches: [ deploy ]
@@ -19,8 +23,6 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-      - name: CD to frontend
-        run: cd frontend
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:

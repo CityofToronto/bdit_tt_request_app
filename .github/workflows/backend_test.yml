@@ -6,6 +6,10 @@ env:
   DEPLOY_PACKAGE_NAME: "backend_test_${{ github.sha }}.zip"
   AWS_REGION_NAME: "ca-central-1"
 
+defaults:
+  run:
+    working-directory: backend
+
 on:
   pull_request:
     branches: [ deploy dev ]
@@ -47,7 +51,7 @@ jobs:
       - name: Git clone repo
         uses: actions/checkout@v1
       - name: create zip deploy package
-        run: cd backend; zip -r -D ../${{  env.DEPLOY_PACKAGE_NAME }} * -x *.git*
+        run: zip -r -D ${{  env.DEPLOY_PACKAGE_NAME }} * -x *.git*
 
       - name: AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
