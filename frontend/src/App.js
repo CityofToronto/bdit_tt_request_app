@@ -1,5 +1,5 @@
 import React from 'react';
-
+import MapBox from './components/Map/Mapbox'
 class App extends React.Component {
   constructor(props) {
     super(props);
