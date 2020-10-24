@@ -1,0 +1,328 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Data Filter Web Application",
+        "description": "A travel time data filter application for the City of Toronto. Made by University of Toronto CSC301 Project Team 22."
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1"
+        },
+        {
+            "url": "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com/"
+        },
+        {
+            "url": "http://backendproduction-env.eba-5qbcpngm.ca-central-1.elasticbeanstalk.com/"
+        }
+    ],
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Project Title",
+                "operationId": "getProjectTitle",
+                "responses": {
+                    "200": {
+                        "description": "This is project title.",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/closest-node/{latitude}/{longitude}": {
+            "parameters": [
+                {
+                    "name": "latitude",
+                    "in": "path",
+                    "required": true,
+                    "description": "The latitude of the given coordinate.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "longitude",
+                    "in": "path",
+                    "required": true,
+                    "description": "The longitude of the given coordinate.",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "get": {
+                "summary": "Get the closest node from the given coordinate",
+                "operationId": "getClosestNode",
+                "responses": {
+                    "200": {
+                        "description": "Closest node from given coordinate",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Node"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/link-nodes/{from_node_id}/{to_node_id}": {
+            "parameters": [
+                {
+                    "name": "from_node_id",
+                    "in": "path",
+                    "required": true,
+                    "description": "The source node's ID.",
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "to_node_id",
+                    "in": "path",
+                    "required": true,
+                    "description": "The target node's ID.",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "get": {
+                "summary": "Get the shortest series of links between the two nodes.",
+                "operationId": "getLinksBetweenNodes",
+                "responses": {
+                    "200": {
+                        "description": "The shortest series of links between the two nodes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Link"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/travel-data": {
+            "post": {
+                "summary": "Get the travel data of each of the given series of links.",
+                "operationId": "getTravelData",
+                "responses": {
+                    "200": {
+                        "description": "The travel data array of the given series of links.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TravelData"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/date-bounds": {
+            "get": {
+                "summary": "Get the date time boundary of the data sets.",
+                "operationId": "getDateBoundary",
+                "responses": {
+                    "200": {
+                        "description": "The date time boundary of the data sets.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DateTimeBoundary"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Link": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "properties",
+                    "geometry"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "properties": {
+                        "type": "object",
+                        "required": [
+                            "link_dir",
+                            "link_id",
+                            "id",
+                            "st_name",
+                            "source",
+                            "target",
+                            "length"
+                        ],
+                        "properties": {
+                            "link_dir": {
+                                "type": "string"
+                            },
+                            "link_id": {
+                                "type": "integer"
+                            },
+                            "id": {
+                                "type": "integer"
+                            },
+                            "st_name": {
+                                "type": "string"
+                            },
+                            "source": {
+                                "type": "integer"
+                            },
+                            "target": {
+                                "type": "integer"
+                            },
+                            "length": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "geometry": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "coordinates"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "coordinates": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number",
+                                        "format": "double"
+                                    }
+                                },
+                                "example": "[ [ -79.4611, 43.72609 ], [ -79.46082, 43.72616 ] ]"
+                            }
+                        }
+                    }
+                }
+            },
+            "Node": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "properties",
+                    "geometry"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "properties": {
+                        "type": "object",
+                        "required": [
+                            "node_id"
+                        ],
+                        "properties": {
+                            "node_id": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "geometry": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "coordinates"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "coordinates": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number",
+                                    "format": "double"
+                                },
+                                "example": "[ -79.38546, 43.64222 ]"
+                            }
+                        }
+                    }
+                }
+            },
+            "TravelData": {
+                "type": "object",
+                "required": [
+                    "link_dir",
+                    "tx",
+                    "length",
+                    "mean",
+                    "stddev",
+                    "confidence",
+                    "pct_50"
+                ],
+                "properties": {
+                    "link_dir": {
+                        "type": "string"
+                    },
+                    "tx": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "length": {
+                        "type": "integer"
+                    },
+                    "mean": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "stddev": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "confidence": {
+                        "type": "integer"
+                    },
+                    "pct_50": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "DateTimeBoundary": {
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "end_time"
+                ],
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            }
+        }
+    }
+}
