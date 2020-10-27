@@ -4,3 +4,4 @@ def test_default(client):
 
     response = client.get('/')
     assert b'Data Filter Web Application' in response.data
+
