@@ -1,5 +1,5 @@
 import React from 'react';
-import MapBox from './components/Map/Mapbox'
+import Layout from './components/Layout/Layout.jsx'
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -8,7 +8,7 @@ class App extends React.Component {
   }
   render(){
     return (
-          <MapBox/>
+          <Layout/>
       );
   }
 }
