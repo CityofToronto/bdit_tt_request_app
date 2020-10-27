@@ -9,6 +9,7 @@ app = Flask(__name__)
 CORS(app=app, supports_credentials=True)
 app.config.from_object(Config)
 
+
 db = SQLAlchemy(app)
 db.create_all()
 

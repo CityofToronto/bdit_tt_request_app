@@ -15,6 +15,4 @@ def client():
 def db():
     from app import db
 
-    db.create_all()
-
     yield db
