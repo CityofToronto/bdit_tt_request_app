@@ -14,7 +14,8 @@
     "mapbox-gl": "^1.12.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^4.0.0"
+    "react-scripts": "^4.0.0",
+    "axios": "^0.21.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -38,7 +39,6 @@
     ]
   },
   "devDependencies": {
-    "axios": "^0.21.0",
     "fancy-log": "^1.3.3"
   }
 }
