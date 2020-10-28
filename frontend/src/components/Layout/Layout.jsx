@@ -1,6 +1,6 @@
 import React from "react";
-import MapElement from "./Map";
 import Sidebar from "react-sidebar";
+import Mapbox from "../Map/Mapbox";
 
 class Layout extends React.Component{
     constructor(props) {
@@ -32,7 +32,7 @@ class Layout extends React.Component{
                         Open Sidebar
                     </button>
                 </Sidebar>
-                <MapElement/>
+                <Mapbox/>
             </div>
         );
 
