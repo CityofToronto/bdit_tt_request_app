@@ -4,22 +4,23 @@ axios.defaults.withCredentials = true;
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com/";
 
 
-/* GET closest node given coordinate */
+/* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
 	axios.get(`${domain}/closest-node/${data.latitude}/${data.longitude}`).then(res => {
 		if (res.data) {
-			page.setState({closestNode: {
-				type: res.data.type,
-					properties: {
-						nodeId: res.data.properties.node_id
-					},
+			const arr = [];
+			res.data.forEach((node) => {
+				arr.push({
+					nodeId: node.node_id,
 					geometry: {
-						type: res.data.geometry.type,
-						coordinates: res.data.geometry.coordinates
+						coordinate: node.geometry.coordinates,
+						type: node.geometry.type
 					}
-				}});
+				});
+			});
+			page.setState({closestNodes: arr});
 		} else {
-			alert("NO CLOSEST NODE FOUND");
+			alert("NOT ENOUGH CLOSEST NODE FOUND");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -31,7 +32,7 @@ export const getDateBoundary = (page) => {
 	axios.get(`${domain}/date-bounds`).then(res => {
 		if (res.data) {
 			page.setState({dateBoundary: {
-				startTime: res.data.start_time,
+					startTime: res.data.start_time,
 					endTime: res.data.end_time
 				}});
 		} else {
@@ -44,19 +45,15 @@ export const getDateBoundary = (page) => {
 
 /* GET links given two nodes */
 export const getLinksBetweenNodes = (page, data) => {
-	axios.get(`${domain}/link-nodes/${data.from_node_id}/${data.to_node_id}`).then(res => {
+	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
-			page.setState({closestNode: {
-					type: res.data.type,
-					properties: {
-						linkDir: res.data.properties.link_dir,
-						linkId: res.data.properties.link_id,
-						id: res.data.properties.id,
-						stName: res.data.properties.st_name,
-						source: res.data.properties.source,
-						target: res.data.properties.target,
-						length: res.data.properties.length
-					},
+			page.setState({link: {
+					linkDir: res.data.link_dir,
+					linkId: res.data.link_id,
+					stName: res.data.st_name,
+					source: res.data.source,
+					target: res.data.target,
+					length: res.data.length,
 					geometry: {
 						type: res.data.geometry.type,
 						coordinates: res.data.geometry.coordinates
@@ -87,7 +84,19 @@ export const getProjectTitle = (page) => {
 export const getTravelData = (page) => {
 	axios.get(`${domain}/travel-data`).then(res => {
 		if (res.data) {
-			page.setState({travelData: res.data});
+			const arr = [];
+			res.data.forEach((link) => {
+				arr.push({
+					linkDir: link.link_dir,
+					tx: link.tx,
+					length: link.length,
+					mean: link.mean,
+					stddev: link.stddev,
+					confidence: link.confidence,
+					pct50: link.pct_50
+				});
+			});
+			page.setState({closestNodes: arr});
 		} else {
 			alert("NO DATA FOUND FOR LINKS");
 		}
