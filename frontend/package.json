@@ -17,7 +17,7 @@
     "react-dropdown": "^1.9.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.0",
-    "react-sidebar": "^3.0.2"
+    "react-sidebar": "^3.0.2",
     "axios": "^0.21.0"
   },
   "scripts": {
