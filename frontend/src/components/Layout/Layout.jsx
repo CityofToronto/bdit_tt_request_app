@@ -1,5 +1,6 @@
 import React from "react";
 import Sidebar from "react-sidebar";
+import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 
 class Layout extends React.Component{
@@ -20,7 +21,7 @@ class Layout extends React.Component{
         return (
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
-                    sidebar={<h1>This is the content on the sidebar</h1>}
+                    sidebar={<SidebarContent/>}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
                     styles={{sidebar: {background: "white", width: 300}}}
