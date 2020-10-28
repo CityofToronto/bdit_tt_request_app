@@ -35,17 +35,8 @@
                 }
             }
         },
-        "/closest-node/{latitude}/{longitude}": {
+        "/closest-node/{longitude}/{latitude}": {
             "parameters": [
-                {
-                    "name": "latitude",
-                    "in": "path",
-                    "required": true,
-                    "description": "The latitude of the given coordinate.",
-                    "schema": {
-                        "type": "string"
-                    }
-                },
                 {
                     "name": "longitude",
                     "in": "path",
@@ -54,18 +45,30 @@
                     "schema": {
                         "type": "string"
                     }
+                },
+                {
+                    "name": "latitude",
+                    "in": "path",
+                    "required": true,
+                    "description": "The latitude of the given coordinate.",
+                    "schema": {
+                        "type": "string"
+                    }
                 }
             ],
             "get": {
-                "summary": "Get the closest node from the given coordinate",
+                "summary": "Get the 10 closest nodes from the given coordinate",
                 "operationId": "getClosestNode",
                 "responses": {
                     "200": {
-                        "description": "Closest node from given coordinate",
+                        "description": "Ten closest nodes from given coordinate",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Node"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Node"
+                                    }
                                 }
                             }
                         }
@@ -95,11 +98,11 @@
                 }
             ],
             "get": {
-                "summary": "Get the shortest series of links between the two nodes.",
-                "operationId": "getLinksBetweenNodes",
+                "summary": "Get the shortest link between the two nodes.",
+                "operationId": "getLinkBetweenNodes",
                 "responses": {
                     "200": {
-                        "description": "The shortest series of links between the two nodes.",
+                        "description": "The shortest link between the two nodes.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -156,48 +159,32 @@
             "Link": {
                 "type": "object",
                 "required": [
-                    "type",
-                    "properties",
+                    "link_dir",
+                    "link_id",
+                    "st_name",
+                    "source",
+                    "target",
+                    "length",
                     "geometry"
                 ],
                 "properties": {
-                    "type": {
+                    "link_dir": {
                         "type": "string"
                     },
-                    "properties": {
-                        "type": "object",
-                        "required": [
-                            "link_dir",
-                            "link_id",
-                            "id",
-                            "st_name",
-                            "source",
-                            "target",
-                            "length"
-                        ],
-                        "properties": {
-                            "link_dir": {
-                                "type": "string"
-                            },
-                            "link_id": {
-                                "type": "integer"
-                            },
-                            "id": {
-                                "type": "integer"
-                            },
-                            "st_name": {
-                                "type": "string"
-                            },
-                            "source": {
-                                "type": "integer"
-                            },
-                            "target": {
-                                "type": "integer"
-                            },
-                            "length": {
-                                "type": "number"
-                            }
-                        }
+                    "link_id": {
+                        "type": "integer"
+                    },
+                    "st_name": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "integer"
+                    },
+                    "target": {
+                        "type": "integer"
+                    },
+                    "length": {
+                        "type": "number"
                     },
                     "geometry": {
                         "type": "object",
@@ -207,7 +194,8 @@
                         ],
                         "properties": {
                             "type": {
-                                "type": "string"
+                                "type": "string",
+                                "example": "LineString"
                             },
                             "coordinates": {
                                 "type": "array",
@@ -227,24 +215,12 @@
             "Node": {
                 "type": "object",
                 "required": [
-                    "type",
-                    "properties",
+                    "node_id",
                     "geometry"
                 ],
                 "properties": {
-                    "type": {
-                        "type": "string"
-                    },
-                    "properties": {
-                        "type": "object",
-                        "required": [
-                            "node_id"
-                        ],
-                        "properties": {
-                            "node_id": {
-                                "type": "integer"
-                            }
-                        }
+                    "node_id": {
+                        "type": "integer"
                     },
                     "geometry": {
                         "type": "object",
@@ -254,7 +230,8 @@
                         ],
                         "properties": {
                             "type": {
-                                "type": "string"
+                                "type": "string",
+                                "example": "Point"
                             },
                             "coordinates": {
                                 "type": "array",

@@ -704,14 +704,26 @@
   }
 };
             defs["Link"] = {
-  "required" : [ "geometry", "properties", "type" ],
+  "required" : [ "geometry", "length", "link_dir", "link_id", "source", "st_name", "target" ],
   "type" : "object",
   "properties" : {
-    "type" : {
+    "link_dir" : {
       "type" : "string"
     },
-    "properties" : {
-      "$ref" : "#/components/schemas/Link_properties"
+    "link_id" : {
+      "type" : "integer"
+    },
+    "st_name" : {
+      "type" : "string"
+    },
+    "source" : {
+      "type" : "integer"
+    },
+    "target" : {
+      "type" : "integer"
+    },
+    "length" : {
+      "type" : "number"
     },
     "geometry" : {
       "$ref" : "#/components/schemas/Link_geometry"
@@ -723,7 +735,8 @@
   "type" : "object",
   "properties" : {
     "type" : {
-      "type" : "string"
+      "type" : "string",
+      "example" : "LineString"
     },
     "coordinates" : {
       "type" : "array",
@@ -738,42 +751,12 @@
     }
   }
 };
-            defs["Link_properties"] = {
-  "required" : [ "id", "length", "link_dir", "link_id", "source", "st_name", "target" ],
-  "type" : "object",
-  "properties" : {
-    "link_dir" : {
-      "type" : "string"
-    },
-    "link_id" : {
-      "type" : "integer"
-    },
-    "id" : {
-      "type" : "integer"
-    },
-    "st_name" : {
-      "type" : "string"
-    },
-    "source" : {
-      "type" : "integer"
-    },
-    "target" : {
-      "type" : "integer"
-    },
-    "length" : {
-      "type" : "number"
-    }
-  }
-};
             defs["Node"] = {
-  "required" : [ "geometry", "properties", "type" ],
+  "required" : [ "geometry", "node_id" ],
   "type" : "object",
   "properties" : {
-    "type" : {
-      "type" : "string"
-    },
-    "properties" : {
-      "$ref" : "#/components/schemas/Node_properties"
+    "node_id" : {
+      "type" : "integer"
     },
     "geometry" : {
       "$ref" : "#/components/schemas/Node_geometry"
@@ -785,7 +768,8 @@
   "type" : "object",
   "properties" : {
     "type" : {
-      "type" : "string"
+      "type" : "string",
+      "example" : "Point"
     },
     "coordinates" : {
       "type" : "array",
@@ -794,15 +778,6 @@
         "type" : "number",
         "format" : "double"
       }
-    }
-  }
-};
-            defs["Node_properties"] = {
-  "required" : [ "node_id" ],
-  "type" : "object",
-  "properties" : {
-    "node_id" : {
-      "type" : "integer"
     }
   }
 };
@@ -859,8 +834,8 @@
                     <li data-group="Default" data-name="getDateBoundary" class="">
                       <a href="#api-Default-getDateBoundary">getDateBoundary</a>
                     </li>
-                    <li data-group="Default" data-name="getLinksBetweenNodes" class="">
-                      <a href="#api-Default-getLinksBetweenNodes">getLinksBetweenNodes</a>
+                    <li data-group="Default" data-name="getLinkBetweenNodes" class="">
+                      <a href="#api-Default-getLinkBetweenNodes">getLinkBetweenNodes</a>
                     </li>
                     <li data-group="Default" data-name="getProjectTitle" class="">
                       <a href="#api-Default-getProjectTitle">getProjectTitle</a>
@@ -893,7 +868,7 @@
                       <article id="api-Default-getClosestNode-0" data-group="User" data-name="getClosestNode" data-version="0">
                         <div class="pull-left">
                           <h1>getClosestNode</h1>
-                          <p>Get the closest node from the given coordinate</p>
+                          <p>Get the 10 closest nodes from the given coordinate</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -901,7 +876,7 @@
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/closest-node/{latitude}/{longitude}</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/closest-node/{longitude}/{latitude}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -923,7 +898,7 @@
                           <div class="tab-pane active" id="examples-Default-getClosestNode-0-curl">
                            <pre class="prettyprint"><code class="language-bsh">curl -X GET\
 -H "Accept: application/json"\
-"http://127.0.0.1/closest-node/{latitude}/{longitude}"</code></pre>
+"http://127.0.0.1/closest-node/{longitude}/{latitude}"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Default-getClosestNode-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -939,10 +914,10 @@ public class DefaultApiExample {
     public static void main(String[] args) {
         
         DefaultApi apiInstance = new DefaultApi();
-        String latitude = latitude_example; // String | The latitude of the given coordinate.
         String longitude = longitude_example; // String | The longitude of the given coordinate.
+        String latitude = latitude_example; // String | The latitude of the given coordinate.
         try {
-            Node result = apiInstance.getClosestNode(latitude, longitude);
+            array[Node] result = apiInstance.getClosestNode(longitude, latitude);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getClosestNode");
@@ -959,10 +934,10 @@ public class DefaultApiExample {
 
     public static void main(String[] args) {
         DefaultApi apiInstance = new DefaultApi();
-        String latitude = latitude_example; // String | The latitude of the given coordinate.
         String longitude = longitude_example; // String | The longitude of the given coordinate.
+        String latitude = latitude_example; // String | The latitude of the given coordinate.
         try {
-            Node result = apiInstance.getClosestNode(latitude, longitude);
+            array[Node] result = apiInstance.getClosestNode(longitude, latitude);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getClosestNode");
@@ -976,15 +951,15 @@ public class DefaultApiExample {
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
                             <div class="tab-pane" id="examples-Default-getClosestNode-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">String *latitude = latitude_example; // The latitude of the given coordinate.
-String *longitude = longitude_example; // The longitude of the given coordinate.
+                              <pre class="prettyprint"><code class="language-cpp">String *longitude = longitude_example; // The longitude of the given coordinate.
+String *latitude = latitude_example; // The latitude of the given coordinate.
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-// Get the closest node from the given coordinate
-[apiInstance getClosestNodeWith:latitude
-    longitude:longitude
-              completionHandler: ^(Node output, NSError* error) {
+// Get the 10 closest nodes from the given coordinate
+[apiInstance getClosestNodeWith:longitude
+    latitude:latitude
+              completionHandler: ^(array[Node] output, NSError* error) {
                             if (output) {
                                 NSLog(@"%@", output);
                             }
@@ -999,8 +974,8 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
                               <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
 
 var api = new DataFilterWebApplication.DefaultApi()
-var latitude = latitude_example; // {{String}} The latitude of the given coordinate.
 var longitude = longitude_example; // {{String}} The longitude of the given coordinate.
+var latitude = latitude_example; // {{String}} The latitude of the given coordinate.
 
 var callback = function(error, data, response) {
   if (error) {
@@ -1009,7 +984,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.getClosestNode(latitude, longitude, callback);
+api.getClosestNode(longitude, latitude, callback);
 </code></pre>
                             </div>
 
@@ -1031,13 +1006,13 @@ namespace Example
         {
 
             var apiInstance = new DefaultApi();
-            var latitude = latitude_example;  // String | The latitude of the given coordinate.
             var longitude = longitude_example;  // String | The longitude of the given coordinate.
+            var latitude = latitude_example;  // String | The latitude of the given coordinate.
 
             try
             {
-                // Get the closest node from the given coordinate
-                Node result = apiInstance.getClosestNode(latitude, longitude);
+                // Get the 10 closest nodes from the given coordinate
+                array[Node] result = apiInstance.getClosestNode(longitude, latitude);
                 Debug.WriteLine(result);
             }
             catch (Exception e)
@@ -1055,11 +1030,11 @@ namespace Example
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\ApiDefaultApi();
-$latitude = latitude_example; // String | The latitude of the given coordinate.
 $longitude = longitude_example; // String | The longitude of the given coordinate.
+$latitude = latitude_example; // String | The latitude of the given coordinate.
 
 try {
-    $result = $api_instance->getClosestNode($latitude, $longitude);
+    $result = $api_instance->getClosestNode($longitude, $latitude);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling DefaultApi->getClosestNode: ', $e->getMessage(), PHP_EOL;
@@ -1073,11 +1048,11 @@ use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::DefaultApi;
 
 my $api_instance = WWW::SwaggerClient::DefaultApi->new();
-my $latitude = latitude_example; # String | The latitude of the given coordinate.
 my $longitude = longitude_example; # String | The longitude of the given coordinate.
+my $latitude = latitude_example; # String | The latitude of the given coordinate.
 
 eval { 
-    my $result = $api_instance->getClosestNode(latitude => $latitude, longitude => $longitude);
+    my $result = $api_instance->getClosestNode(longitude => $longitude, latitude => $latitude);
     print Dumper($result);
 };
 if ($@) {
@@ -1094,12 +1069,12 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.DefaultApi()
-latitude = latitude_example # String | The latitude of the given coordinate.
 longitude = longitude_example # String | The longitude of the given coordinate.
+latitude = latitude_example # String | The latitude of the given coordinate.
 
 try: 
-    # Get the closest node from the given coordinate
-    api_response = api_instance.get_closest_node(latitude, longitude)
+    # Get the 10 closest nodes from the given coordinate
+    api_response = api_instance.get_closest_node(longitude, latitude)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling DefaultApi->getClosestNode: %s\n" % e)</code></pre>
@@ -1114,28 +1089,6 @@ except ApiException as e:
                                   <th width="150px">Name</th>
                                   <th>Description</th>
                                 </tr>
-                                  <tr><td style="width:150px;">latitude*</td>
-                                  <td>
-                                  
-                                  
-                                      <div id="d2e199_getClosestNode_latitude">
-                                          <div class="json-schema-view">
-                                              <div class="primitive">
-                                                  <span class="type">
-                                                      String
-                                                  </span>
-                                  
-                                                      <div class="inner description">
-                                                          The latitude of the given coordinate.
-                                                      </div>
-                                              </div>
-                                                  <div class="inner required">
-                                                      Required
-                                                  </div>
-                                          </div>
-                                      </div>
-                                  </td>
-                                  </tr>
                                   <tr><td style="width:150px;">longitude*</td>
                                   <td>
                                   
@@ -1158,6 +1111,28 @@ except ApiException as e:
                                       </div>
                                   </td>
                                   </tr>
+                                  <tr><td style="width:150px;">latitude*</td>
+                                  <td>
+                                  
+                                  
+                                      <div id="d2e199_getClosestNode_latitude">
+                                          <div class="json-schema-view">
+                                              <div class="primitive">
+                                                  <span class="type">
+                                                      String
+                                                  </span>
+                                  
+                                                      <div class="inner description">
+                                                          The latitude of the given coordinate.
+                                                      </div>
+                                              </div>
+                                                  <div class="inner required">
+                                                      Required
+                                                  </div>
+                                          </div>
+                                      </div>
+                                  </td>
+                                  </tr>
                             </table>
 
 
@@ -1165,7 +1140,7 @@ except ApiException as e:
 
 
                           <h2>Responses</h2>
-                            <h3> Status: 200 - Closest node from given coordinate </h3>
+                            <h3> Status: 200 - Ten closest nodes from given coordinate </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                                 <li class="active">
@@ -1180,11 +1155,15 @@ except ApiException as e:
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {
-  "description" : "Closest node from given coordinate",
+  "description" : "Ten closest nodes from given coordinate",
   "content" : {
     "application/json" : {
       "schema" : {
-        "$ref" : "#/components/schemas/Node"
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/Node"
+        },
+        "x-content-type" : "application/json"
       }
     }
   }
@@ -1474,11 +1453,11 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Default-getLinksBetweenNodes">
-                      <article id="api-Default-getLinksBetweenNodes-0" data-group="User" data-name="getLinksBetweenNodes" data-version="0">
+                    <div id="api-Default-getLinkBetweenNodes">
+                      <article id="api-Default-getLinkBetweenNodes-0" data-group="User" data-name="getLinkBetweenNodes" data-version="0">
                         <div class="pull-left">
-                          <h1>getLinksBetweenNodes</h1>
-                          <p>Get the shortest series of links between the two nodes.</p>
+                          <h1>getLinkBetweenNodes</h1>
+                          <p>Get the shortest link between the two nodes.</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -1491,26 +1470,26 @@ except ApiException as e:
                           <h3>Usage and SDK Samples</h3>
                         </p>
                         <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Default-getLinksBetweenNodes-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Default-getLinksBetweenNodes-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Default-getLinksBetweenNodes-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Default-getLinksBetweenNodes-0-python">Python</a></li>
+                          <li class="active"><a href="#examples-Default-getLinkBetweenNodes-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Default-getLinkBetweenNodes-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Default-getLinkBetweenNodes-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Default-getLinkBetweenNodes-0-python">Python</a></li>
                         </ul>
 
                         <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Default-getLinksBetweenNodes-0-curl">
+                          <div class="tab-pane active" id="examples-Default-getLinkBetweenNodes-0-curl">
                            <pre class="prettyprint"><code class="language-bsh">curl -X GET\
 -H "Accept: application/json"\
 "http://127.0.0.1/link-nodes/{from_node_id}/{to_node_id}"</code></pre>
                           </div>
-                          <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-java">
+                          <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
 import io.swagger.client.auth.*;
 import io.swagger.client.model.*;
@@ -1527,17 +1506,17 @@ public class DefaultApiExample {
         Integer fromNodeId = 56; // Integer | The source node's ID.
         Integer toNodeId = 56; // Integer | The target node's ID.
         try {
-            Link result = apiInstance.getLinksBetweenNodes(fromNodeId, toNodeId);
+            Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DefaultApi#getLinksBetweenNodes");
+            System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
 
-                          <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-android">
+                          <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-android">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.DefaultApi;
 
 public class DefaultApiExample {
@@ -1547,27 +1526,27 @@ public class DefaultApiExample {
         Integer fromNodeId = 56; // Integer | The source node's ID.
         Integer toNodeId = 56; // Integer | The target node's ID.
         try {
-            Link result = apiInstance.getLinksBetweenNodes(fromNodeId, toNodeId);
+            Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling DefaultApi#getLinksBetweenNodes");
+            System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
   <!--
-  <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-groovy">
+  <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-groovy">
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-objc">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">Integer *fromNodeId = 56; // The source node's ID.
 Integer *toNodeId = 56; // The target node's ID.
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-// Get the shortest series of links between the two nodes.
-[apiInstance getLinksBetweenNodesWith:fromNodeId
+// Get the shortest link between the two nodes.
+[apiInstance getLinkBetweenNodesWith:fromNodeId
     toNodeId:toNodeId
               completionHandler: ^(Link output, NSError* error) {
                             if (output) {
@@ -1580,7 +1559,7 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-javascript">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-javascript">
                               <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
 
 var api = new DataFilterWebApplication.DefaultApi()
@@ -1594,14 +1573,14 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.getLinksBetweenNodes(fromNodeId, toNodeId, callback);
+api.getLinkBetweenNodes(fromNodeId, toNodeId, callback);
 </code></pre>
                             </div>
 
-                            <!--<div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-angular">
+                            <!--<div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-angular">
               <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
             </div>-->
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-csharp">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-csharp">
                               <pre class="prettyprint"><code class="language-cs">using System;
 using System.Diagnostics;
 using IO.Swagger.Api;
@@ -1610,7 +1589,7 @@ using IO.Swagger.Model;
 
 namespace Example
 {
-    public class getLinksBetweenNodesExample
+    public class getLinkBetweenNodesExample
     {
         public void main()
         {
@@ -1621,13 +1600,13 @@ namespace Example
 
             try
             {
-                // Get the shortest series of links between the two nodes.
-                Link result = apiInstance.getLinksBetweenNodes(fromNodeId, toNodeId);
+                // Get the shortest link between the two nodes.
+                Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
                 Debug.WriteLine(result);
             }
             catch (Exception e)
             {
-                Debug.Print("Exception when calling DefaultApi.getLinksBetweenNodes: " + e.Message );
+                Debug.Print("Exception when calling DefaultApi.getLinkBetweenNodes: " + e.Message );
             }
         }
     }
@@ -1635,7 +1614,7 @@ namespace Example
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-php">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-php">
                               <pre class="prettyprint"><code class="language-php"><&#63;php
 require_once(__DIR__ . '/vendor/autoload.php');
 
@@ -1644,15 +1623,15 @@ $fromNodeId = 56; // Integer | The source node's ID.
 $toNodeId = 56; // Integer | The target node's ID.
 
 try {
-    $result = $api_instance->getLinksBetweenNodes($fromNodeId, $toNodeId);
+    $result = $api_instance->getLinkBetweenNodes($fromNodeId, $toNodeId);
     print_r($result);
 } catch (Exception $e) {
-    echo 'Exception when calling DefaultApi->getLinksBetweenNodes: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling DefaultApi->getLinkBetweenNodes: ', $e->getMessage(), PHP_EOL;
 }
 ?></code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-perl">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-perl">
                               <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
 use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::DefaultApi;
@@ -1662,15 +1641,15 @@ my $fromNodeId = 56; # Integer | The source node's ID.
 my $toNodeId = 56; # Integer | The target node's ID.
 
 eval { 
-    my $result = $api_instance->getLinksBetweenNodes(fromNodeId => $fromNodeId, toNodeId => $toNodeId);
+    my $result = $api_instance->getLinkBetweenNodes(fromNodeId => $fromNodeId, toNodeId => $toNodeId);
     print Dumper($result);
 };
 if ($@) {
-    warn "Exception when calling DefaultApi->getLinksBetweenNodes: $@\n";
+    warn "Exception when calling DefaultApi->getLinkBetweenNodes: $@\n";
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Default-getLinksBetweenNodes-0-python">
+                            <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-python">
                               <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
 import time
 import swagger_client
@@ -1683,11 +1662,11 @@ fromNodeId = 56 # Integer | The source node's ID.
 toNodeId = 56 # Integer | The target node's ID.
 
 try: 
-    # Get the shortest series of links between the two nodes.
-    api_response = api_instance.get_links_between_nodes(fromNodeId, toNodeId)
+    # Get the shortest link between the two nodes.
+    api_response = api_instance.get_link_between_nodes(fromNodeId, toNodeId)
     pprint(api_response)
 except ApiException as e:
-    print("Exception when calling DefaultApi->getLinksBetweenNodes: %s\n" % e)</code></pre>
+    print("Exception when calling DefaultApi->getLinkBetweenNodes: %s\n" % e)</code></pre>
                             </div>
                           </div>
 
@@ -1703,7 +1682,7 @@ except ApiException as e:
                                   <td>
                                   
                                   
-                                      <div id="d2e199_getLinksBetweenNodes_fromNodeId">
+                                      <div id="d2e199_getLinkBetweenNodes_fromNodeId">
                                           <div class="json-schema-view">
                                               <div class="primitive">
                                                   <span class="type">
@@ -1725,7 +1704,7 @@ except ApiException as e:
                                   <td>
                                   
                                   
-                                      <div id="d2e199_getLinksBetweenNodes_toNodeId">
+                                      <div id="d2e199_getLinkBetweenNodes_toNodeId">
                                           <div class="json-schema-view">
                                               <div class="primitive">
                                                   <span class="type">
@@ -1750,22 +1729,22 @@ except ApiException as e:
 
 
                           <h2>Responses</h2>
-                            <h3> Status: 200 - The shortest series of links between the two nodes. </h3>
+                            <h3> Status: 200 - The shortest link between the two nodes. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                                 <li class="active">
-                                  <a data-toggle="tab" href="#responses-getLinksBetweenNodes-200-schema">Schema</a>
+                                  <a data-toggle="tab" href="#responses-getLinkBetweenNodes-200-schema">Schema</a>
                                 </li>
 
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-getLinksBetweenNodes-200-schema">
-                                  <div id='responses-getLinksBetweenNodes-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                <div class="tab-pane active" id="responses-getLinkBetweenNodes-200-schema">
+                                  <div id='responses-getLinkBetweenNodes-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {
-  "description" : "The shortest series of links between the two nodes.",
+  "description" : "The shortest link between the two nodes.",
   "content" : {
     "application/json" : {
       "schema" : {
@@ -1787,14 +1766,14 @@ except ApiException as e:
 
                                         //console.log(JSON.stringify(schema));
                                         var view = new JSONSchemaView(schema, 3);
-                                        $('#responses-getLinksBetweenNodes-200-schema-data').val(stringify(schema));
-                                        var result = $('#responses-getLinksBetweenNodes-200-schema-200');
+                                        $('#responses-getLinkBetweenNodes-200-schema-data').val(stringify(schema));
+                                        var result = $('#responses-getLinkBetweenNodes-200-schema-200');
                                         result.empty();
                                         result.append(view.render());
                                       });
                                     </script>
                                   </div>
-                                  <input id='responses-getLinksBetweenNodes-200-schema-data' type='hidden' value=''></input>
+                                  <input id='responses-getLinkBetweenNodes-200-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
 
