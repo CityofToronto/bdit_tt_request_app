@@ -6,7 +6,7 @@ const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstal
 
 /* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
-	axios.get(`${domain}/closest-node/${data.latitude}/${data.longitude}`).then(res => {
+	axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
 		if (res.data) {
 			const arr = [];
 			res.data.forEach((node) => {
@@ -47,13 +47,10 @@ export const getDateBoundary = (page) => {
 export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
-			page.setState({link: {
-					linkDir: res.data.link_dir,
-					linkId: res.data.link_id,
-					stName: res.data.st_name,
+			page.setState({links: {
 					source: res.data.source,
 					target: res.data.target,
-					length: res.data.length,
+					linkDirs: res.data.link_dirs,
 					geometry: {
 						type: res.data.geometry.type,
 						coordinates: res.data.geometry.coordinates
