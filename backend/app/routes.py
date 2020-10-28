@@ -5,7 +5,7 @@ from flask import abort, jsonify
 from sqlalchemy import func
 
 from app import app, db
-from app.models import Link, Node
+from app.models import Node
 
 METER_UNIT_SRID = 26986
 
@@ -54,6 +54,8 @@ def get_links_between_nodes(from_node_id, to_node_id):
     Get the shortest length link between the two given nodes.
     This function filters links using ST_Intersects and sort them using the
     length attribute of the link object.
+    This function will call abort with response code 400 if the given node_ids
+    can not be cast to an integer.
 
     :param from_node_id: source node id
     :param to_node_id: target node id
@@ -62,18 +64,28 @@ def get_links_between_nodes(from_node_id, to_node_id):
             source(int), target(int), length(float),
             geometry(geom{type(str), coordinates(list[int])})
     """
-    from_point = _get_node_by_id(from_node_id)
-    to_point = _get_node_by_id(to_node_id)
+    # from_point = _get_node_by_id(from_node_id)
+    # to_point = _get_node_by_id(to_node_id)
+    #
+    # shortest_link_query_result = Link.query \
+    #     .with_entities(Link.link_dir, Link.link_id, Link.st_name, Link.source, Link.target, Link.length,
+    #                    Link.geom.ST_AsGeoJSON()) \
+    #     .filter(Link.geom.ST_Intersects(from_point.geom), Link.geom.ST_Intersects(to_point.geom)) \
+    #     .order_by(Link.length.asc()) \
+    #     .first()
+    #
+    # shortest_link = _parse_link_response(shortest_link_query_result)
+    # return jsonify(shortest_link)
+    try:
+        from_node_id = int(from_node_id)
+        to_node_id = int(to_node_id)
+    except ValueError:
+        abort(400, description="From & To node_ids should be integers!")
+        return
 
-    shortest_link_query_result = Link.query \
-        .with_entities(Link.link_dir, Link.link_id, Link.st_name, Link.source, Link.target, Link.length,
-                       Link.geom.ST_AsGeoJSON()) \
-        .filter(Link.geom.ST_Intersects(from_point.geom), Link.geom.ST_Intersects(to_point.geom)) \
-        .order_by(Link.length.asc()) \
-        .first()
-
-    shortest_link = _parse_link_response(shortest_link_query_result)
-    return jsonify(shortest_link)
+    shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+    shortest_link_data = _parse_get_links_btwn_nodes_response(shortest_link_query_result)
+    return jsonify(shortest_link_data)
 
 
 @app.route('/travel-data', methods=['POST'])
@@ -92,7 +104,7 @@ def _parse_link_response(link_data):
     The received the link_data should have all columns in Link model in a tuple.
     The link_data should contain the following fields (in order):
         link_dir(str), link_id(int), st_name(str), source(int), target(int),
-        length(float), geometry(geom{type(str), coordinates(list[int])})
+        length(float), geometry(geom{type(str), coordinates(list)})
 
     :param link_data: the query result from the Link table in the database
     :return: a dictionary containing the attributes (except id)
@@ -103,12 +115,51 @@ def _parse_link_response(link_data):
             "geometry": json.loads(link_data[6])}
 
 
+def _convert_wkb_geom_to_json(wkb_geom):
+    """
+    Take a geom in wkb binary format and convert it to a JSON object
+
+    :param wkb_geom: the wkb binary of the geom
+    :return: a JSON representation of the wkb geom
+    """
+    geom_object = db.session.query(func.ST_AsGeoJSON(wkb_geom)).first()[0]
+    return json.loads(geom_object)
+
+
+def _parse_get_links_btwn_nodes_response(response: str):
+    """
+    Converts the string result from database function get_links_btwn_nodes to a dictionary that can be jsonify-ed.
+
+    :param response: the string response from database function get_links_btwn_nodes
+    :return: a dictionary that can be jsonify-ed. It contains the following fields:
+            source(int), target(int), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
+    """
+    wkb_str_split = response.rindex(',')
+    source_target_links_str = response[:wkb_str_split] + ')'
+    wkb_str = response[wkb_str_split + 1:-1]
+    geom_json = _convert_wkb_geom_to_json(wkb_str)
+
+    if source_target_links_str[-2] != '"' and source_target_links_str[-2] != "'":
+        source_target_links_str = source_target_links_str.replace('{', '"{')
+        source_target_links_str = source_target_links_str.replace('}', '}"')
+
+    source_target_links_tuple = eval(source_target_links_str)
+    link_dirs_str = source_target_links_tuple[2]  # type: str
+    link_dirs_str = link_dirs_str.replace('{', '["')
+    link_dirs_str = link_dirs_str.replace('}', '"]')
+    link_dirs_str = link_dirs_str.replace(',', '","')
+    link_dirs = eval(link_dirs_str)
+
+    return {"source": source_target_links_tuple[0], "target": source_target_links_tuple[1],
+            "link_dirs": link_dirs, "geometry": geom_json}
+
+
 def _parse_node_response(node_data):
     """
     Parse the given Node query result to a dictionary that can be jsonify-ed.
     The received the node_data should have all columns in Node model in a tuple.
     The link_data should contain the following fields (in order):
-        node_id(int), geometry(geom{type(str), coordinates(list[int])})
+        node_id(int), geometry(geom{type(str), coordinates(list[int, int])})
 
     :param node_data: the query result from the Node table in the database
     :return: a dictionary containing the attributes for the Node query that can be jsonify-ed.

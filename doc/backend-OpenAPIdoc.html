@@ -703,6 +703,13 @@
     }
   }
 };
+            defs["inline_response_200"] = {
+  "oneOf" : [ {
+    "$ref" : "#/components/schemas/SingleLinkPath"
+  }, {
+    "$ref" : "#/components/schemas/MultiLinkPath"
+  } ]
+};
             defs["Link"] = {
   "required" : [ "geometry", "length", "link_dir", "link_id", "source", "st_name", "target" ],
   "type" : "object",
@@ -751,6 +758,51 @@
     }
   }
 };
+            defs["MultiLinkPath"] = {
+  "required" : [ "geometry", "link_dirs", "source", "target" ],
+  "type" : "object",
+  "properties" : {
+    "source" : {
+      "type" : "integer"
+    },
+    "target" : {
+      "type" : "integer"
+    },
+    "link_dirs" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string",
+        "example" : "29569307F"
+      }
+    },
+    "geometry" : {
+      "$ref" : "#/components/schemas/MultiLinkPath_geometry"
+    }
+  }
+};
+            defs["MultiLinkPath_geometry"] = {
+  "required" : [ "coordinates", "type" ],
+  "type" : "object",
+  "properties" : {
+    "type" : {
+      "type" : "string",
+      "example" : "MultiLineString"
+    },
+    "coordinates" : {
+      "type" : "array",
+      "example" : "[[[-79.38673, 43.64161], [-79.38658, 43.6417]], [[-79.38658, 43.6417], [-79.38632,43.64185]]]",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "integer"
+          }
+        }
+      }
+    }
+  }
+};
             defs["Node"] = {
   "required" : [ "geometry", "node_id" ],
   "type" : "object",
@@ -777,6 +829,49 @@
       "items" : {
         "type" : "number",
         "format" : "double"
+      }
+    }
+  }
+};
+            defs["OneOfinline_response_200"] = {};
+            defs["SingleLinkPath"] = {
+  "required" : [ "geometry", "link_dirs", "source", "target" ],
+  "type" : "object",
+  "properties" : {
+    "source" : {
+      "type" : "integer"
+    },
+    "target" : {
+      "type" : "integer"
+    },
+    "link_dirs" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string",
+        "example" : "29569307F"
+      }
+    },
+    "geometry" : {
+      "$ref" : "#/components/schemas/SingleLinkPath_geometry"
+    }
+  }
+};
+            defs["SingleLinkPath_geometry"] = {
+  "required" : [ "coordinates", "type" ],
+  "type" : "object",
+  "properties" : {
+    "type" : {
+      "type" : "string",
+      "example" : "LineString"
+    },
+    "coordinates" : {
+      "type" : "array",
+      "example" : "[[-79.38658, 43.6417], [-79.38632, 43.64185]]",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "integer"
+        }
       }
     }
   }
@@ -1506,7 +1601,7 @@ public class DefaultApiExample {
         Integer fromNodeId = 56; // Integer | The source node's ID.
         Integer toNodeId = 56; // Integer | The target node's ID.
         try {
-            Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+            inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
@@ -1526,7 +1621,7 @@ public class DefaultApiExample {
         Integer fromNodeId = 56; // Integer | The source node's ID.
         Integer toNodeId = 56; // Integer | The target node's ID.
         try {
-            Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+            inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
@@ -1548,7 +1643,7 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
 // Get the shortest link between the two nodes.
 [apiInstance getLinkBetweenNodesWith:fromNodeId
     toNodeId:toNodeId
-              completionHandler: ^(Link output, NSError* error) {
+              completionHandler: ^(inline_response_200 output, NSError* error) {
                             if (output) {
                                 NSLog(@"%@", output);
                             }
@@ -1601,7 +1696,7 @@ namespace Example
             try
             {
                 // Get the shortest link between the two nodes.
-                Link result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+                inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
                 Debug.WriteLine(result);
             }
             catch (Exception e)
@@ -1748,7 +1843,7 @@ except ApiException as e:
   "content" : {
     "application/json" : {
       "schema" : {
-        "$ref" : "#/components/schemas/Link"
+        "$ref" : "#/components/schemas/inline_response_200"
       }
     }
   }
