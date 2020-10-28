@@ -106,7 +106,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Link"
+                                    "oneOf": [
+                                        {"$ref": "#/components/schemas/SingleLinkPath"},
+                                        {"$ref": "#/components/schemas/MultiLinkPath"}
+                                    ]
                                 }
                             }
                         }
@@ -156,6 +159,103 @@
     },
     "components": {
         "schemas": {
+            "MultiLinkPath": {
+                "type": "object",
+                "required": [
+                    "source",
+                    "target",
+                    "link_dirs",
+                    "geometry"
+                ],
+                "properties": {
+                    "source": {
+                        "type": "integer"
+                    },
+                    "target": {
+                        "type": "integer"
+                    },
+                    "link_dirs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "29569307F"
+                        }
+                    },
+                    "geometry": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "coordinates"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "example": "MultiLineString"
+                            },
+                            "coordinates": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "example": "[[[-79.38673, 43.64161], [-79.38658, 43.6417]], [[-79.38658, 43.6417], [-79.38632,43.64185]]]"
+                            }
+                        }
+                    }
+                }
+            },
+            "SingleLinkPath": {
+                "type": "object",
+                "required": [
+                    "source",
+                    "target",
+                    "link_dirs",
+                    "geometry"
+                ],
+                "properties": {
+                    "source": {
+                        "type": "integer"
+                    },
+                    "target": {
+                        "type": "integer"
+                    },
+                    "link_dirs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "29569307F"
+                        }
+                    },
+                    "geometry": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "coordinates"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "example": "LineString"
+                            },
+                            "coordinates": {
+                                "type": "array",
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "example": "[[-79.38658, 43.6417], [-79.38632, 43.64185]]"
+                            }
+                        }
+                    }
+                }
+            },
             "Link": {
                 "type": "object",
                 "required": [
