@@ -14,7 +14,9 @@
     "mapbox-gl": "^1.12.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^4.0.0"
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.0",
+    "react-sidebar": "^3.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
