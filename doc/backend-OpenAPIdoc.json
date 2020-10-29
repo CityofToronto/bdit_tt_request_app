@@ -180,11 +180,13 @@
                 "properties": {
                     "start_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "end_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "link_dirs": {
                         "type": "array",
@@ -305,7 +307,8 @@
                 ],
                 "properties": {
                     "link_dir": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "1242626341F"
                     },
                     "link_id": {
                         "type": "integer"
@@ -394,11 +397,13 @@
                 ],
                 "properties": {
                     "link_dir": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "1242626341F"
                     },
                     "tx": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "length": {
                         "type": "integer"
@@ -428,11 +433,13 @@
                 "properties": {
                     "start_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "end_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     }
                 }
             }
