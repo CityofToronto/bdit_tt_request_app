@@ -1,13 +1,15 @@
 import json
+from datetime import datetime
 from os import environ
 
-from flask import abort, jsonify
-from sqlalchemy import func
+from flask import abort, jsonify, request
+from sqlalchemy import func, and_
 
 from app import app, db
-from app.models import Node
+from app.models import Node, Travel
 
 METER_UNIT_SRID = 26986
+DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 @app.route('/')
@@ -90,12 +92,89 @@ def get_links_between_nodes(from_node_id, to_node_id):
 
 @app.route('/travel-data', methods=['POST'])
 def get_links_travel_data():
-    raise NotImplementedError
+    """
+    Get the travel data from start_time to end_time for all links in link_dirs.
+
+    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+            too many links. (1~2min)
+
+    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+    This function will be aborted if any of the assumption is not met.
+
+    :return: a JSON list containing all the travel data, sorted in ascending link_dir order then ascending time order.
+            Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float), pct_50(int),
+            stddev(float), tx(str)
+    """
+    start_time, end_time, link_dirs = _parse_travel_request_body(request.json)
+    travel_query_result = Travel.query \
+        .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
+        .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+
+    travel_data_list = []
+    for travel_data in travel_query_result:
+        travel_data_list.append(travel_data.json())
+
+    return jsonify(travel_data_list)
 
 
 @app.route('/date-bounds', methods=['GET'])
 def get_date_bounds():
-    raise NotImplementedError
+    """
+    Get the earliest timestamp and latest timestamp in the travel database.
+    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d %H:%M:%S").
+
+    Caution: This function takes some time to execute, as it needs to query through the whole travel database to fetch
+            the date range. It is unlikely this function is needed in final production.
+
+    :return: JSON containing two fields: start_time and end_time
+    """
+    earliest_travel_data = Travel.query.order_by(Travel.tx.asc()).first()
+    latest_travel_data = Travel.query.order_by(Travel.tx.desc()).first()
+    earliest_time = earliest_travel_data.tx
+    latest_time = latest_travel_data.tx
+    print(earliest_time, latest_time)
+    return {"start_time": str(earliest_time), "end_time": str(latest_time)}
+
+
+def _parse_travel_request_body(travel_request_data):
+    """
+    Parse the body of a travel data request (POST request body).
+    There should be three fields existing in the request body: start_time, end_time and link_dirs.
+    start_time and end_time represent the time interval to query.
+    link_dirs should be a list containing all the interested link's link_dir.
+
+    Assumptions: start_time, end_time are in request body, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+                link_dirs is in request body, and is a list containing valid link_dir entries (string).
+    This function will call abort with response code 400 and error messages if any of the assumption is not met.
+
+    :param travel_request_data: The raw request body
+    :return: a tuple of (start_time, end_time, link_dirs)
+    """
+    # ensures existence of required fields
+    if 'start_time' not in travel_request_data or 'end_time' not in travel_request_data or \
+            'link_dirs' not in travel_request_data:
+        abort(400, "Request body must contain start_time, end_time and link_dirs.")
+        return
+
+    start_time = travel_request_data['start_time']
+    end_time = travel_request_data['end_time']
+    link_dirs = travel_request_data['link_dirs']
+
+    # ensures format of timestamp
+    try:
+        datetime.strptime(start_time, DATE_TIME_FORMAT)
+        datetime.strptime(end_time, DATE_TIME_FORMAT)
+    except ValueError:
+        abort(400, "Start time and end time must follow date time format: %s" % DATE_TIME_FORMAT)
+        return
+
+    # ensures link_dirs has the right type
+    if type(link_dirs) != list:
+        abort(400, "link_dirs must be a list of link_dir to fetch travel data from!")
+        return
+
+    return start_time, end_time, link_dirs
 
 
 def _parse_link_response(link_data):
@@ -134,15 +213,20 @@ def _parse_get_links_btwn_nodes_response(response: str):
     :return: a dictionary that can be jsonify-ed. It contains the following fields:
             source(int), target(int), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
     """
+    # split the response string by the last comma, which splits source, target, link_dirs from geometry
     wkb_str_split = response.rindex(',')
-    source_target_links_str = response[:wkb_str_split] + ')'
+
     wkb_str = response[wkb_str_split + 1:-1]
     geom_json = _convert_wkb_geom_to_json(wkb_str)
 
+    source_target_links_str = response[:wkb_str_split] + ')'
+    # if there is only one link between nodes, need to add double quotes to enforce same formatting as multi-link
     if source_target_links_str[-2] != '"' and source_target_links_str[-2] != "'":
         source_target_links_str = source_target_links_str.replace('{', '"{')
         source_target_links_str = source_target_links_str.replace('}', '}"')
 
+    # cast the curly bracket surrounded raw link_dir list to a square bracket surrounds quoted link_dir list
+    # so that the link_dirs can be casted to a string list
     source_target_links_tuple = eval(source_target_links_str)
     link_dirs_str = source_target_links_tuple[2]  # type: str
     link_dirs_str = link_dirs_str.replace('{', '["')
