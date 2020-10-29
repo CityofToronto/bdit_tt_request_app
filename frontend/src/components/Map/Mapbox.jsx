@@ -1,8 +1,8 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
+import { getClosestNode } from '../../actions/actions';
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
-
 class Mapbox extends React.Component {
     constructor(props) {
         super(props);
@@ -10,59 +10,12 @@ class Mapbox extends React.Component {
             lng: -79.3957,
             lat: 43.6629,
             zoom: 15,
-            geojson : {
-                type: 'FeatureCollection',
-                features: [
-                    {
-                      type: 'Feature',
-                      geometry: {
-                        type: 'Point',
-                        coordinates: [-79.3967, 43.6639]
-                      },
-                      properties: {
-                        'marker-color': '#3bb2d0',
-                        'marker-size': 'large',
-                        'marker-symbol': 'rocket'
-                      }
-                    },
-                    {
-                        type: 'Feature',
-                        geometry: {
-                          type: 'Point',
-                          coordinates: [-79.39575, 43.6639]
-                        },
-                        properties: {
-                          'marker-color': '#3bb2d0',
-                          'marker-size': 'large',
-                          'marker-symbol': 'rocket'
-                        }
-                    },
-                    {
-                        type: 'Feature',
-                        geometry: {
-                          type: 'Point',
-                          coordinates: [-79.3957, 43.6649]
-                        },
-                        properties: {
-                          'marker-color': '#3bb2d0',
-                          'marker-size': 'large',
-                          'marker-symbol': 'rocket'
-                        }
-                    },
-                    {
-                      type: 'Feature',
-                      geometry: {
-                        type: 'Point',
-                        coordinates: [-79.3945, 43.6625]
-                      },
-                      properties: {
-                        'marker-color': '#3bb2d0',
-                        'marker-size': 'large',
-                        'marker-symbol': 'rocket'
-                      }
-                    }
-                  ]
-              },
+            closestNodes:[],
+            createdMarkers:[],
+            map:'',
+            clicked:false,
+            remove:false,
+            display:false
         };
     }
 
@@ -73,53 +26,59 @@ class Mapbox extends React.Component {
             center: [this.state.lng, this.state.lat],
             zoom: this.state.zoom
         });
-
         map.on('move', () => {
             this.setState({
                 lng: map.getCenter().lng.toFixed(4),
                 lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
+                zoom: map.getZoom().toFixed(2),
+                remove: true,
+                display:false
             });
         });
-        // The `click` event is an example of a `MapMouseEvent`.
-        // Set up an event listener on the map.
-        map.on('click', function(e) {
-            // The event object (e) contains information like the
-            // coordinates of the point on the map that was clicked.
-            console.log('A click event has occurred at ' + e.lngLat);
-            // let data2 = [ [ -79.39575, 43.6639 ], [ -79.3945, 43.6625 ], [ -79.3957, 43.6649 ], [-79.3967, 43.6639 ] ]
-            // for (let i =0; i < data2.length; i++){
-            //     console.log(this.state)
-            //     let marker = new mapboxgl.Marker()
-            //         .setLngLat([data2[i][0], data2[i][1]])
-            //         .addTo(map);
-
-            // }
-
-            this.state.geojson.features.forEach(function(marker, i) {
-
-                // create a HTML element for each feature
-                var el = document.createElement('div');
-                el.className = 'marker';
-                el.id = i;
-              
-                // make a marker for each feature and add to the map
-                let createdMarker = new mapboxgl.Marker(el)
-                  .setLngLat(marker.geometry.coordinates)
-                  .addTo(map);
-                  console.log(i)
-
-                  createdMarker.getElement().addEventListener('click', () => {
-                    alert("Clicked");
-                    
-                    createdMarker.getElement().style.backgroundImage = "url(./mLqJkEE2pY.png)"
-                });
-              });
-
+        map.on('click', function (e) {
+            if(!this.state.clicked) {
+                console.log('A click event has occurred at ' + e.lngLat);
+                let coor = {longitude: e.lngLat.lng, latitude: e.lngLat.lat}
+                getClosestNode(this, coor)
+                this.setState({clicked:true})
+            }
+            else{
+            }
         }.bind(this));
+        this.setState({map:map, display:true})
+    }
+
+    displayNodes = ()=>{
+        const map = this.state.map;
+        this.state.closestNodes.forEach(function (marker, i) {
+            // create a HTML element for each feature
+            let el = document.createElement('div');
+            el.className = 'marker';
+            let createdMarker = new mapboxgl.Marker(el)
+                .setLngLat(marker.geometry.coordinate)
+                .addTo(map);
+            createdMarker.getElement().addEventListener('click', () => {
+                alert("Clicked");
+                console.log(createdMarker.getLngLat())
+            });
+        })
+
+    }
+    removeNodes = () => {
+        let getMarkers = this.state.map.getContainer().getElementsByClassName('marker');
+        for(let i = 0; i < getMarkers.length; i++){
+            console.log(getMarkers)
+            getMarkers[i].remove();
+        }
     }
 
     render() {
+        if(this.state.display){
+            this.displayNodes()
+        }
+        if(this.state.remove){
+            this.removeNodes()
+        }
         return (
             <div>
                 <div className='sidebarStyle'>
