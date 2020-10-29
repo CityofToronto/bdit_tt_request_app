@@ -1,8 +1,9 @@
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION, VARCHAR, INTEGER, BIGINT, TIMESTAMP, NUMERIC
+from os import environ
+
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION, VARCHAR, INTEGER, BIGINT, TIMESTAMP, NUMERIC
 
 from app import db
-from os import environ
 
 
 class Link(db.Model):
@@ -37,3 +38,8 @@ class Travel(db.Model):
     confidence = db.Column(INTEGER)
     pct_50 = db.Column(INTEGER)
     id = db.Column(INTEGER, primary_key=True)
+
+    def json(self):
+        return {"link_dir": str(self.link_dir), "tx": str(self.tx), "length": int(self.length),
+                "mean": float(self.mean), "stddev": float(self.stddev), "confidence": int(self.confidence),
+                "pct_50": int(self.pct_50)}

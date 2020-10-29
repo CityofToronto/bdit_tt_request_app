@@ -121,6 +121,17 @@
             "post": {
                 "summary": "Get the travel data of each of the given series of links.",
                 "operationId": "getTravelData",
+                "requestBody": {
+                    "description": "The date range and links(link_dirs) to be queried",
+                    "required": true,
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/TravelRequestBody"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "The travel data array of the given series of links.",
@@ -159,6 +170,33 @@
     },
     "components": {
         "schemas": {
+            "TravelRequestBody": {
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "end_time",
+                    "link_dirs"
+                ],
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
+                    },
+                    "link_dirs": {
+                        "type": "array",
+                        "items":{
+                            "type": "string",
+                            "example": "1242626341F"
+                        }
+                    }
+                }
+            },
             "MultiLinkPath": {
                 "type": "object",
                 "required": [
@@ -269,7 +307,8 @@
                 ],
                 "properties": {
                     "link_dir": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "1242626341F"
                     },
                     "link_id": {
                         "type": "integer"
@@ -358,11 +397,13 @@
                 ],
                 "properties": {
                     "link_dir": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "1242626341F"
                     },
                     "tx": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "length": {
                         "type": "integer"
@@ -392,11 +433,13 @@
                 "properties": {
                     "start_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     },
                     "end_time": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
                     }
                 }
             }
