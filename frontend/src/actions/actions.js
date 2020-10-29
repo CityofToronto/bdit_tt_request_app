@@ -20,7 +20,7 @@ export const getClosestNode = (page, data) => {
 			});
 			page.setState({closestNodes: arr});
 		} else {
-			alert("NOT ENOUGH CLOSEST NODE FOUND");
+			alert("NO CLOSEST NODE FOUND");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -78,8 +78,14 @@ export const getProjectTitle = (page) => {
 };
 
 /* GET travel data of links */
-export const getTravelData = (page) => {
-	axios.get(`${domain}/travel-data`).then(res => {
+/* sample data input: {
+        "startTime": "2018-09-01 12:00:00",
+        "endTime": "2018-09-01 23:00:00",
+        "linkDirs": ["29492871T"]
+	}
+*/
+export const getTravelData = (page, data) => {
+	axios.post(`${domain}/travel-data`, {start_time: data.startTime, end_time: data.endTime, link_dirs: data.linkDirs}).then(res => {
 		if (res.data) {
 			const arr = [];
 			res.data.forEach((link) => {
@@ -93,9 +99,9 @@ export const getTravelData = (page) => {
 					pct50: link.pct_50
 				});
 			});
-			page.setState({closestNodes: arr});
+			page.setState({travelData: arr});
 		} else {
-			alert("NO DATA FOUND FOR LINKS");
+			alert("NO TRAVEL DATA FOUND");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
