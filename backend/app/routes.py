@@ -12,6 +12,12 @@ METER_UNIT_SRID = 26986
 DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
+@app.errorhandler(400)
+def request_error(e):
+    """parse flask's default abort HTML into a JSON object containing the error message"""
+    return jsonify(error=e.description), 400
+
+
 @app.route('/')
 def index():
     return "Data Filter Web Application"
@@ -56,8 +62,8 @@ def get_links_between_nodes(from_node_id, to_node_id):
     Get the shortest length link between the two given nodes.
     This function filters links using ST_Intersects and sort them using the
     length attribute of the link object.
-    This function will call abort with response code 400 if the given node_ids
-    can not be cast to an integer.
+    This function will call abort with response code 400 when the given node_ids
+    can not be cast to an integer, the two nodes given are the same or no link exists between the two nodes.
 
     :param from_node_id: source node id
     :param to_node_id: target node id
@@ -66,24 +72,14 @@ def get_links_between_nodes(from_node_id, to_node_id):
             source(int), target(int), length(float),
             geometry(geom{type(str), coordinates(list[int])})
     """
-    # from_point = _get_node_by_id(from_node_id)
-    # to_point = _get_node_by_id(to_node_id)
-    #
-    # shortest_link_query_result = Link.query \
-    #     .with_entities(Link.link_dir, Link.link_id, Link.st_name, Link.source, Link.target, Link.length,
-    #                    Link.geom.ST_AsGeoJSON()) \
-    #     .filter(Link.geom.ST_Intersects(from_point.geom), Link.geom.ST_Intersects(to_point.geom)) \
-    #     .order_by(Link.length.asc()) \
-    #     .first()
-    #
-    # shortest_link = _parse_link_response(shortest_link_query_result)
-    # return jsonify(shortest_link)
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
     except ValueError:
-        abort(400, description="From & To node_ids should be integers!")
-        return
+        abort(400, description="The node_ids should be integers!")
+
+    if from_node_id == to_node_id:
+        abort(400, description="Source node can not be the same as target node.")
 
     shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
     shortest_link_data = _parse_get_links_btwn_nodes_response(shortest_link_query_result)
@@ -133,7 +129,6 @@ def get_date_bounds():
     latest_travel_data = Travel.query.order_by(Travel.tx.desc()).first()
     earliest_time = earliest_travel_data.tx
     latest_time = latest_travel_data.tx
-    print(earliest_time, latest_time)
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
 
 
@@ -154,8 +149,7 @@ def _parse_travel_request_body(travel_request_data):
     # ensures existence of required fields
     if 'start_time' not in travel_request_data or 'end_time' not in travel_request_data or \
             'link_dirs' not in travel_request_data:
-        abort(400, "Request body must contain start_time, end_time and link_dirs.")
-        return
+        abort(400, description="Request body must contain start_time, end_time and link_dirs.")
 
     start_time = travel_request_data['start_time']
     end_time = travel_request_data['end_time']
@@ -166,13 +160,11 @@ def _parse_travel_request_body(travel_request_data):
         datetime.strptime(start_time, DATE_TIME_FORMAT)
         datetime.strptime(end_time, DATE_TIME_FORMAT)
     except ValueError:
-        abort(400, "Start time and end time must follow date time format: %s" % DATE_TIME_FORMAT)
-        return
+        abort(400, description=("Start time and end time must follow date time format: %s" % DATE_TIME_FORMAT))
 
     # ensures link_dirs has the right type
     if type(link_dirs) != list:
-        abort(400, "link_dirs must be a list of link_dir to fetch travel data from!")
-        return
+        abort(400, description="link_dirs must be a list of link_dir to fetch travel data from!")
 
     return start_time, end_time, link_dirs
 
@@ -208,6 +200,8 @@ def _convert_wkb_geom_to_json(wkb_geom):
 def _parse_get_links_btwn_nodes_response(response: str):
     """
     Converts the string result from database function get_links_btwn_nodes to a dictionary that can be jsonify-ed.
+    This function will call abort with response code 400 if the geometry in the response is empty, i.e. no link exists
+    between the given two nodes.
 
     :param response: the string response from database function get_links_btwn_nodes
     :return: a dictionary that can be jsonify-ed. It contains the following fields:
@@ -217,6 +211,8 @@ def _parse_get_links_btwn_nodes_response(response: str):
     wkb_str_split = response.rindex(',')
 
     wkb_str = response[wkb_str_split + 1:-1]
+    if not wkb_str or wkb_str.isspace():
+        abort(400, description="There is no valid link between the two nodes provided!")
     geom_json = _convert_wkb_geom_to_json(wkb_str)
 
     source_target_links_str = response[:wkb_str_split] + ')'
@@ -288,7 +284,6 @@ def _get_node_by_id(node_id: str):
         node_id_int = int(node_id)
     except ValueError:
         abort(400, description="Node id must be an integer!")
-        return
 
     node_query_result = Node.query \
         .filter(Node.node_id == node_id_int) \
