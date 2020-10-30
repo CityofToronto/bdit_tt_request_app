@@ -1,7 +1,7 @@
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* specify domain addr */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com/";
+const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
 
 
 /* GET ten closest node given coordinate */
@@ -18,12 +18,13 @@ export const getClosestNode = (page, data) => {
 					}
 				});
 			});
-			page.setState({closestNodes: arr});
+			page.addNodeToMapDisplay(arr);
 		} else {
 			alert("NO CLOSEST NODE FOUND");
 		}
 	}).catch(err => {
-		alert(err.response.data.error);
+		alert(err)
+		// alert(err.response.data.error);
 	})
 };
 
@@ -47,19 +48,12 @@ export const getDateBoundary = (page) => {
 export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
-			page.setState({links: {
-					source: res.data.source,
-					target: res.data.target,
-					linkDirs: res.data.link_dirs,
-					geometry: {
-						type: res.data.geometry.type,
-						coordinates: res.data.geometry.coordinates
-					}
-				}});
+			page.drawLink(res.data);
 		} else {
 			alert("NO LINKS FOUND");
 		}
 	}).catch(err => {
+		console.log(err)
 		alert(err.response.data.error);
 	})
 };
