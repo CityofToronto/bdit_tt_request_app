@@ -15,6 +15,7 @@ class Mapbox extends React.Component {
             zoom: 15,
             map: '',
             clickedNodes: [],
+            displayedMarker: [],
             links: null
         };
     };
@@ -83,11 +84,12 @@ class Mapbox extends React.Component {
             el.className = 'marker';
             el.id = timesClicked.toString();
 
-            new mapboxgl.Marker(el)
+            const newMarker = new mapboxgl.Marker(el)
                 .setLngLat(nodeCandidates[0].geometry.coordinate)
                 .addTo(this.state.map);
 
             this.setState({
+                displayedMarker: this.state.displayedMarker.concat([newMarker]),
                 clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
             });
         }
