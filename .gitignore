@@ -24,3 +24,4 @@ build/
 .idea/
 package-lock.json
 /doc/debug.log
+/frontend/debug.log

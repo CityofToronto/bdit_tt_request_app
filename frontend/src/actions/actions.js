@@ -20,11 +20,10 @@ export const getClosestNode = (page, data) => {
 			});
 			page.addNodeToMapDisplay(arr);
 		} else {
-			alert("NO CLOSEST NODE FOUND");
+			alert("FAILED TO FETCH CLOSEST NODE");
 		}
 	}).catch(err => {
-		alert(err)
-		// alert(err.response.data.error);
+		alert(err.response.data.error);
 	})
 };
 
@@ -37,7 +36,7 @@ export const getDateBoundary = (page) => {
 					endTime: res.data.end_time
 				}});
 		} else {
-			alert("NO TIME BOUNDARY FOUND");
+			alert("FAILED TO FETCH DATE BOUNDARY");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -50,7 +49,7 @@ export const getLinksBetweenNodes = (page, data) => {
 		if (res.data) {
 			page.drawLink(res.data);
 		} else {
-			alert("NO LINKS FOUND");
+			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
 	}).catch(err => {
 		console.log(err)
@@ -64,7 +63,7 @@ export const getProjectTitle = (page) => {
 		if (res.data) {
 			page.setState({title: res.data});
 		} else {
-			alert("NO PROJECT TITLE");
+			alert("FAILED TO GET PROJECT TITLE");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -95,7 +94,7 @@ export const getTravelData = (page, data) => {
 			});
 			page.setState({travelData: arr});
 		} else {
-			alert("NO TRAVEL DATA FOUND");
+			alert("FAILED TO GET TRAVEL DATA");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);

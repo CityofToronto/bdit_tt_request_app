@@ -43,10 +43,16 @@ class Mapbox extends React.Component {
     };
 
     getLink() {
-        getLinksBetweenNodes(this, {
-            fromNodeId: this.state.clickedNodes[0].nodeId,
-            toNodeId: this.state.clickedNodes[1].nodeId
-        });
+        if (this.state.clickedNodes.length !== 2){
+            alert("Please select two nodes");
+        } else if (this.state.clickedNodes[0].nodeId === this.state.clickedNodes[1].nodeId){
+            alert("Please select different nodes");
+        }else {
+            getLinksBetweenNodes(this, {
+                fromNodeId: this.state.clickedNodes[0].nodeId,
+                toNodeId: this.state.clickedNodes[1].nodeId
+            });
+        }
     };
 
     drawLink(link_data) {
