@@ -1,8 +1,8 @@
 const axios = require('axios');
 axios.defaults.withCredentials = true;
-/* specify domain addr */
+/* remote domain and local test domain */
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-
+// const domain = "http://127.0.0.1:5000";
 
 /* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
