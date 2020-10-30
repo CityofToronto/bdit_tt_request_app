@@ -48,7 +48,7 @@ class SidebarContent extends React.Component{
                   id={"holiday"}
                   className={"holiday"}
               />
-              <text id={"label"} className={"label"}>Include Holidays</text>
+              <p id={"label"} className={"label"}>Include Holidays</p>
               <button
                   id={"go"}
                   className={"go"}
