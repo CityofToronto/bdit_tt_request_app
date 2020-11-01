@@ -47,7 +47,8 @@ export const getDateBoundary = (page) => {
 export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
-			page.drawLink(res.data);
+			// page.drawLink(res.data);
+			page.setState({linkData: page.state.linkData.concat([res.data])})
 		} else {
 			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
