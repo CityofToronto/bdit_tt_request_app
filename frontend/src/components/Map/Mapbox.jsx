@@ -44,7 +44,7 @@ class Mapbox extends React.Component {
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             this.setState({buttondisable:true})
         });
-        this.setState({map: map});
+        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],});
     }
 
     resetMap(){
