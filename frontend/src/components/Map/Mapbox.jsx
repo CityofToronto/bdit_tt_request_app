@@ -16,12 +16,17 @@ class Mapbox extends React.Component {
             clickedNodes: [],
             displayedMarker: [],
             linkData:[],
-            links: null,
-            buttondisable: false
+            removedisable:true,
+            buttondisable: false,
+            resetdisable:false
         };
     };
 
     componentDidMount() {
+        this.createMap()
+    };
+
+    createMap(){
         const map = new mapboxgl.Map({
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
@@ -38,15 +43,23 @@ class Mapbox extends React.Component {
         map.on('click', (e) => {
             console.log('A click event has occurred at ' + e.lngLat);
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-            this.setState({buttondisable:true})
+            this.setState({buttondisable:true, removedisable: false})
+            if (this.state.clickedNodes.length >= 1) {
+                this.setState({resetdisable:true})
+            }
         });
+        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],});
+    }
 
-        this.setState({map: map});
-    };
+    resetMap(){
+        this.state.map.remove()
+        this.createMap()
+    }
 
     getLink() {
-        console.log(this.state.linkData)
+   
         this.drawLink(this.state.linkData)
+        this.setState({buttondisable:true, removedisable: true})
     };
 
     drawLink(link_data) {
@@ -102,6 +115,27 @@ class Mapbox extends React.Component {
         });
     };
 
+    removeNodes() {
+        let lastnode = this.state.clickedNodes.length - 1
+        let getMarkers = document.getElementById(lastnode);
+        getMarkers.remove()
+
+        let newArr = [...this.state.clickedNodes]
+        newArr.splice(lastnode, 1)
+        this.setState({clickedNodes: newArr})
+
+        if (lastnode -1 >= 0) {
+            let newLink = [...this.state.linkData]
+            newLink.splice(lastnode - 1, 1)
+            this.setState({linkData: newLink})
+        }
+
+        this.setState({removedisable: this.state.resetdisable && this.state.buttondisable})
+        if(lastnode === 0) {
+            this.setState({removedisable: true})
+        }
+    }
+
     render() {
         return (
             <div>
@@ -110,8 +144,10 @@ class Mapbox extends React.Component {
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
+                <Button variant="outline-primary" className='remove-button' disabled={this.state.removedisable } onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
+                
                 <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
-           
+                <Button variant="outline-primary" className='reset-button' disabled={this.state.resetdisable} onClick={() => this.resetMap()} size="sm">Reset Map</Button>
             </div>
         );
     };
