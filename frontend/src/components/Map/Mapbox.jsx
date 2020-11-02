@@ -45,12 +45,7 @@ class Mapbox extends React.Component {
             if (this.state.addmarker){
                 console.log('A click event has occurred at ' + e.lngLat);
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-                this.setState({buttondisable:true, removedisable: true})
-
-                if (this.state.clickedNodes.length === 0) {
-                    this.setState({removedisable:false})
-                }
-
+                this.setState({buttondisable:true, removedisable: true, addmarker: false})
                 if (this.state.clickedNodes.length >= 1) {
                     this.setState({resetdisable:true})
                 }
@@ -123,7 +118,11 @@ class Mapbox extends React.Component {
             displayedMarker: this.state.displayedMarker.concat([newMarker]),
             clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
         });
-        // this.setState({ removedisable: false})
+        
+        if (this.state.clickedNodes.length === 1) {
+            this.setState({removedisable:false, addmarker: true})
+        }
+
     };
 
     removeNodes() {
@@ -145,6 +144,9 @@ class Mapbox extends React.Component {
         if(lastnode === 0) {
             this.setState({removedisable: true})
         }
+        if (lastnode === 1) {
+            this.setState({buttondisable: true})
+        }
     }
 
     render() {
@@ -154,7 +156,6 @@ class Mapbox extends React.Component {
                     <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
                 <Button variant="outline-primary" className='remove-button' disabled={this.state.removedisable } onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
                 
                 <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
