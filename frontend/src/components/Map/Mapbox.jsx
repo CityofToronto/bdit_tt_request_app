@@ -50,14 +50,10 @@ class Mapbox extends React.Component {
                     this.setState({resetdisable:true})
                 }
             }
-            // console.log('A click event has occurred at ' + e.lngLat);
-            // getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-            // this.setState({buttondisable:true, removedisable: false})
-            // if (this.state.clickedNodes.length >= 1) {
-            //     this.setState({resetdisable:true})
-            // }
+           
         });
-        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],});
+        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],addmarker:true, removedisable:true, buttondisable: true,
+            resetdisable:false});
     }
 
     resetMap(){
