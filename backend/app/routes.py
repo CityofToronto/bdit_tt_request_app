@@ -208,12 +208,14 @@ def _parse_get_links_btwn_nodes_response(response: str):
             source(int), target(int), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
     """
     # split the response string by the last comma, which splits source, target, link_dirs from geometry
-    wkb_str_split = response.rindex(',')
-
-    wkb_str = response[wkb_str_split + 1:-1]
-    if not wkb_str or wkb_str.isspace():
+    try:
+        wkb_str_split = response.rindex(',"{"')
+    except ValueError:
         abort(400, description="There is no valid link between the two nodes provided!")
-    geom_json = _convert_wkb_geom_to_json(wkb_str)
+        return
+
+    wkb_str = response[wkb_str_split + 1:-1].replace('""', '"').rstrip('"').lstrip('"')
+    geom_json = json.loads(wkb_str)
 
     source_target_links_str = response[:wkb_str_split] + ')'
     # if there is only one link between nodes, need to add double quotes to enforce same formatting as multi-link
@@ -284,6 +286,7 @@ def _get_node_by_id(node_id: str):
         node_id_int = int(node_id)
     except ValueError:
         abort(400, description="Node id must be an integer!")
+        return
 
     node_query_result = Node.query \
         .filter(Node.node_id == node_id_int) \
