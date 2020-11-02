@@ -2,7 +2,7 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, getLinksBetweenNodes} from '../../actions/actions';
-
+import { Button} from 'react-bootstrap'
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 class Mapbox extends React.Component {
@@ -16,7 +16,8 @@ class Mapbox extends React.Component {
             clickedNodes: [],
             displayedMarker: [],
             linkData:[],
-            links: null
+            links: null,
+            buttondisable: false
         };
     };
 
@@ -37,6 +38,7 @@ class Mapbox extends React.Component {
         map.on('click', (e) => {
             console.log('A click event has occurred at ' + e.lngLat);
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+            this.setState({buttondisable:true})
         });
 
         this.setState({map: map});
@@ -107,7 +109,9 @@ class Mapbox extends React.Component {
                     <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                <button className='link-button' onClick={() => this.getLink()}>Get Link</button>
+                {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
+                <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
+           
             </div>
         );
     };
