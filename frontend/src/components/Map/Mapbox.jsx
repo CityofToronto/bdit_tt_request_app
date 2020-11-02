@@ -16,8 +16,9 @@ class Mapbox extends React.Component {
             clickedNodes: [],
             displayedMarker: [],
             linkData:[],
-            links: null,
-            buttondisable: false
+            
+            buttondisable: false,
+            resetdisable:false
         };
     };
 
@@ -43,6 +44,9 @@ class Mapbox extends React.Component {
             console.log('A click event has occurred at ' + e.lngLat);
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             this.setState({buttondisable:true})
+            if (this.state.clickedNodes.length >= 1) {
+                this.setState({resetdisable:true})
+            }
         });
         this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],});
     }
@@ -55,6 +59,7 @@ class Mapbox extends React.Component {
     getLink() {
         console.log(this.state.linkData)
         this.drawLink(this.state.linkData)
+        this.setState({buttondisable:true})
     };
 
     drawLink(link_data) {
@@ -111,6 +116,8 @@ class Mapbox extends React.Component {
     };
 
     render() {
+        console.log(this.state.clickedNodes)
+        console.log(this.state.displayedMarker)
         return (
             <div>
                 <div className='sidebarStyle'>
@@ -119,7 +126,7 @@ class Mapbox extends React.Component {
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
                 <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
-                <Button variant="outline-primary" className='reset-button' disabled={this.state.buttondisable} onClick={() => this.resetMap()} size="sm">Reset Map</Button>
+                <Button variant="outline-primary" className='reset-button' disabled={this.state.resetdisable} onClick={() => this.resetMap()} size="sm">Reset Map</Button>
             </div>
         );
     };
