@@ -17,8 +17,9 @@ class Mapbox extends React.Component {
             displayedMarker: [],
             linkData:[],
             removedisable:true,
-            buttondisable: false,
-            resetdisable:false
+            buttondisable: true,
+            resetdisable:false,
+            addmarker:true
         };
     };
 
@@ -41,14 +42,23 @@ class Mapbox extends React.Component {
             });
         });
         map.on('click', (e) => {
-            console.log('A click event has occurred at ' + e.lngLat);
-            getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-            this.setState({buttondisable:true, removedisable: false})
-            if (this.state.clickedNodes.length >= 1) {
-                this.setState({resetdisable:true})
+            if (this.state.addmarker){
+                console.log('A click event has occurred at ' + e.lngLat);
+                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+                this.setState({buttondisable:true, removedisable: true})
+
+                if (this.state.clickedNodes.length === 0) {
+                    this.setState({removedisable:false})
+                }
+
+                if (this.state.clickedNodes.length >= 1) {
+                    this.setState({resetdisable:true})
+                }
             }
+           
         });
-        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],});
+        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],addmarker:true, removedisable:true, buttondisable: true,
+            resetdisable:false});
     }
 
     resetMap(){
@@ -59,7 +69,7 @@ class Mapbox extends React.Component {
     getLink() {
    
         this.drawLink(this.state.linkData)
-        this.setState({buttondisable:true, removedisable: true})
+        this.setState({buttondisable:true, removedisable: true, addmarker:false})
     };
 
     drawLink(link_data) {
@@ -113,6 +123,7 @@ class Mapbox extends React.Component {
             displayedMarker: this.state.displayedMarker.concat([newMarker]),
             clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
         });
+        // this.setState({ removedisable: false})
     };
 
     removeNodes() {
