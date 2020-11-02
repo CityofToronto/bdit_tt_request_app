@@ -46,6 +46,11 @@ class Mapbox extends React.Component {
                 console.log('A click event has occurred at ' + e.lngLat);
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
                 this.setState({buttondisable:true, removedisable: true})
+
+                if (this.state.clickedNodes.length === 0) {
+                    this.setState({removedisable:false})
+                }
+
                 if (this.state.clickedNodes.length >= 1) {
                     this.setState({resetdisable:true})
                 }
@@ -118,7 +123,7 @@ class Mapbox extends React.Component {
             displayedMarker: this.state.displayedMarker.concat([newMarker]),
             clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
         });
-        this.setState({ removedisable: false})
+        // this.setState({ removedisable: false})
     };
 
     removeNodes() {

@@ -48,7 +48,7 @@ export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
 			// page.drawLink(res.data);
-			page.setState({linkData:page.state.linkData.concat([res.data]), buttondisable: false, resetdisable:false})
+			page.setState({linkData:page.state.linkData.concat([res.data]), removedisable: false, buttondisable: false, resetdisable:false})
 		} else {
 			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
