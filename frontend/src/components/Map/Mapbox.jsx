@@ -57,7 +57,7 @@ class Mapbox extends React.Component {
     }
 
     getLink() {
-        console.log(this.state.linkData)
+   
         this.drawLink(this.state.linkData)
         this.setState({buttondisable:true})
     };
@@ -116,8 +116,6 @@ class Mapbox extends React.Component {
     };
 
     render() {
-        console.log(this.state.clickedNodes)
-        console.log(this.state.displayedMarker)
         return (
             <div>
                 <div className='sidebarStyle'>
