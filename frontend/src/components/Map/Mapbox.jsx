@@ -119,9 +119,17 @@ class Mapbox extends React.Component {
         let lastnode = this.state.clickedNodes.length - 1
         let getMarkers = document.getElementById(lastnode);
         getMarkers.remove()
+
         let newArr = [...this.state.clickedNodes]
         newArr.splice(lastnode, 1)
         this.setState({clickedNodes: newArr})
+
+        if (lastnode -1 >= 0) {
+            let newLink = [...this.state.linkData]
+            newLink.splice(lastnode - 1, 1)
+            this.setState({linkData: newLink})
+        }
+
         this.setState({removedisable: this.state.resetdisable && this.state.buttondisable})
         if(lastnode === 0) {
             this.setState({removedisable: true})
@@ -129,7 +137,6 @@ class Mapbox extends React.Component {
     }
 
     render() {
-        console.log(this.state.clickedNodes)
         return (
             <div>
                 <div className='sidebarStyle'>
