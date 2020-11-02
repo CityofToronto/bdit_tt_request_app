@@ -2,13 +2,12 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, getLinksBetweenNodes} from '../../actions/actions';
-
+import { Button} from 'react-bootstrap'
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 class Mapbox extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             lng: -79.3957,
             lat: 43.6629,
@@ -16,7 +15,9 @@ class Mapbox extends React.Component {
             map: '',
             clickedNodes: [],
             displayedMarker: [],
-            links: null
+            linkData:[],
+            links: null,
+            buttondisable: false
         };
     };
 
@@ -37,25 +38,22 @@ class Mapbox extends React.Component {
         map.on('click', (e) => {
             console.log('A click event has occurred at ' + e.lngLat);
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+            this.setState({buttondisable:true})
         });
 
         this.setState({map: map});
     };
 
     getLink() {
-        if (this.state.clickedNodes.length !== 2){
-            alert("Please select two nodes");
-        } else if (this.state.clickedNodes[0].nodeId === this.state.clickedNodes[1].nodeId){
-            alert("Please select different nodes");
-        }else {
-            getLinksBetweenNodes(this, {
-                fromNodeId: this.state.clickedNodes[0].nodeId,
-                toNodeId: this.state.clickedNodes[1].nodeId
-            });
-        }
+        console.log(this.state.linkData)
+        this.drawLink(this.state.linkData)
     };
 
     drawLink(link_data) {
+        let links = []
+        for(let i = 0; i < link_data.length; i++){
+            links = links.concat(link_data[i].geometry.coordinates)
+        }
         this.state.map.addSource('route', {
             'type': 'geojson',
             'data': {
@@ -63,7 +61,7 @@ class Mapbox extends React.Component {
                 'properties': {},
                 'geometry': {
                     'type': 'MultiLineString',
-                    'coordinates': link_data.geometry.coordinates
+                    'coordinates': links
                 }
             }
         });
@@ -84,21 +82,24 @@ class Mapbox extends React.Component {
 
     addNodeToMapDisplay(nodeCandidates) {
         const timesClicked = this.state.clickedNodes.length;
+        let el = document.createElement('div');
+        el.className = 'marker';
+        el.id = timesClicked.toString();
 
-        if (timesClicked <= 1) {
-            let el = document.createElement('div');
-            el.className = 'marker';
-            el.id = timesClicked.toString();
+        const newMarker = new mapboxgl.Marker(el)
+            .setLngLat(nodeCandidates[0].geometry.coordinate)
+            .addTo(this.state.map);
 
-            const newMarker = new mapboxgl.Marker(el)
-                .setLngLat(nodeCandidates[0].geometry.coordinate)
-                .addTo(this.state.map);
-
-            this.setState({
-                displayedMarker: this.state.displayedMarker.concat([newMarker]),
-                clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
+        if(timesClicked > 0){
+            getLinksBetweenNodes(this, {
+                fromNodeId: this.state.clickedNodes[timesClicked-1].nodeId,
+                toNodeId: nodeCandidates[0].nodeId
             });
         }
+        this.setState({
+            displayedMarker: this.state.displayedMarker.concat([newMarker]),
+            clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
+        });
     };
 
     render() {
@@ -108,7 +109,9 @@ class Mapbox extends React.Component {
                     <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                <button className='link-button' onClick={() => this.getLink()}>Get Link</button>
+                {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
+                <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
+           
             </div>
         );
     };
