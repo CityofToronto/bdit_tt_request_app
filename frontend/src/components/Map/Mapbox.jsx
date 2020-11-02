@@ -22,6 +22,10 @@ class Mapbox extends React.Component {
     };
 
     componentDidMount() {
+        this.createMap()
+    };
+
+    createMap(){
         const map = new mapboxgl.Map({
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
@@ -40,9 +44,13 @@ class Mapbox extends React.Component {
             getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             this.setState({buttondisable:true})
         });
-
         this.setState({map: map});
-    };
+    }
+
+    resetMap(){
+        this.state.map.remove()
+        this.createMap()
+    }
 
     getLink() {
         console.log(this.state.linkData)
@@ -111,7 +119,7 @@ class Mapbox extends React.Component {
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 {/* <button className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()}>Get Link</button> */}
                 <Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable} onClick={() => this.getLink()} size="sm">Get Link</Button>
-           
+                <Button variant="outline-primary" className='reset-button' disabled={this.state.buttondisable} onClick={() => this.resetMap()} size="sm">Reset Map</Button>
             </div>
         );
     };

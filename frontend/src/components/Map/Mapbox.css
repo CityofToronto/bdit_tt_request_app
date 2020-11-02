@@ -21,3 +21,19 @@
     cursor: pointer;
     padding: 0.25rem 0.85rem;
 }
+
+.reset-button {
+    position: fixed;
+    bottom: 50px;
+    right: 0;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 15px;
+    margin: .10rem;
+    font-size: 0.85rem;
+    /* color: #030303;
+    background: #ffffff;
+    border: 1px solid #030303; */
+    cursor: pointer;
+    padding: 0.25rem 0.85rem;
+}
