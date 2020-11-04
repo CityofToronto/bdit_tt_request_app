@@ -5,8 +5,12 @@ const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstal
 // const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
-handleResponseError() {
-	
+const handleResponseError = (err) => {
+	if (err.status === 500) {
+		alert("Internal Server Error")
+	} else {
+		alert(err.response.data.error)
+	}
 }
 
 
@@ -28,9 +32,7 @@ export const getClosestNode = (page, data) => {
 		} else {
 			alert("FAILED TO FETCH CLOSEST NODE");
 		}
-	}).catch(err => {
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET update closest node given coordinate */
@@ -51,9 +53,7 @@ export const updateClosestNode = (page, data) => {
 		} else {
 			alert("FAILED TO FETCH CLOSEST NODE");
 		}
-	}).catch(err => {
-		alert(err);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET date time boundary of the data sets */
@@ -69,9 +69,7 @@ export const getDateBoundary = (page) => {
 		} else {
 			alert("FAILED TO FETCH DATE BOUNDARY");
 		}
-	}).catch(err => {
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET links given two nodes */
@@ -89,10 +87,7 @@ export const getLinksBetweenNodes = (page, data) => {
 		} else {
 			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
-	}).catch(err => {
-		console.log(err)
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET links if nodes are updated */
@@ -109,10 +104,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}
-		}).catch(err => {
-			console.log(err)
-			alert(err.response.data.error);
-		})
+		}).catch(err => handleResponseError(err))
 	}
 	if (data.nodeId < page.state.clickedNodes.length - 1) {
 		fromNodeId = page.state.clickedNodes[data.nodeId].nodeId
@@ -125,10 +117,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}
-		}).catch(err => {
-			console.log(err)
-			alert(err.response.data.error);
-		})
+		}).catch(err => handleResponseError(err))
 	}
 	page.setState({removedisable: false, buttondisable: false, resetdisable: false})
 };
@@ -141,9 +130,7 @@ export const getProjectTitle = (page) => {
 		} else {
 			alert("FAILED TO GET PROJECT TITLE");
 		}
-	}).catch(err => {
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET travel data of links */
@@ -176,9 +163,7 @@ export const getTravelData = (page, data) => {
 		} else {
 			alert("FAILED TO GET TRAVEL DATA");
 		}
-	}).catch(err => {
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
 
 /* GET travel data file of link */
@@ -201,7 +186,5 @@ export const getTravelDataFile = (page, data) => {
 		} else {
 			alert("FAILED TO GET TRAVEL DATA FILE");
 		}
-	}).catch(err => {
-		alert(err.response.data.error);
-	})
+	}).catch(err => handleResponseError(err))
 };
