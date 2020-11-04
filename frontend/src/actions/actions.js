@@ -91,7 +91,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
 				tempLinkData[data.nodeId - 1] = res.data
-				page.setState({linkData:tempLinkData, removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
+				page.setState({linkData:tempLinkData})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}
@@ -107,7 +107,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
 				tempLinkData[data.nodeId] = res.data
-				page.setState({linkData:tempLinkData, removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
+				page.setState({linkData:tempLinkData})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}

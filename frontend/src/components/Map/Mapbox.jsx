@@ -64,7 +64,11 @@ class Mapbox extends React.Component {
     getLink() {
    
         this.drawLink(this.state.linkData)
-        this.setState({buttondisable:true, removedisable: true, addmarker:false})
+        const tempMarkers = [...this.state.displayedMarker]
+        for(let i = 0; i < tempMarkers.length; i++){
+            tempMarkers[i].setDraggable(false)
+        }
+        this.setState({buttondisable:true, removedisable: true, addmarker:false, displayedMarker: tempMarkers})
     };
 
     drawLink(link_data) {
