@@ -3,6 +3,12 @@ axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
 // const domain = "http://127.0.0.1:5000";
+const fileDownload = require('js-file-download');
+
+handleResponseError() {
+	
+}
+
 
 /* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
@@ -54,10 +60,12 @@ export const updateClosestNode = (page, data) => {
 export const getDateBoundary = (page) => {
 	axios.get(`${domain}/date-bounds`).then(res => {
 		if (res.data) {
-			page.setState({dateBoundary: {
+			page.setState({
+				dateBoundary: {
 					startTime: res.data.start_time,
 					endTime: res.data.end_time
-				}});
+				}
+			});
 		} else {
 			alert("FAILED TO FETCH DATE BOUNDARY");
 		}
@@ -71,7 +79,13 @@ export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
 			// page.drawLink(res.data);
-			page.setState({linkData:page.state.linkData.concat([res.data]), removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
+			page.setState({
+				linkData: page.state.linkData.concat([res.data]),
+				removedisable: false,
+				buttondisable: false,
+				resetdisable: false,
+				addmarker: true
+			})
 		} else {
 			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
@@ -91,7 +105,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
 				tempLinkData[data.nodeId - 1] = res.data
-				page.setState({linkData:tempLinkData})
+				page.setState({linkData: tempLinkData})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}
@@ -107,7 +121,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
 				tempLinkData[data.nodeId] = res.data
-				page.setState({linkData:tempLinkData})
+				page.setState({linkData: tempLinkData})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
 			}
@@ -116,7 +130,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			alert(err.response.data.error);
 		})
 	}
-	page.setState({removedisable: false, buttondisable: false, resetdisable:false})
+	page.setState({removedisable: false, buttondisable: false, resetdisable: false})
 };
 
 /* GET project title */
@@ -140,7 +154,11 @@ export const getProjectTitle = (page) => {
 	}
 */
 export const getTravelData = (page, data) => {
-	axios.post(`${domain}/travel-data`, {start_time: data.startTime, end_time: data.endTime, link_dirs: data.linkDirs}).then(res => {
+	axios.post(`${domain}/travel-data`, {
+		start_time: data.startTime,
+		end_time: data.endTime,
+		link_dirs: data.linkDirs
+	}).then(res => {
 		if (res.data) {
 			const arr = [];
 			res.data.forEach((link) => {
@@ -172,9 +190,14 @@ export const getTravelData = (page, data) => {
 	}
 */
 export const getTravelDataFile = (page, data) => {
-	axios.post(`${domain}/travel-data-file`, {start_time: data.startTime, end_time: data.endTime, link_dirs: data.linkDirs, file_type: "csv"}).then(res => {
+	axios.post(`${domain}/travel-data-file`, {
+		start_time: data.startTime,
+		end_time: data.endTime,
+		link_dirs: data.linkDirs,
+		file_type: data.fileType
+	}).then(res => {
 		if (res.data) {
-			page.addTravelDataFile(res.data)
+			fileDownload(res.data, `report.${data.fileType}`)
 		} else {
 			alert("FAILED TO GET TRAVEL DATA FILE");
 		}
