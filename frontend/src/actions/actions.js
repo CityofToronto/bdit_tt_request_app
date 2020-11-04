@@ -162,3 +162,23 @@ export const getTravelData = (page, data) => {
 		alert(err.response.data.error);
 	})
 };
+
+/* GET travel data file of link */
+/* sample data input: {
+        "startTime": "2018-09-01 12:00:00",
+        "endTime": "2018-09-01 23:00:00",
+        "linkDirs": ["29492871T"],
+        "fileType": "csv"
+	}
+*/
+export const getTravelDataFile = (page, data) => {
+	axios.post(`${domain}/travel-data-file`, {start_time: data.startTime, end_time: data.endTime, link_dirs: data.linkDirs, file_type: "csv"}).then(res => {
+		if (res.data) {
+			page.addTravelDataFile(res.data)
+		} else {
+			alert("FAILED TO GET TRAVEL DATA FILE");
+		}
+	}).catch(err => {
+		alert(err.response.data.error);
+	})
+};

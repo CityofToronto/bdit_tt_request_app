@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getLinksBetweenNodes, updateLinksBetweenNodes, updateClosestNode} from '../../actions/actions';
+import {getClosestNode, getLinksBetweenNodes, updateLinksBetweenNodes, updateClosestNode, getTravelDataFile} from '../../actions/actions';
 import { Button} from 'react-bootstrap'
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -52,7 +52,7 @@ class Mapbox extends React.Component {
             }
            
         });
-        this.setState({map: map,clickedNodes: [], displayedMarker: [], linkData:[],addmarker:true, removedisable:true, buttondisable: true,
+        this.setState({map: map,clickedNodes: [], travelDataFile: [], displayedMarker: [], linkData:[],addmarker:true, removedisable:true, buttondisable: true,
             resetdisable:false});
     }
 
@@ -61,8 +61,28 @@ class Mapbox extends React.Component {
         this.createMap()
     }
 
+    addTravelDataFiles() {
+        for(let i = 0;i < this.state.linkData.length; i++){
+            getTravelDataFile(this, {
+                startTime: "2018-09-01 12:00:00",
+                endTime: "2018-09-01 23:00:00",
+                linkDirs: this.state.linkData[i].link_dirs,
+                fileType: "csv"})
+        }
+    }
+
+    addTravelDataFile(file) {
+        let tempTravelDataFile = [...this.state.travelDataFile]
+        tempTravelDataFile = tempTravelDataFile.concat(file)
+        this.setState({travelDataFile: tempTravelDataFile}, () => {
+            if (this.state.travelDataFile.length === this.state.linkData.length) {
+                console.log(this.state.travelDataFile)
+            }
+        })
+    }
+
     getLink() {
-   
+        this.addTravelDataFiles()
         this.drawLink(this.state.linkData)
         const tempMarkers = [...this.state.displayedMarker]
         for(let i = 0; i < tempMarkers.length; i++){
