@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getLinksBetweenNodes} from '../../actions/actions';
+import {getClosestNode, getLinksBetweenNodes, updateLinksBetweenNodes, updateClosestNode} from '../../actions/actions';
 import { Button} from 'react-bootstrap'
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -43,7 +43,7 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (this.state.addmarker){
-                console.log('A click event has occurred at ' + e.lngLat);
+                // console.log('A click event has occurred at ' + e.lngLat);
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
                 this.setState({buttondisable:true, removedisable: true, addmarker: false})
                 if (this.state.clickedNodes.length >= 1) {
@@ -104,9 +104,26 @@ class Mapbox extends React.Component {
         el.className = 'marker';
         el.id = timesClicked.toString();
 
-        const newMarker = new mapboxgl.Marker(el)
+        const newMarker = new mapboxgl.Marker(el, {draggable: true})
             .setLngLat(nodeCandidates[0].geometry.coordinate)
             .addTo(this.state.map);
+
+        const onDragEnd = () => {
+            let lngLat = newMarker.getLngLat()
+            const nodeId = parseInt(newMarker._element.id)
+            updateClosestNode(this, {
+                longitude: lngLat.lng,
+                latitude: lngLat.lat,
+                nodeId: nodeId
+            })
+            lngLat = {lat: this.state.clickedNodes[nodeId].geometry.coordinate[1], lng: this.state.clickedNodes[nodeId].geometry.coordinate[0]}
+            newMarker.setLngLat(lngLat)
+            updateLinksBetweenNodes(this, {
+                targetNodeId: nodeId
+            })
+        }
+
+        newMarker.on('dragend', onDragEnd);
 
         if(timesClicked > 0){
             getLinksBetweenNodes(this, {
