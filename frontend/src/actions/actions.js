@@ -44,6 +44,7 @@ export const updateClosestNode = (page, data) => {
 			const nodes = [...page.state.clickedNodes]
 			nodes[data.nodeId] = arr[0]
 			page.setState({clickedNodes: nodes})
+			updateLinksBetweenNodes(page, {nodeId: data.nodeId})
 		} else {
 			alert("FAILED TO FETCH CLOSEST NODE");
 		}
@@ -87,12 +88,12 @@ export const getLinksBetweenNodes = (page, data) => {
 export const updateLinksBetweenNodes = (page, data) => {
 	let fromNodeId, toNodeId
 	if (data.nodeId > 0) {
-		fromNodeId = page.state.clickedNodes[data.nodeId - 1]
-		toNodeId = page.state.clickedNodes[data.nodeId]
+		fromNodeId = page.state.clickedNodes[data.nodeId - 1].nodeId
+		toNodeId = page.state.clickedNodes[data.nodeId].nodeId
 		axios.get(`${domain}/link-nodes/${fromNodeId}/${toNodeId}`).then(res => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
-				tempLinkData[data.linkPos] = res.data
+				tempLinkData[data.nodeId - 1] = res.data
 				page.setState({linkData:tempLinkData, removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");
@@ -103,12 +104,12 @@ export const updateLinksBetweenNodes = (page, data) => {
 		})
 	}
 	if (data.nodeId < page.state.clickedNodes.length - 1) {
-		fromNodeId = page.state.clickedNodes[data.nodeId]
-		toNodeId = page.state.clickedNodes[data.nodeId + 1]
+		fromNodeId = page.state.clickedNodes[data.nodeId].nodeId
+		toNodeId = page.state.clickedNodes[data.nodeId + 1].nodeId
 		axios.get(`${domain}/link-nodes/${fromNodeId}/${toNodeId}`).then(res => {
 			if (res.data) {
 				const tempLinkData = [...page.state.linkData]
-				tempLinkData[data.linkPos] = res.data
+				tempLinkData[data.nodeId] = res.data
 				page.setState({linkData:tempLinkData, removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
 			} else {
 				alert("FAILED TO FETCH LINKS BETWEEN NODES");

@@ -118,9 +118,6 @@ class Mapbox extends React.Component {
             })
             lngLat = {lat: this.state.clickedNodes[nodeId].geometry.coordinate[1], lng: this.state.clickedNodes[nodeId].geometry.coordinate[0]}
             newMarker.setLngLat(lngLat)
-            updateLinksBetweenNodes(this, {
-                targetNodeId: nodeId
-            })
         }
 
         newMarker.on('dragend', onDragEnd);
