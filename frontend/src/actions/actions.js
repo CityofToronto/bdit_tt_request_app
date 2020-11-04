@@ -41,15 +41,12 @@ export const updateClosestNode = (page, data) => {
 					}
 				});
 			});
-			const nodes = [...page.state.clickedNodes]
-			nodes[data.nodeId] = arr[0]
-			page.setState({clickedNodes: nodes})
-			updateLinksBetweenNodes(page, {nodeId: data.nodeId})
+			page.updateMarker(data.nodeId, arr[0])
 		} else {
 			alert("FAILED TO FETCH CLOSEST NODE");
 		}
 	}).catch(err => {
-		alert(err.response.data.error);
+		alert(err);
 	})
 };
 

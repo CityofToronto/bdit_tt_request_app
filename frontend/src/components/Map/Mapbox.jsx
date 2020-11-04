@@ -98,6 +98,18 @@ class Mapbox extends React.Component {
         });
     };
 
+    updateMarker(nodeId, newNode) {
+        const tempMarkers = [...this.state.displayedMarker]
+        const tempMarker = tempMarkers[nodeId]
+        const lngLat = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]}
+        tempMarker.setLngLat(lngLat)
+        const tempNodes = [...this.state.clickedNodes]
+        tempNodes[nodeId] = newNode
+        this.setState({displayedMarker: tempMarkers, clickedNodes: tempNodes}, () => {
+            updateLinksBetweenNodes(this, {nodeId: nodeId})
+        })
+    }
+
     addNodeToMapDisplay(nodeCandidates) {
         const timesClicked = this.state.clickedNodes.length;
         let el = document.createElement('div');
@@ -116,9 +128,8 @@ class Mapbox extends React.Component {
                 latitude: lngLat.lat,
                 nodeId: nodeId
             })
-            lngLat = {lat: this.state.clickedNodes[nodeId].geometry.coordinate[1], lng: this.state.clickedNodes[nodeId].geometry.coordinate[0]}
-            newMarker.setLngLat(lngLat)
         }
+
 
         newMarker.on('dragend', onDragEnd);
 
