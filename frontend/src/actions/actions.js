@@ -116,7 +116,7 @@ export const updateLinksBetweenNodes = (page, data) => {
 			alert(err.response.data.error);
 		})
 	}
-
+	page.setState({removedisable: false, buttondisable: false, resetdisable:false})
 };
 
 /* GET project title */

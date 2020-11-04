@@ -125,6 +125,7 @@ class Mapbox extends React.Component {
             .addTo(this.state.map);
 
         const onDragEnd = () => {
+            this.setState({removedisable: true, buttondisable: true, resetdisable: true})
             let lngLat = newMarker.getLngLat()
             const nodeId = parseInt(newMarker._element.id)
             updateClosestNode(this, {
