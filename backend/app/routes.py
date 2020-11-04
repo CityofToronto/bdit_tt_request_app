@@ -1,21 +1,30 @@
+import csv
 import json
 from datetime import datetime
-from os import environ
+from os import environ, remove, getcwd
 
-from flask import abort, jsonify, request
+from flask import abort, jsonify, request, send_file
 from sqlalchemy import func, and_
-
+import xlsxwriter
 from app import app, db
 from app.models import Node, Travel
 
 METER_UNIT_SRID = 26986
 DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+ALLOWED_FILE_TYPES = ['csv', 'xlsx']
+TEMP_FILE_NAME = 'temp'
 
 
 @app.errorhandler(400)
 def request_error(e):
     """parse flask's default abort HTML into a JSON object containing the error message"""
     return jsonify(error=e.description), 400
+
+
+@app.errorhandler(501)
+def not_implemented_error(e):
+    """parse flask's default abort HTML into a JSON object containing the error message"""
+    return jsonify(error=e.description), 501
 
 
 @app.route('/')
@@ -103,15 +112,39 @@ def get_links_travel_data():
             stddev(float), tx(str)
     """
     start_time, end_time, link_dirs = _parse_travel_request_body(request.json)
-    travel_query_result = Travel.query \
-        .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
-        .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+    return jsonify(_get_travel_data_list(start_time, end_time, link_dirs))
 
-    travel_data_list = []
-    for travel_data in travel_query_result:
-        travel_data_list.append(travel_data.json())
 
-    return jsonify(travel_data_list)
+@app.route('/travel-data-file', methods=['POST'])
+def get_links_travel_data_file():
+    """
+    Get the travel data file from start_time to end_time for all links in link_dirs.
+
+    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+            too many links. (1~2min)
+
+    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
+    This function will be aborted if any of the assumption is not met.
+
+    :return: a file containing requested travel data
+    """
+    file_type = _parse_file_type_request_body(request.json)
+    start_time, end_time, link_dirs = _parse_travel_request_body(request.json)
+    travel_data_list = _get_travel_data_list(start_time, end_time, link_dirs)
+
+    if file_type == 'csv':
+        data_file_path = _make_travel_data_csv(travel_data_list)
+    elif file_type == 'xlsx':
+        data_file_path = _make_travel_data_xlsx(travel_data_list)
+    else:
+        abort(501, description="Currently only support csv files.")
+        return
+
+    file_response = send_file(data_file_path)
+    remove(data_file_path)
+    return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
@@ -130,6 +163,125 @@ def get_date_bounds():
     earliest_time = earliest_travel_data.tx
     latest_time = latest_travel_data.tx
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
+
+
+def _make_travel_data_xlsx(travel_data_list):
+    """
+    Make an xlsx file containing all the travel data in order.
+    The xlsx file's first row is the header containing column names 'link_dir', 'tx', 'length', 'mean', 'stddev',
+    'confidence', 'pct_50'.
+
+    :param travel_data_list: the list of travel data
+    :return: the file path of the xlsx file
+    """
+    filename = "%s.xlsx" % TEMP_FILE_NAME
+    file_path = _make_temp_file_path(filename)
+    travel_data_workbook = xlsxwriter.Workbook(file_path)
+    travel_data_worksheet = travel_data_workbook.add_worksheet()
+
+    travel_data_fields = ['link_dir', 'tx', 'length', 'mean', 'stddev', 'confidence', 'pct_50']
+    for i in range(len(travel_data_fields)):
+        travel_data_worksheet.write(0, i, travel_data_fields[i])
+
+    row = 1
+    col = 0
+    for travel_data in travel_data_list:
+        for i in range(len(travel_data_fields)):
+            travel_data_worksheet.write(row, col + i, travel_data[travel_data_fields[i]])
+
+        row += 1
+
+    travel_data_workbook.close()
+    return file_path
+
+
+def _make_travel_data_csv(travel_data_list):
+    """
+    Make a csv file containing all the travel data in order.
+    The csv has headers 'link_dir', 'tx', 'length', 'mean', 'stddev', 'confidence', 'pct_50'.
+
+    :param travel_data_list: the list of travel data
+    :return: the file path of the csv file
+    """
+    filename = "%s.csv" % TEMP_FILE_NAME
+    file_path = _make_temp_file_path(filename)
+
+    with open(file_path, 'w', newline='') as csvfile:
+        travel_data_fields = ['link_dir', 'tx', 'length', 'mean', 'stddev', 'confidence', 'pct_50']
+        csv_writer = csv.DictWriter(csvfile, fieldnames=travel_data_fields)
+
+        csv_writer.writeheader()
+        for travel_data in travel_data_list:
+            csv_writer.writerow(travel_data)
+
+        csvfile.flush()
+
+    return file_path
+
+
+def _get_travel_data_list(start_time, end_time, link_dirs):
+    """
+    Get the travel data from start_time to end_time for all links in link_dirs.
+
+    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+            too many links. (1~2min)
+
+    :return: a python list containing all the travel data, sorted in ascending link_dir order then ascending time order.
+            Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float), pct_50(int),
+            stddev(float), tx(str)
+    """
+    travel_query_result = Travel.query \
+        .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
+        .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+
+    travel_data_list = []
+    for travel_data in travel_query_result:
+        travel_data_list.append(travel_data.json())
+
+    return travel_data_list
+
+
+def _parse_file_type_request_body(file_request_data):
+    """
+    Parse the request body that contains a file type definition.
+    The file type should be specified in the request body JSON's field file_type.
+
+    If the file type specified in the request body is not an valid and allowed file type, the first file type defined
+    in the ALLOWED_FILE_TYPES is used by default (csv by default).
+
+    :param file_request_data: the request body json
+    :return: The first allowed file type (csv by default) if the file type specified in the request body JSON is
+            invalid or not allowed; return the specified file type otherwise.
+    """
+    if 'file_type' not in file_request_data:
+        return ALLOWED_FILE_TYPES[0]
+
+    given_file_type = file_request_data['file_type']
+
+    if given_file_type not in ALLOWED_FILE_TYPES:
+        return ALLOWED_FILE_TYPES[0]
+
+    return given_file_type
+
+
+def _make_temp_file_path(filename):
+    """
+    Make a file path string for the temporary file.
+    The location of the temporary file is defined in the system environment field TEMP_FILE_LOCATION
+    If it starts with '/', it represents an absolute path to the folder storing temporary files.
+    Otherwise, the system environment path is the relative path to the current working directory.
+
+    :param filename: the filename of the temporary file
+    :return: a full path to the temporary file
+    """
+    temp_file_folder_name = environ['TEMP_FILE_LOCATION']
+
+    if temp_file_folder_name.startswith('/'):
+        temp_file_path = "%s/%s" % (temp_file_folder_name, filename)
+    else:
+        temp_file_path = "%s/%s/%s" % (getcwd(), temp_file_folder_name, filename)
+
+    return temp_file_path
 
 
 def _parse_travel_request_body(travel_request_data):
