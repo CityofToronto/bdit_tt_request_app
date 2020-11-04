@@ -149,6 +149,33 @@
                 }
             }
         },
+        "/travel-data-file": {
+            "post": {
+                "summary": "Get the travel data file of each of the given series of links.",
+                "operationId": "getTravelDataFile",
+                "requestBody": {
+                    "description": "The date range and links(link_dirs) to be queried",
+                    "required": true,
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/TravelFileRequestBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The file containing the travel data array of the given series of links.",
+                        "content": {
+                            "text/plain; charset=utf-8": {
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/date-bounds": {
             "get": {
                 "summary": "Get the date time boundary of the data sets.",
@@ -194,6 +221,37 @@
                             "type": "string",
                             "example": "1242626341F"
                         }
+                    }
+                }
+            },
+            "TravelFileRequestBody": {
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "end_time",
+                    "link_dirs"
+                ],
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2018-09-30 19:55:00"
+                    },
+                    "link_dirs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "1242626341F"
+                        }
+                    },
+                    "file_type": {
+                        "type": "string",
+                        "example": "csv"
                     }
                 }
             },
