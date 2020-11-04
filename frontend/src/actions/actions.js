@@ -1,8 +1,8 @@
 const axios = require('axios');
 axios.defaults.withCredentials = true;
-/* specify domain addr */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com/";
-
+/* remote domain and local test domain */
+const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
+// const domain = "http://127.0.0.1:5000";
 
 /* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
@@ -18,9 +18,9 @@ export const getClosestNode = (page, data) => {
 					}
 				});
 			});
-			page.setState({closestNodes: arr});
+			page.addNodeToMapDisplay(arr);
 		} else {
-			alert("NO CLOSEST NODE FOUND");
+			alert("FAILED TO FETCH CLOSEST NODE");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -36,7 +36,7 @@ export const getDateBoundary = (page) => {
 					endTime: res.data.end_time
 				}});
 		} else {
-			alert("NO TIME BOUNDARY FOUND");
+			alert("FAILED TO FETCH DATE BOUNDARY");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -47,19 +47,13 @@ export const getDateBoundary = (page) => {
 export const getLinksBetweenNodes = (page, data) => {
 	axios.get(`${domain}/link-nodes/${data.fromNodeId}/${data.toNodeId}`).then(res => {
 		if (res.data) {
-			page.setState({links: {
-					source: res.data.source,
-					target: res.data.target,
-					linkDirs: res.data.link_dirs,
-					geometry: {
-						type: res.data.geometry.type,
-						coordinates: res.data.geometry.coordinates
-					}
-				}});
+			// page.drawLink(res.data);
+			page.setState({linkData:page.state.linkData.concat([res.data]), removedisable: false, buttondisable: false, resetdisable:false, addmarker: true})
 		} else {
-			alert("NO LINKS FOUND");
+			alert("FAILED TO FETCH LINKS BETWEEN NODES");
 		}
 	}).catch(err => {
+		console.log(err)
 		alert(err.response.data.error);
 	})
 };
@@ -70,7 +64,7 @@ export const getProjectTitle = (page) => {
 		if (res.data) {
 			page.setState({title: res.data});
 		} else {
-			alert("NO PROJECT TITLE");
+			alert("FAILED TO GET PROJECT TITLE");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
@@ -101,7 +95,7 @@ export const getTravelData = (page, data) => {
 			});
 			page.setState({travelData: arr});
 		} else {
-			alert("NO TRAVEL DATA FOUND");
+			alert("FAILED TO GET TRAVEL DATA");
 		}
 	}).catch(err => {
 		alert(err.response.data.error);
