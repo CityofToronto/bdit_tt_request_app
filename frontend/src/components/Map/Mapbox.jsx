@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getLinksBetweenNodes} from '../../actions/actions';
+import {getClosestNode, getLinksBetweenNodes, updateLinksBetweenNodes, updateClosestNode} from '../../actions/actions';
 import { Button} from 'react-bootstrap'
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -43,7 +43,7 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (this.state.addmarker){
-                console.log('A click event has occurred at ' + e.lngLat);
+                // console.log('A click event has occurred at ' + e.lngLat);
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
                 this.setState({buttondisable:true, removedisable: true, addmarker: false})
                 if (this.state.clickedNodes.length >= 1) {
@@ -64,7 +64,11 @@ class Mapbox extends React.Component {
     getLink() {
    
         this.drawLink(this.state.linkData)
-        this.setState({buttondisable:true, removedisable: true, addmarker:false})
+        const tempMarkers = [...this.state.displayedMarker]
+        for(let i = 0; i < tempMarkers.length; i++){
+            tempMarkers[i].setDraggable(false)
+        }
+        this.setState({buttondisable:true, removedisable: true, addmarker:false, displayedMarker: tempMarkers})
     };
 
     drawLink(link_data) {
@@ -98,15 +102,41 @@ class Mapbox extends React.Component {
         });
     };
 
+    updateMarker(nodeId, newNode) {
+        const tempMarkers = [...this.state.displayedMarker]
+        const tempMarker = tempMarkers[nodeId]
+        const lngLat = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]}
+        tempMarker.setLngLat(lngLat)
+        const tempNodes = [...this.state.clickedNodes]
+        tempNodes[nodeId] = newNode
+        this.setState({displayedMarker: tempMarkers, clickedNodes: tempNodes}, () => {
+            updateLinksBetweenNodes(this, {nodeId: nodeId})
+        })
+    }
+
     addNodeToMapDisplay(nodeCandidates) {
         const timesClicked = this.state.clickedNodes.length;
         let el = document.createElement('div');
         el.className = 'marker';
         el.id = timesClicked.toString();
 
-        const newMarker = new mapboxgl.Marker(el)
+        const newMarker = new mapboxgl.Marker(el, {draggable: true})
             .setLngLat(nodeCandidates[0].geometry.coordinate)
             .addTo(this.state.map);
+
+        const onDragEnd = () => {
+            this.setState({removedisable: true, buttondisable: true, resetdisable: true})
+            let lngLat = newMarker.getLngLat()
+            const nodeId = parseInt(newMarker._element.id)
+            updateClosestNode(this, {
+                longitude: lngLat.lng,
+                latitude: lngLat.lat,
+                nodeId: nodeId
+            })
+        }
+
+
+        newMarker.on('dragend', onDragEnd);
 
         if(timesClicked > 0){
             getLinksBetweenNodes(this, {

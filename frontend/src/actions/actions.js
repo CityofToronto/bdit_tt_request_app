@@ -27,6 +27,29 @@ export const getClosestNode = (page, data) => {
 	})
 };
 
+/* GET update closest node given coordinate */
+export const updateClosestNode = (page, data) => {
+	axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
+		if (res.data) {
+			const arr = [];
+			res.data.forEach((node) => {
+				arr.push({
+					nodeId: node.node_id,
+					geometry: {
+						coordinate: node.geometry.coordinates,
+						type: node.geometry.type
+					}
+				});
+			});
+			page.updateMarker(data.nodeId, arr[0])
+		} else {
+			alert("FAILED TO FETCH CLOSEST NODE");
+		}
+	}).catch(err => {
+		alert(err);
+	})
+};
+
 /* GET date time boundary of the data sets */
 export const getDateBoundary = (page) => {
 	axios.get(`${domain}/date-bounds`).then(res => {
@@ -56,6 +79,44 @@ export const getLinksBetweenNodes = (page, data) => {
 		console.log(err)
 		alert(err.response.data.error);
 	})
+};
+
+/* GET links if nodes are updated */
+export const updateLinksBetweenNodes = (page, data) => {
+	let fromNodeId, toNodeId
+	if (data.nodeId > 0) {
+		fromNodeId = page.state.clickedNodes[data.nodeId - 1].nodeId
+		toNodeId = page.state.clickedNodes[data.nodeId].nodeId
+		axios.get(`${domain}/link-nodes/${fromNodeId}/${toNodeId}`).then(res => {
+			if (res.data) {
+				const tempLinkData = [...page.state.linkData]
+				tempLinkData[data.nodeId - 1] = res.data
+				page.setState({linkData:tempLinkData})
+			} else {
+				alert("FAILED TO FETCH LINKS BETWEEN NODES");
+			}
+		}).catch(err => {
+			console.log(err)
+			alert(err.response.data.error);
+		})
+	}
+	if (data.nodeId < page.state.clickedNodes.length - 1) {
+		fromNodeId = page.state.clickedNodes[data.nodeId].nodeId
+		toNodeId = page.state.clickedNodes[data.nodeId + 1].nodeId
+		axios.get(`${domain}/link-nodes/${fromNodeId}/${toNodeId}`).then(res => {
+			if (res.data) {
+				const tempLinkData = [...page.state.linkData]
+				tempLinkData[data.nodeId] = res.data
+				page.setState({linkData:tempLinkData})
+			} else {
+				alert("FAILED TO FETCH LINKS BETWEEN NODES");
+			}
+		}).catch(err => {
+			console.log(err)
+			alert(err.response.data.error);
+		})
+	}
+	page.setState({removedisable: false, buttondisable: false, resetdisable:false})
 };
 
 /* GET project title */
