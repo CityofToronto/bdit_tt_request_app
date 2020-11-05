@@ -1,7 +1,16 @@
+import pytest
+
 from app.models import Node, Link, Travel
 
 
-def test_database_connection(client, db):
+@pytest.fixture
+def db():
+    from app import db
+
+    yield db
+
+
+def test_real_database_connection(db):
     """Test if the connection is live and the application can read from remote database."""
     node_table = db.session.query(Node).first()
     link_table = db.session.query(Link).first()
