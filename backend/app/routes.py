@@ -104,6 +104,7 @@ def get_links_between_multi_nodes():
     Get the shortest length link connecting the given nodes in order.
     This function filters links using ST_Intersects and sort them using the
     length attribute of the link object.
+    If any two consecutive nodes in the list are the same, they are skipped.
     This function will call abort with response code 400 when the given node_ids can not be cast to an integer
     or no link exists between the two nodes.
 
@@ -118,6 +119,9 @@ def get_links_between_multi_nodes():
     for i in range(len(node_ids) - 1):
         curr_node_id = node_ids[i]
         next_node_id = node_ids[i + 1]
+
+        if curr_node_id == next_node_id:
+            continue
 
         shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
         shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)

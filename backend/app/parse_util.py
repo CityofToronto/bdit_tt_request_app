@@ -43,8 +43,6 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
     :param nodes_data: the body of the get_links_between_multi_nodes request
     :return: a list of integer node ids
     """
-    node_ids = []
-
     try:
         if 'node_ids' not in nodes_data:
             abort(400, description="Must provide a list of node_ids")
@@ -59,6 +57,7 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
         abort(400, description="Field 'node_ids' must be a list of at least 2 node ids.")
         return
 
+    node_ids = []
     for node_id in node_id_list:
         try:
             node_id_int = int(node_id)
