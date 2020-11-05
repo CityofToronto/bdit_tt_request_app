@@ -1,231 +1,266 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {
-	getClosestNode,
-	getLinksBetweenNodes,
-	updateLinksBetweenNodes,
-	updateClosestNode,
-	getTravelDataFile
-} from '../../actions/actions';
+import {getClosestNode, getLinksBetweenNodes, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button} from 'react-bootstrap'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 
 class Mapbox extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			lng: -79.3957,
-			lat: 43.6629,
-			zoom: 15,
-			map: '',
-			clickedNodes: [],
-			displayedMarker: [],
-			linkData: [],
-			removedisable: true,
-			buttondisable: true,
-			resetdisable: false,
-			addmarker: true
-		};
-	};
+    constructor(props) {
+        super(props);
+        this.state = {
+            lng: -79.3957,
+            lat: 43.6629,
+            zoom: 15,
+            map: '',
+            linksData: [],
+            clickedNodes: [],
+            displayedMarker: [],
+            disableRemove: true,
+            disableGetLink: true,
+            disableReset: true,
+            disableAddMarker: false,
+            disableDragMarker: true
+        };
+    };
 
-	componentDidMount() {
-		this.createMap()
-	};
+    componentDidMount() {
+        this.createMap()
+    };
 
-	createMap() {
-		const map = new mapboxgl.Map({
-			container: this.mapContainer,
-			style: 'mapbox://styles/mapbox/streets-v11',
-			center: [this.state.lng, this.state.lat],
-			zoom: this.state.zoom
-		});
-		map.on('move', () => {
-			this.setState({
-				lng: map.getCenter().lng.toFixed(4),
-				lat: map.getCenter().lat.toFixed(4),
-				zoom: map.getZoom().toFixed(2)
-			});
-		});
-		map.on('click', (e) => {
-			if (this.state.addmarker) {
-				// console.log('A click event has occurred at ' + e.lngLat);
-				getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-				this.setState({buttondisable: true, removedisable: true, addmarker: false})
-				if (this.state.clickedNodes.length >= 1) {
-					this.setState({resetdisable: true})
-				}
-			}
+    createMap() {
+        const map = new mapboxgl.Map({
+            container: this.mapContainer,
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [this.state.lng, this.state.lat],
+            zoom: this.state.zoom
+        });
+        map.on('move', () => {
+            this.setState({
+                lng: map.getCenter().lng.toFixed(4),
+                lat: map.getCenter().lat.toFixed(4),
+                zoom: map.getZoom().toFixed(2)
+            });
+        });
+        map.on('click', (e) => {
+            if (!this.state.disableAddMarker) {
+                // console.log('A click event has occurred at ' + e.lngLat);
+                this.setState({
+                    disableGetLink: true,
+                    disableRemove: true,
+                    disableAddMarker: true,
+                    disableReset: true,
+                    disableDragMarker: true
+                });
+                this.forceUpdate();
+                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+            }
 
-		});
-		this.setState({
-			map: map,
-			clickedNodes: [],
-			travelDataFile: [],
-			displayedMarker: [],
-			linkData: [],
-			addmarker: true,
-			removedisable: true,
-			buttondisable: true,
-			resetdisable: false
-		});
-	}
+        });
+        this.setState({
+            map: map,
+            clickedNodes: [],
+            travelDataFile: [],
+            displayedMarker: [],
+            linksData: [],
+            disableAddMarker: false,
+            disableRemove: true,
+            disableGetLink: true,
+            disableReset: false,
+            disableDragMarker: false
+        });
+    }
 
-	resetMap() {
-		this.state.map.remove()
-		this.createMap()
-	}
+    resetMap() {
+        this.state.map.remove()
+        this.createMap()
+    };
 
-	addTravelDataFiles() {
-		let totalLinkDirs = []
-		for (let i = 0; i < this.state.linkData.length; i++) {
-			totalLinkDirs = totalLinkDirs.concat(this.state.linkData[i].link_dirs)
-		}
-		getTravelDataFile(this, {
-			startTime: "2018-09-01 12:00:00",
-			endTime: "2018-09-01 23:00:00",
-			linkDirs: totalLinkDirs,
-			fileType: "csv"
-		})
-	}
+    addTravelDataFiles(linkDataArr) {
+        let allLinkDirs = [];
+        linkDataArr.forEach((link) => {
+            allLinkDirs = allLinkDirs.concat(link.link_dirs)
+        });
 
-	getLink() {
-		this.addTravelDataFiles()
-		this.drawLink(this.state.linkData)
-		const tempMarkers = [...this.state.displayedMarker]
-		for (let i = 0; i < tempMarkers.length; i++) {
-			tempMarkers[i].setDraggable(false)
-		}
-		this.setState({buttondisable: true, removedisable: true, addmarker: false, displayedMarker: tempMarkers})
-	};
+        getTravelDataFile(this, {
+            startTime: "2018-09-02 00:00:00",
+            endTime: "2018-09-03 23:00:00",
+            linkDirs: allLinkDirs,
+            fileType: "csv"
+        });
+    };
 
-	drawLink(link_data) {
-		let links = []
-		for (let i = 0; i < link_data.length; i++) {
-			links = links.concat(link_data[i].geometry.coordinates)
-		}
-		this.state.map.addSource('route', {
-			'type': 'geojson',
-			'data': {
-				'type': 'Feature',
-				'properties': {},
-				'geometry': {
-					'type': 'MultiLineString',
-					'coordinates': links
-				}
-			}
-		});
-		this.state.map.addLayer({
-			'id': 'route',
-			'type': 'line',
-			'source': 'route',
-			'layout': {
-				'line-join': 'round',
-				'line-cap': 'round'
-			},
-			'paint': {
-				'line-color': '#888',
-				'line-width': 8
-			}
-		});
-	};
+    disableInteractions() {
+        this.setState({
+            disableGetLink: true,
+            disableRemove: true,
+            disableAddMarker: true,
+            disableReset: true,
+            disableDragMarker: true
+        });
+        this.forceUpdate();
+    }
 
-	updateMarker(nodeId, newNode) {
-		const tempMarkers = [...this.state.displayedMarker]
-		const tempMarker = tempMarkers[nodeId]
-		const lngLat = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]}
-		tempMarker.setLngLat(lngLat)
-		const tempNodes = [...this.state.clickedNodes]
-		tempNodes[nodeId] = newNode
-		this.setState({displayedMarker: tempMarkers, clickedNodes: tempNodes}, () => {
-			updateLinksBetweenNodes(this, {nodeId: nodeId})
-		})
-	}
+    getLink() {
+        console.log(this.state.clickedNodes);
+        this.disableInteractions();
+        getLinksBetweenNodes(this);
+    };
 
-	addNodeToMapDisplay(nodeCandidates) {
-		const timesClicked = this.state.clickedNodes.length;
-		let el = document.createElement('div');
-		el.className = 'marker';
-		el.id = timesClicked.toString();
+    /* this function is called only by action.js after full link data is fetch */
+    displayLinks(linkDataArr) {
+        this.drawLinks(linkDataArr);
 
-		const newMarker = new mapboxgl.Marker(el, {draggable: true})
-			.setLngLat(nodeCandidates[0].geometry.coordinate)
-			.addTo(this.state.map);
+        /* comment this if does not want to disable dragging after get link */
+        const lockedMarkers = [...this.state.displayedMarker]
+        lockedMarkers.forEach((marker) => {
+            marker.setDraggable(false);
+        });
 
-		const onDragEnd = () => {
-			this.setState({removedisable: true, buttondisable: true, resetdisable: true})
-			let lngLat = newMarker.getLngLat()
-			const nodeId = parseInt(newMarker._element.id)
-			updateClosestNode(this, {
-				longitude: lngLat.lng,
-				latitude: lngLat.lat,
-				nodeId: nodeId
-			})
-		}
+        this.setState({
+            linksData: linkDataArr,
+            disableReset: false,
+            displayedMarker: lockedMarkers
+        }, () => {this.addTravelDataFiles(linkDataArr)});
+    };
 
+    drawLinks(linkDataArr) {
+        linkDataArr.forEach((link) => {
+            const currSourceId = `route${link.source}${link.target}`
+            this.state.map.addSource(currSourceId, {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'MultiLineString',
+                        'coordinates': link.geometry.coordinates
+                    }
+                }
+            });
+            this.state.map.addLayer({
+                'id': currSourceId,
+                'type': 'line',
+                'source': currSourceId,
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#888',
+                    'line-width': 8
+                }
+            });
+        });
+    };
 
-		newMarker.on('dragend', onDragEnd);
+    onDragEnd(marker) {
+        if (this.state.disableDragMarker) {
+            const restoreMarkers = [...this.state.displayedMarker]
 
-		if (timesClicked > 0) {
-			getLinksBetweenNodes(this, {
-				fromNodeId: this.state.clickedNodes[timesClicked - 1].nodeId,
-				toNodeId: nodeCandidates[0].nodeId
-			});
-		}
-		this.setState({
-			displayedMarker: this.state.displayedMarker.concat([newMarker]),
-			clickedNodes: this.state.clickedNodes.concat([nodeCandidates[0]])
-		});
+            for (let i = 0; i < restoreMarkers.length; i++){
+                let currMarker = restoreMarkers[i];
+                let currNode = this.state.clickedNodes[i];
 
-		if (this.state.clickedNodes.length === 1) {
-			this.setState({removedisable: false, addmarker: true})
-		}
+                const restoreCoordinate = {lat: currNode.geometry.coordinate[1], lng: currNode.geometry.coordinate[0]};
+                currMarker.setLngLat(restoreCoordinate);
+            }
+            this.setState({displayedMarker: restoreMarkers});
 
-	};
+        } else {
+            this.disableInteractions();
 
-	removeNodes() {
-		let lastnode = this.state.clickedNodes.length - 1
-		let getMarkers = document.getElementById(lastnode);
-		getMarkers.remove()
+            let lngLat = marker.getLngLat();
+            const nodeId = parseInt(marker._element.id);
+            updateClosestNode(this, {
+                longitude: lngLat.lng,
+                latitude: lngLat.lat,
+                nodeId: nodeId
+            });
+        }
+    }
 
-		let newArr = [...this.state.clickedNodes]
-		newArr.splice(lastnode, 1)
-		this.setState({clickedNodes: newArr})
+    /* this function is called only by action.js after a marker drag */
+    updateMarker(nodeId, nodeCandidates) {
+        const newNode = nodeCandidates[0];
 
-		if (lastnode - 1 >= 0) {
-			let newLink = [...this.state.linkData]
-			newLink.splice(lastnode - 1, 1)
-			this.setState({linkData: newLink})
-		}
+        const newMarkers = [...this.state.displayedMarker];
+        const draggedMarker = newMarkers[nodeId];
+        const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
+        draggedMarker.setLngLat(newCoordinate);
 
-		this.setState({removedisable: this.state.resetdisable && this.state.buttondisable})
-		if (lastnode === 0) {
-			this.setState({removedisable: true})
-		}
-		if (lastnode === 1) {
-			this.setState({buttondisable: true})
-		}
-	}
+        const newNodes = [...this.state.clickedNodes];
+        newNodes[nodeId] = newNode
+        this.setState({
+            displayedMarker: newMarkers,
+            clickedNodes: newNodes,
+            disableAddMarker: false,
+            disableRemove: false,
+            disableGetLink: this.state.clickedNodes.length < 2,
+            disableReset: false,
+            disableDragMarker: false
+        });
+    }
 
-	render() {
-		return (
-			<div>
-				<div className='sidebarStyle'>
-					<div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
-				</div>
-				<div ref={element => this.mapContainer = element} className='mapContainer'/>
-				<Button variant="outline-primary" className='remove-button' disabled={this.state.removedisable}
-				        onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
+    /* this function is called only by action.js after adding a new marker */
+    addNodeToMapDisplay(nodeCandidates) {
+        const newNode = nodeCandidates[0];
+        let el = document.createElement('div');
+        el.className = 'marker';
+        el.id = this.state.clickedNodes.length.toString();
 
-				<Button variant="outline-primary" className='link-button' disabled={this.state.buttondisable}
-				        onClick={() => this.getLink()} size="sm">Get Link</Button>
-				<Button variant="outline-primary" className='reset-button' disabled={this.state.resetdisable}
-				        onClick={() => this.resetMap()} size="sm">Reset Map</Button>
-			</div>
-		);
-	};
+        const newMarker = new mapboxgl.Marker(el, {draggable: true})
+            .setLngLat(newNode.geometry.coordinate)
+            .addTo(this.state.map);
+
+        newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
+
+        this.setState({
+            displayedMarker: this.state.displayedMarker.concat([newMarker]),
+            clickedNodes: this.state.clickedNodes.concat([newNode]),
+            disableAddMarker: false,
+            disableRemove: false,
+            disableGetLink: this.state.clickedNodes.length < 1,
+            disableReset: false,
+            disableDragMarker: false
+        });
+    };
+
+    removeNodes() {
+        let lastNodeNum = this.state.clickedNodes.length - 1;
+        let getMarkers = document.getElementById(lastNodeNum.toString());
+        getMarkers.remove();
+        let newDisplayedMarker = [...this.state.displayedMarker];
+        newDisplayedMarker.splice(lastNodeNum, 1);
+
+        let newClickedNode = [...this.state.clickedNodes];
+        newClickedNode.splice(lastNodeNum, 1);
+
+        this.setState({
+            clickedNodes: newClickedNode, displayedMarker: newDisplayedMarker,
+            disableGetLink: lastNodeNum <= 1, disableRemove: lastNodeNum <= 0
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <div className='sidebarStyle'>
+                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
+                </div>
+                <div ref={element => this.mapContainer = element} className='mapContainer'/>
+                <Button variant="outline-primary" className='remove-button' disabled={this.state.disableRemove}
+                        onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
+
+                <Button variant="outline-primary" className='link-button' disabled={this.state.disableGetLink}
+                        onClick={() => this.getLink()} size="sm">Get Link</Button>
+                <Button variant="outline-primary" className='reset-button' disabled={this.state.disableReset}
+                        onClick={() => this.resetMap()} size="sm">Reset Map</Button>
+            </div>
+        );
+    };
 }
 
 export default Mapbox;
