@@ -48,11 +48,11 @@ class Mapbox extends React.Component {
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
                 // console.log('A click event has occurred at ' + e.lngLat);
-                if (this.state.clickedNodes.length >= 10){
+                if (this.state.clickedNodes.length >= 10) {
                     alert("Currently only allow maximum 10 nodes on the map!");
                 } else {
                     this.disableInteractions();
-                    getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat}); 
+                    getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
                 }
             }
 
@@ -102,7 +102,6 @@ class Mapbox extends React.Component {
     }
 
     getLink() {
-        console.log(this.state.clickedNodes);
         this.disableInteractions();
         getLinksBetweenNodes(this);
     };
@@ -121,19 +120,22 @@ class Mapbox extends React.Component {
             linksData: linkDataArr,
             disableReset: false,
             displayedMarker: lockedMarkers
-        }, () => {this.addTravelDataFiles(linkDataArr)});
+        }, () => {
+            this.addTravelDataFiles(linkDataArr)
+        });
     };
 
     drawLinks(linkDataArr) {
-        linkDataArr.forEach((link) => {
-            const currSourceId = `route${link.source}${link.target}`
+        linkDataArr.forEach((link, index) => {
+            const currSourceId = `route${index}`
             this.state.map.addSource(currSourceId, {
                 'type': 'geojson',
+                'maxzoom': 24,
                 'data': {
                     'type': 'Feature',
                     'properties': {},
                     'geometry': {
-                        'type': 'MultiLineString',
+                        'type': link.geometry.type,
                         'coordinates': link.geometry.coordinates
                     }
                 }
@@ -154,76 +156,117 @@ class Mapbox extends React.Component {
         });
     };
 
+    resyncAllMarkers(){
+        const restoreMarkers = [...this.state.displayedMarker]
+
+        for (let i = 0; i < restoreMarkers.length; i++) {
+            let currMarker = restoreMarkers[i];
+            let currNode = this.state.clickedNodes[i];
+
+            const restoreCoordinate = {lat: currNode.geometry.coordinate[1], lng: currNode.geometry.coordinate[0]};
+            currMarker.setLngLat(restoreCoordinate);
+        }
+        this.setState({displayedMarker: restoreMarkers});
+    }
+
     onDragEnd(marker) {
         if (this.state.disableDragMarker) {
-            const restoreMarkers = [...this.state.displayedMarker]
-
-            for (let i = 0; i < restoreMarkers.length; i++){
-                let currMarker = restoreMarkers[i];
-                let currNode = this.state.clickedNodes[i];
-
-                const restoreCoordinate = {lat: currNode.geometry.coordinate[1], lng: currNode.geometry.coordinate[0]};
-                currMarker.setLngLat(restoreCoordinate);
-            }
-            this.setState({displayedMarker: restoreMarkers});
-
+            this.resyncAllMarkers();
         } else {
             this.disableInteractions();
 
             let lngLat = marker.getLngLat();
-            const nodeId = parseInt(marker._element.id);
+            const nodeIndex = parseInt(marker._element.id);
             updateClosestNode(this, {
                 longitude: lngLat.lng,
                 latitude: lngLat.lat,
-                nodeId: nodeId
+                nodeIndex: nodeIndex
             });
         }
     }
 
     /* this function is called only by action.js after a marker drag */
-    updateMarker(nodeId, nodeCandidates) {
+    updateMarker(nodeIndex, nodeCandidates) {
         const newNode = nodeCandidates[0];
+        if (this.isDuplicateMarker(newNode, nodeIndex)) {
+            alert("Can not drag to the node right before it or after it!");
+            this.setState({
+                disableAddMarker: false,
+                disableRemove: false,
+                disableGetLink: this.state.clickedNodes.length < 1,
+                disableReset: false,
+                disableDragMarker: false
+            });
+            this.resyncAllMarkers();
+        } else {
+            const newMarkers = [...this.state.displayedMarker];
+            const draggedMarker = newMarkers[nodeIndex];
+            const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
+            draggedMarker.setLngLat(newCoordinate);
 
-        const newMarkers = [...this.state.displayedMarker];
-        const draggedMarker = newMarkers[nodeId];
-        const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
-        draggedMarker.setLngLat(newCoordinate);
+            const newNodes = [...this.state.clickedNodes];
+            newNodes[nodeIndex] = newNode
+            this.setState({
+                displayedMarker: newMarkers,
+                clickedNodes: newNodes,
+                disableAddMarker: false,
+                disableRemove: false,
+                disableGetLink: this.state.clickedNodes.length < 2,
+                disableReset: false,
+                disableDragMarker: false
+            });
+        }
+    }
 
-        const newNodes = [...this.state.clickedNodes];
-        newNodes[nodeId] = newNode
-        this.setState({
-            displayedMarker: newMarkers,
-            clickedNodes: newNodes,
-            disableAddMarker: false,
-            disableRemove: false,
-            disableGetLink: this.state.clickedNodes.length < 2,
-            disableReset: false,
-            disableDragMarker: false
-        });
+    isDuplicateMarker(newNode, orgIndex){
+        const prevNode = orgIndex > 0 && this.state.clickedNodes[orgIndex - 1];
+        const nextNode = orgIndex < this.state.clickedNodes.length - 1 && this.state.clickedNodes[orgIndex + 1];
+
+        return (prevNode && prevNode.nodeId === newNode.nodeId) || (nextNode && nextNode.nodeId === newNode.nodeId)
+    }
+
+    isDuplicateEndNode(newNode) {
+        const lastNode = this.state.clickedNodes.length > 0 &&
+            this.state.clickedNodes[this.state.clickedNodes.length - 1];
+
+        return lastNode && lastNode.nodeId === newNode.nodeId
     }
 
     /* this function is called only by action.js after adding a new marker */
     addNodeToMapDisplay(nodeCandidates) {
         const newNode = nodeCandidates[0];
-        let el = document.createElement('div');
-        el.className = `marker${this.state.clickedNodes.length + 1}`;
-        el.id = this.state.clickedNodes.length.toString();
 
-        const newMarker = new mapboxgl.Marker(el, {draggable: true})
-            .setLngLat(newNode.geometry.coordinate)
-            .addTo(this.state.map);
+        if (this.isDuplicateEndNode(newNode)){
+            alert("Can not select the same node as the last node!");
+            this.setState({
+                disableAddMarker: false,
+                disableRemove: false,
+                disableGetLink: this.state.clickedNodes.length < 1,
+                disableReset: false,
+                disableDragMarker: false
+            });
 
-        newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
+        } else {
+            let el = document.createElement('div');
+            el.className = `marker${this.state.clickedNodes.length + 1}`;
+            el.id = this.state.clickedNodes.length.toString();
 
-        this.setState({
-            displayedMarker: this.state.displayedMarker.concat([newMarker]),
-            clickedNodes: this.state.clickedNodes.concat([newNode]),
-            disableAddMarker: false,
-            disableRemove: false,
-            disableGetLink: this.state.clickedNodes.length < 1,
-            disableReset: false,
-            disableDragMarker: false
-        });
+            const newMarker = new mapboxgl.Marker(el, {draggable: true})
+                .setLngLat(newNode.geometry.coordinate)
+                .addTo(this.state.map);
+
+            newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
+
+            this.setState({
+                displayedMarker: this.state.displayedMarker.concat([newMarker]),
+                clickedNodes: this.state.clickedNodes.concat([newNode]),
+                disableAddMarker: false,
+                disableRemove: false,
+                disableGetLink: this.state.clickedNodes.length < 1,
+                disableReset: false,
+                disableDragMarker: false
+            });
+        }
     };
 
     removeNodes() {
