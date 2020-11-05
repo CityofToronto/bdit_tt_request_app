@@ -50,7 +50,7 @@ class Mapbox extends React.Component {
 			});
 		});
 		map.on('click', (e) => {
-			if (this.state.addmarker) {
+			if (this.state.addmarker && this.state.clickedNodes.length < 10) {
 				// console.log('A click event has occurred at ' + e.lngLat);
 				getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
 				this.setState({buttondisable: true, removedisable: true, addmarker: false})
@@ -147,7 +147,8 @@ class Mapbox extends React.Component {
 	addNodeToMapDisplay(nodeCandidates) {
 		const timesClicked = this.state.clickedNodes.length;
 		let el = document.createElement('div');
-		el.className = 'marker';
+		let markerNum = timesClicked + 1
+		el.className = 'marker' + markerNum.toString();
 		el.id = timesClicked.toString();
 
 		const newMarker = new mapboxgl.Marker(el, {draggable: true})
