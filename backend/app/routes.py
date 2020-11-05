@@ -139,14 +139,16 @@ def get_links_travel_data_file():
 
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list)
+        mime_type = "text/csv"
     elif file_type == 'xlsx':
         data_file_path = make_travel_data_xlsx(travel_data_list)
+        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     else:
         abort(501, description="Currently only support csv files.")
         return
 
-    file_response = send_file(data_file_path)
-    if _need_keep_temp_file():
+    file_response = send_file(data_file_path, mimetype=mime_type)
+    if not _need_keep_temp_file():
         os.remove(data_file_path)
     return file_response
 
