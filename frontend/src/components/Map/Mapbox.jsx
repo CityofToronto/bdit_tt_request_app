@@ -8,6 +8,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5d
 
 
 class Mapbox extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -47,15 +48,12 @@ class Mapbox extends React.Component {
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
                 // console.log('A click event has occurred at ' + e.lngLat);
-                this.setState({
-                    disableGetLink: true,
-                    disableRemove: true,
-                    disableAddMarker: true,
-                    disableReset: true,
-                    disableDragMarker: true
-                });
-                this.forceUpdate();
-                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+                if (this.state.clickedNodes.length >= 10){
+                    alert("Currently only allow maximum 10 nodes on the map!");
+                } else {
+                    this.disableInteractions();
+                    getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat}); 
+                }
             }
 
         });
@@ -208,7 +206,7 @@ class Mapbox extends React.Component {
     addNodeToMapDisplay(nodeCandidates) {
         const newNode = nodeCandidates[0];
         let el = document.createElement('div');
-        el.className = 'marker';
+        el.className = `marker${this.state.clickedNodes.length + 1}`;
         el.id = this.state.clickedNodes.length.toString();
 
         const newMarker = new mapboxgl.Marker(el, {draggable: true})
@@ -261,6 +259,7 @@ class Mapbox extends React.Component {
             </div>
         );
     };
+
 }
 
 export default Mapbox;
