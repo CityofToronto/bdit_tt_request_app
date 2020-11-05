@@ -7,7 +7,8 @@ DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 ALLOWED_FILE_TYPES = ['csv', 'xlsx']
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
-           'parse_get_links_btwn_nodes_response', 'parse_node_response']
+           'parse_get_links_btwn_nodes_response', 'parse_node_response',
+           'parse_get_links_between_multi_nodes_request_body']
 
 
 def parse_file_type_request_body(file_request_data):
@@ -31,6 +32,43 @@ def parse_file_type_request_body(file_request_data):
         return ALLOWED_FILE_TYPES[0]
 
     return given_file_type
+
+
+def parse_get_links_between_multi_nodes_request_body(nodes_data):
+    """
+    Parse the request body that contains a list of node_ids.
+    This function will call abort with response code 400 and error messages if any of the node_id is not an integer, or
+    if field 'node_ids' does not exist in the request body, or if field 'node_ids' is not a list with minimum length 2.
+
+    :param nodes_data: the body of the get_links_between_multi_nodes request
+    :return: a list of integer node ids
+    """
+    node_ids = []
+
+    try:
+        if 'node_ids' not in nodes_data:
+            abort(400, description="Must provide a list of node_ids")
+            return
+    except TypeError:
+        abort(400,
+              description="Request body of get_links_between_multi_nodes must be a JSON containing field 'node_ids'")
+        return
+
+    node_id_list = nodes_data['node_ids']
+    if type(node_id_list) != list or len(node_id_list) < 2:
+        abort(400, description="Field 'node_ids' must be a list of at least 2 node ids.")
+        return
+
+    for node_id in node_id_list:
+        try:
+            node_id_int = int(node_id)
+        except ArithmeticError:
+            abort(400, description='node_id must be an integer.')
+            return
+
+        node_ids.append(node_id_int)
+
+    return node_ids
 
 
 def parse_travel_request_body(travel_request_data):

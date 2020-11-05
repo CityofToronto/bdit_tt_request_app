@@ -69,7 +69,7 @@ def get_closest_node(longitude, latitude):
 
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
-def get_links_between_nodes(from_node_id, to_node_id):
+def get_links_between_two_nodes(from_node_id, to_node_id):
     """
     Get the shortest length link between the two given nodes.
     This function filters links using ST_Intersects and sort them using the
@@ -96,6 +96,33 @@ def get_links_between_nodes(from_node_id, to_node_id):
     shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
     return jsonify(shortest_link_data)
+
+
+@app.route('/link-nodes', methods=['POST'])
+def get_links_between_multi_nodes():
+    """
+    Get the shortest length link connecting the given nodes in order.
+    This function filters links using ST_Intersects and sort them using the
+    length attribute of the link object.
+    This function will call abort with response code 400 when the given node_ids can not be cast to an integer
+    or no link exists between the two nodes.
+
+    :return: JSON representing an array of link objects, which are the shortest links connecting given points.
+            Link object keys: link_dir(str), link_id(int), st_name(str),
+            source(int), target(int), length(float),
+            geometry(geom{type(str), coordinates(list[int])})
+    """
+    node_ids = parse_get_links_between_multi_nodes_request_body(request.json)
+    optimal_links_data_list = []
+
+    for i in range(len(node_ids) - 1):
+        curr_node_id = node_ids[i]
+        next_node_id = node_ids[i + 1]
+
+        shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
+        shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
+        optimal_links_data_list.append(shortest_link_data)
+    return jsonify(optimal_links_data_list)
 
 
 @app.route('/travel-data', methods=['POST'])
