@@ -51,6 +51,7 @@ def parse_travel_request_body(travel_request_data):
     if 'start_time' not in travel_request_data or 'end_time' not in travel_request_data or \
             'link_dirs' not in travel_request_data:
         abort(400, description="Request body must contain start_time, end_time and link_dirs.")
+        return
 
     start_time = travel_request_data['start_time']
     end_time = travel_request_data['end_time']
@@ -62,10 +63,12 @@ def parse_travel_request_body(travel_request_data):
         datetime.strptime(end_time, DATE_TIME_FORMAT)
     except ValueError:
         abort(400, description=("Start time and end time must follow date time format: %s" % DATE_TIME_FORMAT))
+        return
 
     # ensures link_dirs has the right type
     if type(link_dirs) != list:
         abort(400, description="link_dirs must be a list of link_dir to fetch travel data from!")
+        return
 
     return start_time, end_time, link_dirs
 
