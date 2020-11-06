@@ -41,6 +41,12 @@ class SidebarContent extends React.Component{
                   id="date"
                   className={"date"}
               />
+              <TextField
+                  label="date"
+                  defaultValue={"mon-fri"}
+                  id="days"
+                  className={"days"}
+              />
               <Checkbox
                   checked={this.state.includeHolidays}
                   onClick={handleChange}

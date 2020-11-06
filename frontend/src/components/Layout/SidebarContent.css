@@ -24,20 +24,27 @@
     left: 10%;
 }
 
-.holiday{
+.days{
+    width: 80%;
+    height: 5%;
     top: 40%;
+    left: 10%;
+}
+
+.holiday{
+    top: 50%;
     right: 60%;
 }
 
 .label{
     position: absolute;
-    top: 51.5%;
+    top: 64%;
     left: 35%;
 }
 
 .go{
     position: absolute;
-    top: 60%;
+    top: 75%;
     left: 30%;
     font-size: 2rem;
 }
