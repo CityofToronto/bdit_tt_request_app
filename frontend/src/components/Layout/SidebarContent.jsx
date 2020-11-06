@@ -9,6 +9,9 @@ class SidebarContent extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
+            timeRange: "",
+            dateRange: "",
+            dayRange: "",
             includeHolidays: false
         }
     }
@@ -34,18 +37,27 @@ class SidebarContent extends React.Component{
                   defaultValue={"0600-0900"}
                   id="time"
                   className={"time"}
+                  onChange={(e) => {
+                      this.setState({timeRange: e.target.value})
+                  }}
               />
               <TextField
-                  label="date"
+                  label="dates"
                   defaultValue={"2020/01/01-2020/03/01"}
                   id="date"
                   className={"date"}
+                  onChange={(e) => {
+                      this.setState({dateRange: e.target.value})
+                  }}
               />
               <TextField
-                  label="date"
+                  label="days"
                   defaultValue={"mon-fri"}
                   id="days"
                   className={"days"}
+                  onChange={(e) => {
+                      this.setState({dayRange: e.target.value})
+                  }}
               />
               <Checkbox
                   checked={this.state.includeHolidays}
