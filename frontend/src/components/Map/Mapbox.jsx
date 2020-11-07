@@ -74,6 +74,8 @@ class Mapbox extends React.Component {
     resetMap() {
         this.state.map.remove()
         this.createMap()
+        this.props.onLinkUpdate([]);
+        this.props.onNodeUpdate([]);
     };
 
     addTravelDataFiles(linkDataArr) {
@@ -103,7 +105,7 @@ class Mapbox extends React.Component {
 
     getLink() {
         this.disableInteractions();
-        getLinksBetweenNodes(this);
+        this.props.getLinks(this);
     };
 
     /* this function is called only by action.js after full link data is fetch */

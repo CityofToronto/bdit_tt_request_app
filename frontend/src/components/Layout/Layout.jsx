@@ -3,6 +3,7 @@ import Dropdown from "react-dropdown";
 import Sidebar from "react-sidebar";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
+import {getLinksBetweenNodes} from "../../actions/actions";
 
 class Layout extends React.Component{
     constructor(props) {
@@ -27,6 +28,10 @@ class Layout extends React.Component{
     updateLinks = (newLinks) => {
         console.log(newLinks)
         this.setState({ linksList: newLinks })
+    }
+
+    getLinks = (doc) => {
+        getLinksBetweenNodes(doc)
     }
 
     render(){
@@ -55,6 +60,7 @@ class Layout extends React.Component{
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
+                    getLinks={this.getLinks}
                 />
             </div>
         );
