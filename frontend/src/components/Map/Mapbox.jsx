@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getLinksBetweenNodes, getTravelDataFile, updateClosestNode} from '../../actions/actions';
+import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button} from 'react-bootstrap'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';

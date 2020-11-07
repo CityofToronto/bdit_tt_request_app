@@ -1,5 +1,4 @@
 import React from "react";
-import Dropdown from "react-dropdown";
 import Sidebar from "react-sidebar";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
@@ -37,10 +36,6 @@ class Layout extends React.Component{
     }
 
     render(){
-        // let nodeIds = [];
-        // this.state.nodesList.forEach((node) => {
-        //     nodeIds.push(node.nodeId);
-        // });
         return (
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
@@ -56,10 +51,6 @@ class Layout extends React.Component{
                         Open Sidebar
                     </button>
                 </Sidebar>
-                {/*<Dropdown*/}
-                {/*    options={nodeIds}*/}
-                {/*    className={"dropdown"}*/}
-                {/*/>*/}
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
