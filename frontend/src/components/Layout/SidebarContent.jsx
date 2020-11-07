@@ -51,16 +51,17 @@ class SidebarContent extends React.Component{
                       this.setState({timeRange: e.target.value})
                   }}
                   value={this.state.timeRange}
+                  helperText={"e.g. 0600:0900"}
               />
               <TextField
                   label="dates"
-                  defaultValue={"2020/01/01-2020/03/01"}
                   id="date"
                   className={"date"}
                   onChange={(e) => {
                       this.setState({dateRange: e.target.value})
                   }}
                   value={this.state.dateRange}
+                  helperText={"e.g. 2020-01-01:2020-0201"}
               />
               <TextField
                   label="days"
@@ -69,6 +70,7 @@ class SidebarContent extends React.Component{
                   onChange={(e) => {
                       this.setState({dayRange: e.target.value})
                   }}
+                  helperText={"e.g. mon:fri"}
                   value={this.state.dayRange}
               />
               <Checkbox
