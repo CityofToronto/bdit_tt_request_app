@@ -81,16 +81,23 @@ class Layout extends React.Component{
 
         // First validate the times
         if(!(times.length === 2 && times[0].length === 4 && times[1].length === 4 &&
-            parseInt(times[0]) < 2400 && parseInt(times[1]) < 2400)){
+            parseInt(times[0]) < 2400 && parseInt(times[1]) < 2400 &&
+            parseInt(times[0]) < parseInt(times[1]))){
+
             alert("Please enter a time range following the format: hhmm:hhmm")
 
             // next validate the days
         } else if(!(days.length === 2 && validDays.includes(days[0].toLowerCase()) &&
-            validDays.includes(days[1].toLowerCase()))){
+            validDays.includes(days[1].toLowerCase()) &&
+            validDays.indexOf(days[0].toLowerCase()) <= validDays.indexOf(days[1].toLowerCase()))){
+
             alert("Please enter a day range following the format: start:end")
 
             // finally validate the dates
-        } else if(!(dates.length === 2 && this.validDate(dates[0]) && this.validDate(dates[1]))){
+        } else if(!(dates.length === 2 && this.validDate(dates[0]) && this.validDate(dates[1]) &&
+            parseInt(dates[0].replaceAll("-", "")) <=
+            parseInt(dates[1].replaceAll("-", "")))){
+
             alert("Please enter a date range following the format: yyyy-mm-dd:yyyy-mm-dd");
 
             // everything is valid so parse the data
@@ -129,15 +136,15 @@ class Layout extends React.Component{
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
                     sidebar={<SidebarContent
-                        onHolidayUpdate={this.handleHolidays()}
+                        onHolidayUpdate={this.handleHolidays}
                         includeHolidays={this.state.includeHolidays}
-                        onDaysUpdate={this.updateDays()}
+                        onDaysUpdate={this.updateDays}
                         dayRange={this.state.dayRange}
                         onDatesUpdate={this.updateDates}
                         dateRange={this.state.dateRange}
-                        onTimesUpdate={this.updateTimes()}
+                        onTimesUpdate={this.updateTimes}
                         presets={["Working Week", "Custom"]}
-                        onPresetChange={this.updatePreset()}
+                        onPresetChange={this.updatePreset}
                         onGo={this.downloadData}
                     />}
                     open={this.state.sidebarOpen}
