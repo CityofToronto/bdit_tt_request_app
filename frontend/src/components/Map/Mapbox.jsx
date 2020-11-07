@@ -264,10 +264,10 @@ class Mapbox extends React.Component {
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
             // This is where nodes set
-            let newNodes = this.state.displayedMarker.concat([newMarker]);
+            let newNodes = this.state.clickedNodes.concat([newNode]);
             this.setState({
-                displayedMarker: newNodes,
-                clickedNodes: this.state.clickedNodes.concat([newNode]),
+                displayedMarker: this.state.displayedMarker.concat([newMarker]),
+                clickedNodes: newNodes,
                 disableAddMarker: false,
                 disableRemove: false,
                 disableGetLink: this.state.clickedNodes.length < 1,

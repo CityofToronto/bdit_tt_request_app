@@ -21,7 +21,9 @@ class Layout extends React.Component{
     }
 
     updateNodes = (newNodes) => {
-        console.log(newNodes)
+        if(newNodes.length > 0){
+            console.log(newNodes[0])
+        }
         this.setState({ nodesList: newNodes })
     }
 
@@ -31,11 +33,14 @@ class Layout extends React.Component{
     }
 
     getLinks = (doc) => {
-        getLinksBetweenNodes(doc)
+        getLinksBetweenNodes(doc, this.state.nodesList)
     }
 
     render(){
-
+        // let nodeIds = [];
+        // this.state.nodesList.forEach((node) => {
+        //     nodeIds.push(node.nodeId);
+        // });
         return (
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
@@ -51,12 +56,10 @@ class Layout extends React.Component{
                         Open Sidebar
                     </button>
                 </Sidebar>
-                <Dropdown
-                    options={[this.state.nodesList, this.state.linksList]}
-                    value={this.state.nodesList}
-                    placeholder={this.state.nodesList}
-                    className={"dropdown"}
-                />
+                {/*<Dropdown*/}
+                {/*    options={nodeIds}*/}
+                {/*    className={"dropdown"}*/}
+                {/*/>*/}
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
