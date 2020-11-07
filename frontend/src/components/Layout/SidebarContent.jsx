@@ -16,30 +16,41 @@ class SidebarContent extends React.Component{
         }
     }
 
+    updatePreset = (event) => {
+        console.log(event);
+        switch(event.value){
+            case "Working Week":
+                this.setState({ timeRange: "0600-0900", dayRange: "mon-fri", includeHolidays: false });
+                break;
+
+            default:
+                this.setState({ timeRange: "", dayRange: "", includeHolidays: false })
+        }
+    }
+
     render(){
         const handleChange = () => {
             this.setState({includeHolidays: !this.state.includeHolidays})
         };
 
-        const options = ["one", "two", "three"];
-        const defaultOption = "None"
+        const options = ["Working Week", "Custom"];
         return (
           <div id={"contentContainer"} className={"contentContainer"}>
               <Dropdown
                   options={options}
-                  value={defaultOption}
                   placeholder={"Presets"}
+                  onChange={this.updatePreset}
                   className={"presets"}
                   id={"presets"}
               />
               <TextField
                   label="time"
-                  defaultValue={"0600-0900"}
                   id="time"
                   className={"time"}
                   onChange={(e) => {
                       this.setState({timeRange: e.target.value})
                   }}
+                  value={this.state.timeRange}
               />
               <TextField
                   label="dates"
@@ -49,15 +60,16 @@ class SidebarContent extends React.Component{
                   onChange={(e) => {
                       this.setState({dateRange: e.target.value})
                   }}
+                  value={this.state.dateRange}
               />
               <TextField
                   label="days"
-                  defaultValue={"mon-fri"}
                   id="days"
                   className={"days"}
                   onChange={(e) => {
                       this.setState({dayRange: e.target.value})
                   }}
+                  value={this.state.dayRange}
               />
               <Checkbox
                   checked={this.state.includeHolidays}
