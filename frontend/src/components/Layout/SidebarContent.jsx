@@ -20,12 +20,69 @@ class SidebarContent extends React.Component{
         console.log(event);
         switch(event.value){
             case "Working Week":
-                this.setState({ timeRange: "0600-0900", dayRange: "mon-fri", includeHolidays: false });
+                this.setState({ timeRange: "0600:0900", dayRange: "mon:fri", includeHolidays: false });
                 break;
 
             default:
                 this.setState({ timeRange: "", dayRange: "", includeHolidays: false })
         }
+    }
+
+    handleQuery = () =>{
+        let params = this.parseData()
+    }
+
+    parseData(){
+
+        let params = {};
+        let times = this.state.timeRange.split(":");
+        let days = this.state.dayRange.split(":");
+        const validDays = ["sun", "mon", "tues", "wed", "thurs", "fri", "sat"];
+        let dates = this.state.dateRange.split(":");
+
+        // First validate the times
+        if(!(times.length === 2 && times[0].length === 4 && times[1].length === 4 &&
+            parseInt(times[0]) < 2400 && parseInt(times[1]) < 2400)){
+            alert("Please enter a time range following the format: hhmm:hhmm")
+
+            // next validate the days
+        } else if(!(days.length === 2 && validDays.includes(days[0].toLowerCase()) &&
+            validDays.includes(days[1].toLowerCase()))){
+            alert("Please enter a day range following the format: start:end")
+
+            // finally validate the dates
+        } else if(!(dates.length === 2 && this.validDate(dates[0]) && this.validDate(dates[1]))){
+            alert("Please enter a date range following the format: yyyy-mm-dd:yyyy-mm-dd");
+
+            // everything is valid so parse the data
+        } else {
+            params = {
+                startTimeStamp: dates[0] + " " + times[0],
+                endTimeStamp:dates[1] + " " + times[1],
+                startDay: days[0],
+                endDay: days[1]
+            }
+        }
+        return params;
+    }
+
+    validDate(dateString){
+        let segments = dateString.split("-");
+        if(segments.length === 3 && this.strIsInt(segments[0]) && segments[0].length === 4 &&
+            this.strIsInt(segments[1]) && segments[1].length === 2 &&
+            this.strIsInt(segments[2]) && segments[2].length === 2){
+            return true;
+        } else {
+            console.log(segments.length);
+            return false;
+        }
+    }
+
+    // From stack overflow
+    strIsInt(str){
+        str = str.replace(/^0+/, "") || "0";
+        let n = Math.floor(Number(str));
+        return n !== Infinity && String(n) === str && n >= 0;
     }
 
     render(){
@@ -84,6 +141,7 @@ class SidebarContent extends React.Component{
               <button
                   id={"go"}
                   className={"go"}
+                  onClick={this.handleQuery}
               >GO</button>
           </div>
         );
