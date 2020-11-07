@@ -116,6 +116,7 @@ class Mapbox extends React.Component {
             marker.setDraggable(false);
         });
 
+        // This is where links are set
         this.setState({
             linksData: linkDataArr,
             disableReset: false,
@@ -123,6 +124,7 @@ class Mapbox extends React.Component {
         }, () => {
             this.addTravelDataFiles(linkDataArr)
         });
+        this.props.onLinkUpdate(linkDataArr);
     };
 
     drawLinks(linkDataArr) {
@@ -206,6 +208,7 @@ class Mapbox extends React.Component {
 
             const newNodes = [...this.state.clickedNodes];
             newNodes[nodeIndex] = newNode
+            // this is also where nodes are set
             this.setState({
                 displayedMarker: newMarkers,
                 clickedNodes: newNodes,
@@ -215,6 +218,7 @@ class Mapbox extends React.Component {
                 disableReset: false,
                 disableDragMarker: false
             });
+            this.props.onNodeUpdate(newNodes);
         }
     }
 
@@ -257,8 +261,10 @@ class Mapbox extends React.Component {
 
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
+            // This is where nodes set
+            let newNodes = this.state.displayedMarker.concat([newMarker]);
             this.setState({
-                displayedMarker: this.state.displayedMarker.concat([newMarker]),
+                displayedMarker: newNodes,
                 clickedNodes: this.state.clickedNodes.concat([newNode]),
                 disableAddMarker: false,
                 disableRemove: false,
@@ -266,6 +272,7 @@ class Mapbox extends React.Component {
                 disableReset: false,
                 disableDragMarker: false
             });
+            this.props.onNodeUpdate(newNodes)
         }
     };
 
@@ -279,10 +286,12 @@ class Mapbox extends React.Component {
         let newClickedNode = [...this.state.clickedNodes];
         newClickedNode.splice(lastNodeNum, 1);
 
+        // this is where nodes are removed
         this.setState({
             clickedNodes: newClickedNode, displayedMarker: newDisplayedMarker,
             disableGetLink: lastNodeNum <= 1, disableRemove: lastNodeNum <= 0
         });
+        this.props.onNodeUpdate(newClickedNode)
     }
 
     render() {
