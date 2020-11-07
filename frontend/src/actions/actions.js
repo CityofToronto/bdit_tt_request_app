@@ -144,7 +144,7 @@ export const getTravelData = (page, data) => {
         "fileType": "csv"
 	}
 */
-export const getTravelDataFile = (page, data) => {
+export const getTravelDataFile = (data) => {
     axios.post(`${domain}/travel-data-file`, {
         start_time: data.startTime,
         end_time: data.endTime,

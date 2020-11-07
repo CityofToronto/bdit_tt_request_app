@@ -124,7 +124,7 @@ class Mapbox extends React.Component {
             disableReset: false,
             displayedMarker: lockedMarkers
         }, () => {
-            this.addTravelDataFiles(linkDataArr)
+            //this.addTravelDataFiles(linkDataArr)
         });
         this.props.onLinkUpdate(linkDataArr);
     };

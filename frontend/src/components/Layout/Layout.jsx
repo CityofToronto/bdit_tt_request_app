@@ -2,7 +2,7 @@ import React from "react";
 import Sidebar from "react-sidebar";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
-import {getLinksBetweenNodes} from "../../actions/actions";
+import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 
 class Layout extends React.Component{
     constructor(props) {
@@ -68,7 +68,20 @@ class Layout extends React.Component{
     }
 
     downloadData = () => {
-        let params = this.parseData()
+        if (this.state.linksList.length !== 0) {
+            let params = this.parseData();
+            let allLinkDirs = [];
+            this.state.linksList.forEach((link) => {
+                allLinkDirs = allLinkDirs.concat(link.link_dirs)
+            });
+
+            params.linkDirs = allLinkDirs;
+
+            getTravelDataFile(params);
+        } else {
+            alert("Please get links first");
+        }
+
     }
 
     parseData(){
@@ -102,11 +115,14 @@ class Layout extends React.Component{
 
             // everything is valid so parse the data
         } else {
+            times[0] = times[0].substring(0, 2) + ":" + times[0].substring(2) + ":00"
+            times[1] = times[1].substring(0, 2) + ":" + times[1].substring(2) + ":00"
             params = {
-                startTimeStamp: dates[0] + " " + times[0],
-                endTimeStamp:dates[1] + " " + times[1],
+                startTime: dates[0] + " " + times[0],
+                endTime:dates[1] + " " + times[1],
                 startDay: days[0],
-                endDay: days[1]
+                endDay: days[1],
+                fileType: "csv"
             }
         }
         return params;
