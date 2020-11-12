@@ -76,11 +76,11 @@ export const getDateBoundary = (page) => {
 };
 
 /* GET links given two nodes */
-export const getLinksBetweenNodes = (page) => {
+export const getLinksBetweenNodes = (page, nodes) => {
 	const nodeIds = [];
-	page.state.clickedNodes.forEach((node) => {
-		nodeIds.push(node.nodeId);
-	});
+    nodes.forEach((node) => {
+        nodeIds.push(node.nodeId);
+    });
 
     axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
         if (res.data) {
@@ -144,7 +144,7 @@ export const getTravelData = (page, data) => {
         "fileType": "csv"
 	}
 */
-export const getTravelDataFile = (page, data) => {
+export const getTravelDataFile = (data) => {
     axios.post(`${domain}/travel-data-file`, {
         start_time: data.startTime,
         end_time: data.endTime,

@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getLinksBetweenNodes, getTravelDataFile, updateClosestNode} from '../../actions/actions';
+import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button} from 'react-bootstrap'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
@@ -74,6 +74,8 @@ class Mapbox extends React.Component {
     resetMap() {
         this.state.map.remove()
         this.createMap()
+        this.props.onLinkUpdate([]);
+        this.props.onNodeUpdate([]);
     };
 
     addTravelDataFiles(linkDataArr) {
@@ -103,7 +105,7 @@ class Mapbox extends React.Component {
 
     getLink() {
         this.disableInteractions();
-        getLinksBetweenNodes(this);
+        this.props.getLinks(this);
     };
 
     /* this function is called only by action.js after full link data is fetch */
@@ -116,13 +118,15 @@ class Mapbox extends React.Component {
             marker.setDraggable(false);
         });
 
+        // This is where links are set
         this.setState({
             linksData: linkDataArr,
             disableReset: false,
             displayedMarker: lockedMarkers
         }, () => {
-            this.addTravelDataFiles(linkDataArr)
+            //this.addTravelDataFiles(linkDataArr)
         });
+        this.props.onLinkUpdate(linkDataArr);
     };
 
     drawLinks(linkDataArr) {
@@ -206,6 +210,7 @@ class Mapbox extends React.Component {
 
             const newNodes = [...this.state.clickedNodes];
             newNodes[nodeIndex] = newNode
+            // this is also where nodes are set
             this.setState({
                 displayedMarker: newMarkers,
                 clickedNodes: newNodes,
@@ -215,6 +220,7 @@ class Mapbox extends React.Component {
                 disableReset: false,
                 disableDragMarker: false
             });
+            this.props.onNodeUpdate(newNodes);
         }
     }
 
@@ -257,15 +263,18 @@ class Mapbox extends React.Component {
 
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
+            // This is where nodes set
+            let newNodes = this.state.clickedNodes.concat([newNode]);
             this.setState({
                 displayedMarker: this.state.displayedMarker.concat([newMarker]),
-                clickedNodes: this.state.clickedNodes.concat([newNode]),
+                clickedNodes: newNodes,
                 disableAddMarker: false,
                 disableRemove: false,
                 disableGetLink: this.state.clickedNodes.length < 1,
                 disableReset: false,
                 disableDragMarker: false
             });
+            this.props.onNodeUpdate(newNodes)
         }
     };
 
@@ -279,10 +288,12 @@ class Mapbox extends React.Component {
         let newClickedNode = [...this.state.clickedNodes];
         newClickedNode.splice(lastNodeNum, 1);
 
+        // this is where nodes are removed
         this.setState({
             clickedNodes: newClickedNode, displayedMarker: newDisplayedMarker,
             disableGetLink: lastNodeNum <= 1, disableRemove: lastNodeNum <= 0
         });
+        this.props.onNodeUpdate(newClickedNode)
     }
 
     render() {
