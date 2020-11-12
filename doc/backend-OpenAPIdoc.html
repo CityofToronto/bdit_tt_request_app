@@ -922,19 +922,34 @@
   }
 };
             defs["TravelFileRequestBody"] = {
-  "required" : [ "link_dirs", "time_periods" ],
+  "required" : [ "days_of_week", "end_date", "end_time", "include_holidays", "link_dirs", "start_date", "start_time" ],
   "type" : "object",
   "properties" : {
-    "time_periods" : {
+    "start_date" : {
+      "type" : "string",
+      "example" : "2018-09-01"
+    },
+    "end_date" : {
+      "type" : "string",
+      "example" : "2018-09-30"
+    },
+    "start_time" : {
+      "type" : "string",
+      "example" : "00:00:00"
+    },
+    "end_time" : {
+      "type" : "string",
+      "example" : "19:55:00"
+    },
+    "days_of_week" : {
       "type" : "array",
+      "example" : "[true, false, true, false, true, false, false]",
       "items" : {
-        "type" : "array",
-        "example" : "[['2018-09-01 00:00:00', '2018-09-09 23:59:59'], ['2018-09-20 00:00:00', '2018-09-29 23:59:59']]",
-        "items" : {
-          "type" : "string",
-          "format" : "date-time"
-        }
+        "type" : "boolean"
       }
+    },
+    "include_holidays" : {
+      "type" : "boolean"
     },
     "link_dirs" : {
       "type" : "array",
@@ -2187,7 +2202,7 @@ except ApiException as e:
                       <article id="api-Default-getTravelDataFile-0" data-group="User" data-name="getTravelDataFile" data-version="0">
                         <div class="pull-left">
                           <h1>getTravelDataFile</h1>
-                          <p>Get the travel data file of each of the given series of links in the given time ranges.</p>
+                          <p>Get the travel data file of each of the given series of links in the specified time ranges.</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -2234,7 +2249,7 @@ public class DefaultApiExample {
     public static void main(String[] args) {
         
         DefaultApi apiInstance = new DefaultApi();
-        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
         try {
             apiInstance.getTravelDataFile(body);
         } catch (ApiException e) {
@@ -2252,7 +2267,7 @@ public class DefaultApiExample {
 
     public static void main(String[] args) {
         DefaultApi apiInstance = new DefaultApi();
-        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
         try {
             apiInstance.getTravelDataFile(body);
         } catch (ApiException e) {
@@ -2267,11 +2282,11 @@ public class DefaultApiExample {
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
                             <div class="tab-pane" id="examples-Default-getTravelDataFile-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">TravelFileRequestBody *body = ; // The date-time periods and links(link_dirs) to be queried
+                              <pre class="prettyprint"><code class="language-cpp">TravelFileRequestBody *body = ; // The date-time specifications and links(link_dirs) to be queried
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-// Get the travel data file of each of the given series of links in the given time ranges.
+// Get the travel data file of each of the given series of links in the specified time ranges.
 [apiInstance getTravelDataFileWith:body
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -2285,7 +2300,7 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
                               <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
 
 var api = new DataFilterWebApplication.DefaultApi()
-var body = ; // {{TravelFileRequestBody}} The date-time periods and links(link_dirs) to be queried
+var body = ; // {{TravelFileRequestBody}} The date-time specifications and links(link_dirs) to be queried
 
 var callback = function(error, data, response) {
   if (error) {
@@ -2316,11 +2331,11 @@ namespace Example
         {
 
             var apiInstance = new DefaultApi();
-            var body = new TravelFileRequestBody(); // TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+            var body = new TravelFileRequestBody(); // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
             try
             {
-                // Get the travel data file of each of the given series of links in the given time ranges.
+                // Get the travel data file of each of the given series of links in the specified time ranges.
                 apiInstance.getTravelDataFile(body);
             }
             catch (Exception e)
@@ -2338,7 +2353,7 @@ namespace Example
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\ApiDefaultApi();
-$body = ; // TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+$body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 try {
     $api_instance->getTravelDataFile($body);
@@ -2354,7 +2369,7 @@ use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::DefaultApi;
 
 my $api_instance = WWW::SwaggerClient::DefaultApi->new();
-my $body = WWW::SwaggerClient::Object::TravelFileRequestBody->new(); # TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+my $body = WWW::SwaggerClient::Object::TravelFileRequestBody->new(); # TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 eval { 
     $api_instance->getTravelDataFile(body => $body);
@@ -2373,10 +2388,10 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.DefaultApi()
-body =  # TravelFileRequestBody | The date-time periods and links(link_dirs) to be queried
+body =  # TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 try: 
-    # Get the travel data file of each of the given series of links in the given time ranges.
+    # Get the travel data file of each of the given series of links in the specified time ranges.
     api_instance.get_travel_data_file(body)
 except ApiException as e:
     print("Exception when calling DefaultApi->getTravelDataFile: %s\n" % e)</code></pre>
@@ -2400,7 +2415,7 @@ except ApiException as e:
                                 <script>
                                 $(document).ready(function() {
                                   var schemaWrapper = {
-  "description" : "The date-time periods and links(link_dirs) to be queried",
+  "description" : "The date-time specifications and links(link_dirs) to be queried",
   "content" : {
     "application/json" : {
       "schema" : {

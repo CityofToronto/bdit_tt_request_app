@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import abort
 
@@ -73,37 +73,54 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
 def parse_travel_request_body(travel_request_data):
     """
     Parse the body of a travel data request (POST request body).
-    There should be three fields existing in the request body: time_periods and link_dirs.
-    time_periods is a list representing all the individual continuous time intervals to query.
-    link_dirs should be a list containing all the interested link's link_dir.
 
-    Assumptions: time_periods is in request body, and entries are lists with index 0 as start time and index 1 as
-                end time formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-                link_dirs is in request body, and is a list containing valid link_dir entries (string).
+    Assumptions: The following fields should exist in the request body: start_date, end_date, start_time, end_time,
+                days_of_week, include_holidays and link_dirs.
+                start_date and end_date are date strings in format %Y-%m-%d
+                start_time and end_time are time strings in format %H:%M:%S
+                days_of_week should be a length-7 list of boolean values (0 is Monday, 6 is Sunday), representing
+                which days to include.
+                include_holidays should be a boolean value representing whether or not to include holidays
+                link_dirs should be a list containing all the interested link's link_dir.
+
     This function will call abort with response code 400 and error messages if any of the assumption is not met.
 
     :param travel_request_data: The raw request body
     :return: a tuple of (time_periods, link_dirs)
     """
+    # TODO: update doc comment string
     # ensures existence of required fields
-    if 'time_periods' not in travel_request_data or 'link_dirs' not in travel_request_data:
+    required_fields = ['start_date', 'end_date', 'start_time', 'end_time', 'days_of_week', 'include_holidays',
+                       'link_dirs']
+    if False in [field in travel_request_data for field in required_fields]:
         abort(400, description="Request body must contain time_periods and link_dirs.")
         return
-
-    time_periods = travel_request_data['time_periods']
+    start_date = travel_request_data['start_date']
+    end_date = travel_request_data['end_date']
+    start_time = travel_request_data['start_time']
+    end_time = travel_request_data['end_time']
+    days_of_week = travel_request_data['days_of_week']
+    # TODO: holiday logic
+    include_holidays = travel_request_data['include_holidays']
     link_dirs = travel_request_data['link_dirs']
 
     parsed_datetime_periods = []
 
     # ensures format of timestamp
     try:
-        for time_period in time_periods:
-            start_datetime = datetime.strptime(time_period[0], DATE_TIME_FORMAT)
-            end_datetime = datetime.strptime(time_period[1], DATE_TIME_FORMAT)
-            parsed_datetime_periods.append((start_datetime, end_datetime))
+        start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
+        end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
+        curr_datetime = start_datetime
+        while curr_datetime <= end_datetime:
+            curr_weekday = curr_datetime.weekday()
+            if days_of_week[curr_weekday]:
+                curr_end_datetime = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
+                                                          second=end_datetime.second)
+                parsed_datetime_periods.append((curr_datetime, curr_end_datetime))
+            curr_datetime = curr_datetime + timedelta(days=1)
     except ValueError:
         abort(400, description=(
-                    "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
+                "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
         return
 
     # ensures link_dirs has the right type

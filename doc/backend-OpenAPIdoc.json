@@ -110,10 +110,10 @@
         },
         "/travel-data-file": {
             "post": {
-                "summary": "Get the travel data file of each of the given series of links in the given time ranges.",
+                "summary": "Get the travel data file of each of the given series of links in the specified time ranges.",
                 "operationId": "getTravelDataFile",
                 "requestBody": {
-                    "description": "The date-time periods and links(link_dirs) to be queried",
+                    "description": "The date-time specifications and links(link_dirs) to be queried",
                     "required": true,
                     "content":{
                         "application/json":{
@@ -186,21 +186,40 @@
             "TravelFileRequestBody": {
                 "type": "object",
                 "required": [
-                    "time_periods",
+                    "start_date",
+                    "end_date",
+                    "start_time",
+                    "end_time",
+                    "days_of_week",
+                    "include_holidays",
                     "link_dirs"
                 ],
                 "properties": {
-                    "time_periods": {
+                    "start_date": {
+                        "type": "string",
+                        "example": "2018-09-01"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "example": "2018-09-30"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "example":"00:00:00"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "example":"19:55:00"
+                    },
+                    "days_of_week": {
                         "type": "array",
                         "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time",
-                                "example": "2018-09-30 19:55:00"
-                            },
-                            "example": "[['2018-09-01 00:00:00', '2018-09-09 23:59:59'], ['2018-09-20 00:00:00', '2018-09-29 23:59:59']]"
-                        }
+                            "type": "boolean"
+                        },
+                        "example": "[true, false, true, false, true, false, false]"
+                    },
+                    "include_holidays": {
+                        "type": "boolean"
                     },
                     "link_dirs": {
                         "type": "array",
