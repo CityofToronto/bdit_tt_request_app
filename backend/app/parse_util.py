@@ -73,33 +73,37 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
 def parse_travel_request_body(travel_request_data):
     """
     Parse the body of a travel data request (POST request body).
-    There should be three fields existing in the request body: start_time, end_time and link_dirs.
-    start_time and end_time represent the time interval to query.
+    There should be three fields existing in the request body: time_periods and link_dirs.
+    time_periods is a list representing all the individual continuous time intervals to query.
     link_dirs should be a list containing all the interested link's link_dir.
 
-    Assumptions: start_time, end_time are in request body, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+    Assumptions: time_periods is in request body, and entries are lists with index 0 as start time and index 1 as
+                end time formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
                 link_dirs is in request body, and is a list containing valid link_dir entries (string).
     This function will call abort with response code 400 and error messages if any of the assumption is not met.
 
     :param travel_request_data: The raw request body
-    :return: a tuple of (start_time, end_time, link_dirs)
+    :return: a tuple of (time_periods, link_dirs)
     """
     # ensures existence of required fields
-    if 'start_time' not in travel_request_data or 'end_time' not in travel_request_data or \
-            'link_dirs' not in travel_request_data:
-        abort(400, description="Request body must contain start_time, end_time and link_dirs.")
+    if 'time_periods' not in travel_request_data or 'link_dirs' not in travel_request_data:
+        abort(400, description="Request body must contain time_periods and link_dirs.")
         return
 
-    start_time = travel_request_data['start_time']
-    end_time = travel_request_data['end_time']
+    time_periods = travel_request_data['time_periods']
     link_dirs = travel_request_data['link_dirs']
+
+    parsed_datetime_periods = []
 
     # ensures format of timestamp
     try:
-        datetime.strptime(start_time, DATE_TIME_FORMAT)
-        datetime.strptime(end_time, DATE_TIME_FORMAT)
+        for time_period in time_periods:
+            start_datetime = datetime.strptime(time_period[0], DATE_TIME_FORMAT)
+            end_datetime = datetime.strptime(time_period[1], DATE_TIME_FORMAT)
+            parsed_datetime_periods.append((start_datetime, end_datetime))
     except ValueError:
-        abort(400, description=("Start time and end time must follow date time format: %s" % DATE_TIME_FORMAT))
+        abort(400, description=(
+                    "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
         return
 
     # ensures link_dirs has the right type
@@ -107,7 +111,7 @@ def parse_travel_request_body(travel_request_data):
         abort(400, description="link_dirs must be a list of link_dir to fetch travel data from!")
         return
 
-    return start_time, end_time, link_dirs
+    return parsed_datetime_periods, link_dirs
 
 
 def parse_link_response(link_data):
