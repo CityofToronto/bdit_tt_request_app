@@ -129,24 +129,25 @@ def get_links_between_multi_nodes():
     return jsonify(optimal_links_data_list)
 
 
-@app.route('/travel-data', methods=['POST'])
-def get_links_travel_data():
-    """
-    Get the travel data from start_time to end_time for all links in link_dirs.
-
-    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-            too many links. (1~2min)
-
-    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-    This function will be aborted if any of the assumption is not met.
-
-    :return: a JSON list containing all the travel data, sorted in ascending link_dir order then ascending time order.
-            Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float), pct_50(int),
-            stddev(float), tx(str)
-    """
-    start_time, end_time, link_dirs = parse_travel_request_body(request.json)
-    return jsonify(_get_travel_data_list(start_time, end_time, link_dirs))
+# DEPRECATED
+# @app.route('/travel-data', methods=['POST'])
+# def get_links_travel_data():
+#     """
+#     Get the travel data from start_time to end_time for all links in link_dirs.
+#
+#     Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs
+#               contains too many links. (1~2min)
+#
+#     Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+#                 link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+#     This function will be aborted if any of the assumption is not met.
+#
+#     :return: a JSON list containing all the travel data, sorted in ascending link_dir order then ascending time order.
+#             Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float),
+#             pct_50(int), stddev(float), tx(str)
+#     """
+#     start_time, end_time, link_dirs = parse_travel_request_body(request.json)
+#     return jsonify(_get_travel_data_list(start_time, end_time, link_dirs))
 
 
 @app.route('/travel-data-file', methods=['POST'])
@@ -165,9 +166,8 @@ def get_links_travel_data_file():
     :return: a file containing requested travel data
     """
     file_type = parse_file_type_request_body(request.json)
-    start_time, end_time, link_dirs = parse_travel_request_body(request.json)
-    travel_data_list = _get_travel_data_list(start_time, end_time, link_dirs)
-
+    time_periods, link_dirs = parse_travel_request_body(request.json)
+    travel_data_list = _get_travel_data_list(time_periods, link_dirs)
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list)
         mime_type = "text/csv"
@@ -202,24 +202,30 @@ def get_date_bounds():
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
 
 
-def _get_travel_data_list(start_time, end_time, link_dirs):
+def _get_travel_data_list(time_periods, link_dirs):
     """
-    Get the travel data from start_time to end_time for all links in link_dirs.
+    Get the travel data within all given time_periods for all links in link_dirs.
 
-    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-            too many links. (1~2min)
+    Caution: This function may take a long time if the time sum of time_periods is a long period of time, or
+            link_dirs contains too many links. (1~2min)
 
     :return: a python list containing all the travel data, sorted in ascending link_dir order then ascending time order.
             Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float), pct_50(int),
             stddev(float), tx(str)
     """
-    travel_query_result = Travel.query \
-        .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
-        .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
-
     travel_data_list = []
-    for travel_data in travel_query_result:
-        travel_data_list.append(travel_data.json())
+
+    for time_period in time_periods:
+        start_time = time_period[0]
+        end_time = time_period[1]
+        print(start_time)
+        print(end_time)
+        travel_query_result = Travel.query \
+            .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
+            .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+
+        for travel_data in travel_query_result:
+            travel_data_list.append(travel_data.json())
 
     return travel_data_list
 

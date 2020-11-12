@@ -76,33 +76,24 @@
                 }
             }
         },
-        "/link-nodes/{from_node_id}/{to_node_id}": {
-            "parameters": [
-                {
-                    "name": "from_node_id",
-                    "in": "path",
+        "/link-nodes": {
+            "post": {
+                "summary": "Get the shortest link between the given series of nodes.",
+                "operationId": "getLinkBetweenNodes",
+                "requestBody": {
+                    "description": "The series of nodes",
                     "required": true,
-                    "description": "The source node's ID.",
-                    "schema": {
-                        "type": "integer"
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/LinkNodesRequestBody"
+                            }
+                        }
                     }
                 },
-                {
-                    "name": "to_node_id",
-                    "in": "path",
-                    "required": true,
-                    "description": "The target node's ID.",
-                    "schema": {
-                        "type": "integer"
-                    }
-                }
-            ],
-            "get": {
-                "summary": "Get the shortest link between the two nodes.",
-                "operationId": "getLinkBetweenNodes",
                 "responses": {
                     "200": {
-                        "description": "The shortest link between the two nodes.",
+                        "description": "The shortest series of links between the series of nodes.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -117,44 +108,12 @@
                 }
             }
         },
-        "/travel-data": {
-            "post": {
-                "summary": "Get the travel data of each of the given series of links.",
-                "operationId": "getTravelData",
-                "requestBody": {
-                    "description": "The date range and links(link_dirs) to be queried",
-                    "required": true,
-                    "content":{
-                        "application/json":{
-                            "schema":{
-                                "$ref": "#/components/schemas/TravelRequestBody"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The travel data array of the given series of links.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/TravelData"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/travel-data-file": {
             "post": {
-                "summary": "Get the travel data file of each of the given series of links.",
+                "summary": "Get the travel data file of each of the given series of links in the specified time ranges.",
                 "operationId": "getTravelDataFile",
                 "requestBody": {
-                    "description": "The date range and links(link_dirs) to be queried",
+                    "description": "The date-time specifications and links(link_dirs) to be queried",
                     "required": true,
                     "content":{
                         "application/json":{
@@ -227,20 +186,40 @@
             "TravelFileRequestBody": {
                 "type": "object",
                 "required": [
+                    "start_date",
+                    "end_date",
                     "start_time",
                     "end_time",
+                    "days_of_week",
+                    "include_holidays",
                     "link_dirs"
                 ],
                 "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "example": "2018-09-01"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "example": "2018-09-30"
+                    },
                     "start_time": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2018-09-30 19:55:00"
+                        "example":"00:00:00"
                     },
                     "end_time": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2018-09-30 19:55:00"
+                        "example":"19:55:00"
+                    },
+                    "days_of_week": {
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "example": "[true, false, true, false, true, false, false]"
+                    },
+                    "include_holidays": {
+                        "type": "boolean"
                     },
                     "link_dirs": {
                         "type": "array",
@@ -479,6 +458,21 @@
                     },
                     "pct_50": {
                         "type": "integer"
+                    }
+                }
+            },
+            "LinkNodesRequestBody": {
+                "type":"object",
+                "required":[
+                    "node_ids"
+                ],
+                "properties": {
+                    "node_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "example": "30310655"
+                        }
                     }
                 }
             },

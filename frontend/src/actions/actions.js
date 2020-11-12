@@ -77,7 +77,7 @@ export const getDateBoundary = (page) => {
 
 /* GET links given two nodes */
 export const getLinksBetweenNodes = (page, nodes) => {
-	const nodeIds = [];
+    const nodeIds = [];
     nodes.forEach((node) => {
         nodeIds.push(node.nodeId);
     });
@@ -145,9 +145,16 @@ export const getTravelData = (page, data) => {
 	}
 */
 export const getTravelDataFile = (data) => {
+    if (!data.fileType) {
+        data.fileType = 'csv';
+    }
     axios.post(`${domain}/travel-data-file`, {
         start_time: data.startTime,
         end_time: data.endTime,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        days_of_week: data.daysOfWeek,
+        include_holidays: data.includeHolidays,
         link_dirs: data.linkDirs,
         file_type: data.fileType
     }).then(res => {

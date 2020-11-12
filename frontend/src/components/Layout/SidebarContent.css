@@ -6,45 +6,54 @@
 .presets{
     width: 80%;
     height: 5%;
+    top: 5%;
+    left: 10%;
+}
+
+.startDate{
+    width: 80%;
+    height: 5%;
     top: 10%;
     left: 10%;
 }
 
-.time{
+.endDate{
     width: 80%;
     height: 5%;
-    top: 20%;
+    top: 13%;
     left: 10%;
 }
 
-.date{
+.startTime{
     width: 80%;
     height: 5%;
-    top: 30%;
+    top: 18%;
+    left: 10%;
+}
+
+.endTime{
+    width: 80%;
+    height: 5%;
+    top: 21%;
     left: 10%;
 }
 
 .days{
     width: 80%;
     height: 5%;
-    top: 40%;
+    top: 27%;
     left: 10%;
 }
 
 .holiday{
-    top: 50%;
-    right: 60%;
-}
-
-.label{
     position: absolute;
-    top: 64%;
-    left: 35%;
+    top: 75%;
+    left: 10%;
 }
 
 .go{
     position: absolute;
-    top: 75%;
+    top: 85%;
     left: 30%;
     font-size: 2rem;
 }

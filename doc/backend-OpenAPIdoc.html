@@ -738,6 +738,19 @@
     }
   }
 };
+            defs["LinkNodesRequestBody"] = {
+  "required" : [ "node_ids" ],
+  "type" : "object",
+  "properties" : {
+    "node_ids" : {
+      "type" : "array",
+      "items" : {
+        "type" : "integer",
+        "example" : 30310655
+      }
+    }
+  }
+};
             defs["Link_geometry"] = {
   "required" : [ "coordinates", "type" ],
   "type" : "object",
@@ -909,16 +922,34 @@
   }
 };
             defs["TravelFileRequestBody"] = {
-  "required" : [ "end_time", "link_dirs", "start_time" ],
+  "required" : [ "days_of_week", "end_date", "end_time", "include_holidays", "link_dirs", "start_date", "start_time" ],
   "type" : "object",
   "properties" : {
+    "start_date" : {
+      "type" : "string",
+      "example" : "2018-09-01"
+    },
+    "end_date" : {
+      "type" : "string",
+      "example" : "2018-09-30"
+    },
     "start_time" : {
       "type" : "string",
-      "format" : "date-time"
+      "example" : "00:00:00"
     },
     "end_time" : {
       "type" : "string",
-      "format" : "date-time"
+      "example" : "19:55:00"
+    },
+    "days_of_week" : {
+      "type" : "array",
+      "example" : "[true, false, true, false, true, false, false]",
+      "items" : {
+        "type" : "boolean"
+      }
+    },
+    "include_holidays" : {
+      "type" : "boolean"
     },
     "link_dirs" : {
       "type" : "array",
@@ -982,9 +1013,6 @@
                     </li>
                     <li data-group="Default" data-name="getProjectTitle" class="">
                       <a href="#api-Default-getProjectTitle">getProjectTitle</a>
-                    </li>
-                    <li data-group="Default" data-name="getTravelData" class="">
-                      <a href="#api-Default-getTravelData">getTravelData</a>
                     </li>
                     <li data-group="Default" data-name="getTravelDataFile" class="">
                       <a href="#api-Default-getTravelDataFile">getTravelDataFile</a>
@@ -1603,7 +1631,7 @@ except ApiException as e:
                       <article id="api-Default-getLinkBetweenNodes-0" data-group="User" data-name="getLinkBetweenNodes" data-version="0">
                         <div class="pull-left">
                           <h1>getLinkBetweenNodes</h1>
-                          <p>Get the shortest link between the two nodes.</p>
+                          <p>Get the shortest link between the given series of nodes.</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -1611,7 +1639,7 @@ except ApiException as e:
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/link-nodes/{from_node_id}/{to_node_id}</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/link-nodes</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -1631,9 +1659,10 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Default-getLinkBetweenNodes-0-curl">
-                           <pre class="prettyprint"><code class="language-bsh">curl -X GET\
+                           <pre class="prettyprint"><code class="language-bsh">curl -X POST\
 -H "Accept: application/json"\
-"http://127.0.0.1/link-nodes/{from_node_id}/{to_node_id}"</code></pre>
+-H "Content-Type: application/json"\
+"http://127.0.0.1/link-nodes"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -1649,10 +1678,9 @@ public class DefaultApiExample {
     public static void main(String[] args) {
         
         DefaultApi apiInstance = new DefaultApi();
-        Integer fromNodeId = 56; // Integer | The source node's ID.
-        Integer toNodeId = 56; // Integer | The target node's ID.
+        LinkNodesRequestBody body = ; // LinkNodesRequestBody | The series of nodes
         try {
-            inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+            inline_response_200 result = apiInstance.getLinkBetweenNodes(body);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
@@ -1669,10 +1697,9 @@ public class DefaultApiExample {
 
     public static void main(String[] args) {
         DefaultApi apiInstance = new DefaultApi();
-        Integer fromNodeId = 56; // Integer | The source node's ID.
-        Integer toNodeId = 56; // Integer | The target node's ID.
+        LinkNodesRequestBody body = ; // LinkNodesRequestBody | The series of nodes
         try {
-            inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+            inline_response_200 result = apiInstance.getLinkBetweenNodes(body);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#getLinkBetweenNodes");
@@ -1686,14 +1713,12 @@ public class DefaultApiExample {
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
                             <div class="tab-pane" id="examples-Default-getLinkBetweenNodes-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">Integer *fromNodeId = 56; // The source node's ID.
-Integer *toNodeId = 56; // The target node's ID.
+                              <pre class="prettyprint"><code class="language-cpp">LinkNodesRequestBody *body = ; // The series of nodes
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-// Get the shortest link between the two nodes.
-[apiInstance getLinkBetweenNodesWith:fromNodeId
-    toNodeId:toNodeId
+// Get the shortest link between the given series of nodes.
+[apiInstance getLinkBetweenNodesWith:body
               completionHandler: ^(inline_response_200 output, NSError* error) {
                             if (output) {
                                 NSLog(@"%@", output);
@@ -1709,8 +1734,7 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
                               <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
 
 var api = new DataFilterWebApplication.DefaultApi()
-var fromNodeId = 56; // {{Integer}} The source node's ID.
-var toNodeId = 56; // {{Integer}} The target node's ID.
+var body = ; // {{LinkNodesRequestBody}} The series of nodes
 
 var callback = function(error, data, response) {
   if (error) {
@@ -1719,7 +1743,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.getLinkBetweenNodes(fromNodeId, toNodeId, callback);
+api.getLinkBetweenNodes(body, callback);
 </code></pre>
                             </div>
 
@@ -1741,13 +1765,12 @@ namespace Example
         {
 
             var apiInstance = new DefaultApi();
-            var fromNodeId = 56;  // Integer | The source node's ID.
-            var toNodeId = 56;  // Integer | The target node's ID.
+            var body = new LinkNodesRequestBody(); // LinkNodesRequestBody | The series of nodes
 
             try
             {
-                // Get the shortest link between the two nodes.
-                inline_response_200 result = apiInstance.getLinkBetweenNodes(fromNodeId, toNodeId);
+                // Get the shortest link between the given series of nodes.
+                inline_response_200 result = apiInstance.getLinkBetweenNodes(body);
                 Debug.WriteLine(result);
             }
             catch (Exception e)
@@ -1765,11 +1788,10 @@ namespace Example
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\ApiDefaultApi();
-$fromNodeId = 56; // Integer | The source node's ID.
-$toNodeId = 56; // Integer | The target node's ID.
+$body = ; // LinkNodesRequestBody | The series of nodes
 
 try {
-    $result = $api_instance->getLinkBetweenNodes($fromNodeId, $toNodeId);
+    $result = $api_instance->getLinkBetweenNodes($body);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling DefaultApi->getLinkBetweenNodes: ', $e->getMessage(), PHP_EOL;
@@ -1783,11 +1805,10 @@ use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::DefaultApi;
 
 my $api_instance = WWW::SwaggerClient::DefaultApi->new();
-my $fromNodeId = 56; # Integer | The source node's ID.
-my $toNodeId = 56; # Integer | The target node's ID.
+my $body = WWW::SwaggerClient::Object::LinkNodesRequestBody->new(); # LinkNodesRequestBody | The series of nodes
 
 eval { 
-    my $result = $api_instance->getLinkBetweenNodes(fromNodeId => $fromNodeId, toNodeId => $toNodeId);
+    my $result = $api_instance->getLinkBetweenNodes(body => $body);
     print Dumper($result);
 };
 if ($@) {
@@ -1804,12 +1825,11 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.DefaultApi()
-fromNodeId = 56 # Integer | The source node's ID.
-toNodeId = 56 # Integer | The target node's ID.
+body =  # LinkNodesRequestBody | The series of nodes
 
 try: 
-    # Get the shortest link between the two nodes.
-    api_response = api_instance.get_link_between_nodes(fromNodeId, toNodeId)
+    # Get the shortest link between the given series of nodes.
+    api_response = api_instance.get_link_between_nodes(body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling DefaultApi->getLinkBetweenNodes: %s\n" % e)</code></pre>
@@ -1818,64 +1838,57 @@ except ApiException as e:
 
                           <h2>Parameters</h2>
 
-                            <div class="methodsubtabletitle">Path parameters</div>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
                             <table id="methodsubtable">
-                                <tr>
-                                  <th width="150px">Name</th>
-                                  <th>Description</th>
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body <span style="color:red;">*</span></td>
+                                <td>
+                                
+                                
+                                <script>
+                                $(document).ready(function() {
+                                  var schemaWrapper = {
+  "description" : "The series of nodes",
+  "content" : {
+    "application/json" : {
+      "schema" : {
+        "$ref" : "#/components/schemas/LinkNodesRequestBody"
+      }
+    }
+  },
+  "required" : true
+};
+                                  var schema = schemaWrapper.content["application/json"].schema;
+                                  if (schema.$ref != null) {
+                                    schema = defsParser.$refs.get(schema.$ref);
+                                  } else {
+                                    schemaWrapper.components = {};
+                                    schemaWrapper.components.schemas = Object.assign({}, defs);
+                                    $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                      console.log(err);
+                                    });
+                                  }
+                                
+                                  var view = new JSONSchemaView(schema,2,{isBodyParam: true});
+                                  var result = $('#d2e199_getLinkBetweenNodes_body');
+                                  result.empty();
+                                  result.append(view.render());
+                                });
+                                </script>
+                                <div id="d2e199_getLinkBetweenNodes_body"></div>
+                                </td>
                                 </tr>
-                                  <tr><td style="width:150px;">from_node_id*</td>
-                                  <td>
-                                  
-                                  
-                                      <div id="d2e199_getLinkBetweenNodes_fromNodeId">
-                                          <div class="json-schema-view">
-                                              <div class="primitive">
-                                                  <span class="type">
-                                                      Integer
-                                                  </span>
-                                  
-                                                      <div class="inner description">
-                                                          The source node&#x27;s ID.
-                                                      </div>
-                                              </div>
-                                                  <div class="inner required">
-                                                      Required
-                                                  </div>
-                                          </div>
-                                      </div>
-                                  </td>
-                                  </tr>
-                                  <tr><td style="width:150px;">to_node_id*</td>
-                                  <td>
-                                  
-                                  
-                                      <div id="d2e199_getLinkBetweenNodes_toNodeId">
-                                          <div class="json-schema-view">
-                                              <div class="primitive">
-                                                  <span class="type">
-                                                      Integer
-                                                  </span>
-                                  
-                                                      <div class="inner description">
-                                                          The target node&#x27;s ID.
-                                                      </div>
-                                              </div>
-                                                  <div class="inner required">
-                                                      Required
-                                                  </div>
-                                          </div>
-                                      </div>
-                                  </td>
-                                  </tr>
                             </table>
 
 
 
-
-
                           <h2>Responses</h2>
-                            <h3> Status: 200 - The shortest link between the two nodes. </h3>
+                            <h3> Status: 200 - The shortest series of links between the series of nodes. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                                 <li class="active">
@@ -1890,7 +1903,7 @@ except ApiException as e:
                                     <script>
                                       $(document).ready(function() {
                                         var schemaWrapper = {
-  "description" : "The shortest link between the two nodes.",
+  "description" : "The shortest series of links between the series of nodes.",
   "content" : {
     "application/json" : {
       "schema" : {
@@ -2185,327 +2198,11 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Default-getTravelData">
-                      <article id="api-Default-getTravelData-0" data-group="User" data-name="getTravelData" data-version="0">
-                        <div class="pull-left">
-                          <h1>getTravelData</h1>
-                          <p>Get the travel data of each of the given series of links.</p>
-                        </div>
-                        <div class="pull-right"></div>
-                        <div class="clearfix"></div>
-                        <p></p>
-                        <p class="marked"></p>
-                        <p></p>
-                        <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/travel-data</span></code></pre>
-                        <p>
-                          <h3>Usage and SDK Samples</h3>
-                        </p>
-                        <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Default-getTravelData-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Default-getTravelData-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Default-getTravelData-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Default-getTravelData-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Default-getTravelData-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Default-getTravelData-0-python">Python</a></li>
-                        </ul>
-
-                        <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Default-getTravelData-0-curl">
-                           <pre class="prettyprint"><code class="language-bsh">curl -X POST\
--H "Accept: application/json"\
--H "Content-Type: application/json"\
-"http://127.0.0.1/travel-data"</code></pre>
-                          </div>
-                          <div class="tab-pane" id="examples-Default-getTravelData-0-java">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
-import io.swagger.client.auth.*;
-import io.swagger.client.model.*;
-import io.swagger.client.api.DefaultApi;
-
-import java.io.File;
-import java.util.*;
-
-public class DefaultApiExample {
-
-    public static void main(String[] args) {
-        
-        DefaultApi apiInstance = new DefaultApi();
-        TravelRequestBody body = ; // TravelRequestBody | The date range and links(link_dirs) to be queried
-        try {
-            array[TravelData] result = apiInstance.getTravelData(body);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling DefaultApi#getTravelData");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-
-                          <div class="tab-pane" id="examples-Default-getTravelData-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.DefaultApi;
-
-public class DefaultApiExample {
-
-    public static void main(String[] args) {
-        DefaultApi apiInstance = new DefaultApi();
-        TravelRequestBody body = ; // TravelRequestBody | The date range and links(link_dirs) to be queried
-        try {
-            array[TravelData] result = apiInstance.getTravelData(body);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling DefaultApi#getTravelData");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-  <!--
-  <div class="tab-pane" id="examples-Default-getTravelData-0-groovy">
-  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-  </div> -->
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">TravelRequestBody *body = ; // The date range and links(link_dirs) to be queried
-
-DefaultApi *apiInstance = [[DefaultApi alloc] init];
-
-// Get the travel data of each of the given series of links.
-[apiInstance getTravelDataWith:body
-              completionHandler: ^(array[TravelData] output, NSError* error) {
-                            if (output) {
-                                NSLog(@"%@", output);
-                            }
-                            if (error) {
-                                NSLog(@"Error: %@", error);
-                            }
-                        }];
-</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-javascript">
-                              <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
-
-var api = new DataFilterWebApplication.DefaultApi()
-var body = ; // {{TravelRequestBody}} The date range and links(link_dirs) to be queried
-
-var callback = function(error, data, response) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
-  }
-};
-api.getTravelData(body, callback);
-</code></pre>
-                            </div>
-
-                            <!--<div class="tab-pane" id="examples-Default-getTravelData-0-angular">
-              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-            </div>-->
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-csharp">
-                              <pre class="prettyprint"><code class="language-cs">using System;
-using System.Diagnostics;
-using IO.Swagger.Api;
-using IO.Swagger.Client;
-using IO.Swagger.Model;
-
-namespace Example
-{
-    public class getTravelDataExample
-    {
-        public void main()
-        {
-
-            var apiInstance = new DefaultApi();
-            var body = new TravelRequestBody(); // TravelRequestBody | The date range and links(link_dirs) to be queried
-
-            try
-            {
-                // Get the travel data of each of the given series of links.
-                array[TravelData] result = apiInstance.getTravelData(body);
-                Debug.WriteLine(result);
-            }
-            catch (Exception e)
-            {
-                Debug.Print("Exception when calling DefaultApi.getTravelData: " + e.Message );
-            }
-        }
-    }
-}
-</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-php">
-                              <pre class="prettyprint"><code class="language-php"><&#63;php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-$api_instance = new Swagger\Client\ApiDefaultApi();
-$body = ; // TravelRequestBody | The date range and links(link_dirs) to be queried
-
-try {
-    $result = $api_instance->getTravelData($body);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling DefaultApi->getTravelData: ', $e->getMessage(), PHP_EOL;
-}
-?></code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-perl">
-                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
-use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::DefaultApi;
-
-my $api_instance = WWW::SwaggerClient::DefaultApi->new();
-my $body = WWW::SwaggerClient::Object::TravelRequestBody->new(); # TravelRequestBody | The date range and links(link_dirs) to be queried
-
-eval { 
-    my $result = $api_instance->getTravelData(body => $body);
-    print Dumper($result);
-};
-if ($@) {
-    warn "Exception when calling DefaultApi->getTravelData: $@\n";
-}</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Default-getTravelData-0-python">
-                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
-import time
-import swagger_client
-from swagger_client.rest import ApiException
-from pprint import pprint
-
-# create an instance of the API class
-api_instance = swagger_client.DefaultApi()
-body =  # TravelRequestBody | The date range and links(link_dirs) to be queried
-
-try: 
-    # Get the travel data of each of the given series of links.
-    api_response = api_instance.get_travel_data(body)
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling DefaultApi->getTravelData: %s\n" % e)</code></pre>
-                            </div>
-                          </div>
-
-                          <h2>Parameters</h2>
-
-
-
-                            <div class="methodsubtabletitle">Body parameters</div>
-                            <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">body <span style="color:red;">*</span></td>
-                                <td>
-                                
-                                
-                                <script>
-                                $(document).ready(function() {
-                                  var schemaWrapper = {
-  "description" : "The date range and links(link_dirs) to be queried",
-  "content" : {
-    "application/json" : {
-      "schema" : {
-        "$ref" : "#/components/schemas/TravelRequestBody"
-      }
-    }
-  },
-  "required" : true
-};
-                                  var schema = schemaWrapper.content["application/json"].schema;
-                                  if (schema.$ref != null) {
-                                    schema = defsParser.$refs.get(schema.$ref);
-                                  } else {
-                                    schemaWrapper.components = {};
-                                    schemaWrapper.components.schemas = Object.assign({}, defs);
-                                    $RefParser.dereference(schemaWrapper).catch(function(err) {
-                                      console.log(err);
-                                    });
-                                  }
-                                
-                                  var view = new JSONSchemaView(schema,2,{isBodyParam: true});
-                                  var result = $('#d2e199_getTravelData_body');
-                                  result.empty();
-                                  result.append(view.render());
-                                });
-                                </script>
-                                <div id="d2e199_getTravelData_body"></div>
-                                </td>
-                                </tr>
-                            </table>
-
-
-
-                          <h2>Responses</h2>
-                            <h3> Status: 200 - The travel data array of the given series of links. </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                                <li class="active">
-                                  <a data-toggle="tab" href="#responses-getTravelData-200-schema">Schema</a>
-                                </li>
-
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-getTravelData-200-schema">
-                                  <div id='responses-getTravelData-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
-                                    <script>
-                                      $(document).ready(function() {
-                                        var schemaWrapper = {
-  "description" : "The travel data array of the given series of links.",
-  "content" : {
-    "application/json" : {
-      "schema" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/TravelData"
-        },
-        "x-content-type" : "application/json"
-      }
-    }
-  }
-};
-                                        var schema = schemaWrapper.content["application/json"].schema;
-                                        if (schema.$ref != null) {
-                                          schema = defsParser.$refs.get(schema.$ref);
-                                        } else {
-                                          schemaWrapper.components = {};
-                                          schemaWrapper.components.schemas = Object.assign({}, defs);
-                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
-                                            console.log(err);
-                                          });
-                                        }
-
-                                        //console.log(JSON.stringify(schema));
-                                        var view = new JSONSchemaView(schema, 3);
-                                        $('#responses-getTravelData-200-schema-data').val(stringify(schema));
-                                        var result = $('#responses-getTravelData-200-schema-200');
-                                        result.empty();
-                                        result.append(view.render());
-                                      });
-                                    </script>
-                                  </div>
-                                  <input id='responses-getTravelData-200-schema-data' type='hidden' value=''></input>
-                                </div>
-                            </div>
-
-                        </article>
-                      </div>
-                      <hr>
                     <div id="api-Default-getTravelDataFile">
                       <article id="api-Default-getTravelDataFile-0" data-group="User" data-name="getTravelDataFile" data-version="0">
                         <div class="pull-left">
                           <h1>getTravelDataFile</h1>
-                          <p>Get the travel data file of each of the given series of links.</p>
+                          <p>Get the travel data file of each of the given series of links in the specified time ranges.</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -2552,7 +2249,7 @@ public class DefaultApiExample {
     public static void main(String[] args) {
         
         DefaultApi apiInstance = new DefaultApi();
-        TravelFileRequestBody body = ; // TravelFileRequestBody | The date range and links(link_dirs) to be queried
+        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
         try {
             apiInstance.getTravelDataFile(body);
         } catch (ApiException e) {
@@ -2570,7 +2267,7 @@ public class DefaultApiExample {
 
     public static void main(String[] args) {
         DefaultApi apiInstance = new DefaultApi();
-        TravelFileRequestBody body = ; // TravelFileRequestBody | The date range and links(link_dirs) to be queried
+        TravelFileRequestBody body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
         try {
             apiInstance.getTravelDataFile(body);
         } catch (ApiException e) {
@@ -2585,11 +2282,11 @@ public class DefaultApiExample {
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
                             <div class="tab-pane" id="examples-Default-getTravelDataFile-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">TravelFileRequestBody *body = ; // The date range and links(link_dirs) to be queried
+                              <pre class="prettyprint"><code class="language-cpp">TravelFileRequestBody *body = ; // The date-time specifications and links(link_dirs) to be queried
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-// Get the travel data file of each of the given series of links.
+// Get the travel data file of each of the given series of links in the specified time ranges.
 [apiInstance getTravelDataFileWith:body
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -2603,7 +2300,7 @@ DefaultApi *apiInstance = [[DefaultApi alloc] init];
                               <pre class="prettyprint"><code class="language-js">var DataFilterWebApplication = require('data_filter_web_application');
 
 var api = new DataFilterWebApplication.DefaultApi()
-var body = ; // {{TravelFileRequestBody}} The date range and links(link_dirs) to be queried
+var body = ; // {{TravelFileRequestBody}} The date-time specifications and links(link_dirs) to be queried
 
 var callback = function(error, data, response) {
   if (error) {
@@ -2634,11 +2331,11 @@ namespace Example
         {
 
             var apiInstance = new DefaultApi();
-            var body = new TravelFileRequestBody(); // TravelFileRequestBody | The date range and links(link_dirs) to be queried
+            var body = new TravelFileRequestBody(); // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
             try
             {
-                // Get the travel data file of each of the given series of links.
+                // Get the travel data file of each of the given series of links in the specified time ranges.
                 apiInstance.getTravelDataFile(body);
             }
             catch (Exception e)
@@ -2656,7 +2353,7 @@ namespace Example
 require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\ApiDefaultApi();
-$body = ; // TravelFileRequestBody | The date range and links(link_dirs) to be queried
+$body = ; // TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 try {
     $api_instance->getTravelDataFile($body);
@@ -2672,7 +2369,7 @@ use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::DefaultApi;
 
 my $api_instance = WWW::SwaggerClient::DefaultApi->new();
-my $body = WWW::SwaggerClient::Object::TravelFileRequestBody->new(); # TravelFileRequestBody | The date range and links(link_dirs) to be queried
+my $body = WWW::SwaggerClient::Object::TravelFileRequestBody->new(); # TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 eval { 
     $api_instance->getTravelDataFile(body => $body);
@@ -2691,10 +2388,10 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = swagger_client.DefaultApi()
-body =  # TravelFileRequestBody | The date range and links(link_dirs) to be queried
+body =  # TravelFileRequestBody | The date-time specifications and links(link_dirs) to be queried
 
 try: 
-    # Get the travel data file of each of the given series of links.
+    # Get the travel data file of each of the given series of links in the specified time ranges.
     api_instance.get_travel_data_file(body)
 except ApiException as e:
     print("Exception when calling DefaultApi->getTravelDataFile: %s\n" % e)</code></pre>
@@ -2718,7 +2415,7 @@ except ApiException as e:
                                 <script>
                                 $(document).ready(function() {
                                   var schemaWrapper = {
-  "description" : "The date range and links(link_dirs) to be queried",
+  "description" : "The date-time specifications and links(link_dirs) to be queried",
   "content" : {
     "application/json" : {
       "schema" : {
