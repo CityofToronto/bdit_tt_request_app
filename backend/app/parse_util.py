@@ -93,7 +93,8 @@ def parse_travel_request_body(travel_request_data):
     required_fields = ['start_date', 'end_date', 'start_time', 'end_time', 'days_of_week', 'include_holidays',
                        'link_dirs']
     if False in [field in travel_request_data for field in required_fields]:
-        abort(400, description="Request body must contain time_periods and link_dirs.")
+        abort(400, description="Request body must contain start_date, end_date, start_time, end_time, days_of_week, "
+                               "include_holidays, link_dirs and link_dirs.")
         return
     start_date = travel_request_data['start_date']
     end_date = travel_request_data['end_date']
