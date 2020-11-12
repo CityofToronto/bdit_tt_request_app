@@ -6,44 +6,45 @@ import "react-dropdown/style.css";
 import "./SidebarContent.css";
 
 class SidebarContent extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            includeHolidays: false
-        }
-    }
 
     render(){
-        const handleChange = () => {
-            this.setState({includeHolidays: !this.state.includeHolidays})
-        };
 
-        const options = ["one", "two", "three"];
-        const defaultOption = "None"
         return (
           <div id={"contentContainer"} className={"contentContainer"}>
               <Dropdown
-                  options={options}
-                  value={defaultOption}
+                  options={this.props.presets}
                   placeholder={"Presets"}
+                  onChange={this.props.onPresetChange}
                   className={"presets"}
                   id={"presets"}
               />
               <TextField
                   label="time"
-                  defaultValue={"0600-0900"}
                   id="time"
                   className={"time"}
+                  onChange={this.props.onTimesUpdate}
+                  value={this.props.timeRange}
+                  helperText={"e.g. 0600:0900"}
               />
               <TextField
-                  label="date"
-                  defaultValue={"2020/01/01-2020/03/01"}
+                  label="dates"
                   id="date"
                   className={"date"}
+                  onChange={this.props.onDatesUpdate}
+                  value={this.props.dateRange}
+                  helperText={"e.g. 2020-01-01:2020-0201"}
+              />
+              <TextField
+                  label="days"
+                  id="days"
+                  className={"days"}
+                  onChange={this.props.onDaysUpdate}
+                  helperText={"e.g. mon:fri"}
+                  value={this.props.dayRange}
               />
               <Checkbox
-                  checked={this.state.includeHolidays}
-                  onClick={handleChange}
+                  checked={this.props.includeHolidays}
+                  onClick={this.props.onHolidayUpdate}
                   inputProps={{ 'aria-label': 'primary checkbox' }}
                   id={"holiday"}
                   className={"holiday"}
@@ -52,6 +53,7 @@ class SidebarContent extends React.Component{
               <button
                   id={"go"}
                   className={"go"}
+                  onClick={this.props.onGo}
               >GO</button>
           </div>
         );
