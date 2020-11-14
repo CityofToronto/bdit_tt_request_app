@@ -19,6 +19,8 @@ class Mapbox extends React.Component {
             linksData: [],
             clickedNodes: [],
             displayedMarker: [],
+            currentSequence: 0,
+            sequenceColours: [],
             disableRemove: true,
             disableGetLink: true,
             disableReset: true,
@@ -181,6 +183,7 @@ class Mapbox extends React.Component {
 
             let lngLat = marker.getLngLat();
             const nodeIndex = parseInt(marker._element.id);
+            console.log(nodeIndex)
             updateClosestNode(this, {
                 longitude: lngLat.lng,
                 latitude: lngLat.lat,
@@ -253,14 +256,11 @@ class Mapbox extends React.Component {
             });
 
         } else {
-            let el = document.createElement('div');
-            el.className = `marker${this.state.clickedNodes.length + 1}`;
-            el.id = this.state.clickedNodes.length.toString();
-
-            const newMarker = new mapboxgl.Marker(el, {draggable: true})
+            const newMarker = new mapboxgl.Marker({draggable: true, "color": this.getRandomColor()})
                 .setLngLat(newNode.geometry.coordinate)
                 .addTo(this.state.map);
-
+            newMarker._element.id = this.state.clickedNodes.length.toString();
+            console.log(newMarker)
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
             // This is where nodes set
@@ -277,6 +277,14 @@ class Mapbox extends React.Component {
             this.props.onNodeUpdate(newNodes)
         }
     };
+    getRandomColor() {
+        let letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
 
     removeNodes() {
         let lastNodeNum = this.state.clickedNodes.length - 1;
