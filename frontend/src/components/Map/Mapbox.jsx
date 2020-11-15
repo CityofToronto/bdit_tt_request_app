@@ -50,11 +50,7 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                // console.log('A click event has occurred at ' + e.lngLat);
                 const temp = [...this.state.clickedNodes]
-
-                console.log(this.state.clickedNodes)
-                console.log(this.state.currentSequence)
                 if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
                     alert("Currently only allow maximum 10 nodes on the map!");
                 } else {
@@ -119,9 +115,8 @@ class Mapbox extends React.Component {
     };
 
     /* this function is called only by action.js after full link data is fetch */
-    displayLinks(linkDataArr) {
-        this.drawLinks(linkDataArr);
-
+    displayLinks(linkDataArr, sequence) {
+        this.drawLinks(linkDataArr, sequence);
         /* comment this if does not want to disable dragging after get link */
         const lockedMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
         lockedMarkers.forEach((marker) => {
@@ -140,9 +135,9 @@ class Mapbox extends React.Component {
         this.props.onLinkUpdate(linkDataArr);
     };
 
-    drawLinks(linkDataArr) {
+    drawLinks(linkDataArr, sequence) {
         linkDataArr.forEach((link, index) => {
-            const currSourceId = `route${index}`
+            const currSourceId = `route${sequence},${index}`
             this.state.map.addSource(currSourceId, {
                 'type': 'geojson',
                 'maxzoom': 24,
@@ -173,7 +168,6 @@ class Mapbox extends React.Component {
 
     resyncAllMarkers(marker){
         let markerInfo = marker.id
-        console.log(markerInfo)
         const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
 
         for (let i = 0; i < restoreMarkers.length; i++) {
@@ -196,7 +190,6 @@ class Mapbox extends React.Component {
 
             let lngLat = marker.getLngLat();
             const nodeIndex = marker._element.id;
-            console.log(nodeIndex)
             updateClosestNode(this, {
                 longitude: lngLat.lng,
                 latitude: lngLat.lat,
@@ -246,7 +239,7 @@ class Mapbox extends React.Component {
                 disableDragMarker: false,
                 disableNewSeq: false
             });
-            this.props.onNodeUpdate(newNodes);
+            this.props.onNodeUpdate(newNodesArrary);
         }
     }
 
@@ -283,7 +276,6 @@ class Mapbox extends React.Component {
                 .setLngLat(newNode.geometry.coordinate)
                 .addTo(this.state.map);
             newMarker._element.id = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
-            console.log(newMarker)
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
             // This is where nodes set
@@ -305,7 +297,7 @@ class Mapbox extends React.Component {
             if (newNodes.length >=2){
                 this.setState({disableNewSeq: false})
             }
-            this.props.onNodeUpdate(newNodes)
+            this.props.onNodeUpdate(newNodesArr)
         }
     };
     getRandomColor() {
@@ -320,7 +312,6 @@ class Mapbox extends React.Component {
     removeNodes() {
         let tempCurrentSeq = this.state.currentSequence
         const targetMarkerID = ""+this.state.currentSequence.toString()+","+(this.state.clickedNodes[this.state.currentSequence].length - 1).toString()+""
-        console.log(targetMarkerID)    
         let lastNodeNum = this.state.clickedNodes[this.state.currentSequence].length - 1;
         let getMarkers = document.getElementById(targetMarkerID);
         getMarkers.remove();
