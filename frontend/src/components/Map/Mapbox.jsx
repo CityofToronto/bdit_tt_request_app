@@ -166,8 +166,7 @@ class Mapbox extends React.Component {
         });
     };
 
-    resyncAllMarkers(marker){
-        let markerInfo = marker.id
+    resyncAllMarkers(){
         const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
 
         for (let i = 0; i < restoreMarkers.length; i++) {
