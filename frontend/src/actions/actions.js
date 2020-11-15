@@ -77,7 +77,6 @@ export const getDateBoundary = (page) => {
 
 /* GET links given two nodes */
 export const getLinksBetweenNodes = (page, nodes) => {
-    let curr_sequence = 0
     nodes.forEach((sequence) => {
         const nodeIds = [];
         sequence.forEach((node) => {
@@ -85,8 +84,8 @@ export const getLinksBetweenNodes = (page, nodes) => {
         });
         axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
             if (res.data) {
-                page.displayLinks(res.data, curr_sequence);
-                curr_sequence += 1
+                page.displayLinks(res.data, nodes.indexOf(sequence));
+               
             } else {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }

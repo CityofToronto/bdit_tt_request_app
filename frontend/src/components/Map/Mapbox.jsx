@@ -50,7 +50,6 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                const temp = [...this.state.clickedNodes]
                 if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
                     alert("Currently only allow maximum 10 nodes on the map!");
                 } else {
@@ -159,7 +158,7 @@ class Mapbox extends React.Component {
                     'line-cap': 'round'
                 },
                 'paint': {
-                    'line-color': '#888',
+                    'line-color': this.state.sequenceColours[sequence],
                     'line-width': 8
                 }
             });
@@ -208,6 +207,7 @@ class Mapbox extends React.Component {
                 disableGetLink: this.state.clickedNodes[this.state.currentSequence].length < 1,
                 disableReset: false,
                 disableDragMarker: false,
+                disableNewSeq: this.state.clickedNodes[this.state.currentSequence].length < 1
                 
             });
             this.resyncAllMarkers();
@@ -236,7 +236,7 @@ class Mapbox extends React.Component {
                 disableGetLink: this.state.clickedNodes[nodeSequence].length < 2,
                 disableReset: false,
                 disableDragMarker: false,
-                disableNewSeq: false
+                disableNewSeq: this.state.clickedNodes[nodeSequence].length < 2
             });
             this.props.onNodeUpdate(newNodesArrary);
         }
@@ -328,21 +328,32 @@ class Mapbox extends React.Component {
 
         if (this.state.displayedMarker[this.state.currentSequence].length === 1) {
             tempCurrentSeq = tempCurrentSeq - 1
+            newArray.pop()
+            newDisplayedMarkerArray.pop()
         }
         // this is where nodes are removed
         this.setState({
             clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: lastNodeNum <= 1, disableRemove: lastNodeNum <= 0 && tempCurrentSeq === -1, disableNewSeq: lastNodeNum <= 1, 
+            disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+            disableRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+            disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
             currentSequence:tempCurrentSeq
         });
-        this.props.onNodeUpdate(newClickedNode)
+        this.props.onNodeUpdate(newArray)
     }
     newSeq () {
-        alert("New Sequence Created");
+        alert("New Sequence Created, Please Place a Node");
+        let newColor = "#FF0000"
+        while (this.state.sequenceColours.includes(newColor)) {
+            newColor = this.getRandomColor()
+        }
         this.setState({ displayedMarker: this.state.displayedMarker.concat([[]]),
                         currentSequence: this.state.currentSequence+1,
                         clickedNodes: this.state.clickedNodes.concat([[]]),
-                        sequenceColours: this.state.sequenceColours.concat([this.getRandomColor()])
+                        sequenceColours: this.state.sequenceColours.concat([newColor]),
+                        disableNewSeq: true,
+                        disableGetLink:true,
+                        disableRemove: true
         })
     }
     render() {
