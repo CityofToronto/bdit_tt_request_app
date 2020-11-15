@@ -171,7 +171,9 @@ class Mapbox extends React.Component {
         });
     };
 
-    resyncAllMarkers(){
+    resyncAllMarkers(marker){
+        let markerInfo = marker.id
+        console.log(markerInfo)
         const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
 
         for (let i = 0; i < restoreMarkers.length; i++) {
@@ -188,12 +190,12 @@ class Mapbox extends React.Component {
 
     onDragEnd(marker) {
         if (this.state.disableDragMarker) {
-            this.resyncAllMarkers();
+            this.resyncAllMarkers(marker);
         } else {
             this.disableInteractions();
 
             let lngLat = marker.getLngLat();
-            const nodeIndex = parseInt(marker._element.id);
+            const nodeIndex = marker._element.id;
             console.log(nodeIndex)
             updateClosestNode(this, {
                 longitude: lngLat.lng,
@@ -218,26 +220,28 @@ class Mapbox extends React.Component {
             });
             this.resyncAllMarkers();
         } else {
-            const newMarkers = [...this.state.displayedMarker[this.state.currentSequence]];
-            const draggedMarker = newMarkers[nodeIndex];
+            let nodeSequence = nodeIndex.split(",")[0]
+            let nodeSequenceIndex = nodeIndex.split(",")[1]
+            const newMarkers = [...this.state.displayedMarker[nodeSequence]];
+            const draggedMarker = newMarkers[nodeSequenceIndex];
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
-            const newNodes = [...this.state.clickedNodes[this.state.currentSequence]];
-            newNodes[nodeIndex] = newNode
+            const newNodes = [...this.state.clickedNodes[nodeSequence]];
+            newNodes[nodeSequenceIndex] = newNode
 
             const newMarkersArray = [...this.state.displayedMarker]
-            newMarkersArray[this.state.currentSequence] = newMarkers
+            newMarkersArray[nodeSequence] = newMarkers
 
             const newNodesArrary = [...this.state.clickedNodes]
-            newNodesArrary[this.state.currentSequence] = newNodes
+            newNodesArrary[nodeSequence] = newNodes
             // this is also where nodes are set
             this.setState({
                 displayedMarker: newMarkersArray,
                 clickedNodes: newNodesArrary,
                 disableAddMarker: false,
                 disableRemove: false,
-                disableGetLink: this.state.clickedNodes[this.state.currentSequence].length < 2,
+                disableGetLink: this.state.clickedNodes[nodeSequence].length < 2,
                 disableReset: false,
                 disableDragMarker: false,
                 disableNewSeq: false
@@ -278,8 +282,7 @@ class Mapbox extends React.Component {
             const newMarker = new mapboxgl.Marker({draggable: true, "color": this.state.sequenceColours[this.state.currentSequence]})
                 .setLngLat(newNode.geometry.coordinate)
                 .addTo(this.state.map);
-            const markerID = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
-            newMarker._element.id = markerID
+            newMarker._element.id = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
             console.log(newMarker)
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
 
@@ -350,13 +353,9 @@ class Mapbox extends React.Component {
                         currentSequence: this.state.currentSequence+1,
                         clickedNodes: this.state.clickedNodes.concat([[]]),
                         sequenceColours: this.state.sequenceColours.concat([this.getRandomColor()])
-
-        })      
-        
+        })
     }
     render() {
-        console.log(this.state.clickedNodes)
-                console.log(this.state.currentSequence)
         return (
             <div>
                 <div className='sidebarStyle'>
