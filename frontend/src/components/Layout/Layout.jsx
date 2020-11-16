@@ -24,6 +24,8 @@ class Layout extends React.Component {
             sidebarOpen: true,
             nodesList: [],
             linksList: [],
+            numRanges: 1,
+            activeRange: 0,
             startDate: MIN_DATE,
             endDate: MAX_DATE,
             startTime: MIN_DATE,
@@ -52,6 +54,12 @@ class Layout extends React.Component {
 
     getLinks = (doc) => {
         getLinksBetweenNodes(doc, this.state.nodesList)
+    }
+
+    changeDateTimeRange(event){
+        let rangeChoice = event.value;
+        let choice = parseInt(rangeChoice.split(" ")[1]);
+        this.setState({activeRange: choice-1});
     }
 
     handleHolidays = () => {
@@ -156,18 +164,28 @@ class Layout extends React.Component {
                     sidebar={<SidebarContent
                         onHolidayUpdate={this.handleHolidays}
                         includeHolidays={this.state.includeHolidays}
+
                         onPresetChange={this.updatePreset}
+
                         onGo={this.downloadData}
+
                         onStartDateChange={this.onStartDateChange}
                         startDate={this.state.startDate}
                         onEndDateChange={this.onEndDateChange}
                         endDate={this.state.endDate}
+
                         onStartTimeChange={this.onStartTimeChange}
                         startTime={this.state.startTime}
                         onEndTimeChange={this.onEndTimeChange}
                         endTime={this.state.endTime}
+
                         daysOfWeek={this.state.daysOfWeek}
                         onDaysOfWeekChange={this.onDaysOfWeekChange}
+
+                        dateTimeRanges={this.state.numRanges}
+
+                        ranges={this.state.activeRange}
+                        changeDateTimeRange={this.changeDateTimeRange.bind(this)}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}

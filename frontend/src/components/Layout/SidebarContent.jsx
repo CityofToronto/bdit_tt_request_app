@@ -15,15 +15,29 @@ import {DAYS_OF_WEEK_MAPPING, MAX_DATE, MIN_DATE} from "./Layout";
 class SidebarContent extends React.Component {
 
     render() {
+         let rangePickerOptions = [];
+         for(let i = 0; i < this.props.dateTimeRanges; i++){
+             rangePickerOptions.push(`Range ${i+1}`);
+         }
 
         return (
 
             <div id={"contentContainer"}
                  className={"contentContainer"}>
+
                 <h5 className={"startDateLabel"}>Start Date</h5>
                 <h5 className={"endDateLabel"}>End Date</h5>
                 <h5 className={"startTimeLabel"}>Start Time</h5>
                 <h5 className={"endTimeLabel"}>End Time</h5>
+
+                {/* TODO: get the css applied to this component */}
+                <Dropdown
+                    options={rangePickerOptions}
+                    placeholder={"Datetime range"}
+                    onChange={this.props.changeDateTimeRange}
+                    classname={"rangeSelector"}
+                    id={"rangeSelector"}
+                />
 
                 <Dropdown
                     options={this.props.presets}

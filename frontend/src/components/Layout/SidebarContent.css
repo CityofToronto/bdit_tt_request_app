@@ -3,6 +3,14 @@
     height: 100%;
 }
 
+.rangeSelector{
+    position: fixed;
+    width: 80%;
+    height: 5%;
+    top: 5%;
+    left: 10%;
+}
+
 .presets{
     position: fixed;
     width: 80%;
