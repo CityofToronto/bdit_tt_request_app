@@ -18,7 +18,12 @@ class SidebarContent extends React.Component {
 
         return (
 
-            <div id={"contentContainer"} className={"contentContainer"}>
+            <div id={"contentContainer"}
+                 className={"contentContainer"}>
+                <h5 className={"startDateLabel"}>Start Date</h5>
+                <h5 className={"endDateLabel"}>End Date</h5>
+                <h5 className={"startTimeLabel"}>Start Time</h5>
+                <h5 className={"endTimeLabel"}>End Time</h5>
 
                 <Dropdown
                     options={this.props.presets}
@@ -27,45 +32,45 @@ class SidebarContent extends React.Component {
                     className={"presets"}
                     id={"presets"}
                 />
-                {/*<TextField*/}
-                {/*    label="time"*/}
-                {/*    id="time"*/}
-                {/*    className={"time"}*/}
-                {/*    onChange={this.props.onTimesUpdate}*/}
-                {/*    value={this.props.timeRange}*/}
-                {/*    helperText={"e.g. 0600:0900"}*/}
-                {/*/>*/}
-                {/*<TextField*/}
-                {/*    label="dates"*/}
-                {/*    id="date"*/}
-                {/*    className={"date"}*/}
-                {/*    onChange={this.props.onDatesUpdate}*/}
-                {/*    value={this.props.dateRange}*/}
-                {/*    helperText={"e.g. 2020-01-01:2020-0201"}*/}
-                {/*/>*/}
-                {/*<TextField*/}
-                {/*    label="days"*/}
-                {/*    id="days"*/}
-                {/*    className={"days"}*/}
-                {/*    onChange={this.props.onDaysUpdate}*/}
-                {/*    helperText={"e.g. mon:fri"}*/}
-                {/*    value={this.props.dayRange}*/}
-                {/*/>*/}
-                <DatePicker required={true} locale={"en-CA"} className={"startDate"}
-                            maxDate={MAX_DATE} minDate={MIN_DATE} format={"y:MM:dd"}
-                            value={this.props.startDate} onChange={this.props.onStartDateChange}/>
+                <DatePicker required={true} locale={"en-CA"}
+                            className={"startDate"}
+                            maxDate={MAX_DATE}
+                            minDate={MIN_DATE}
+                            format={"y:MM:dd"}
+                            value={this.props.startDate}
+                            onChange={this.props.onStartDateChange}
+                />
 
-                <DatePicker required={true} locale={"en-CA"} className={"endDate"}
-                            maxDate={MAX_DATE} minDate={MIN_DATE} format={"y:MM:dd"}
-                            value={this.props.endDate} onChange={this.props.onEndDateChange}/>
+                <DatePicker required={true}
+                            locale={"en-CA"}
+                            className={"endDate"}
+                            maxDate={MAX_DATE}
+                            minDate={MIN_DATE}
+                            format={"y:MM:dd"}
+                            value={this.props.endDate}
+                            onChange={this.props.onEndDateChange}
+                />
 
-                <TimePicker required={true} format={"HH:mm:ss"} locale={"en-CA"} className={"startTime"}
-                            maxDetail={"second"} value={this.props.startTime} onChange={this.props.onStartTimeChange}/>
+                <TimePicker required={true}
+                            format={"HH:mm:ss"}
+                            locale={"en-CA"}
+                            className={"startTime"}
+                            maxDetail={"second"}
+                            value={this.props.startTime}
+                            onChange={this.props.onStartTimeChange}
+                />
 
-                <TimePicker required={true} format={"HH:mm:ss"} locale={"en-CA"} className={"endTime"}
-                            maxDetail={"second"} value={this.props.endTime} onChange={this.props.onEndTimeChange}/>
+                <TimePicker required={true}
+                            format={"HH:mm:ss"}
+                            locale={"en-CA"}
+                            className={"endTime"}
+                            maxDetail={"second"}
+                            value={this.props.endTime}
+                            onChange={this.props.onEndTimeChange}/>
 
-                <FormControl component="fieldset" className={"days"} id={"days"}>
+                <FormControl component="fieldset"
+                             className={"days"}
+                             id={"days"}>
                     <FormLabel component="legend">Select Days of Week</FormLabel>
                     <FormGroup row>
                         <FormControlLabel
@@ -114,21 +119,13 @@ class SidebarContent extends React.Component {
                 </FormControl>
 
                 <FormControlLabel
-                    className={"holiday"} id={"holiday"}
+                    className={"holiday"}
+                    id={"holiday"}
                     control={<Checkbox checked={this.props.includeHolidays}
                                        onChange={this.props.onHolidayUpdate}
                                        name={"holiday"}/>}
                     label="Include Holidays"
                 />
-
-                {/*<Checkbox*/}
-                {/*    checked={this.props.includeHolidays}*/}
-                {/*    onClick={this.props.onHolidayUpdate}*/}
-                {/*    inputProps={{ 'aria-label': 'primary checkbox' }}*/}
-                {/*    id={"holiday"}*/}
-                {/*    className={"holiday"}*/}
-                {/*/>*/}
-                {/*<p id={"label"} className={"label"}>Include Holidays</p>*/}
                 <button
                     id={"go"}
                     className={"go"}

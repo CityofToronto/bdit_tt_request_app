@@ -4,56 +4,94 @@
 }
 
 .presets{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 5%;
+    top: 20%;
     left: 10%;
+}
+
+.startDateLabel{
+    position: fixed;
+    width: 12%;
+    height: 5%;
+    left: 3%;
+    top: 22.5%;
 }
 
 .startDate{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 10%;
-    left: 10%;
+    top: 26%;
+    left: 15%;
+}
+
+.endDateLabel{
+    position: fixed;
+    width: 12%;
+    height: 5%;
+    left: 3%;
+    top: 30%;
 }
 
 .endDate{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 13%;
-    left: 10%;
+    top: 28%;
+    left: 15%;
+}
+
+.startTimeLabel{
+    position: fixed;
+    width: 12%;
+    height: 5%;
+    left: 3%;
+    top: 38.5%;
 }
 
 .startTime{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 18%;
-    left: 10%;
+    top: 32%;
+    left: 15%;
+}
+
+.endTimeLabel{
+    position: fixed;
+    width: 12%;
+    height: 5%;
+    left: 3%;
+    top: 45.5%;
 }
 
 .endTime{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 21%;
-    left: 10%;
+    top: 34%;
+    left: 15%;
 }
 
 .days{
+    position: fixed;
     width: 80%;
     height: 5%;
-    top: 27%;
+    top: 35%;
     left: 10%;
 }
 
 .holiday{
     position: absolute;
-    top: 75%;
+    top: 82.5%;
     left: 10%;
 }
 
 .go{
     position: absolute;
-    top: 85%;
+    top: 90%;
     left: 30%;
     font-size: 2rem;
 }
