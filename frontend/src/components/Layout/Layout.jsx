@@ -69,12 +69,24 @@ class Layout extends React.Component {
     updatePreset = (event) => {
         console.log(event);
         switch (event.value) {
-            case "Working Week":
-                this.setState({timeRange: "0600:0900", dayRange: "mon:fri", includeHolidays: false});
+            case "Working Week Morning":
+                this.setState({
+                    startTime: new Date('2020-01-01 06:00:00'),
+                    endTime: new Date('2020-01-01 09:00:00'),
+                    daysOfWeek: [true, true, true, true, true, false, false]
+                });
+                break;
+
+            case "Working Week Night":
+                this.setState({
+                    startTime: new Date('2020-01-01 15:00:00'),
+                    endTime: new Date('2020-01-01 18:00:00'),
+                    daysOfWeek: [true, true, true, true, true, false, false]
+                });
                 break;
 
             default:
-                this.setState({timeRange: "", dayRange: "", includeHolidays: false})
+                break;
         }
     }
 
@@ -158,6 +170,7 @@ class Layout extends React.Component {
     }
 
     render() {
+        const presets = ["Working Week Morning", "Working Week Night", "Custom"]
         return (
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
@@ -165,6 +178,7 @@ class Layout extends React.Component {
                         onHolidayUpdate={this.handleHolidays}
                         includeHolidays={this.state.includeHolidays}
 
+                        presets={presets}
                         onPresetChange={this.updatePreset}
 
                         onGo={this.downloadData}
