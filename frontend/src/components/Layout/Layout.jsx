@@ -245,7 +245,7 @@ class Layout extends React.Component {
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}
-                        ranges={activeRange.activeRange}
+                        range={this.state.activeRange}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
                     />}
                     open={this.state.sidebarOpen}

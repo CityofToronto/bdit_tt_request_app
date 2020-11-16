@@ -33,7 +33,7 @@ class SidebarContent extends React.Component {
                 {/* TODO: get the css applied to this component */}
                 <Dropdown
                     options={rangePickerOptions}
-                    placeholder={"Datetime range"}
+                    value={rangePickerOptions[this.props.range]}
                     onChange={this.props.changeDateTimeRange}
                     classname={"rangeSelector"}
                     id={"rangeSelector"}
