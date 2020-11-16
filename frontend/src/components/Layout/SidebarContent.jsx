@@ -39,6 +39,12 @@ class SidebarContent extends React.Component {
                     id={"rangeSelector"}
                 />
 
+                <button
+                    className={"newRange"}
+                    id={"newRange"}
+                    onClick={this.props.addNewRange}
+                >Add New Range</button>
+
                 <Dropdown
                     options={this.props.presets}
                     placeholder={"Presets"}

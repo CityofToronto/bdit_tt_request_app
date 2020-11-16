@@ -4,15 +4,23 @@
 }
 
 .rangeSelector{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
     top: 5%;
     left: 10%;
 }
 
+.newRange{
+    position: absolute;
+    width: 80%;
+    height: 5%;
+    top: 10%;
+    left: 10%;
+}
+
 .presets{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
     top: 20%;
@@ -20,7 +28,7 @@
 }
 
 .startDateLabel{
-    position: fixed;
+    position: absolute;
     width: 12%;
     height: 5%;
     left: 3%;
@@ -28,15 +36,15 @@
 }
 
 .startDate{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
-    top: 26%;
+    top: 21%;
     left: 15%;
 }
 
 .endDateLabel{
-    position: fixed;
+    position: absolute;
     width: 12%;
     height: 5%;
     left: 3%;
@@ -44,15 +52,15 @@
 }
 
 .endDate{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
-    top: 28%;
+    top: 22%;
     left: 15%;
 }
 
 .startTimeLabel{
-    position: fixed;
+    position: absolute;
     width: 12%;
     height: 5%;
     left: 3%;
@@ -60,15 +68,15 @@
 }
 
 .startTime{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
-    top: 32%;
+    top: 26%;
     left: 15%;
 }
 
 .endTimeLabel{
-    position: fixed;
+    position: absolute;
     width: 12%;
     height: 5%;
     left: 3%;
@@ -76,18 +84,18 @@
 }
 
 .endTime{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
-    top: 34%;
+    top: 28%;
     left: 15%;
 }
 
 .days{
-    position: fixed;
+    position: absolute;
     width: 80%;
     height: 5%;
-    top: 35%;
+    top: 30%;
     left: 10%;
 }
 

@@ -62,6 +62,14 @@ class Layout extends React.Component {
         this.setState({activeRange: choice-1});
     }
 
+    addRange(){
+        let numRanges = this.state.numRanges;
+        this.setState({
+            numRanges: numRanges+1,
+            activeRange: numRanges
+        });
+    }
+
     handleHolidays = () => {
         this.setState({includeHolidays: !this.state.includeHolidays})
     }
@@ -197,7 +205,7 @@ class Layout extends React.Component {
                         onDaysOfWeekChange={this.onDaysOfWeekChange}
 
                         dateTimeRanges={this.state.numRanges}
-
+                        addNewRange={this.addRange.bind(this)}
                         ranges={this.state.activeRange}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
                     />}
