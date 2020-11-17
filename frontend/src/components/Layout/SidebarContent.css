@@ -117,13 +117,23 @@
 
 .holiday{
     position: absolute;
-    top: 82.5%;
+    top: 80%;
     left: 10%;
+}
+
+.fileTypeContainer{
+    position: absolute;
+    top: 86%;
+    left: 10%;
+}
+
+.fileType{
+    left: 30%;
 }
 
 .go{
     position: absolute;
-    top: 90%;
+    top: 92%;
     left: 30%;
     font-size: 2rem;
 }
