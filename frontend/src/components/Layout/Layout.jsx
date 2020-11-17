@@ -166,7 +166,7 @@ class Layout extends React.Component {
                 })
                 allLinkDirs.push(tmpLinkDirs)
             });
-
+            console.log(allLinkDirs, 222)
             params.linkDirs = allLinkDirs;
 
             getTravelDataFile(params);
