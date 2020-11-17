@@ -1,6 +1,6 @@
 import React from "react";
 import Dropdown from "react-dropdown";
-import {Checkbox} from "@material-ui/core";
+import {Checkbox, Select} from "@material-ui/core";
 import "react-dropdown/style.css";
 import "./SidebarContent.css";
 import DatePicker from "react-date-picker";
@@ -11,6 +11,7 @@ import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {DAYS_OF_WEEK_MAPPING, MAX_DATE, MIN_DATE} from "./Layout";
+
 
 class SidebarContent extends React.Component {
 
@@ -166,6 +167,24 @@ class SidebarContent extends React.Component {
                                        name={"holiday"}/>}
                     label="Include Holidays"
                 />
+
+                <div
+                className={"fileTypeContainer"}
+                id={"fileTypeContainer"}
+                ref={React.createRef()}>
+                    Select File Type:
+                    <Select
+                        native
+                        className={"fileType"}
+                        id={"fileType"}
+                        defaultValue={"csv"}
+                        onChange={this.props.onFileTypeUpdate}
+                    >
+                        <option value={"csv"}>csv</option>
+                        <option value={"xlsx"}>xlsx</option>
+                    </Select>
+                </div>
+
                 <button
                     id={"go"}
                     className={"go"}

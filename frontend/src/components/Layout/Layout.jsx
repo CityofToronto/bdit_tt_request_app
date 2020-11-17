@@ -33,7 +33,8 @@ class Layout extends React.Component {
                 endTime: MAX_DATE,
                 daysOfWeek: [true, true, true, true, true, true, true],
                 includeHolidays: false
-            }]
+            }],
+            fileType: "csv"
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     }
@@ -155,6 +156,10 @@ class Layout extends React.Component {
         this.setState({ ranges: ranges });
     }
 
+    onFileTypeUpdate = (e) => {
+        this.setState({fileType: e.target.value})
+    }
+
     downloadData = () => {
         if (this.state.linksList.length !== 0) {
             let params = this.parseData();
@@ -166,8 +171,8 @@ class Layout extends React.Component {
                 })
                 allLinkDirs.push(tmpLinkDirs)
             });
-            console.log(allLinkDirs, 222)
             params.linkDirs = allLinkDirs;
+            params.fileType = this.state.fileType
 
             getTravelDataFile(params);
         } else {
@@ -224,6 +229,8 @@ class Layout extends React.Component {
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
                     sidebar={<SidebarContent
+                        onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
+
                         onHolidayUpdate={this.handleHolidays.bind(this)}
                         includeHolidays={activeRange.includeHolidays}
 

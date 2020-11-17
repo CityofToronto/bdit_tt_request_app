@@ -150,7 +150,7 @@ export const getTravelDataFile = (data) => {
     if (!data.fileType) {
         data.fileType = 'csv';
     }
-    console.log(111, data.linkDirs)
+    console.log("list of list of linkDirs", data.linkDirs)
     axios.post(`${domain}/travel-data-file`, {
         start_time: data.startTime,
         end_time: data.endTime,
