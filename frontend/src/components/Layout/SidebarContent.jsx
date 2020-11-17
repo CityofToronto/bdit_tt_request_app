@@ -1,6 +1,6 @@
 import React from "react";
 import Dropdown from "react-dropdown";
-import {Checkbox} from "@material-ui/core";
+import {Checkbox, Select} from "@material-ui/core";
 import "react-dropdown/style.css";
 import "./SidebarContent.css";
 import DatePicker from "react-date-picker";
@@ -11,6 +11,7 @@ import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {DAYS_OF_WEEK_MAPPING, MAX_DATE, MIN_DATE} from "./Layout";
+
 
 class SidebarContent extends React.Component {
 
@@ -25,17 +26,12 @@ class SidebarContent extends React.Component {
             <div id={"contentContainer"}
                  className={"contentContainer"}>
 
-                <h5 className={"startDateLabel"}>Start Date</h5>
-                <h5 className={"endDateLabel"}>End Date</h5>
-                <h5 className={"startTimeLabel"}>Start Time</h5>
-                <h5 className={"endTimeLabel"}>End Time</h5>
 
-                {/* TODO: get the css applied to this component */}
                 <Dropdown
                     options={rangePickerOptions}
                     value={rangePickerOptions[this.props.range]}
                     onChange={this.props.changeDateTimeRange}
-                    classname={"rangeSelector"}
+                    className={"rangeSelector"}
                     id={"rangeSelector"}
                 />
 
@@ -52,41 +48,66 @@ class SidebarContent extends React.Component {
                     className={"presets"}
                     id={"presets"}
                 />
-                <DatePicker required={true} locale={"en-CA"}
-                            className={"startDate"}
-                            maxDate={MAX_DATE}
-                            minDate={MIN_DATE}
-                            format={"y:MM:dd"}
-                            value={this.props.startDate}
-                            onChange={this.props.onStartDateChange}
-                />
+                <div
+                    className={"startDateContainer"}
+                    id={"startDateContainer"}
+                >
+                    <h5 className={"startDateLabel"}>Start Date</h5>
+                    <DatePicker required={true} locale={"en-CA"}
+                                className={"startDate"}
+                                maxDate={MAX_DATE}
+                                minDate={MIN_DATE}
+                                format={"y:MM:dd"}
+                                value={this.props.startDate}
+                                onChange={this.props.onStartDateChange}
+                    />
+                </div>
+                
+                <div
+                    className={"endDateContainer"}
+                    id={"endDateContainer"}
+                >
+                    <h5 className={"endDateLabel"}>End Date</h5>
+                    <DatePicker required={true}
+                                locale={"en-CA"}
+                                className={"endDate"}
+                                maxDate={MAX_DATE}
+                                minDate={MIN_DATE}
+                                format={"y:MM:dd"}
+                                value={this.props.endDate}
+                                onChange={this.props.onEndDateChange}
+                    />
+                </div>
+            
+                <div
+                    className={"startTimeContainer"}
+                    id={"startTimeContainer"}
+                >
+                    <h5 className={"startTimeLabel"}>Start Time</h5>
+                    <TimePicker required={true}
+                                format={"HH:mm:ss"}
+                                locale={"en-CA"}
+                                className={"startTime"}
+                                maxDetail={"second"}
+                                value={this.props.startTime}
+                                onChange={this.props.onStartTimeChange}
+                    />
+                </div>
 
-                <DatePicker required={true}
-                            locale={"en-CA"}
-                            className={"endDate"}
-                            maxDate={MAX_DATE}
-                            minDate={MIN_DATE}
-                            format={"y:MM:dd"}
-                            value={this.props.endDate}
-                            onChange={this.props.onEndDateChange}
-                />
-
-                <TimePicker required={true}
-                            format={"HH:mm:ss"}
-                            locale={"en-CA"}
-                            className={"startTime"}
-                            maxDetail={"second"}
-                            value={this.props.startTime}
-                            onChange={this.props.onStartTimeChange}
-                />
-
-                <TimePicker required={true}
-                            format={"HH:mm:ss"}
-                            locale={"en-CA"}
-                            className={"endTime"}
-                            maxDetail={"second"}
-                            value={this.props.endTime}
-                            onChange={this.props.onEndTimeChange}/>
+                <div
+                    className={"endTimeContainer"}
+                    id={"endTimeContainer"}
+                >
+                    <h5 className={"endTimeLabel"}>End Time</h5>
+                    <TimePicker required={true}
+                                format={"HH:mm:ss"}
+                                locale={"en-CA"}
+                                className={"endTime"}
+                                maxDetail={"second"}
+                                value={this.props.endTime}
+                                onChange={this.props.onEndTimeChange}
+                    />
+                </div>
 
                 <FormControl component="fieldset"
                              className={"days"}
@@ -146,6 +167,24 @@ class SidebarContent extends React.Component {
                                        name={"holiday"}/>}
                     label="Include Holidays"
                 />
+
+                <div
+                className={"fileTypeContainer"}
+                id={"fileTypeContainer"}
+                ref={React.createRef()}>
+                    Select File Type:
+                    <Select
+                        native
+                        className={"fileType"}
+                        id={"fileType"}
+                        defaultValue={"csv"}
+                        onChange={this.props.onFileTypeUpdate}
+                    >
+                        <option value={"csv"}>csv</option>
+                        <option value={"xlsx"}>xlsx</option>
+                    </Select>
+                </div>
+
                 <button
                     id={"go"}
                     className={"go"}
