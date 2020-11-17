@@ -49,8 +49,9 @@ class Layout extends React.Component {
     }
 
     updateLinks = (newLinks) => {
-        console.log(newLinks)
-        this.setState({linksList: newLinks})
+        let tempLinksList = this.state.linksList
+        tempLinksList.push(newLinks)
+        this.setState({linksList: tempLinksList})
     }
 
     getLinks = (doc) => {
@@ -111,6 +112,7 @@ class Layout extends React.Component {
         if (this.state.linksList.length !== 0) {
             let params = this.parseData();
             let allLinkDirs = [];
+            console.log(this.state.linksList)
             this.state.linksList.forEach((link) => {
                 allLinkDirs = allLinkDirs.concat(link.link_dirs)
             });
