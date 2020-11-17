@@ -43,15 +43,13 @@ class Layout extends React.Component {
     }
 
     updateNodes = (newNodes) => {
-        if (newNodes.length > 0) {
-            console.log(newNodes[0])
-        }
         this.setState({nodesList: newNodes})
     }
 
     updateLinks = (newLinks) => {
-        console.log(newLinks)
-        this.setState({linksList: newLinks})
+        let tempLinksList = this.state.linksList
+        tempLinksList.push(newLinks)
+        this.setState({linksList: tempLinksList})
     }
 
     getLinks = (doc) => {
@@ -161,10 +159,14 @@ class Layout extends React.Component {
         if (this.state.linksList.length !== 0) {
             let params = this.parseData();
             let allLinkDirs = [];
-            this.state.linksList.forEach((link) => {
-                allLinkDirs = allLinkDirs.concat(link.link_dirs)
+            this.state.linksList.forEach((seq) => {
+                let tmpLinkDirs = []
+                seq.forEach((link) => {
+                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs)
+                })
+                allLinkDirs.push(tmpLinkDirs)
             });
-
+            console.log(allLinkDirs, 222)
             params.linkDirs = allLinkDirs;
 
             getTravelDataFile(params);
