@@ -20,7 +20,7 @@ class Mapbox extends React.Component {
             clickedNodes: [[]],
             displayedMarker: [[]],
             currentSequence: 0,
-            sequenceColours: ["#FF0000"],
+            sequenceColours: ["#ff0000"],
             disableRemove: true,
             disableGetLink: true,
             disableReset: true,
@@ -78,8 +78,7 @@ class Mapbox extends React.Component {
     resetMap() {
         this.state.map.remove()
         this.createMap()
-        this.props.onLinkUpdate([]);
-        this.props.onNodeUpdate([]);
+        this.props.resetMapVars()
     };
 
     addTravelDataFiles(linkDataArr) {
