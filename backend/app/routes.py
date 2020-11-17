@@ -1,14 +1,14 @@
 import os
+from math import sqrt
 
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func, and_
 
+from app import METER_UNIT_SRID, DATE_TIME_FORMAT
 from app import app, db
-from app.file_util import *
-from app.models import Node, Travel
+from app.file_util import make_travel_data_csv, make_travel_data_xlsx
+from app.models import Node, Travel, Link
 from app.parse_util import *
-
-METER_UNIT_SRID = 26986
 
 
 def _need_keep_temp_file():
@@ -165,14 +165,15 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
-    file_type = parse_file_type_request_body(request.json)
+    file_type, file_args = parse_file_type_request_body(request.json)
     time_periods, link_dirs = parse_travel_request_body(request.json)
     travel_data_list = _get_travel_data_list(time_periods, link_dirs)
+
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list)
         mime_type = "text/csv"
     elif file_type == 'xlsx':
-        data_file_path = make_travel_data_xlsx(travel_data_list)
+        data_file_path = make_travel_data_xlsx(travel_data_list, file_args)
         mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     else:
         abort(501, description="Currently only support csv files.")
@@ -202,32 +203,90 @@ def get_date_bounds():
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
 
 
-def _get_travel_data_list(time_periods, link_dirs):
+def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
     """
-    Get the travel data within all given time_periods for all links in link_dirs.
+    Get the travel data within all given time_periods for all segments of links in list_of_link_dirs.
 
     Caution: This function may take a long time if the time sum of time_periods is a long period of time, or
-            link_dirs contains too many links. (1~2min)
+            the segments of link_dirs contains too many links. (1~2min)
 
-    :return: a python list containing all the travel data, sorted in ascending link_dir order then ascending time order.
-            Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float), pct_50(int),
-            stddev(float), tx(str)
+    :return: a python list containing all the segments. Each segment contains a list of its data, where each index
+            corresponds to a given time period.
     """
-    travel_data_list = []
+    travel_data_result = []
 
-    for time_period in time_periods:
-        start_time = time_period[0]
-        end_time = time_period[1]
-        print(start_time)
-        print(end_time)
-        travel_query_result = Travel.query \
-            .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
-            .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+    segment_count = 0
+    for link_dirs in list_of_link_dirs:
+        segment_data = []
 
-        for travel_data in travel_query_result:
-            travel_data_list.append(travel_data.json())
+        links = _get_links_by_link_dirs(link_dirs)
+        st_names = get_path_list_from_link_list(links)
+        from_street = st_names[0]
+        to_street = st_names[-1]
+        path_str = "->".join(st_names)
+        links_length = round(sum([float(link.length) for link in links]), 2)
+        visited_links = []
+        travel_data_length = 0
 
-    return travel_data_list
+        for time_periods in list_of_time_periods:
+            from_tx = time_periods[0][0].strftime(DATE_TIME_FORMAT)
+            to_tx = time_periods[-1][-1].strftime(DATE_TIME_FORMAT)
+            all_means = []
+            all_variances = []
+            all_confidences = []
+            all_pct_50s = []
+            data_count = 0
+            need_sum_travel_data_length = travel_data_length == 0
+
+            for time_period in time_periods:
+                start_time = time_period[0]
+                end_time = time_period[1]
+                travel_query_result = Travel.query \
+                    .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
+                    .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
+
+                for travel_data_obj in travel_query_result:
+                    travel_data = travel_data_obj.json()
+
+                    curr_link_dir = travel_data['link_dir']
+                    if need_sum_travel_data_length and curr_link_dir not in visited_links:
+                        visited_links.append(curr_link_dir)
+                        travel_data_length = round(travel_data['length'] + travel_data_length, 2)
+
+                    all_means.append(travel_data['mean'])
+                    all_variances.append(travel_data['stddev'] ** 2)
+                    all_confidences.append(travel_data['confidence'])
+                    all_pct_50s.append(travel_data['pct_50'])
+                    data_count += 1
+
+            mean_avg = round(sum(all_means) / data_count, 2)
+            stddev_avg = round(sqrt(sum(all_variances) / data_count), 2)
+            confidence_avg = round(sum(all_confidences) / data_count, 2)
+            pct_50_avg = round(sum(all_pct_50s) / data_count, 2)
+
+            segment_data.append({
+                'seg_i': segment_count,
+                'from_street': from_street,
+                'to_street': to_street,
+                'path_str': path_str,
+                'from_tx': from_tx,
+                'to_tx': to_tx,
+                'links_length': links_length,
+                'data_length': travel_data_length,
+                'mean_spd': mean_avg,
+                'mean_stddev': stddev_avg,
+                'mean_confidence': confidence_avg,
+                'mean_pct_50': pct_50_avg
+            })
+
+        travel_data_result.append(segment_data)
+        segment_count += 1
+
+    return travel_data_result
+
+
+def _get_links_by_link_dirs(link_dirs):
+    return [Link.query.filter_by(link_dir=link_dir).first() for link_dir in link_dirs]
 
 
 def _get_srid_point(longitude, latitude):

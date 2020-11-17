@@ -1,0 +1,1 @@
+grant execute on function get_links_btwn_nodes(integer, integer, out integer, out integer, out character varying[], out varchar) to gabriel;

@@ -18,6 +18,9 @@ class Link(db.Model):
     length = db.Column(DOUBLE_PRECISION)
     geom = db.Column(Geometry(geometry_type='LINESTRING', srid=int(environ["POSTGIS_GEOM_SRID"])))
 
+    def get_st_name(self):
+        return str(self.st_name)
+
 
 class Node(db.Model):
     __tablename__ = environ['NODE_TABLE_NAME']
