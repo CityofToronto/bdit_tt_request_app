@@ -42,9 +42,6 @@ class Layout extends React.Component {
     }
 
     updateNodes = (newNodes) => {
-        if (newNodes.length > 0) {
-            console.log(newNodes[0])
-        }
         this.setState({nodesList: newNodes})
     }
 
@@ -112,9 +109,12 @@ class Layout extends React.Component {
         if (this.state.linksList.length !== 0) {
             let params = this.parseData();
             let allLinkDirs = [];
-            console.log(this.state.linksList)
-            this.state.linksList.forEach((link) => {
-                allLinkDirs = allLinkDirs.concat(link.link_dirs)
+            this.state.linksList.forEach((seq) => {
+                let tmpLinkDirs = []
+                seq.forEach((link) => {
+                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs)
+                })
+                allLinkDirs.push(tmpLinkDirs)
             });
 
             params.linkDirs = allLinkDirs;
