@@ -158,7 +158,7 @@ export const getTravelDataFile = (data) => {
         end_date: data.endDate,
         days_of_week: data.daysOfWeek,
         include_holidays: data.includeHolidays,
-        link_dirs: data.linkDirs,
+        link_dirs: data.linkDirs[0],
         file_type: data.fileType
     }).then(res => {
         if (res.data) {
