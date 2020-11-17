@@ -24,15 +24,16 @@ class Layout extends React.Component {
             sidebarOpen: true,
             nodesList: [],
             linksList: [],
-            // timeRange: "",
-            // dateRange: "",
-            // dayRange: "",
-            startDate: MIN_DATE,
-            endDate: MAX_DATE,
-            startTime: MIN_DATE,
-            endTime: MAX_DATE,
-            daysOfWeek: [true, true, true, true, true, true, true],
-            includeHolidays: false
+            numRanges: 1,
+            activeRange: 0,
+            ranges: [{
+                startDate: MIN_DATE,
+                endDate: MAX_DATE,
+                startTime: MIN_DATE,
+                endTime: MAX_DATE,
+                daysOfWeek: [true, true, true, true, true, true, true],
+                includeHolidays: false
+            }]
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     }
@@ -57,54 +58,103 @@ class Layout extends React.Component {
         getLinksBetweenNodes(doc, this.state.nodesList)
     }
 
+    changeDateTimeRange(event){
+        let rangeChoice = event.value;
+        let choice = parseInt(rangeChoice.split(" ")[1]);
+        this.setState({activeRange: choice-1});
+    }
+
+    addRange(){
+        let numRanges = this.state.numRanges;
+        let ranges = [...this.state.ranges];
+        ranges.push({
+            startDate: MIN_DATE,
+            endDate: MAX_DATE,
+            startTime: MIN_DATE,
+            endTime: MAX_DATE,
+            daysOfWeek: [true, true, true, true, true, true, true],
+            includeHolidays: false
+        })
+        this.setState({
+            numRanges: numRanges+1,
+            activeRange: numRanges,
+            ranges: ranges
+        });
+    }
+
     handleHolidays = () => {
-        this.setState({includeHolidays: !this.state.includeHolidays})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.includeHolidays = !activeRange.includeHolidays;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ranges: ranges});
     }
 
     updatePreset = (event) => {
-        console.log(event);
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
         switch (event.value) {
-            case "Working Week":
-                this.setState({timeRange: "0600:0900", dayRange: "mon:fri", includeHolidays: false});
+            case "Working Week Morning":
+                activeRange.startTime = new Date('2020-01-01 06:00:00');
+                activeRange.endTime = new Date('2020-01-01 09:00:00');
+                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
+                ranges[this.state.activeRange] = activeRange;
+                this.setState({ ranges: ranges });
+                break;
+
+            case "Working Week Night":
+                activeRange.startTime = new Date('2020-01-01 15:00:00');
+                activeRange.endTime = new Date('2020-01-01 18:00:00');
+                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
+                ranges[this.state.activeRange] = activeRange;
+                this.setState({ ranges: ranges });
                 break;
 
             default:
-                this.setState({timeRange: "", dayRange: "", includeHolidays: false})
+                break;
         }
     }
-    //
-    // updateDates = (e) => {
-    //     this.setState({dateRange: e.target.value})
-    // }
-    //
-    // updateTimes = (e) => {
-    //     this.setState({timeRange: e.target.value})
-    // }
-    //
-    // updateDays = (e) => {
-    //     this.setState({dayRange: e.target.value})
-    // }
 
     onStartDateChange = (value) => {
-        this.setState({startDate: value})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.startDate = value;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ ranges: ranges });
     }
 
     onEndDateChange = (value) => {
-        this.setState({endDate: value})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.endDate = value;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ ranges: ranges });
     }
 
     onStartTimeChange = (value) => {
-        this.setState({startTime: value})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.startTime = value;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ ranges: ranges });
     }
 
     onEndTimeChange = (value) => {
-        this.setState({startTime: value})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.endTime = value;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ ranges: ranges });
     }
 
     onDaysOfWeekChange = (index) => {
-        let newDaysOfWeek = [...this.state.daysOfWeek]
-        newDaysOfWeek[index] = !newDaysOfWeek[index]
-        this.setState({daysOfWeek: newDaysOfWeek})
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        let newDaysOfWeek = [...activeRange.daysOfWeek];
+        newDaysOfWeek[index] = !newDaysOfWeek[index];
+        activeRange.daysOfWeek = newDaysOfWeek;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ ranges: ranges });
     }
 
     downloadData = () => {
@@ -149,106 +199,54 @@ class Layout extends React.Component {
     }
 
     parseData() {
-        const startDateStr = this.formattedDateString(this.state.startDate)
-        const endDateStr = this.formattedDateString(this.state.endDate)
-        const startTimeStr = this.formattedTimeString(this.state.startTime)
-        const endTimeStr = this.formattedTimeString(this.state.endTime)
+        const activeRange = this.state.ranges[this.state.activeRange];
+        const startDateStr = this.formattedDateString(activeRange.startDate)
+        const endDateStr = this.formattedDateString(activeRange.endDate)
+        const startTimeStr = this.formattedTimeString(activeRange.startTime)
+        const endTimeStr = this.formattedTimeString(activeRange.endTime)
 
         return {
             "startTime": startTimeStr,
             "endTime": endTimeStr,
             "startDate": startDateStr,
             "endDate": endDateStr,
-            "daysOfWeek": this.state.daysOfWeek,
-            "includeHolidays": this.state.includeHolidays
+            "daysOfWeek": activeRange.daysOfWeek,
+            "includeHolidays": activeRange.includeHolidays
         }
-        // let params = {};
-        // let times = this.state.timeRange.split(":");
-        // let days = this.state.dayRange.split(":");
-        // const validDays = ["sun", "mon", "tues", "wed", "thurs", "fri", "sat"];
-        // let dates = this.state.dateRange.split(":");
-        //
-        // // First validate the times
-        // if (!(times.length === 2 && times[0].length === 4 && times[1].length === 4 &&
-        //     parseInt(times[0]) < 2400 && parseInt(times[1]) < 2400 &&
-        //     parseInt(times[0]) < parseInt(times[1]))) {
-        //
-        //     alert("Please enter a time range following the format: hhmm:hhmm")
-        //
-        //     // next validate the days
-        // } else if (!(days.length === 2 && validDays.includes(days[0].toLowerCase()) &&
-        //     validDays.includes(days[1].toLowerCase()) &&
-        //     validDays.indexOf(days[0].toLowerCase()) <= validDays.indexOf(days[1].toLowerCase()))) {
-        //
-        //     alert("Please enter a day range following the format: start:end")
-        //
-        //     // finally validate the dates
-        // } else if (!(dates.length === 2 && this.validDate(dates[0]) && this.validDate(dates[1]) &&
-        //     parseInt(dates[0].replaceAll("-", "")) <=
-        //     parseInt(dates[1].replaceAll("-", "")))) {
-        //
-        //     alert("Please enter a date range following the format: yyyy-mm-dd:yyyy-mm-dd");
-        //
-        //     // everything is valid so parse the data
-        // } else {
-        //     times[0] = times[0].substring(0, 2) + ":" + times[0].substring(2) + ":00"
-        //     times[1] = times[1].substring(0, 2) + ":" + times[1].substring(2) + ":00"
-        //     params = {
-        //         startTime: dates[0] + " " + times[0],
-        //         endTime: dates[1] + " " + times[1],
-        //         startDay: days[0],
-        //         endDay: days[1],
-        //         fileType: "csv"
-        //     }
-        // }
-        // return params;
     }
 
-    //
-    // validDate(dateString) {
-    //     let segments = dateString.split("-");
-    //     if (segments.length === 3 && this.strIsInt(segments[0]) && segments[0].length === 4 &&
-    //         this.strIsInt(segments[1]) && segments[1].length === 2 &&
-    //         this.strIsInt(segments[2]) && segments[2].length === 2) {
-    //         return true;
-    //     } else {
-    //         console.log(segments.length);
-    //         return false;
-    //     }
-    // }
-    //
-    // // From stack overflow
-    // strIsInt(str) {
-    //     str = str.replace(/^0+/, "") || "0";
-    //     let n = Math.floor(Number(str));
-    //     return n !== Infinity && String(n) === str && n >= 0;
-    // }
-
     render() {
+        const presets = ["Working Week Morning", "Working Week Night", "Custom"];
+        const activeRange = this.state.ranges[this.state.activeRange];
         return (
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
                     sidebar={<SidebarContent
-                        onHolidayUpdate={this.handleHolidays}
-                        includeHolidays={this.state.includeHolidays}
-                        // onDaysUpdate={this.updateDays}
-                        // dayRange={this.state.dayRange}
-                        // onDatesUpdate={this.updateDates}
-                        // dateRange={this.state.dateRange}
-                        // onTimesUpdate={this.updateTimes}
-                        // presets={["Working Week", "Custom"]}
-                        onPresetChange={this.updatePreset}
+                        onHolidayUpdate={this.handleHolidays.bind(this)}
+                        includeHolidays={activeRange.includeHolidays}
+
+                        presets={presets}
+                        onPresetChange={this.updatePreset.bind(this)}
+
                         onGo={this.downloadData}
-                        onStartDateChange={this.onStartDateChange}
-                        startDate={this.state.startDate}
-                        onEndDateChange={this.onEndDateChange}
-                        endDate={this.state.endDate}
-                        onStartTimeChange={this.onStartTimeChange}
-                        startTime={this.state.startTime}
-                        onEndTimeChange={this.onEndTimeChange}
-                        endTime={this.state.endTime}
-                        daysOfWeek={this.state.daysOfWeek}
-                        onDaysOfWeekChange={this.onDaysOfWeekChange}
+
+                        onStartDateChange={this.onStartDateChange.bind(this)}
+                        startDate={activeRange.startDate}
+                        onEndDateChange={this.onEndDateChange.bind(this)}
+                        endDate={activeRange.endDate}
+
+                        onStartTimeChange={this.onStartTimeChange.bind(this)}
+                        startTime={activeRange.startTime}
+                        onEndTimeChange={this.onEndTimeChange.bind(this)}
+                        endTime={activeRange.endTime}
+
+                        daysOfWeek={activeRange.daysOfWeek}
+                        onDaysOfWeekChange={this.onDaysOfWeekChange.bind(this)}
+
+                        dateTimeRanges={this.state.numRanges}
+                        addNewRange={this.addRange.bind(this)}
+                        range={this.state.activeRange}
+                        changeDateTimeRange={this.changeDateTimeRange.bind(this)}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
