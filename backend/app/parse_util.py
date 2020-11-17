@@ -3,35 +3,41 @@ from datetime import datetime, timedelta
 
 from flask import abort
 
-DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-ALLOWED_FILE_TYPES = ['csv', 'xlsx']
+from app import DATE_TIME_FORMAT, ALLOWED_FILE_TYPES
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
            'parse_get_links_btwn_nodes_response', 'parse_node_response',
-           'parse_get_links_between_multi_nodes_request_body']
+           'parse_get_links_between_multi_nodes_request_body', 'get_path_list_from_link_list']
 
 
 def parse_file_type_request_body(file_request_data):
     """
-    Parse the request body that contains a file type definition.
+    Parse the request body that contains a file type and arguments.
     The file type should be specified in the request body JSON's field file_type.
+    The file argument should be a string.
 
     If the file type specified in the request body is not an valid and allowed file type, the first file type defined
     in the ALLOWED_FILE_TYPES is used by default (csv by default).
 
+    Caution: If file type is invalid, file arguments will be automatically ignored.
+
     :param file_request_data: the request body json
-    :return: The first allowed file type (csv by default) if the file type specified in the request body JSON is
-            invalid or not allowed; return the specified file type otherwise.
+    :return: A tuple of file info. First index is the first allowed file type (csv by default) if the file type
+            specified in the request body JSON is invalid or not allowed, or the specified file type otherwise.
+            Second index is a string representing file arguments (None if does not exist)
     """
     if 'file_type' not in file_request_data:
-        return ALLOWED_FILE_TYPES[0]
+        return ALLOWED_FILE_TYPES[0], None
 
     given_file_type = file_request_data['file_type']
 
     if given_file_type not in ALLOWED_FILE_TYPES:
-        return ALLOWED_FILE_TYPES[0]
+        return ALLOWED_FILE_TYPES[0], None
 
-    return given_file_type
+    if 'file_args' not in file_request_data or type(file_request_data['file_args']) != str:
+        return given_file_type, None
+
+    return given_file_type, file_request_data['file_args']
 
 
 def parse_get_links_between_multi_nodes_request_body(nodes_data):
@@ -74,62 +80,121 @@ def parse_travel_request_body(travel_request_data):
     """
     Parse the body of a travel data request (POST request body).
 
-    Assumptions: The following fields should exist in the request body: start_date, end_date, start_time, end_time,
-                days_of_week, include_holidays and link_dirs.
-                start_date and end_date are date strings in format %Y-%m-%d
-                start_time and end_time are time strings in format %H:%M:%S
-                days_of_week should be a length-7 list of boolean values (0 is Monday, 6 is Sunday), representing
-                which days to include.
-                include_holidays should be a boolean value representing whether or not to include holidays
-                link_dirs should be a list containing all the interested link's link_dir.
+    Assumptions: The following fields should exist in the request body: list_of_time_periods and list_of_links.
+
+    This function will call abort with response code 400 and error messages if it fails to parse travel request data.
+
+    :param travel_request_data: The raw request body
+    :return: a tuple of (list of time periods, list of link_dirs)
+    """
+    # ensures existence of required fields
+    if 'list_of_time_periods' not in travel_request_data or 'list_of_links' not in travel_request_data:
+        abort(400, description="Request body must contain list_of_time_periods and list_of_links.")
+        return
+
+    try:
+        list_of_time_periods = list(travel_request_data['list_of_time_periods'])
+        list_of_link_dirs = list(travel_request_data['list_of_links'])
+
+        if len(list_of_link_dirs) > 0:
+            list(list_of_link_dirs[0])
+    except TypeError:
+        abort(400, description="both list_of_links and time_periods must be lists!")
+        return
+
+    parsed_datetime_periods = parse_time_periods(list_of_time_periods)
+    parsed_list_of_link_dirs = [[str(link_dir) for link_dir in link_dir_lst] for link_dir_lst in list_of_link_dirs]
+    return parsed_datetime_periods, parsed_list_of_link_dirs
+
+
+def parse_time_periods(tps_data):
+    """
+    Parse a list containing raw time period data into a list of usable time periods.
+
+    Assumptions: The following fields should exist in each of the list entry: start_date, end_date, start_time,
+                    end_time, days_of_week, and include_holidays
+                    start_date and end_date are date strings in format %Y-%m-%d
+                    start_time and end_time are time strings in format %H:%M:%S
+                    days_of_week should be a length-7 list of boolean values (0 is Monday, 6 is Sunday), representing
+                    which days to include.
+                    include_holidays should be a boolean value representing whether or not to include holidays
 
     This function will call abort with response code 400 and error messages if any of the assumption is not met.
 
-    :param travel_request_data: The raw request body
-    :return: a tuple of (time_periods, link_dirs)
+    :param tps_data: list containing all raw time period data
+    :return: a list of tuple of (time_periods, link_dirs)
     """
-    # TODO: update doc comment string
-    # ensures existence of required fields
-    required_fields = ['start_date', 'end_date', 'start_time', 'end_time', 'days_of_week', 'include_holidays',
-                       'link_dirs']
-    if False in [field in travel_request_data for field in required_fields]:
-        abort(400, description="Request body must contain start_date, end_date, start_time, end_time, days_of_week, "
-                               "include_holidays, link_dirs and link_dirs.")
-        return
-    start_date = travel_request_data['start_date']
-    end_date = travel_request_data['end_date']
-    start_time = travel_request_data['start_time']
-    end_time = travel_request_data['end_time']
-    days_of_week = travel_request_data['days_of_week']
-    # TODO: holiday logic
-    include_holidays = travel_request_data['include_holidays']
-    link_dirs = travel_request_data['link_dirs']
+    tp_required = ['start_date', 'end_date', 'start_time', 'end_time', 'days_of_week', 'include_holidays']
+    tps_parsed = []
+    for tp_raw in tps_data:
+        if type(tp_raw) != dict:
+            abort(400, description="Each time period must be a dictionary (JSON)!")
+            return
 
-    parsed_datetime_periods = []
+        if False in [field in tp_raw for field in tp_required]:
+            abort(400,
+                  description="Each time period must contain start_date, end_date, start_time, end_time, days_of_week, "
+                              "and include_holidays.")
+            return
 
-    # ensures format of timestamp
-    try:
-        start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
-        end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
-        curr_datetime = start_datetime
-        while curr_datetime <= end_datetime:
-            curr_weekday = curr_datetime.weekday()
-            if days_of_week[curr_weekday]:
-                curr_end_datetime = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
-                                                          second=end_datetime.second)
-                parsed_datetime_periods.append((curr_datetime, curr_end_datetime))
-            curr_datetime = curr_datetime + timedelta(days=1)
-    except ValueError:
-        abort(400, description=(
-                "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
-        return
+        try:
+            start_date = str(tp_raw['start_date'])
+            end_date = str(tp_raw['end_date'])
+            start_time = str(tp_raw['start_time'])
+            end_time = str(tp_raw['end_time'])
+            days_of_week = list(tp_raw['days_of_week'])
+            # TODO: utilize holidays
+            include_holidays = bool(tp_raw['include_holidays'])
+        except TypeError:
+            abort(400, description="start_date, end_date, start_time, end_time should be str. days_of_week should be "
+                                   "a list. include_holidays should be a bool!")
+            return
 
-    # ensures link_dirs has the right type
-    if type(link_dirs) != list:
-        abort(400, description="link_dirs must be a list of link_dir to fetch travel data from!")
-        return
+        if len(days_of_week) != 7:
+            abort(400, description="days_of_week list must have length 7 (one bool val for each day in the week)!")
+            return
 
-    return parsed_datetime_periods, link_dirs
+        tp_parsed = []
+        try:
+            start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
+            end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
+            curr_datetime = start_datetime
+            while curr_datetime <= end_datetime:
+                curr_weekday = curr_datetime.weekday()
+                if days_of_week[curr_weekday]:
+                    curr_end_datetime = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
+                                                              second=end_datetime.second)
+                    tp_parsed.append((curr_datetime, curr_end_datetime))
+                curr_datetime = curr_datetime + timedelta(days=1)
+        except ValueError:
+            abort(400, description=(
+                    "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
+            return
+        # try:
+        #     start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
+        #     end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
+        #     curr_datetime = start_datetime
+        #     curr_end_time = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
+        #                                           second=end_datetime.second)
+        #     while curr_datetime <= end_datetime:
+        #         curr_weekday = curr_datetime.weekday()
+        #         if days_of_week[curr_weekday] and curr_datetime < curr_end_time:
+        #             curr_end_datetime = min(curr_datetime + timedelta(hours=1), curr_end_time)
+        #             tp_parsed.append((curr_datetime, curr_end_datetime))
+        #             curr_datetime = curr_end_datetime
+        #         else:
+        #             curr_datetime.replace(hour=start_datetime.hour, minute=start_datetime.minute,
+        #                                   second=start_datetime.second)
+        #             curr_datetime = curr_datetime + timedelta(days=1)
+        #             curr_end_time = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
+        #                                                   second=end_datetime.second)
+        # except ValueError:
+        #     abort(400, description=(
+        #             "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
+        #     return
+
+        tps_parsed.append(tp_parsed)
+    return tps_parsed
 
 
 def parse_link_response(link_data):
@@ -199,3 +264,20 @@ def parse_node_response(node_data):
     :return: a dictionary containing the attributes for the Node query that can be jsonify-ed.
     """
     return {"node_id": node_data[0], "geometry": json.loads(node_data[1])}
+
+
+def get_path_list_from_link_list(links):
+    """
+    Get a list of street names with no adjacent duplication from the list of links.
+    :param links: the list of links to get street names from
+    :return: a list of street names with no adjacent duplication
+    """
+    st_names = []
+    last_st_idx = -1
+    for i in range(len(links)):
+        curr_name = links[i].get_st_name()
+
+        if i == 0 or curr_name != st_names[last_st_idx]:
+            st_names.append(curr_name)
+            last_st_idx += 1
+    return st_names

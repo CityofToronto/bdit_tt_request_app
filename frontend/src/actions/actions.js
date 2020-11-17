@@ -1,8 +1,8 @@
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-// const domain = "http://127.0.0.1:5000";
+// const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
+const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
@@ -105,38 +105,6 @@ export const getProjectTitle = (page) => {
     }).catch(err => handleResponseError(err))
 };
 
-/* GET travel data of links */
-/* sample data input: {
-        "startTime": "2018-09-01 12:00:00",
-        "endTime": "2018-09-01 23:00:00",
-        "linkDirs": ["29492871T"]
-	}
-*/
-export const getTravelData = (page, data) => {
-    axios.post(`${domain}/travel-data`, {
-        start_time: data.startTime,
-        end_time: data.endTime,
-        link_dirs: data.linkDirs
-    }).then(res => {
-        if (res.data) {
-            const arr = [];
-            res.data.forEach((link) => {
-                arr.push({
-                    linkDir: link.link_dir,
-                    tx: link.tx,
-                    length: link.length,
-                    mean: link.mean,
-                    stddev: link.stddev,
-                    confidence: link.confidence,
-                    pct50: link.pct_50
-                });
-            });
-            page.setState({travelData: arr});
-        } else {
-            alert("FAILED TO GET TRAVEL DATA");
-        }
-    }).catch(err => handleResponseError(err))
-};
 
 /* GET travel data file of link */
 /* sample data input: {
@@ -150,16 +118,12 @@ export const getTravelDataFile = (data) => {
     if (!data.fileType) {
         data.fileType = 'csv';
     }
-    console.log("list of list of linkDirs", data.linkDirs)
+    console.log(data);
     axios.post(`${domain}/travel-data-file`, {
-        start_time: data.startTime,
-        end_time: data.endTime,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        days_of_week: data.daysOfWeek,
-        include_holidays: data.includeHolidays,
-        link_dirs: data.linkDirs[0],
-        file_type: data.fileType
+        list_of_time_periods: data.listOfTimePeriods,
+        list_of_links: data.listOfLinkDirs,
+        file_type: data.fileType,
+        file_args: data.fileArgs
     }).then(res => {
         if (res.data) {
             fileDownload(res.data, `report.${data.fileType}`)
