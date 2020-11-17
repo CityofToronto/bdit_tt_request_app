@@ -118,15 +118,12 @@ export const getTravelDataFile = (data) => {
     if (!data.fileType) {
         data.fileType = 'csv';
     }
+    console.log(data);
     axios.post(`${domain}/travel-data-file`, {
-        start_time: data.startTime,
-        end_time: data.endTime,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        days_of_week: data.daysOfWeek,
-        include_holidays: data.includeHolidays,
-        link_dirs: data.linkDirs[0],
-        file_type: data.fileType
+        list_of_time_periods: data.listOfTimePeriods,
+        list_of_links: data.listOfLinkDirs,
+        file_type: data.fileType,
+        file_args: data.fileArgs
     }).then(res => {
         if (res.data) {
             fileDownload(res.data, `report.${data.fileType}`)

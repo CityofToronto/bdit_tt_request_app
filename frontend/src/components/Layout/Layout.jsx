@@ -27,10 +27,10 @@ class Layout extends React.Component {
             numRanges: 1,
             activeRange: 0,
             ranges: [{
-                startDate: MIN_DATE,
-                endDate: MAX_DATE,
-                startTime: MIN_DATE,
-                endTime: MAX_DATE,
+                startDate: new Date(MIN_DATE),
+                endDate: new Date(MAX_DATE),
+                startTime: this.formattedTimeString(MIN_DATE),
+                endTime: this.formattedTimeString(MAX_DATE),
                 daysOfWeek: [true, true, true, true, true, true, true],
                 includeHolidays: false
             }],
@@ -67,10 +67,10 @@ class Layout extends React.Component {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         ranges.push({
-            startDate: MIN_DATE,
-            endDate: MAX_DATE,
-            startTime: MIN_DATE,
-            endTime: MAX_DATE,
+            startDate: new Date(MIN_DATE),
+            endDate: new Date(MAX_DATE),
+            startTime: this.formattedTimeString(MIN_DATE),
+            endTime: this.formattedTimeString(MAX_DATE),
             daysOfWeek: [true, true, true, true, true, true, true],
             includeHolidays: false
         })
@@ -162,7 +162,6 @@ class Layout extends React.Component {
 
     downloadData = () => {
         if (this.state.linksList.length !== 0) {
-            let params = this.parseData();
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
                 let tmpLinkDirs = []
@@ -171,8 +170,15 @@ class Layout extends React.Component {
                 })
                 allLinkDirs.push(tmpLinkDirs)
             });
-            params.linkDirs = allLinkDirs;
-            params.fileType = this.state.fileType
+
+            const fileData = this.state.fileType.split("-");
+
+            let params = {
+                listOfTimePeriods: this.parseTimePeriods(),
+                listOfLinkDirs: allLinkDirs,
+                fileType: fileData[0],
+                fileArgs: fileData[1]
+            };
 
             getTravelDataFile(params);
         } else {
@@ -190,6 +196,7 @@ class Layout extends React.Component {
     }
 
     formattedTimeString(datetime) {
+        console.log(datetime);
         const hour = this.zeroPadNumber(datetime.getHours())
         const minute = this.zeroPadNumber(datetime.getMinutes())
         const second = this.zeroPadNumber(datetime.getSeconds())
@@ -205,21 +212,26 @@ class Layout extends React.Component {
         return padded;
     }
 
-    parseData() {
-        const activeRange = this.state.ranges[this.state.activeRange];
-        const startDateStr = this.formattedDateString(activeRange.startDate)
-        const endDateStr = this.formattedDateString(activeRange.endDate)
-        const startTimeStr = this.formattedTimeString(activeRange.startTime)
-        const endTimeStr = this.formattedTimeString(activeRange.endTime)
+    parseTimePeriods() {
+        let timePeriods = [];
+        this.state.ranges.forEach(value => {
+            console.log(value)
+            const startDateStr = this.formattedDateString(value.startDate)
+            const endDateStr = this.formattedDateString(value.endDate)
+            const startTimeStr = value.startTime
+            const endTimeStr = value.endTime
 
-        return {
-            "startTime": startTimeStr,
-            "endTime": endTimeStr,
-            "startDate": startDateStr,
-            "endDate": endDateStr,
-            "daysOfWeek": activeRange.daysOfWeek,
-            "includeHolidays": activeRange.includeHolidays
-        }
+            timePeriods.push({
+                "start_time": startTimeStr,
+                "end_time": endTimeStr,
+                "start_date": startDateStr,
+                "end_date": endDateStr,
+                "days_of_week": value.daysOfWeek,
+                "include_holidays": value.includeHolidays
+            });
+        });
+
+        return timePeriods;
     }
 
     render() {

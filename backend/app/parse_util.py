@@ -89,7 +89,7 @@ def parse_travel_request_body(travel_request_data):
     """
     # ensures existence of required fields
     if 'list_of_time_periods' not in travel_request_data or 'list_of_links' not in travel_request_data:
-        abort(400, description="Request body must contain time_periods and list_of_links.")
+        abort(400, description="Request body must contain list_of_time_periods and list_of_links.")
         return
 
     try:
@@ -273,9 +273,11 @@ def get_path_list_from_link_list(links):
     :return: a list of street names with no adjacent duplication
     """
     st_names = []
+    last_st_idx = -1
     for i in range(len(links)):
         curr_name = links[i].get_st_name()
 
-        if i == 0 or curr_name != st_names[i - 1]:
+        if i == 0 or curr_name != st_names[last_st_idx]:
             st_names.append(curr_name)
+            last_st_idx += 1
     return st_names

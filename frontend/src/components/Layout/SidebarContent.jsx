@@ -63,7 +63,7 @@ class SidebarContent extends React.Component {
                                 <DatePicker required={true} locale={"en-CA"}
                                             maxDate={MAX_DATE}
                                             minDate={MIN_DATE}
-                                            format={"y:MM:dd"}
+                                            format={"y-MM-dd"}
                                             value={this.props.startDate}
                                             onChange={this.props.onStartDateChange}
                                 />
@@ -75,7 +75,7 @@ class SidebarContent extends React.Component {
                                             locale={"en-CA"}
                                             maxDate={MAX_DATE}
                                             minDate={MIN_DATE}
-                                            format={"y:MM:dd"}
+                                            format={"y-MM-dd"}
                                             value={this.props.endDate}
                                             onChange={this.props.onEndDateChange}
                                 />
@@ -87,6 +87,7 @@ class SidebarContent extends React.Component {
                                             format={"HH:mm:ss"}
                                             locale={"en-CA"}
                                             maxDetail={"second"}
+                                            disableClock={true}
                                             value={this.props.startTime}
                                             onChange={this.props.onStartTimeChange}
                                 />
@@ -98,6 +99,7 @@ class SidebarContent extends React.Component {
                                             format={"HH:mm:ss"}
                                             locale={"en-CA"}
                                             maxDetail={"second"}
+                                            disableClock={true}
                                             value={this.props.endTime}
                                             onChange={this.props.onEndTimeChange}
                                 />
