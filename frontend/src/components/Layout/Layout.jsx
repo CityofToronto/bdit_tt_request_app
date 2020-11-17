@@ -157,8 +157,7 @@ class Layout extends React.Component {
     }
 
     onFileTypeUpdate = (e) => {
-        console.log(e, 22)
-        this.setState({fileType: e.value})
+        this.setState({fileType: e.target.value})
     }
 
     downloadData = () => {
@@ -173,7 +172,7 @@ class Layout extends React.Component {
                 allLinkDirs.push(tmpLinkDirs)
             });
             params.linkDirs = allLinkDirs;
-            console.log(this.state.fileType, 333)
+            params.fileType = this.state.fileType
 
             getTravelDataFile(params);
         } else {

@@ -11,7 +11,7 @@ import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {DAYS_OF_WEEK_MAPPING, MAX_DATE, MIN_DATE} from "./Layout";
-import MenuItem from "@material-ui/core/MenuItem";
+
 
 class SidebarContent extends React.Component {
 
@@ -170,19 +170,20 @@ class SidebarContent extends React.Component {
 
                 <div
                 className={"fileTypeContainer"}
-                id={"fileTypeContainer"}>
+                id={"fileTypeContainer"}
+                ref={React.createRef()}>
                     Select File Type:
                     <Select
+                        native
                         className={"fileType"}
                         id={"fileType"}
                         defaultValue={"csv"}
                         onChange={this.props.onFileTypeUpdate}
                     >
-                        <MenuItem value={"csv"}>csv</MenuItem>
-                        <MenuItem value={"xlsx"}>xlsx</MenuItem>
+                        <option value={"csv"}>csv</option>
+                        <option value={"xlsx"}>xlsx</option>
                     </Select>
                 </div>
-
 
                 <button
                     id={"go"}
