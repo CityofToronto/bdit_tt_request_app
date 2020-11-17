@@ -292,10 +292,13 @@ class Mapbox extends React.Component {
         } else {
             const newMarker = new mapboxgl.Marker({draggable: true, "color": this.state.sequenceColours[this.state.currentSequence]})
                 .setLngLat(newNode.geometry.coordinate)
+                .setPopup(new mapboxgl.Popup().setText("Sequence Number: "+this.state.currentSequence.toString()+", Node Number: "+this.state.clickedNodes[this.state.currentSequence].length.toString()+""))
                 .addTo(this.state.map);
             newMarker._element.id = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
-
+            const newMarkerDiv = newMarker.getElement()  
+            newMarkerDiv.addEventListener('mouseenter', () =>newMarker.togglePopup())
+            newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
             // This is where nodes set
             let newNodes = this.state.clickedNodes[this.state.currentSequence].concat([newNode]);
             let newNodesArr = [...this.state.clickedNodes]
@@ -376,6 +379,8 @@ class Mapbox extends React.Component {
         })
     }
     render() {
+        console.log(this.state.displayedMarker)
+        
         return (
             <div>
                 <div className='sidebarStyle'>
