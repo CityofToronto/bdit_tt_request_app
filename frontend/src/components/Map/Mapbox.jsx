@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button} from 'react-bootstrap'
+import arrowImage from '../Images/arrow.png'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -41,11 +42,19 @@ class Mapbox extends React.Component {
             center: [this.state.lng, this.state.lat],
             zoom: this.state.zoom
         });
+        map.on('load',()=>{
+            map.loadImage(
+                arrowImage,
+                function (error, image) {
+                    if (error) throw error;
+                    map.addImage('arrow-line', image);
+                })
+        })
         map.on('move', () => {
             this.setState({
                 lng: map.getCenter().lng.toFixed(4),
                 lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
+                zoom: map.getZoom().toFixed(2),
             });
         });
         map.on('click', (e) => {
@@ -160,6 +169,16 @@ class Mapbox extends React.Component {
                 'paint': {
                     'line-color': this.state.sequenceColours[sequence],
                     'line-width': 8
+                }
+            });
+            this.state.map.addLayer({
+                'id': currSourceId+'L2',
+                'type': 'symbol',
+                'source': currSourceId,
+                'layout': {
+                    'symbol-placement': 'line-center',
+                    'icon-image':'arrow-line',
+                    'icon-size': 0.02
                 }
             });
         });
