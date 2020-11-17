@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button} from 'react-bootstrap'
+import arrowImage from '../Images/arrow.png'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -41,11 +42,19 @@ class Mapbox extends React.Component {
             center: [this.state.lng, this.state.lat],
             zoom: this.state.zoom
         });
+        map.on('load',()=>{
+            map.loadImage(
+                arrowImage,
+                function (error, image) {
+                    if (error) throw error;
+                    map.addImage('arrow-line', image);
+                })
+        })
         map.on('move', () => {
             this.setState({
                 lng: map.getCenter().lng.toFixed(4),
                 lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
+                zoom: map.getZoom().toFixed(2),
             });
         });
         map.on('click', (e) => {
@@ -161,6 +170,16 @@ class Mapbox extends React.Component {
                     'line-width': 8
                 }
             });
+            this.state.map.addLayer({
+                'id': currSourceId+'L2',
+                'type': 'symbol',
+                'source': currSourceId,
+                'layout': {
+                    'symbol-placement': 'line-center',
+                    'icon-image':'arrow-line',
+                    'icon-size': 0.02
+                }
+            });
         });
     };
 
@@ -272,10 +291,13 @@ class Mapbox extends React.Component {
         } else {
             const newMarker = new mapboxgl.Marker({draggable: true, "color": this.state.sequenceColours[this.state.currentSequence]})
                 .setLngLat(newNode.geometry.coordinate)
+                .setPopup(new mapboxgl.Popup().setText("Sequence Number: "+this.state.currentSequence.toString()+", Node Number: "+this.state.clickedNodes[this.state.currentSequence].length.toString()+""))
                 .addTo(this.state.map);
             newMarker._element.id = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
-
+            const newMarkerDiv = newMarker.getElement()  
+            newMarkerDiv.addEventListener('mouseenter', () =>newMarker.togglePopup())
+            newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
             // This is where nodes set
             let newNodes = this.state.clickedNodes[this.state.currentSequence].concat([newNode]);
             let newNodesArr = [...this.state.clickedNodes]
@@ -356,6 +378,8 @@ class Mapbox extends React.Component {
         })
     }
     render() {
+        console.log(this.state.displayedMarker)
+        
         return (
             <div>
                 <div className='sidebarStyle'>
