@@ -57,6 +57,10 @@ class Layout extends React.Component {
         getLinksBetweenNodes(doc, this.state.nodesList)
     }
 
+    resetMapVars = () => {
+        this.setState({linksList: [], nodesList: []})
+    }
+
     changeDateTimeRange(event){
         let rangeChoice = event.value;
         let choice = parseInt(rangeChoice.split(" ")[1]);
@@ -171,6 +175,7 @@ class Layout extends React.Component {
                 })
                 allLinkDirs.push(tmpLinkDirs)
             });
+            console.log(44, allLinkDirs)
             params.linkDirs = allLinkDirs;
             params.fileType = this.state.fileType
 
@@ -272,6 +277,7 @@ class Layout extends React.Component {
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
                     getLinks={this.getLinks}
+                    resetMapVars={this.resetMapVars}
                 />
             </div>
         );

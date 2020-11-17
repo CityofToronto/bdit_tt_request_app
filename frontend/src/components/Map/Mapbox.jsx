@@ -78,8 +78,7 @@ class Mapbox extends React.Component {
     resetMap() {
         this.state.map.remove()
         this.createMap()
-        this.props.onLinkUpdate([]);
-        this.props.onNodeUpdate([]);
+        this.props.resetMapVars()
     };
 
     addTravelDataFiles(linkDataArr) {
