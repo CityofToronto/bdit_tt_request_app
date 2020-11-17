@@ -7,7 +7,7 @@
     position: absolute;
     width: 80%;
     height: 5%;
-    top: 5%;
+    top: 2.5%;
     left: 10%;
 }
 
@@ -27,67 +27,83 @@
     left: 10%;
 }
 
+.startDateContainer{
+    position: absolute;
+    height: 5%;
+    width: 100%;
+    top: 22.5%;
+}
+
 .startDateLabel{
     position: absolute;
     width: 12%;
-    height: 5%;
     left: 3%;
-    top: 22.5%;
 }
 
 .startDate{
     position: absolute;
     width: 80%;
-    height: 5%;
-    top: 21%;
+    top: 85%;
     left: 15%;
+}
+
+.endDateContainer{
+    position: absolute;
+    height: 5%;
+    width: 100%;
+    top: 30%;
 }
 
 .endDateLabel{
     position: absolute;
     width: 12%;
-    height: 5%;
     left: 3%;
-    top: 30%;
 }
 
 .endDate{
     position: absolute;
     width: 80%;
-    height: 5%;
-    top: 22%;
+    top: 85%;
     left: 15%;
+}
+
+.startTimeContainer{
+    position: absolute;
+    height: 5%;
+    width: 100%;
+    top: 38.5%;
 }
 
 .startTimeLabel{
     position: absolute;
     width: 12%;
-    height: 5%;
     left: 3%;
-    top: 38.5%;
 }
 
 .startTime{
     position: absolute;
     width: 80%;
-    height: 5%;
-    top: 26%;
+    top: 85%;
     left: 15%;
+}
+
+.endTimeContainer{
+    position: absolute;
+    height: 5%;
+    width: 100%;
+    top: 45.5%;
 }
 
 .endTimeLabel{
     position: absolute;
     width: 12%;
-    height: 5%;
     left: 3%;
-    top: 45.5%;
 }
 
 .endTime{
     position: absolute;
     width: 80%;
-    height: 5%;
-    top: 28%;
+    top: 85%;
     left: 15%;
 }
 
@@ -95,7 +111,7 @@
     position: absolute;
     width: 80%;
     height: 5%;
-    top: 30%;
+    top: 55%;
     left: 10%;
 }
 
