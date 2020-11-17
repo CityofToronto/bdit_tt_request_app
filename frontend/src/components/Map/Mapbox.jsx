@@ -20,7 +20,7 @@ class Mapbox extends React.Component {
             clickedNodes: [[]],
             displayedMarker: [[]],
             currentSequence: 0,
-            sequenceColours: ["#ff0000"],
+            sequenceColours: ["#FF0000"],
             disableRemove: true,
             disableGetLink: true,
             disableReset: true,
