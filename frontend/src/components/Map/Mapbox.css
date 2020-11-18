@@ -61,3 +61,14 @@
   cursor: pointer;
   padding: 0.25rem 0.85rem;
 }
+
+.seq{
+    position: fixed;
+    bottom: 140px;
+    right: 0;
+}
+.seq-button{
+    position: fixed;
+    bottom: 140px;
+    right: 0;
+}
