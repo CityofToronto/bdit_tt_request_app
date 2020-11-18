@@ -357,7 +357,8 @@ class Mapbox extends React.Component {
         // this is where nodes are removed
         if (tempCurrentSeq === -1) {
             this.setState({
-                clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+                clickedNodes: [[]],
+                displayedMarker: [[]],
                 disableGetLink: true, 
                 disableRemove: true,
                 disableNewSeq: true,
