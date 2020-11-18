@@ -2,7 +2,7 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
-import {Button} from 'react-bootstrap'
+import {Button, Form} from 'react-bootstrap'
 import arrowImage from '../Images/arrow.png'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
@@ -21,13 +21,14 @@ class Mapbox extends React.Component {
             clickedNodes: [[]],
             displayedMarker: [[]],
             currentSequence: 0,
-            sequenceColours: ["#FF0000"],
+            sequenceColours: [this.getRandomColor()],
             disableRemove: true,
             disableGetLink: true,
             disableReset: true,
             disableAddMarker: false,
             disableDragMarker: true,
-            disableNewSeq: true
+            disableNewSeq: true,
+            selectedSeq: ""
         };
     };
 
@@ -80,7 +81,8 @@ class Mapbox extends React.Component {
             disableReset: false,
             disableDragMarker: false,
             disableNewSeq: true,
-            currentSequence: 0
+            currentSequence: 0,
+            selectedSeq: ""
         });
     }
 
@@ -364,7 +366,7 @@ class Mapbox extends React.Component {
     }
     newSeq () {
         alert("New Sequence Created, Please Place a Node");
-        let newColor = "#FF0000"
+        let newColor = this.state.sequenceColours[0]
         while (this.state.sequenceColours.includes(newColor)) {
             newColor = this.getRandomColor()
         }
@@ -377,9 +379,27 @@ class Mapbox extends React.Component {
                         disableRemove: true
         })
     }
+    onChangeSelectSeq = (e) => this.setState({ selectedSeq: e.target.value });
+    onSubmit = (e) => {
+        e.preventDefault();
+    
+        if (this.state.selectedSeq.trim() === '') {
+          alert("Please input a sequence")
+          return;
+        }
+        if (isNaN(this.state.selectedSeq)){
+            alert("Please input a valid sequence")
+            return;
+        }
+        if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1){
+            alert("Please input a valid sequence")
+            return;
+        }
+        alert("Selected Sequence Number: " + this.state.selectedSeq)
+
+      }
+    
     render() {
-        console.log(this.state.displayedMarker)
-        
         return (
             <div>
                 <div className='sidebarStyle'>
@@ -395,7 +415,12 @@ class Mapbox extends React.Component {
                         onClick={() => this.resetMap()} size="sm">Reset Map</Button>
                  <Button variant="outline-primary" className='newSeq-button' disabled={this.state.disableNewSeq}
                         onClick={() => this.newSeq()} size="sm">New Sequence</Button>
-                         
+                <Form className='seq'>
+                <Form.Group >  
+                    <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq} onChange={this.onChangeSelectSeq} />
+                </Form.Group>
+                <Button className='seq-button' variant="primary" type="submit" onClick={this.onSubmit}>Reverse</Button>
+                </Form>         
             </div>
         );
     };
