@@ -316,22 +316,6 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
     return travel_data_result
 
 
-def _split_datetime_interval(start_datetime, end_datetime):
-    intervals = []
-    curr_datetime = start_datetime
-    while True:
-        next_datetime = start_datetime + timedelta(hours=1)
-
-        if next_datetime >= end_datetime:
-            intervals.append((curr_datetime, min(next_datetime, end_datetime)))
-            break
-
-        intervals.append((curr_datetime, next_datetime))
-        curr_datetime = next_datetime
-
-    return intervals
-
-
 def _calc_list_avg(lst: list) -> float:
     if len(lst) == 0:
         return 0.0
