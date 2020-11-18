@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 db.create_all()
 
 METER_UNIT_SRID = 26986
-DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 ALLOWED_FILE_TYPES = ['csv', 'xlsx']
 
 from app import routes

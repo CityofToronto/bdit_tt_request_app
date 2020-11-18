@@ -84,9 +84,9 @@ class SidebarContent extends React.Component {
                             <Grid item>
                                 <h5>Start Time</h5>
                                 <TimePicker required={true}
-                                            format={"HH:mm:ss"}
+                                            format={"HH:mm"}
                                             locale={"en-CA"}
-                                            maxDetail={"second"}
+                                            maxDetail={"minute"}
                                             disableClock={true}
                                             value={this.props.startTime}
                                             onChange={this.props.onStartTimeChange}
@@ -96,9 +96,9 @@ class SidebarContent extends React.Component {
                             <Grid item>
                                 <h5 className={"endTimeLabel"}>End Time</h5>
                                 <TimePicker required={true}
-                                            format={"HH:mm:ss"}
+                                            format={"HH:mm"}
                                             locale={"en-CA"}
-                                            maxDetail={"second"}
+                                            maxDetail={"minute"}
                                             disableClock={true}
                                             value={this.props.endTime}
                                             onChange={this.props.onEndTimeChange}
