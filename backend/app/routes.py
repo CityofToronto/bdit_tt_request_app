@@ -204,7 +204,7 @@ def get_date_bounds():
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
 
 
-class TravelDataBlock:
+class _TravelDataTimePeriodBlock:
     def __init__(self, start_time, end_time, interval_time):
         self._start_time = start_time
         self._end_time = end_time
@@ -289,7 +289,7 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
             for time_period in time_periods:
                 start_time = time_period[0]
                 end_time = time_period[1]
-                tp_data = TravelDataBlock(start_time, end_time, 3600)
+                tp_data = _TravelDataTimePeriodBlock(start_time, end_time, 3600)
 
                 travel_query_result = Travel.query \
                     .filter(and_(start_time <= Travel.tx, Travel.tx < end_time, Travel.link_dir.in_(link_dirs))) \
