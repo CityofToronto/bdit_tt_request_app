@@ -200,7 +200,6 @@ class Layout extends React.Component {
     }
 
     formattedTimeString(datetime) {
-        console.log(datetime);
         const hour = this.zeroPadNumber(datetime.getHours())
         const minute = this.zeroPadNumber(datetime.getMinutes())
         const second = this.zeroPadNumber(datetime.getSeconds())
@@ -219,7 +218,6 @@ class Layout extends React.Component {
     parseTimePeriods() {
         let timePeriods = [];
         this.state.ranges.forEach(value => {
-            console.log(value)
             const startDateStr = this.formattedDateString(value.startDate)
             const endDateStr = this.formattedDateString(value.endDate)
             const startTimeStr = value.startTime
