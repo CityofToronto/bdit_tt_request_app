@@ -382,7 +382,6 @@ class Mapbox extends React.Component {
     onChangeSelectSeq = (e) => this.setState({ selectedSeq: e.target.value });
     onSubmit = (e) => {
         e.preventDefault();
-    
         if (this.state.selectedSeq.trim() === '') {
           alert("Please input a sequence")
           return;
@@ -396,7 +395,40 @@ class Mapbox extends React.Component {
             return;
         }
         alert("Selected Sequence Number: " + this.state.selectedSeq)
+        let tempCurrSequence = this.state.currentSequence + 1
+        let tempDisplayedMarkers = this.state.displayedMarker
+        let tempClickedNodes = this.state.clickedNodes
+        let newColor = this.getRandomColor()
+        let tempHoldSeq = this.state.clickedNodes[this.state.selectedSeq]
 
+
+        let newClickedNodes = []
+        let newDisplayedMarkers = []
+
+        for(let i = 0; i < tempDisplayedMarkers[this.state.selectedSeq].length; i++) {
+            let currNode = tempHoldSeq[tempDisplayedMarkers[this.state.selectedSeq].length - i - 1]
+
+            const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
+                .setLngLat(currNode.geometry.coordinate)
+                .setPopup(new mapboxgl.Popup().setText(
+                    "Sequence Number: " + tempCurrSequence.toString() +
+                    ", Node Number: " + i.toString() + ""))
+                .addTo(this.state.map);
+            newMarker._element.id = "" + tempCurrSequence.toString() + "," + i.toString() + ""
+            newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
+            const newMarkerDiv = newMarker.getElement()
+            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup())
+            newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
+
+            newClickedNodes.push(currNode)
+            newDisplayedMarkers.push(newMarker)
+        }
+        this.setState({
+            displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
+            currentSequence: tempCurrSequence,
+            clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
+            sequenceColours: this.state.sequenceColours.concat([newColor])
+        })
       }
     
     render() {
