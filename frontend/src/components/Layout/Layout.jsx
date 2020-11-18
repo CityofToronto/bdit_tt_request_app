@@ -3,6 +3,7 @@ import Sidebar from "react-sidebar";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
+import "./Layout.css"
 
 export const DAYS_OF_WEEK_MAPPING = [
     "Monday",
@@ -261,7 +262,7 @@ class Layout extends React.Component {
         const presets = ["Working Week Morning", "Working Week Night", "Custom"];
         const activeRange = this.state.ranges[this.state.activeRange];
         return (
-            <div id={"header"} style={{color: "black"}}>
+            <div>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
@@ -296,7 +297,8 @@ class Layout extends React.Component {
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
-                    styles={{sidebar: {background: "white", width: 350}}}
+                    rootClassName={"topbar"}
+                    sidebarClassName={"sidebar"}
                 >
                     <button
                         onClick={() => this.onSetSidebarOpen(true)}
