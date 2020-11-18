@@ -191,6 +191,7 @@ class Layout extends React.Component {
             });
         } else {
             alert("Please get links first");
+            this.setState({disableGetButton: false})
         }
 
     }
