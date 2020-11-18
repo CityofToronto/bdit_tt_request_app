@@ -1,5 +1,6 @@
 import React from "react";
 import Sidebar from "react-sidebar";
+import { Button } from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
@@ -300,12 +301,13 @@ class Layout extends React.Component {
                     rootClassName={"topbar"}
                     sidebarClassName={"sidebar"}
                 >
-                    <button
+                    <Button
+                        variant="contained"
                         onClick={() => this.onSetSidebarOpen(true)}
                         style={{position: "absolute", right: "5%", height: "40px", width: "10%", top: "5px"}}
                     >
                         Open Sidebar
-                    </button>
+                    </Button>
                 </Sidebar>
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
