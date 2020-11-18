@@ -355,13 +355,25 @@ class Mapbox extends React.Component {
             newDisplayedMarkerArray.pop()
         }
         // this is where nodes are removed
-        this.setState({
-            clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-            disableRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-            disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-            currentSequence:tempCurrentSeq
-        });
+        if (tempCurrentSeq === -1) {
+            this.setState({
+                clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+                disableGetLink: true, 
+                disableRemove: true,
+                disableNewSeq: true,
+                currentSequence:0
+            });
+        }
+        else{
+            this.setState({
+                clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+                disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+                disableRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+                disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+                currentSequence:tempCurrentSeq
+            });
+        }
+       
         this.props.onNodeUpdate(newArray)
     }
     newSeq () {
