@@ -166,8 +166,8 @@ class Layout extends React.Component {
     }
 
     downloadData = () => {
-        this.setState({disableGetButton: true})
         if (this.state.linksList.length !== 0) {
+            this.setState({disableGetButton: true})
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
                 let tmpLinkDirs = []
