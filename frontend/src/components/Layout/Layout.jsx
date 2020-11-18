@@ -62,13 +62,13 @@ class Layout extends React.Component {
         this.setState({linksList: [], nodesList: []})
     }
 
-    changeDateTimeRange(event){
+    changeDateTimeRange(event) {
         let rangeChoice = event.value;
         let choice = parseInt(rangeChoice.split(" ")[1]);
-        this.setState({activeRange: choice-1});
+        this.setState({activeRange: choice - 1});
     }
 
-    addRange(){
+    addRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         ranges.push({
@@ -80,7 +80,7 @@ class Layout extends React.Component {
             includeHolidays: false
         })
         this.setState({
-            numRanges: numRanges+1,
+            numRanges: numRanges + 1,
             activeRange: numRanges,
             ranges: ranges
         });
@@ -103,7 +103,7 @@ class Layout extends React.Component {
                 activeRange.endTime = new Date('2020-01-01 09:00:00');
                 activeRange.daysOfWeek = [true, true, true, true, true, false, false];
                 ranges[this.state.activeRange] = activeRange;
-                this.setState({ ranges: ranges });
+                this.setState({ranges: ranges});
                 break;
 
             case "Working Week Night":
@@ -111,7 +111,7 @@ class Layout extends React.Component {
                 activeRange.endTime = new Date('2020-01-01 18:00:00');
                 activeRange.daysOfWeek = [true, true, true, true, true, false, false];
                 ranges[this.state.activeRange] = activeRange;
-                this.setState({ ranges: ranges });
+                this.setState({ranges: ranges});
                 break;
 
             default:
@@ -124,7 +124,7 @@ class Layout extends React.Component {
         let activeRange = {...ranges[this.state.activeRange]};
         activeRange.startDate = value;
         ranges[this.state.activeRange] = activeRange;
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     onEndDateChange = (value) => {
@@ -132,7 +132,7 @@ class Layout extends React.Component {
         let activeRange = {...ranges[this.state.activeRange]};
         activeRange.endDate = value;
         ranges[this.state.activeRange] = activeRange;
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     onStartTimeChange = (value) => {
@@ -140,7 +140,7 @@ class Layout extends React.Component {
         let activeRange = {...ranges[this.state.activeRange]};
         activeRange.startTime = value;
         ranges[this.state.activeRange] = activeRange;
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     onEndTimeChange = (value) => {
@@ -148,7 +148,7 @@ class Layout extends React.Component {
         let activeRange = {...ranges[this.state.activeRange]};
         activeRange.endTime = value;
         ranges[this.state.activeRange] = activeRange;
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     onDaysOfWeekChange = (index) => {
@@ -158,7 +158,7 @@ class Layout extends React.Component {
         newDaysOfWeek[index] = !newDaysOfWeek[index];
         activeRange.daysOfWeek = newDaysOfWeek;
         ranges[this.state.activeRange] = activeRange;
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     onFileTypeUpdate = (e) => {
@@ -166,7 +166,7 @@ class Layout extends React.Component {
     }
 
     downloadData = () => {
-        this.setState({disableGetButton: true})
+
         if (this.state.linksList.length !== 0) {
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
@@ -177,15 +177,22 @@ class Layout extends React.Component {
                 allLinkDirs.push(tmpLinkDirs)
             });
 
+            const list_of_time_periods = this.parseTimePeriods();
+            if (!list_of_time_periods) {
+                alert("Must complete all of start date, end date, start time and end time!");
+                return;
+            }
+
             const fileData = this.state.fileType.split("-");
 
             let params = {
-                listOfTimePeriods: this.parseTimePeriods(),
+                listOfTimePeriods: list_of_time_periods,
                 listOfLinkDirs: allLinkDirs,
                 fileType: fileData[0],
                 fileArgs: fileData[1]
             };
 
+            this.setState({disableGetButton: true})
             getTravelDataFile(params, () => {
                 this.setState({disableGetButton: false})
             });
@@ -207,12 +214,11 @@ class Layout extends React.Component {
     formattedTimeString(datetime) {
         const hour = this.zeroPadNumber(datetime.getHours())
         const minute = this.zeroPadNumber(datetime.getMinutes())
-        const second = this.zeroPadNumber(datetime.getSeconds())
 
-        return `${hour}:${minute}:${second}`
+        return `${hour}:${minute}`
     }
 
-    zeroPadNumber(number){
+    zeroPadNumber(number) {
         let padded = number.toString()
         if (padded.length < 2) {
             padded = "0" + padded;
@@ -222,7 +228,13 @@ class Layout extends React.Component {
 
     parseTimePeriods() {
         let timePeriods = [];
+        let succeeded = true;
         this.state.ranges.forEach(value => {
+            if (!succeeded || !value || !value.startDate || !value.endDate || !value.startTime || !value.endTime) {
+                succeeded = false;
+                return;
+            }
+
             const startDateStr = this.formattedDateString(value.startDate)
             const endDateStr = this.formattedDateString(value.endDate)
             const startTimeStr = value.startTime
@@ -238,7 +250,11 @@ class Layout extends React.Component {
             });
         });
 
-        return timePeriods;
+        if (succeeded) {
+            return timePeriods;
+        } else {
+            return null;
+        }
     }
 
     render() {

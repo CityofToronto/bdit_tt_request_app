@@ -243,12 +243,12 @@ class Mapbox extends React.Component {
             const newMarkersArray = [...this.state.displayedMarker]
             newMarkersArray[nodeSequence] = newMarkers
 
-            const newNodesArrary = [...this.state.clickedNodes]
-            newNodesArrary[nodeSequence] = newNodes
+            const newNodesArray = [...this.state.clickedNodes]
+            newNodesArray[nodeSequence] = newNodes
             // this is also where nodes are set
             this.setState({
                 displayedMarker: newMarkersArray,
-                clickedNodes: newNodesArrary,
+                clickedNodes: newNodesArray,
                 disableAddMarker: false,
                 disableRemove: false,
                 disableGetLink: this.state.clickedNodes[nodeSequence].length < 2,
@@ -256,7 +256,7 @@ class Mapbox extends React.Component {
                 disableDragMarker: false,
                 disableNewSeq: this.state.clickedNodes[nodeSequence].length < 2
             });
-            this.props.onNodeUpdate(newNodesArrary);
+            this.props.onNodeUpdate(newNodesArray);
         }
     }
 
