@@ -265,7 +265,7 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
             the segments of link_dirs contains too many links. (1~2min)
 
     :return: a python list containing all the segments. Each segment contains a list of its data, where each index
-            corresponds to a given time period.
+            corresponds to a given time period. Each time period is a list containing all intervals.
     """
     travel_data_result = []
 
@@ -285,6 +285,7 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
         for time_periods in list_of_time_periods:
             data_count = 0
             need_sum_travel_data_length = travel_data_length == 0
+            curr_tp_data = []
 
             for time_period in time_periods:
                 start_time = time_period[0]
@@ -306,9 +307,11 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
                     tp_data.register_data(travel_data_obj)
                     data_count += 1
 
-                segment_data.extend(
+                curr_tp_data.extend(
                     tp_data.get_mean_data_list(segment_count, from_street, to_street, path_str, links_length,
                                                travel_data_length))
+
+            segment_data.append(curr_tp_data)
 
         travel_data_result.append(segment_data)
         segment_count += 1
