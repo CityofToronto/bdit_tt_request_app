@@ -137,6 +137,9 @@ export const getTravelDataFile = (data, enableGetButton) => {
         } else {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }
-        enableGetButton()
-    }).catch(err => handleResponseError(err))
+        enableGetButton();
+    }).catch(err => {
+        handleResponseError(err);
+        enableGetButton();
+    })
 };
