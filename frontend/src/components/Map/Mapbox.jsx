@@ -448,7 +448,7 @@ class Mapbox extends React.Component {
                 <Form.Group >  
                     <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq} onChange={this.onChangeSelectSeq} />
                 </Form.Group>
-                <Button className='seq-button' variant="primary" type="submit" onClick={this.onSubmit}>Reverse</Button>
+                <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq} onClick={this.onSubmit}>Reverse</Button>
                 </Form>         
             </div>
         );
