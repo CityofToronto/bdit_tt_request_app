@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from math import sqrt
 
 from flask import abort, jsonify, request, send_file
@@ -203,6 +204,59 @@ def get_date_bounds():
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
 
 
+class _TravelDataTimePeriodBlock:
+    def __init__(self, start_time, end_time, interval_time):
+        self._start_time = start_time
+        self._end_time = end_time
+        self._interval_time = interval_time
+        time_diff = end_time - start_time  # type: timedelta
+        self._size = _round_up(time_diff.total_seconds() / interval_time)
+        self._intervals = [{'all_means': [], 'all_variances': [], 'all_confidences': [], 'all_pct_50s': []}
+                           for _ in range(self._size)]
+
+    def get_seconds_interval(self):
+        return self._interval_time
+
+    def register_data(self, travel_data_obj):
+        time_diff = travel_data_obj.tx - self._start_time  # type: timedelta
+        slot = int(time_diff.total_seconds() // self._interval_time)
+        travel_data = travel_data_obj.json()
+        self._intervals[slot]['all_means'].append(travel_data['mean'])
+        self._intervals[slot]['all_variances'].append(travel_data['stddev'] ** 2)
+        self._intervals[slot]['all_confidences'].append(travel_data['confidence'])
+        self._intervals[slot]['all_pct_50s'].append(travel_data['pct_50'])
+
+    def get_mean_data_list(self, seg_i: int, from_street: str, to_street: str, path_str: str, links_length: float,
+                           travel_data_length: float):
+        data = []
+        curr_start_time = self._start_time
+
+        for interval in self._intervals:
+            curr_end_time = min(curr_start_time + timedelta(seconds=self._interval_time), self._end_time)
+
+            data.append({
+                'seg_i': seg_i,
+                'from_street': from_street,
+                'to_street': to_street,
+                'path_str': path_str,
+                'from_tx': curr_start_time.strftime(DATE_TIME_FORMAT),
+                'to_tx': curr_end_time.strftime(DATE_TIME_FORMAT),
+                'links_length': links_length,
+                'data_length': travel_data_length,
+                'mean_spd': round(_calc_list_avg(interval['all_means']), 2),
+                'mean_stddev': round(sqrt(_calc_list_avg(interval['all_variances'])), 2),
+                'mean_confidence': round(_calc_list_avg(interval['all_confidences']), 2),
+                'mean_pct_50': round(_calc_list_avg(interval['all_pct_50s']), 2)
+            })
+
+            curr_start_time = curr_end_time
+
+        return data
+
+    def __len__(self):
+        return self._size
+
+
 def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
     """
     Get the travel data within all given time_periods for all segments of links in list_of_link_dirs.
@@ -211,7 +265,7 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
             the segments of link_dirs contains too many links. (1~2min)
 
     :return: a python list containing all the segments. Each segment contains a list of its data, where each index
-            corresponds to a given time period.
+            corresponds to a given time period. Each time period is a list containing all intervals.
     """
     travel_data_result = []
 
@@ -229,20 +283,17 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
         travel_data_length = 0
 
         for time_periods in list_of_time_periods:
-            from_tx = time_periods[0][0].strftime(DATE_TIME_FORMAT)
-            to_tx = time_periods[-1][-1].strftime(DATE_TIME_FORMAT)
-            all_means = []
-            all_variances = []
-            all_confidences = []
-            all_pct_50s = []
             data_count = 0
             need_sum_travel_data_length = travel_data_length == 0
+            curr_tp_data = []
 
             for time_period in time_periods:
                 start_time = time_period[0]
                 end_time = time_period[1]
+                tp_data = _TravelDataTimePeriodBlock(start_time, end_time, 3600)
+
                 travel_query_result = Travel.query \
-                    .filter(and_(start_time <= Travel.tx, Travel.tx <= end_time, Travel.link_dir.in_(link_dirs))) \
+                    .filter(and_(start_time <= Travel.tx, Travel.tx < end_time, Travel.link_dir.in_(link_dirs))) \
                     .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
 
                 for travel_data_obj in travel_query_result:
@@ -253,36 +304,32 @@ def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
                         visited_links.append(curr_link_dir)
                         travel_data_length = round(travel_data['length'] + travel_data_length, 2)
 
-                    all_means.append(travel_data['mean'])
-                    all_variances.append(travel_data['stddev'] ** 2)
-                    all_confidences.append(travel_data['confidence'])
-                    all_pct_50s.append(travel_data['pct_50'])
+                    tp_data.register_data(travel_data_obj)
                     data_count += 1
 
-            mean_avg = round(sum(all_means) / data_count, 2)
-            stddev_avg = round(sqrt(sum(all_variances) / data_count), 2)
-            confidence_avg = round(sum(all_confidences) / data_count, 2)
-            pct_50_avg = round(sum(all_pct_50s) / data_count, 2)
+                curr_tp_data.extend(
+                    tp_data.get_mean_data_list(segment_count, from_street, to_street, path_str, links_length,
+                                               travel_data_length))
 
-            segment_data.append({
-                'seg_i': segment_count,
-                'from_street': from_street,
-                'to_street': to_street,
-                'path_str': path_str,
-                'from_tx': from_tx,
-                'to_tx': to_tx,
-                'links_length': links_length,
-                'data_length': travel_data_length,
-                'mean_spd': mean_avg,
-                'mean_stddev': stddev_avg,
-                'mean_confidence': confidence_avg,
-                'mean_pct_50': pct_50_avg
-            })
+            segment_data.append(curr_tp_data)
 
         travel_data_result.append(segment_data)
         segment_count += 1
 
     return travel_data_result
+
+
+def _calc_list_avg(lst: list) -> float:
+    if len(lst) == 0:
+        return 0.0
+    return sum(lst) / len(lst)
+
+
+def _round_up(num: float):
+    result = int(num)
+    if num - result > 0:
+        result += 1
+    return result
 
 
 def _get_links_by_link_dirs(link_dirs):
