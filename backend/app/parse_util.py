@@ -6,7 +6,7 @@ from flask import abort
 from app import DATE_TIME_FORMAT, ALLOWED_FILE_TYPES
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
-           'parse_get_links_btwn_nodes_response', 'parse_node_response',
+           'parse_get_links_btwn_nodes_response', 'parse_node_response', 'parse_time_periods',
            'parse_get_links_between_multi_nodes_request_body', 'get_path_list_from_link_list']
 
 
@@ -95,9 +95,6 @@ def parse_travel_request_body(travel_request_data):
     try:
         list_of_time_periods = list(travel_request_data['list_of_time_periods'])
         list_of_link_dirs = list(travel_request_data['list_of_links'])
-
-        if len(list_of_link_dirs) > 0:
-            list(list_of_link_dirs[0])
     except TypeError:
         abort(400, description="both list_of_links and time_periods must be lists!")
         return
@@ -156,8 +153,20 @@ def parse_time_periods(tps_data):
 
         tp_parsed = []
         try:
+            start_t = int(start_time.replace(":", ""))
+            end_t = int(end_time.replace(":", ""))
+
+            if start_t >= end_t:
+                abort(400, description="start time must not be later than end time!")
+                return
+
             start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
             end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
+
+            if start_datetime >= end_datetime:
+                abort(400, description="start datetime must not be later than end datetime")
+                return
+
             curr_datetime = start_datetime
             while curr_datetime <= end_datetime:
                 curr_weekday = curr_datetime.weekday()
