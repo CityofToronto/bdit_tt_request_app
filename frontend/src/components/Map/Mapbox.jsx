@@ -378,8 +378,6 @@ class Mapbox extends React.Component {
         })
     }
     render() {
-        console.log(this.state.displayedMarker)
-        
         return (
             <div>
                 <div className='sidebarStyle'>

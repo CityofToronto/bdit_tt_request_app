@@ -1,3 +1,5 @@
+import Axios from "axios";
+
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
@@ -114,19 +116,25 @@ export const getProjectTitle = (page) => {
         "fileType": "csv"
 	}
 */
-export const getTravelDataFile = (data) => {
+export const getTravelDataFile = (data, enableGetButton) => {
     if (!data.fileType) {
         data.fileType = 'csv';
     }
-    console.log(data);
-    axios.post(`${domain}/travel-data-file`, {
-        list_of_time_periods: data.listOfTimePeriods,
-        list_of_links: data.listOfLinkDirs,
-        file_type: data.fileType,
-        file_args: data.fileArgs
+
+    Axios({
+        url: `${domain}/travel-data-file`,
+        method: 'POST',
+        responseType: 'blob',
+        data: {
+            list_of_time_periods: data.listOfTimePeriods,
+            list_of_links: data.listOfLinkDirs,
+            file_type: data.fileType,
+            file_args: data.fileArgs
+        }
     }).then(res => {
         if (res.data) {
             fileDownload(res.data, `report.${data.fileType}`)
+            enableGetButton()
         } else {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }
