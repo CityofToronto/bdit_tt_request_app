@@ -116,7 +116,7 @@ export const getProjectTitle = (page) => {
         "fileType": "csv"
 	}
 */
-export const getTravelDataFile = (data) => {
+export const getTravelDataFile = (data, enableGetButton) => {
     if (!data.fileType) {
         data.fileType = 'csv';
     }
@@ -134,6 +134,7 @@ export const getTravelDataFile = (data) => {
     }).then(res => {
         if (res.data) {
             fileDownload(res.data, `report.${data.fileType}`)
+            enableGetButton()
         } else {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }

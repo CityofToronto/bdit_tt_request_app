@@ -34,7 +34,8 @@ class Layout extends React.Component {
                 daysOfWeek: [true, true, true, true, true, true, true],
                 includeHolidays: false
             }],
-            fileType: "csv"
+            fileType: "csv",
+            disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
     }
@@ -165,6 +166,7 @@ class Layout extends React.Component {
     }
 
     downloadData = () => {
+        this.setState({disableGetButton: true})
         if (this.state.linksList.length !== 0) {
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
@@ -184,7 +186,9 @@ class Layout extends React.Component {
                 fileArgs: fileData[1]
             };
 
-            getTravelDataFile(params);
+            getTravelDataFile(params, () => {
+                this.setState({disableGetButton: false})
+            });
         } else {
             alert("Please get links first");
         }
@@ -243,6 +247,8 @@ class Layout extends React.Component {
             <div id={"header"} style={{color: "black"}}>
                 <Sidebar
                     sidebar={<SidebarContent
+                        disableGetButton={this.state.disableGetButton}
+
                         onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
 
                         onHolidayUpdate={this.handleHolidays.bind(this)}
