@@ -78,7 +78,7 @@ export const getDateBoundary = (page) => {
 };
 
 /* GET links given two nodes */
-export const getLinksBetweenNodes = (page, nodes) => {
+export const getLinksBetweenNodes = (page, nodes, enableInteractions) => {
     nodes.forEach((sequence) => {
         const nodeIds = [];
         sequence.forEach((node) => {
@@ -91,7 +91,10 @@ export const getLinksBetweenNodes = (page, nodes) => {
             } else {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }
-        }).catch(err => handleResponseError(err))
+        }).catch(err => {
+            handleResponseError(err)
+            enableInteractions()
+        })
     });
 };
 

@@ -56,8 +56,8 @@ class Layout extends React.Component {
         this.setState({linksList: tempLinksList})
     }
 
-    getLinks = (doc) => {
-        getLinksBetweenNodes(doc, this.state.nodesList)
+    getLinks = (doc, enableInteractions) => {
+        getLinksBetweenNodes(doc, this.state.nodesList, enableInteractions)
     }
 
     resetMapVars = () => {

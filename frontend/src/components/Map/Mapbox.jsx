@@ -118,7 +118,16 @@ class Mapbox extends React.Component {
 
     getLink() {
         this.disableInteractions();
-        this.props.getLinks(this);
+        this.props.getLinks(this, () => {
+            this.setState({
+                disableGetLink: false,
+                disableRemove: false,
+                disableAddMarker: false,
+                disableReset: false,
+                disableDragMarker: false,
+                disableNewSeq: false
+            });
+        });
     };
 
     /* this function is called only by action.js after full link data is fetch */
