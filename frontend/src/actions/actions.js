@@ -8,11 +8,11 @@ const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstal
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
-    if (!err || !err.status) {
+    if (!err || !err.response.status) {
         console.error(err);
         alert("Error in React Actions! Check console for error.");
     } else {
-        if (err.status === 500) {
+        if (err.response.status === 500) {
             alert("Internal Server Error");
         } else {
             alert(err.response.data.error)
@@ -138,5 +138,21 @@ export const getTravelDataFile = (data, enableGetButton) => {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }
         enableGetButton()
-    }).catch(err => handleResponseError(err))
+    }).catch(err => {
+        if (!err || !err.response.status) {
+            console.error(err);
+            alert("Error in React Actions! Check console for error.");
+        } else {
+            if (err.response.status === 500) {
+                alert("Internal Server Error");
+            } else {
+                const blob = err.response.data,
+                    reader = new FileReader()
+                reader.onload = function() {
+                    alert(JSON.parse(this.result).error)
+                };
+                reader.readAsText(blob);
+            }
+        }
+        enableGetButton()})
 };
