@@ -1,10 +1,10 @@
 import React from "react";
 import Sidebar from "react-sidebar";
-import { Button } from "@material-ui/core"
+import {Button} from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
-import "./Layout.css"
+import "./Layout.css";
 
 export const DAYS_OF_WEEK_MAPPING = [
     "Monday",
@@ -39,7 +39,7 @@ class Layout extends React.Component {
             fileType: "csv",
             disableGetButton: false
         };
-        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this)
+        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
     }
 
     onSetSidebarOpen(open) {
@@ -47,21 +47,21 @@ class Layout extends React.Component {
     }
 
     updateNodes = (newNodes) => {
-        this.setState({nodesList: newNodes})
+        this.setState({nodesList: newNodes});
     }
 
     updateLinks = (newLinks) => {
-        let tempLinksList = this.state.linksList
-        tempLinksList.push(newLinks)
-        this.setState({linksList: tempLinksList})
+        let tempLinksList = this.state.linksList;
+        tempLinksList.push(newLinks);
+        this.setState({linksList: tempLinksList});
     }
 
     getLinks = (doc, enableInteractions) => {
-        getLinksBetweenNodes(doc, this.state.nodesList, enableInteractions)
+        getLinksBetweenNodes(doc, this.state.nodesList, enableInteractions);
     }
 
     resetMapVars = () => {
-        this.setState({linksList: [], nodesList: []})
+        this.setState({linksList: [], nodesList: []});
     }
 
     changeDateTimeRange(event) {
@@ -84,11 +84,52 @@ class Layout extends React.Component {
             endTime: this.formattedTimeString(MAX_DATE),
             daysOfWeek: [true, true, true, true, true, true, true],
             includeHolidays: false
-        })
+        });
         this.setState({
             numRanges: numRanges + 1,
             activeRange: numRanges,
             ranges: ranges
+        });
+    }
+
+    replicateRange() {
+        let numRanges = this.state.numRanges;
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        ranges.push({
+            startDate: activeRange.startDate,
+            endDate: activeRange.endDate,
+            startTime: activeRange.startTime,
+            endTime: activeRange.startTime,
+            daysOfWeek: activeRange.daysOfWeek,
+            includeHolidays: activeRange.includeHolidays
+        });
+        this.setState({
+            numRanges: numRanges + 1,
+            activeRange: numRanges,
+            ranges: ranges
+        });
+    }
+
+    deleteCurrRange() {
+        if (this.state.numRanges <= 1) {
+            alert("Must have at least one range!");
+            return;
+        }
+        let numRanges = this.state.numRanges;
+        let new_ranges = [...this.state.ranges];
+        new_ranges.splice(this.state.activeRange, 1);
+
+        let newActiveRange = this.state.activeRange;
+
+        if (newActiveRange > 0) {
+            newActiveRange--;
+        }
+
+        this.setState({
+            numRanges: numRanges - 1,
+            activeRange: newActiveRange,
+            ranges: new_ranges
         });
     }
 
@@ -168,7 +209,7 @@ class Layout extends React.Component {
     }
 
     onFileTypeUpdate = (e) => {
-        this.setState({fileType: e.target.value})
+        this.setState({fileType: e.target.value});
     }
 
     downloadData = () => {
@@ -176,11 +217,11 @@ class Layout extends React.Component {
         if (this.state.linksList.length !== 0) {
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
-                let tmpLinkDirs = []
+                let tmpLinkDirs = [];
                 seq.forEach((link) => {
-                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs)
-                })
-                allLinkDirs.push(tmpLinkDirs)
+                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
+                });
+                allLinkDirs.push(tmpLinkDirs);
             });
 
             const list_of_time_periods = this.parseTimePeriods();
@@ -197,13 +238,13 @@ class Layout extends React.Component {
                 fileArgs: fileData[1]
             };
 
-            this.setState({disableGetButton: true})
+            this.setState({disableGetButton: true});
             getTravelDataFile(params, () => {
-                this.setState({disableGetButton: false})
+                this.setState({disableGetButton: false});
             });
         } else {
             alert("Please get links first");
-            this.setState({disableGetButton: false})
+            this.setState({disableGetButton: false});
         }
 
     }
@@ -211,20 +252,20 @@ class Layout extends React.Component {
     formattedDateString(datetime) {
         const year = datetime.getFullYear();
         const month = this.zeroPadNumber(datetime.getMonth() + 1);
-        const date = this.zeroPadNumber(datetime.getDate())
+        const date = this.zeroPadNumber(datetime.getDate());
 
-        return `${year}-${month}-${date}`
+        return `${year}-${month}-${date}`;
     }
 
     formattedTimeString(datetime) {
-        const hour = this.zeroPadNumber(datetime.getHours())
-        const minute = this.zeroPadNumber(datetime.getMinutes())
+        const hour = this.zeroPadNumber(datetime.getHours());
+        const minute = this.zeroPadNumber(datetime.getMinutes());
 
-        return `${hour}:${minute}`
+        return `${hour}:${minute}`;
     }
 
     zeroPadNumber(number) {
-        let padded = number.toString()
+        let padded = number.toString();
         if (padded.length < 2) {
             padded = "0" + padded;
         }
@@ -240,10 +281,10 @@ class Layout extends React.Component {
                 return;
             }
 
-            const startDateStr = this.formattedDateString(value.startDate)
-            const endDateStr = this.formattedDateString(value.endDate)
-            const startTimeStr = value.startTime
-            const endTimeStr = value.endTime
+            const startDateStr = this.formattedDateString(value.startDate);
+            const endDateStr = this.formattedDateString(value.endDate);
+            const startTimeStr = value.startTime;
+            const endTimeStr = value.endTime;
 
             timePeriods.push({
                 "start_time": startTimeStr,
@@ -296,6 +337,8 @@ class Layout extends React.Component {
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}
+                        replicateCurrRange={this.replicateRange.bind(this)}
+                        deleteCurrRange={this.deleteCurrRange.bind(this)}
                         range={this.state.activeRange}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
                     />}

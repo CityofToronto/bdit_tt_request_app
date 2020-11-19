@@ -1,6 +1,18 @@
-.link-button {
+#seq {
     position: fixed;
-    bottom: 20px;
+    bottom: 170px;
+    right: 0;
+}
+
+#seq-button {
+    position: fixed;
+    bottom: 170px;
+    right: 0;
+}
+
+#newSeq-button {
+    position: fixed;
+    bottom: 140px;
     right: 0;
     display: inline-block;
     vertical-align: middle;
@@ -14,9 +26,9 @@
     padding: 0.25rem 0.85rem;
 }
 
-.reset-button {
+#reset-button {
     position: fixed;
-    bottom: 50px;
+    bottom: 110px;
     right: 0;
     display: inline-block;
     vertical-align: middle;
@@ -30,7 +42,7 @@
     padding: 0.25rem 0.85rem;
 }
 
-.remove-button {
+#remove-node-button {
     position: fixed;
     bottom: 80px;
     right: 0;
@@ -46,36 +58,9 @@
     padding: 0.25rem 0.85rem;
 }
 
-.newSeq-button {
-  position: fixed;
-  bottom: 110px;
-  right: 0;
-  display: inline-block;
-  vertical-align: middle;
-  border-radius: 15px;
-  margin: .10rem;
-  font-size: 0.85rem;
-  /* color: #030303;
-  background: #ffffff;
-  border: 1px solid #030303; */
-  cursor: pointer;
-  padding: 0.25rem 0.85rem;
-}
-
-
-.seq{
+#remove-links-button {
     position: fixed;
-    bottom: 140px;
-    right: 0;
-}
-.seq-button{
-    position: fixed;
-    bottom: 140px;
-    right: 0;
-}
-.remove-links-button {
-    position: fixed;
-    bottom: 160px;
+    bottom: 50px;
     right: 0;
     display: inline-block;
     vertical-align: middle;
@@ -87,5 +72,20 @@
     border: 1px solid #030303; */
     cursor: pointer;
     padding: 0.25rem 0.85rem;
+}
 
+#link-button {
+    position: fixed;
+    bottom: 20px;
+    right: 0;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 15px;
+    margin: .10rem;
+    font-size: 0.85rem;
+    /* color: #030303;
+    background: #ffffff;
+    border: 1px solid #030303; */
+    cursor: pointer;
+    padding: 0.25rem 0.85rem;
 }

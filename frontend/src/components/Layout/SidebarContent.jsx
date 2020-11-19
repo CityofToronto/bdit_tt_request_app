@@ -23,9 +23,12 @@ class SidebarContent extends React.Component {
 
         return (
             <div id="sidebar-container">
-                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={5}>
+                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
                     <Grid item>
-                        <Grid container direction="row" alignItems="center" alignContent="center" spacing={3}>
+                        <Grid container direction="row" alignItems="center" alignContent="center" spacing={2}>
+                            <Grid item>
+                                <h5>Current time range: </h5>
+                            </Grid>
                             <Grid item>
                                 <Dropdown
                                     options={rangePickerOptions}
@@ -34,30 +37,52 @@ class SidebarContent extends React.Component {
                                 />
 
                             </Grid>
+                        </Grid>
+                    </Grid>
 
+                    <Grid item>
+                        <Grid container direction="column" alignContent="flex-start" alignItems="flex-start" spacing={1}>
                             <Grid item>
-                                <Button
-                                    variant="outlined"
-                                    color="secondary"
-                                    onClick={this.props.addNewRange}
-                                >Add New Range
+                                <Button variant="outlined" color="primary" size="small"
+                                        onClick={this.props.addNewRange}>
+                                    Add New Time Range
                                 </Button>
                             </Grid>
 
+                            <Grid item>
+                                <Button variant="outlined" color="primary" size="small"
+                                        onClick={this.props.replicateCurrRange}>
+                                    Replicate Current Time Range
+                                </Button>
+                            </Grid>
+
+                            <Grid item>
+                                <Button variant="outlined" color="primary" size="small"
+                                        onClick={this.props.deleteCurrRange}>
+                                    Remove Current Time Range
+                                </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
 
 
                     <Grid item>
-                        <Dropdown
-                            options={this.props.presets}
-                            placeholder={"Presets"}
-                            onChange={this.props.onPresetChange}
-                        />
+                        <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={2}>
+                            <Grid item>
+                                <h5>Apply Preset:</h5>
+                            </Grid>
+                            <Grid item>
+                                <Dropdown
+                                    options={this.props.presets}
+                                    placeholder={"Presets"}
+                                    onChange={this.props.onPresetChange}
+                                />
+                            </Grid>
+                        </Grid>
                     </Grid>
 
                     <Grid item>
-                        <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={1}>
+                        <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={0.5}>
                             <Grid item>
                                 <h5>Start Date</h5>
                                 <DatePicker required={true} locale={"en-CA"}

@@ -2,9 +2,9 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, updateClosestNode} from '../../actions/actions';
-import {Button, Form} from 'react-bootstrap'
-import arrowImage from '../Images/arrow.png'
-import doubleArrowImage from '../Images/doublearrow.png'
+import {Button, Form} from 'react-bootstrap';
+import arrowImage from '../Images/arrow.png';
+import doubleArrowImage from '../Images/doublearrow.png';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -36,7 +36,7 @@ class Mapbox extends React.Component {
     };
 
     componentDidMount() {
-        this.createMap()
+        this.createMap();
     };
 
     createMap() {
@@ -139,31 +139,31 @@ class Mapbox extends React.Component {
     };
 
     checkIfLinkDirDrawn(checkCoor) {
-        let holdCoorArr = []
+        let holdCoorArr = [];
         for (let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++) {
-            holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates
+            holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates;
             for (let coorIndex = 0; coorIndex < holdCoorArr.length; coorIndex++) {
                 if (JSON.stringify(holdCoorArr[coorIndex][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])) {
                     if (JSON.stringify(holdCoorArr[coorIndex][holdCoorArr[coorIndex].length - 1]) === JSON.stringify(checkCoor[0])) {
-                        return true
+                        return true;
                     }
                 }
             }
         }
-        return false
+        return false;
     }
 
     drawLinks(linkDataArr, sequence) {
-        let linkSources = []
+        let linkSources = [];
         linkDataArr.forEach((link, index) => {
-            const currSourceId = `route${sequence},${index}`
-            let overlappedBidirectionalCoor = []
-            let notOverlappedCoor = []
+            const currSourceId = `route${sequence},${index}`;
+            let overlappedBidirectionalCoor = [];
+            let notOverlappedCoor = [];
             for (let i = 0; i < link.link_dirs.length; i++) {
                 if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i])) {
-                    overlappedBidirectionalCoor.push(link.geometry.coordinates[i])
+                    overlappedBidirectionalCoor.push(link.geometry.coordinates[i]);
                 } else {
-                    notOverlappedCoor.push(link.geometry.coordinates[i])
+                    notOverlappedCoor.push(link.geometry.coordinates[i]);
                 }
             }
             this.state.map.addSource(currSourceId + '1D', {
@@ -256,7 +256,7 @@ class Mapbox extends React.Component {
     }
 
     resyncAllMarkers() {
-        const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
+        const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]];
 
         for (let i = 0; i < restoreMarkers.length; i++) {
             let currMarker = restoreMarkers[i];
@@ -265,8 +265,8 @@ class Mapbox extends React.Component {
             const restoreCoordinate = {lat: currNode.geometry.coordinate[1], lng: currNode.geometry.coordinate[0]};
             currMarker.setLngLat(restoreCoordinate);
         }
-        const newArray = [...this.state.displayedMarker]
-        newArray[this.state.currentSequence] = restoreMarkers
+        const newArray = [...this.state.displayedMarker];
+        newArray[this.state.currentSequence] = restoreMarkers;
         this.setState({displayedMarker: newArray});
     }
 
@@ -303,21 +303,21 @@ class Mapbox extends React.Component {
             });
             this.resyncAllMarkers();
         } else {
-            let nodeSequence = nodeIndex.split(",")[0]
-            let nodeSequenceIndex = nodeIndex.split(",")[1]
+            let nodeSequence = nodeIndex.split(",")[0];
+            let nodeSequenceIndex = nodeIndex.split(",")[1];
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
             const draggedMarker = newMarkers[nodeSequenceIndex];
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
             const newNodes = [...this.state.clickedNodes[nodeSequence]];
-            newNodes[nodeSequenceIndex] = newNode
+            newNodes[nodeSequenceIndex] = newNode;
 
-            const newMarkersArray = [...this.state.displayedMarker]
-            newMarkersArray[nodeSequence] = newMarkers
+            const newMarkersArray = [...this.state.displayedMarker];
+            newMarkersArray[nodeSequence] = newMarkers;
 
-            const newNodesArray = [...this.state.clickedNodes]
-            newNodesArray[nodeSequence] = newNodes
+            const newNodesArray = [...this.state.clickedNodes];
+            newNodesArray[nodeSequence] = newNodes;
             // this is also where nodes are set
             this.setState({
                 displayedMarker: newMarkersArray,
@@ -338,14 +338,14 @@ class Mapbox extends React.Component {
         const prevNode = orgIndex > 0 && this.state.clickedNodes[this.state.currentSequence][orgIndex - 1];
         const nextNode = orgIndex < this.state.clickedNodes[this.state.currentSequence].length - 1 && this.state.clickedNodes[this.state.currentSequence][orgIndex + 1];
 
-        return (prevNode && prevNode.nodeId === newNode.nodeId) || (nextNode && nextNode.nodeId === newNode.nodeId)
+        return (prevNode && prevNode.nodeId === newNode.nodeId) || (nextNode && nextNode.nodeId === newNode.nodeId);
     }
 
     isDuplicateEndNode(newNode) {
         const lastNode = this.state.clickedNodes[this.state.currentSequence].length > 0 &&
             this.state.clickedNodes[this.state.currentSequence][this.state.clickedNodes[this.state.currentSequence].length - 1];
 
-        return lastNode && lastNode.nodeId === newNode.nodeId
+        return lastNode && lastNode.nodeId === newNode.nodeId;
     }
 
     /* this function is called only by action.js after adding a new marker */
@@ -371,18 +371,19 @@ class Mapbox extends React.Component {
                 .setText("Sequence Number: " + this.state.currentSequence.toString() + ", Node Number: "
                     + this.state.clickedNodes[this.state.currentSequence].length.toString() + ""))
                 .addTo(this.state.map);
-            newMarker._element.id = "" + this.state.currentSequence.toString() + "," + this.state.clickedNodes[this.state.currentSequence].length.toString() + ""
+            newMarker._element.id = this.state.currentSequence.toString() + "," +
+                this.state.clickedNodes[this.state.currentSequence].length.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
-            const newMarkerDiv = newMarker.getElement()
-            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup())
+            const newMarkerDiv = newMarker.getElement();
+            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup());
             newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
             // This is where nodes set
             let newNodes = this.state.clickedNodes[this.state.currentSequence].concat([newNode]);
-            let newNodesArr = [...this.state.clickedNodes]
-            newNodesArr[this.state.currentSequence] = newNodes
-            let newMarkers = this.state.displayedMarker[this.state.currentSequence].concat([newMarker])
-            let newMarkersArr = [...this.state.displayedMarker]
-            newMarkersArr[this.state.currentSequence] = newMarkers
+            let newNodesArr = [...this.state.clickedNodes];
+            newNodesArr[this.state.currentSequence] = newNodes;
+            let newMarkers = this.state.displayedMarker[this.state.currentSequence].concat([newMarker]);
+            let newMarkersArr = [...this.state.displayedMarker];
+            newMarkersArr[this.state.currentSequence] = newMarkers;
             this.setState({
                 displayedMarker: newMarkersArr,
                 clickedNodes: newNodesArr,
@@ -394,7 +395,7 @@ class Mapbox extends React.Component {
                 disableDragMarker: false,
                 disableNewSeq: newNodes.length < 2
             });
-            this.props.onNodeUpdate(newNodesArr)
+            this.props.onNodeUpdate(newNodesArr);
         }
     };
 
@@ -408,8 +409,9 @@ class Mapbox extends React.Component {
     }
 
     removeNodes() {
-        let tempCurrentSeq = this.state.currentSequence
-        const targetMarkerID = "" + this.state.currentSequence.toString() + "," + (this.state.clickedNodes[this.state.currentSequence].length - 1).toString() + ""
+        let tempCurrentSeq = this.state.currentSequence;
+        const targetMarkerID = this.state.currentSequence.toString() + "," +
+            (this.state.clickedNodes[this.state.currentSequence].length - 1).toString();
         let lastNodeNum = this.state.clickedNodes[this.state.currentSequence].length - 1;
         let getMarkers = document.getElementById(targetMarkerID);
         getMarkers.remove();
@@ -420,15 +422,15 @@ class Mapbox extends React.Component {
         newClickedNode.splice(lastNodeNum, 1);
 
         let newArray = [...this.state.clickedNodes];
-        newArray[this.state.currentSequence] = newClickedNode
+        newArray[this.state.currentSequence] = newClickedNode;
 
-        const newDisplayedMarkerArray = [...this.state.displayedMarker]
-        newDisplayedMarkerArray[this.state.currentSequence] = newDisplayedMarker
+        const newDisplayedMarkerArray = [...this.state.displayedMarker];
+        newDisplayedMarkerArray[this.state.currentSequence] = newDisplayedMarker;
 
         if (this.state.displayedMarker[this.state.currentSequence].length === 1) {
-            tempCurrentSeq = tempCurrentSeq - 1
-            newArray.pop()
-            newDisplayedMarkerArray.pop()
+            tempCurrentSeq = tempCurrentSeq - 1;
+            newArray.pop();
+            newDisplayedMarkerArray.pop();
         }
         // this is where nodes are removed
         let disableGetLink;
@@ -446,14 +448,14 @@ class Mapbox extends React.Component {
             currentSequence: tempCurrentSeq,
             disableLinkRemove: false
         });
-        this.props.onNodeUpdate(newArray)
+        this.props.onNodeUpdate(newArray);
     }
 
     newSeq() {
         alert("New Sequence Created, Please Place a Node");
-        let newColor = this.state.sequenceColours[0]
+        let newColor = this.state.sequenceColours[0];
         while (this.state.sequenceColours.includes(newColor)) {
-            newColor = this.getRandomColor()
+            newColor = this.getRandomColor();
         }
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([[]]),
@@ -464,7 +466,7 @@ class Mapbox extends React.Component {
             disableGetLink: true,
             disableNodeRemove: true,
             disableLinkRemove: false
-        })
+        });
     }
 
     onChangeSelectSeq = (e) => this.setState({selectedSeq: e.target.value});
@@ -472,78 +474,79 @@ class Mapbox extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-            alert("Please input a sequence")
+            alert("Please input a sequence");
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
-            alert("Please input a valid sequence")
+            alert("Please input a valid sequence");
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
-            alert("Please input a valid sequence")
+            alert("Please input a valid sequence");
             return;
         }
-        alert("Selected Sequence Number: " + this.state.selectedSeq)
-        let tempCurrSequence = this.state.currentSequence + 1
-        let newColor = this.getRandomColor()
-        let tempHoldSeq = this.state.clickedNodes[this.state.selectedSeq]
+        let tempCurrSequence = this.state.currentSequence + 1;
+        let newColor = this.getRandomColor();
+        let tempHoldSeq = this.state.clickedNodes[this.state.selectedSeq];
 
-        let newClickedNodes = []
-        let newDisplayedMarkers = []
+        let newClickedNodes = [];
+        let newDisplayedMarkers = [];
 
         for (let i = 0; i < tempHoldSeq.length; i++) {
-            let currNode = tempHoldSeq[tempHoldSeq.length - i - 1]
+            let currNode = tempHoldSeq[tempHoldSeq.length - i - 1];
             const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
                 .setLngLat(currNode.geometry.coordinate)
                 .setPopup(new mapboxgl.Popup().setText(
                     "Sequence Number: " + tempCurrSequence.toString() +
                     ", Node Number: " + i.toString() + ""))
                 .addTo(this.state.map);
-            newMarker._element.id = "" + tempCurrSequence.toString() + "," + i.toString() + ""
+            newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
-            const newMarkerDiv = newMarker.getElement()
-            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup())
+            const newMarkerDiv = newMarker.getElement();
+            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup());
             newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
 
-            newClickedNodes.push(currNode)
-            newDisplayedMarkers.push(newMarker)
+            newClickedNodes.push(currNode);
+            newDisplayedMarkers.push(newMarker);
         }
+        alert("Reversed sequence " + this.state.selectedSeq);
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
             clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
             sequenceColours: this.state.sequenceColours.concat([newColor])
-        })
-        this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]))
+        });
+        this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]));
     }
 
     render() {
         return (
             <div>
                 <div className='sidebarStyle'>
-                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
+                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |
+                        Current Sequence #{this.state.currentSequence}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                <Button variant="outline-primary" className='remove-button' disabled={this.state.disableNodeRemove}
-                        onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
 
-                <Button variant="outline-primary" className='link-button' disabled={this.state.disableGetLink}
-                        onClick={() => this.getLink()} size="sm">Get Link</Button>
-                <Button variant="outline-primary" className='reset-button' disabled={this.state.disableReset}
-                        onClick={() => this.resetMap()} size="sm">Reset Map</Button>
-                <Button variant="outline-primary" className='newSeq-button' disabled={this.state.disableNewSeq}
-                        onClick={() => this.newSeq()} size="sm">New Sequence</Button>
-                <Form className='seq'>
+                <Form id='seq'>
                     <Form.Group>
                         <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq}
                                       onChange={this.onChangeSelectSeq}/>
                     </Form.Group>
-                    <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
+                    <Button id='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
                 </Form>
-                <Button variant="outline-primary" className='remove-links-button'
-                        disabled={this.state.disableLinkRemove} onClick={() => this.removeAllLinkSources()} size="sm">
-                    Remove Links</Button>
+
+                <Button variant="outline-primary" id='newSeq-button' disabled={this.state.disableNewSeq}
+                        onClick={() => this.newSeq()} size="sm">New Sequence</Button>
+                <Button variant="outline-primary" id='reset-button' disabled={this.state.disableReset}
+                        onClick={() => this.resetMap()} size="sm">Reset Map</Button>
+                <Button variant="outline-primary" id='remove-node-button' disabled={this.state.disableNodeRemove}
+                        onClick={() => this.removeNodes()} size="sm">Remove Last Node</Button>
+                <Button variant="outline-primary" id='remove-links-button' disabled={this.state.disableLinkRemove}
+                        onClick={() => this.removeAllLinkSources()} size="sm">Remove All Links</Button>
+                <Button variant="outline-primary" id='link-button' disabled={this.state.disableGetLink}
+                        onClick={() => this.getLink()} size="sm">Update & Display Links</Button>
             </div>
         );
     };
