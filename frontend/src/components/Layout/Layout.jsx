@@ -68,6 +68,10 @@ class Layout extends React.Component {
         this.setState({activeRange: choice - 1});
     }
 
+    removeAllLinks = () => {
+        this.setState({linksList: []});
+    }
+
     addRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
@@ -309,6 +313,7 @@ class Layout extends React.Component {
                     onNodeUpdate={this.updateNodes}
                     getLinks={this.getLinks}
                     resetMapVars={this.resetMapVars}
+                    removeAllLinks={this.removeAllLinks}
                 />
             </div>
         );

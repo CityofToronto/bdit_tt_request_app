@@ -17,16 +17,17 @@ class Mapbox extends React.Component {
             lat: 43.6629,
             zoom: 15,
             map: '',
-            linksData: [],
+            displayedLinkSources: [],
             clickedNodes: [[]],
             displayedMarker: [[]],
             currentSequence: 0,
             sequenceColours: ["#FF0000"],
-            disableRemove: true,
+            disableNodeRemove: true,
             disableGetLink: true,
             disableReset: true,
             disableAddMarker: false,
             disableDragMarker: true,
+            disableLinkRemove: false,
             disableNewSeq: true
         };
     };
@@ -42,7 +43,7 @@ class Mapbox extends React.Component {
             center: [this.state.lng, this.state.lat],
             zoom: this.state.zoom
         });
-        map.on('load',()=>{
+        map.on('load', () => {
             map.loadImage(
                 arrowImage,
                 function (error, image) {
@@ -75,7 +76,7 @@ class Mapbox extends React.Component {
             displayedMarker: [[]],
             linksData: [],
             disableAddMarker: false,
-            disableRemove: true,
+            disableNodeRemove: true,
             disableGetLink: true,
             disableReset: false,
             disableDragMarker: false,
@@ -107,42 +108,40 @@ class Mapbox extends React.Component {
     disableInteractions() {
         this.setState({
             disableGetLink: true,
-            disableRemove: true,
+            disableNodeRemove: true,
             disableAddMarker: true,
             disableReset: true,
             disableDragMarker: true,
-            disableNewSeq: true
+            disableNewSeq: true,
+            disableLinkRemove: true
         });
         this.forceUpdate();
     }
 
     getLink() {
         this.disableInteractions();
+        this.removeAllLinkSources();
         this.props.getLinks(this);
     };
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
         this.drawLinks(linkDataArr, sequence);
-        /* comment this if does not want to disable dragging after get link */
-        const lockedMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
-        lockedMarkers.forEach((marker) => {
-            marker.setDraggable(false);
-        });
-        let newArray = [...this.state.displayedMarker]
-        newArray[this.state.currentSequence] = lockedMarkers
         // This is where links are set
         this.setState({
-            linksData: linkDataArr,
             disableReset: false,
-            displayedMarker: newArray
-        }, () => {
-            //this.addTravelDataFiles(linkDataArr)
+            disableGetLink: false,
+            disableNodeRemove: false,
+            disableAddMarker: false,
+            disableDragMarker: false,
+            disableNewSeq: false,
+            disableLinkRemove: false
         });
         this.props.onLinkUpdate(linkDataArr);
     };
 
     drawLinks(linkDataArr, sequence) {
+        let linkSources = []
         linkDataArr.forEach((link, index) => {
             const currSourceId = `route${sequence},${index}`
             this.state.map.addSource(currSourceId, {
@@ -171,19 +170,31 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'L2',
+                'id': currSourceId + 'L2',
                 'type': 'symbol',
                 'source': currSourceId,
                 'layout': {
                     'symbol-placement': 'line-center',
-                    'icon-image':'arrow-line',
+                    'icon-image': 'arrow-line',
                     'icon-size': 0.02
                 }
             });
+            linkSources.push(currSourceId);
         });
+        this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources)});
     };
 
-    resyncAllMarkers(){
+    removeAllLinkSources() {
+        this.props.removeAllLinks();
+        this.state.displayedLinkSources.forEach(linkSrc => {
+            this.state.map.removeLayer(linkSrc);
+            this.state.map.removeLayer(linkSrc + 'L2');
+            this.state.map.removeSource(linkSrc);
+        });
+        this.setState({displayedLinkSources: []});
+    }
+
+    resyncAllMarkers() {
         const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
 
         for (let i = 0; i < restoreMarkers.length; i++) {
@@ -221,12 +232,13 @@ class Mapbox extends React.Component {
             alert("Can not drag to the node right before it or after it!");
             this.setState({
                 disableAddMarker: false,
-                disableRemove: false,
+                disableNodeRemove: false,
                 disableGetLink: this.state.clickedNodes[this.state.currentSequence].length < 1,
                 disableReset: false,
+                disableLinkRemove: false,
                 disableDragMarker: false,
                 disableNewSeq: this.state.clickedNodes[this.state.currentSequence].length < 1
-                
+
             });
             this.resyncAllMarkers();
         } else {
@@ -250,9 +262,10 @@ class Mapbox extends React.Component {
                 displayedMarker: newMarkersArray,
                 clickedNodes: newNodesArray,
                 disableAddMarker: false,
-                disableRemove: false,
+                disableNodeRemove: false,
                 disableGetLink: this.state.clickedNodes[nodeSequence].length < 2,
                 disableReset: false,
+                disableLinkRemove: false,
                 disableDragMarker: false,
                 disableNewSeq: this.state.clickedNodes[nodeSequence].length < 2
             });
@@ -260,7 +273,7 @@ class Mapbox extends React.Component {
         }
     }
 
-    isDuplicateMarker(newNode, orgIndex){
+    isDuplicateMarker(newNode, orgIndex) {
         const prevNode = orgIndex > 0 && this.state.clickedNodes[this.state.currentSequence][orgIndex - 1];
         const nextNode = orgIndex < this.state.clickedNodes[this.state.currentSequence].length - 1 && this.state.clickedNodes[this.state.currentSequence][orgIndex + 1];
 
@@ -278,25 +291,29 @@ class Mapbox extends React.Component {
     addNodeToMapDisplay(nodeCandidates) {
         const newNode = nodeCandidates[0];
 
-        if (this.isDuplicateEndNode(newNode)){
+        if (this.isDuplicateEndNode(newNode)) {
             alert("Can not select the same node as the last node!");
             this.setState({
                 disableAddMarker: false,
-                disableRemove: false,
+                disableNodeRemove: false,
                 disableGetLink: this.state.clickedNodes[this.state.currentSequence].length < 1,
                 disableReset: false,
+                disableLinkRemove: false,
                 disableDragMarker: false
             });
 
         } else {
-            const newMarker = new mapboxgl.Marker({draggable: true, "color": this.state.sequenceColours[this.state.currentSequence]})
-                .setLngLat(newNode.geometry.coordinate)
-                .setPopup(new mapboxgl.Popup().setText("Sequence Number: "+this.state.currentSequence.toString()+", Node Number: "+this.state.clickedNodes[this.state.currentSequence].length.toString()+""))
+            const newMarker = new mapboxgl.Marker({
+                draggable: true,
+                "color": this.state.sequenceColours[this.state.currentSequence]
+            }).setLngLat(newNode.geometry.coordinate).setPopup(new mapboxgl.Popup()
+                .setText("Sequence Number: " + this.state.currentSequence.toString() + ", Node Number: "
+                    + this.state.clickedNodes[this.state.currentSequence].length.toString() + ""))
                 .addTo(this.state.map);
-            newMarker._element.id = ""+this.state.currentSequence.toString()+","+this.state.clickedNodes[this.state.currentSequence].length.toString()+""
+            newMarker._element.id = "" + this.state.currentSequence.toString() + "," + this.state.clickedNodes[this.state.currentSequence].length.toString() + ""
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
-            const newMarkerDiv = newMarker.getElement()  
-            newMarkerDiv.addEventListener('mouseenter', () =>newMarker.togglePopup())
+            const newMarkerDiv = newMarker.getElement()
+            newMarkerDiv.addEventListener('mouseenter', () => newMarker.togglePopup())
             newMarkerDiv.addEventListener('mouseleave', () => newMarker.togglePopup());
             // This is where nodes set
             let newNodes = this.state.clickedNodes[this.state.currentSequence].concat([newNode]);
@@ -309,17 +326,17 @@ class Mapbox extends React.Component {
                 displayedMarker: newMarkersArr,
                 clickedNodes: newNodesArr,
                 disableAddMarker: false,
-                disableRemove: false,
+                disableNodeRemove: false,
+                disableLinkRemove: false,
                 disableGetLink: this.state.clickedNodes[this.state.currentSequence].length < 1,
                 disableReset: false,
-                disableDragMarker: false
+                disableDragMarker: false,
+                disableNewSeq: newNodes.length < 2
             });
-            if (newNodes.length >=2){
-                this.setState({disableNewSeq: false})
-            }
             this.props.onNodeUpdate(newNodesArr)
         }
     };
+
     getRandomColor() {
         let letters = '0123456789ABCDEF';
         let color = '#';
@@ -331,7 +348,7 @@ class Mapbox extends React.Component {
 
     removeNodes() {
         let tempCurrentSeq = this.state.currentSequence
-        const targetMarkerID = ""+this.state.currentSequence.toString()+","+(this.state.clickedNodes[this.state.currentSequence].length - 1).toString()+""
+        const targetMarkerID = "" + this.state.currentSequence.toString() + "," + (this.state.clickedNodes[this.state.currentSequence].length - 1).toString() + ""
         let lastNodeNum = this.state.clickedNodes[this.state.currentSequence].length - 1;
         let getMarkers = document.getElementById(targetMarkerID);
         getMarkers.remove();
@@ -355,28 +372,33 @@ class Mapbox extends React.Component {
         // this is where nodes are removed
         this.setState({
             clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-            disableRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-            disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-            currentSequence:tempCurrentSeq
+            disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2 : this.state.displayedMarker[tempCurrentSeq].length <= 1,
+            disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+            disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2 : this.state.displayedMarker[tempCurrentSeq].length <= 1,
+            currentSequence: tempCurrentSeq,
+            disableLinkRemove: false
         });
         this.props.onNodeUpdate(newArray)
     }
-    newSeq () {
+
+    newSeq() {
         alert("New Sequence Created, Please Place a Node");
         let newColor = "#FF0000"
         while (this.state.sequenceColours.includes(newColor)) {
             newColor = this.getRandomColor()
         }
-        this.setState({ displayedMarker: this.state.displayedMarker.concat([[]]),
-                        currentSequence: this.state.currentSequence+1,
-                        clickedNodes: this.state.clickedNodes.concat([[]]),
-                        sequenceColours: this.state.sequenceColours.concat([newColor]),
-                        disableNewSeq: true,
-                        disableGetLink:true,
-                        disableRemove: true
+        this.setState({
+            displayedMarker: this.state.displayedMarker.concat([[]]),
+            currentSequence: this.state.currentSequence + 1,
+            clickedNodes: this.state.clickedNodes.concat([[]]),
+            sequenceColours: this.state.sequenceColours.concat([newColor]),
+            disableNewSeq: true,
+            disableGetLink: true,
+            disableNodeRemove: true,
+            disableLinkRemove: false
         })
     }
+
     render() {
         return (
             <div>
@@ -384,16 +406,18 @@ class Mapbox extends React.Component {
                     <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                <Button variant="outline-primary" className='remove-button' disabled={this.state.disableRemove}
+                <Button variant="outline-primary" className='remove-button' disabled={this.state.disableNodeRemove}
                         onClick={() => this.removeNodes()} size="sm">Remove Node</Button>
 
                 <Button variant="outline-primary" className='link-button' disabled={this.state.disableGetLink}
                         onClick={() => this.getLink()} size="sm">Get Link</Button>
                 <Button variant="outline-primary" className='reset-button' disabled={this.state.disableReset}
                         onClick={() => this.resetMap()} size="sm">Reset Map</Button>
-                 <Button variant="outline-primary" className='newSeq-button' disabled={this.state.disableNewSeq}
+                <Button variant="outline-primary" className='newSeq-button' disabled={this.state.disableNewSeq}
                         onClick={() => this.newSeq()} size="sm">New Sequence</Button>
-                         
+                <Button variant="outline-primary" className='remove-links-button'
+                        disabled={this.state.disableLinkRemove} onClick={() => this.removeAllLinkSources()} size="sm">
+                    Remove Links</Button>
             </div>
         );
     };
