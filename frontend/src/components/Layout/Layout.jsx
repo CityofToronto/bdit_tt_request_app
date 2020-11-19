@@ -100,7 +100,7 @@ class Layout extends React.Component {
             startDate: activeRange.startDate,
             endDate: activeRange.endDate,
             startTime: activeRange.startTime,
-            endTime: activeRange.startTime,
+            endTime: activeRange.endTime,
             daysOfWeek: activeRange.daysOfWeek,
             includeHolidays: activeRange.includeHolidays
         });
