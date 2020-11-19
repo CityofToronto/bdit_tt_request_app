@@ -84,6 +84,7 @@ class Mapbox extends React.Component {
             displayedMarker: [[]],
             linksData: [],
             displayedLinkSources: [],
+            sequenceColours: [this.getRandomColor()],
             disableAddMarker: false,
             disableNodeRemove: true,
             disableGetLink: true,
@@ -427,27 +428,39 @@ class Mapbox extends React.Component {
         const newDisplayedMarkerArray = [...this.state.displayedMarker];
         newDisplayedMarkerArray[this.state.currentSequence] = newDisplayedMarker;
 
+        let tempColorArray = this.state.sequenceColours
+
         if (this.state.displayedMarker[this.state.currentSequence].length === 1) {
             tempCurrentSeq = tempCurrentSeq - 1;
             newArray.pop();
             newDisplayedMarkerArray.pop();
+            tempColorArray.pop()
         }
-        // this is where nodes are removed
-        let disableGetLink;
-        const seq = this.state.displayedMarker[tempCurrentSeq];
-        if (tempCurrentSeq === this.state.currentSequence) {
-            disableGetLink = !seq || seq.length <= 2;
-        } else {
-            disableGetLink = !seq || seq.length <= 1;
-        }
-        this.setState({
-            clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: disableGetLink,
-            disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-            disableNewSeq: disableGetLink,
-            currentSequence: tempCurrentSeq,
-            disableLinkRemove: false
-        });
+        // this is where alll nodes are removed
+        if (tempCurrentSeq === -1) {
+        //     this.setState({
+        //         clickedNodes: [[]],
+        //         displayedMarker: [[]],
+        //         disableGetLink: true, 
+        //         disableNodeRemove: true,
+        //         disableNewSeq: true,
+        //         currentSequence:0,
+        //         disableLinkRemove: false,
+        //         sequenceColours: [this.getRandomColor()]
+        //    });
+        this.resetMap()
+       }
+       else{
+           this.setState({
+               clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+               disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+               disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+               disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+               currentSequence:tempCurrentSeq,
+               disableLinkRemove: false,
+               sequenceColours: tempColorArray
+           });
+       }
         this.props.onNodeUpdate(newArray);
     }
 
@@ -520,6 +533,7 @@ class Mapbox extends React.Component {
     }
 
     render() {
+        console.log(this.state.sequenceColours)
         return (
             <div>
                 <div className='sidebarStyle'>
