@@ -8,11 +8,11 @@ const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstal
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
-    if (!err || !err.status) {
+    if (!err || !err.response.status) {
         console.error(err);
         alert("Error in React Actions! Check console for error.");
     } else {
-        if (err.status === 500) {
+        if (err.response.status === 500) {
             alert("Internal Server Error");
         } else {
             alert(err.response.data.error)
@@ -78,7 +78,7 @@ export const getDateBoundary = (page) => {
 };
 
 /* GET links given two nodes */
-export const getLinksBetweenNodes = (page, nodes) => {
+export const getLinksBetweenNodes = (page, nodes, enableInteractions) => {
     nodes.forEach((sequence) => {
         const nodeIds = [];
         sequence.forEach((node) => {
@@ -91,7 +91,10 @@ export const getLinksBetweenNodes = (page, nodes) => {
             } else {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }
-        }).catch(err => handleResponseError(err))
+        }).catch(err => {
+            handleResponseError(err)
+            enableInteractions()
+        })
     });
 };
 
@@ -137,9 +140,22 @@ export const getTravelDataFile = (data, enableGetButton) => {
         } else {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }
-        enableGetButton();
+        enableGetButton()
     }).catch(err => {
-        handleResponseError(err);
-        enableGetButton();
-    })
+        if (!err || !err.response.status) {
+            console.error(err);
+            alert("Error in React Actions! Check console for error.");
+        } else {
+            if (err.response.status === 500) {
+                alert("Internal Server Error");
+            } else {
+                const blob = err.response.data,
+                    reader = new FileReader()
+                reader.onload = function() {
+                    alert(JSON.parse(this.result).error)
+                };
+                reader.readAsText(blob);
+            }
+        }
+        enableGetButton()})
 };

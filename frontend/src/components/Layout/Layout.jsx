@@ -1,8 +1,10 @@
 import React from "react";
 import Sidebar from "react-sidebar";
+import { Button } from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
+import "./Layout.css"
 
 export const DAYS_OF_WEEK_MAPPING = [
     "Monday",
@@ -54,8 +56,8 @@ class Layout extends React.Component {
         this.setState({linksList: tempLinksList})
     }
 
-    getLinks = (doc) => {
-        getLinksBetweenNodes(doc, this.state.nodesList)
+    getLinks = (doc, enableInteractions) => {
+        getLinksBetweenNodes(doc, this.state.nodesList, enableInteractions)
     }
 
     resetMapVars = () => {
@@ -264,7 +266,7 @@ class Layout extends React.Component {
         const presets = ["Working Week Morning", "Working Week Night", "Custom"];
         const activeRange = this.state.ranges[this.state.activeRange];
         return (
-            <div id={"header"} style={{color: "black"}}>
+            <div>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
@@ -299,14 +301,16 @@ class Layout extends React.Component {
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
-                    styles={{sidebar: {background: "white", width: 350}}}
+                    rootClassName={"topbar"}
+                    sidebarClassName={"sidebar"}
                 >
-                    <button
+                    <Button
+                        variant="contained"
                         onClick={() => this.onSetSidebarOpen(true)}
                         style={{position: "absolute", right: "5%", height: "40px", width: "10%", top: "5px"}}
                     >
                         Open Sidebar
-                    </button>
+                    </Button>
                 </Sidebar>
                 <Mapbox
                     onLinkUpdate={this.updateLinks}

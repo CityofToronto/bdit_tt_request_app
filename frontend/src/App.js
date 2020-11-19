@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from './components/Layout/Layout.jsx'
-import MapBox from './components/Map/Mapbox'
+import Mapbox from "./components/Map/Mapbox";
 import './App.css'
 class App extends React.Component {
   constructor(props) {
@@ -11,7 +11,7 @@ class App extends React.Component {
   render(){
     return (
       <div>
-        <MapBox/>
+        <Mapbox/>
         <Layout/>
       </div>
           
