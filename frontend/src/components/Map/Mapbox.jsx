@@ -4,6 +4,7 @@ import './Mapbox.css';
 import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
 import {Button, Form} from 'react-bootstrap'
 import arrowImage from '../Images/arrow.png'
+import doubleArrowImage from '../Images/doublearrow.png'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -49,6 +50,12 @@ class Mapbox extends React.Component {
                 function (error, image) {
                     if (error) throw error;
                     map.addImage('arrow-line', image);
+                })
+            map.loadImage(
+                doubleArrowImage,
+                function (error, image) {
+                    if (error) throw error;
+                    map.addImage('double-arrow-line', image);
                 })
         })
         map.on('move', () => {
@@ -125,6 +132,7 @@ class Mapbox extends React.Component {
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
+        console.log(this.state.linksData)
         this.drawLinks(linkDataArr, sequence);
         /* comment this if does not want to disable dragging after get link */
         const lockedMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
@@ -135,7 +143,7 @@ class Mapbox extends React.Component {
         newArray[this.state.currentSequence] = lockedMarkers
         // This is where links are set
         this.setState({
-            linksData: linkDataArr,
+            linksData: this.state.linksData.concat([linkDataArr]),
             disableReset: false,
             displayedMarker: newArray
         }, () => {
@@ -144,10 +152,40 @@ class Mapbox extends React.Component {
         this.props.onLinkUpdate(linkDataArr);
     };
 
+    checkIfLinkDirDrawn(checkedLinkDir) {
+        console.log(this.state.linksData)
+        console.log(checkedLinkDir)
+        let result = false
+        for(let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++){
+            console.log(this.state.linksData[sequenceIndex][0].link_dirs.length)
+            for(let link_dirsIndex = 0; link_dirsIndex < this.state.linksData[sequenceIndex][0].link_dirs.length; link_dirsIndex++){
+                if(this.state.linksData[sequenceIndex][0].link_dirs[link_dirsIndex].slice(0,9) === checkedLinkDir.slice(0,9)){
+                    if(this.state.linksData[sequenceIndex][0].link_dirs[link_dirsIndex].slice(-1) != checkedLinkDir.slice(-1)){
+                        return true
+                    }
+                }
+            }
+        }
+        return result
+    }
+
     drawLinks(linkDataArr, sequence) {
         linkDataArr.forEach((link, index) => {
+            console.log(link)
             const currSourceId = `route${sequence},${index}`
-            this.state.map.addSource(currSourceId, {
+            let overlappedBidirectionalCoor = []
+            let notOverlappedCoor = []
+            for(let i = 0; i < link.link_dirs.length; i++){
+                if(this.checkIfLinkDirDrawn(link.link_dirs[i])){
+                    overlappedBidirectionalCoor.push(link.geometry.coordinates[i])
+                }
+                else{
+                    notOverlappedCoor.push(link.geometry.coordinates[i])
+                }
+            }
+            console.log(overlappedBidirectionalCoor)
+            console.log(notOverlappedCoor)
+            this.state.map.addSource(currSourceId+'1D', {
                 'type': 'geojson',
                 'maxzoom': 24,
                 'data': {
@@ -155,14 +193,26 @@ class Mapbox extends React.Component {
                     'properties': {},
                     'geometry': {
                         'type': link.geometry.type,
-                        'coordinates': link.geometry.coordinates
+                        'coordinates': notOverlappedCoor
+                    }
+                }
+            });
+            this.state.map.addSource(currSourceId+'2D', {
+                'type': 'geojson',
+                'maxzoom': 24,
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': link.geometry.type,
+                        'coordinates': overlappedBidirectionalCoor
                     }
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId,
+                'id': currSourceId+'1D',
                 'type': 'line',
-                'source': currSourceId,
+                'source': currSourceId+'1D',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
@@ -173,13 +223,36 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'L2',
+                'id': currSourceId+'2D',
+                'type': 'line',
+                'source': currSourceId+'2D',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': this.state.sequenceColours[sequence],
+                    'line-width': 8
+                }
+            });
+            this.state.map.addLayer({
+                'id': currSourceId+'1DL2',
                 'type': 'symbol',
-                'source': currSourceId,
+                'source': currSourceId+'1D',
                 'layout': {
                     'symbol-placement': 'line-center',
                     'icon-image':'arrow-line',
                     'icon-size': 0.02
+                }
+            });
+            this.state.map.addLayer({
+                'id': currSourceId+'2DL2',
+                'type': 'symbol',
+                'source': currSourceId+'2D',
+                'layout': {
+                    'symbol-placement': 'line-center',
+                    'icon-image':'double-arrow-line',
+                    'icon-size': 0.1
                 }
             });
         });
