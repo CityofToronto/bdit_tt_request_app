@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, getTravelDataFile, updateClosestNode} from '../../actions/actions';
+import {getClosestNode, updateClosestNode} from '../../actions/actions';
 import {Button, Form} from 'react-bootstrap'
 import arrowImage from '../Images/arrow.png'
 import doubleArrowImage from '../Images/doublearrow.png'
@@ -81,12 +81,13 @@ class Mapbox extends React.Component {
         this.setState({
             map: map,
             clickedNodes: [[]],
-            travelDataFile: [],
             displayedMarker: [[]],
             linksData: [],
+            displayedLinkSources: [],
             disableAddMarker: false,
             disableNodeRemove: true,
             disableGetLink: true,
+            disableLinkRemove: false,
             disableReset: false,
             disableDragMarker: false,
             disableNewSeq: true,
@@ -96,23 +97,9 @@ class Mapbox extends React.Component {
     }
 
     resetMap() {
-        this.state.map.remove()
-        this.createMap()
-        this.props.resetMapVars()
-    };
-
-    addTravelDataFiles(linkDataArr) {
-        let allLinkDirs = [];
-        linkDataArr.forEach((link) => {
-            allLinkDirs = allLinkDirs.concat(link.link_dirs)
-        });
-
-        getTravelDataFile(this, {
-            startTime: "2018-09-02 00:00:00",
-            endTime: "2018-09-03 23:00:00",
-            linkDirs: allLinkDirs,
-            fileType: "csv"
-        });
+        this.state.map.remove();
+        this.createMap();
+        this.props.resetMapVars();
     };
 
     disableInteractions() {
@@ -153,11 +140,11 @@ class Mapbox extends React.Component {
 
     checkIfLinkDirDrawn(checkCoor) {
         let holdCoorArr = []
-        for(let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++){
+        for (let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++) {
             holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates
-            for(let coorIndex = 0; coorIndex < holdCoorArr.length; coorIndex++){
-                if(JSON.stringify(holdCoorArr[coorIndex][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])){
-                    if(JSON.stringify(holdCoorArr[coorIndex][holdCoorArr[coorIndex].length - 1]) === JSON.stringify(checkCoor[0])){
+            for (let coorIndex = 0; coorIndex < holdCoorArr.length; coorIndex++) {
+                if (JSON.stringify(holdCoorArr[coorIndex][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])) {
+                    if (JSON.stringify(holdCoorArr[coorIndex][holdCoorArr[coorIndex].length - 1]) === JSON.stringify(checkCoor[0])) {
                         return true
                     }
                 }
@@ -172,15 +159,14 @@ class Mapbox extends React.Component {
             const currSourceId = `route${sequence},${index}`
             let overlappedBidirectionalCoor = []
             let notOverlappedCoor = []
-            for(let i = 0; i < link.link_dirs.length; i++){
-                if(this.checkIfLinkDirDrawn(link.geometry.coordinates[i])){
+            for (let i = 0; i < link.link_dirs.length; i++) {
+                if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i])) {
                     overlappedBidirectionalCoor.push(link.geometry.coordinates[i])
-                }
-                else{
+                } else {
                     notOverlappedCoor.push(link.geometry.coordinates[i])
                 }
             }
-            this.state.map.addSource(currSourceId+'1D', {
+            this.state.map.addSource(currSourceId + '1D', {
                 'type': 'geojson',
                 'maxzoom': 24,
                 'data': {
@@ -192,7 +178,7 @@ class Mapbox extends React.Component {
                     }
                 }
             });
-            this.state.map.addSource(currSourceId+'2D', {
+            this.state.map.addSource(currSourceId + '2D', {
                 'type': 'geojson',
                 'maxzoom': 24,
                 'data': {
@@ -205,9 +191,9 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'1D',
+                'id': currSourceId + '1D',
                 'type': 'line',
-                'source': currSourceId+'1D',
+                'source': currSourceId + '1D',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
@@ -218,9 +204,9 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'2D',
+                'id': currSourceId + '2D',
                 'type': 'line',
-                'source': currSourceId+'2D',
+                'source': currSourceId + '2D',
                 'layout': {
                     'line-join': 'round',
                     'line-cap': 'round'
@@ -231,10 +217,10 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'1DL2',
+                'id': currSourceId + '1DL2',
 
                 'type': 'symbol',
-                'source': currSourceId+'1D',
+                'source': currSourceId + '1D',
                 'layout': {
                     'symbol-placement': 'line-center',
                     'icon-image': 'arrow-line',
@@ -242,12 +228,12 @@ class Mapbox extends React.Component {
                 }
             });
             this.state.map.addLayer({
-                'id': currSourceId+'2DL2',
+                'id': currSourceId + '2DL2',
                 'type': 'symbol',
-                'source': currSourceId+'2D',
+                'source': currSourceId + '2D',
                 'layout': {
                     'symbol-placement': 'line-center',
-                    'icon-image':'double-arrow-line',
+                    'icon-image': 'double-arrow-line',
                     'icon-size': 0.1
                 }
             });
@@ -447,7 +433,7 @@ class Mapbox extends React.Component {
         // this is where nodes are removed
         let disableGetLink;
         const seq = this.state.displayedMarker[tempCurrentSeq];
-        if (tempCurrentSeq === this.state.currentSequence){
+        if (tempCurrentSeq === this.state.currentSequence) {
             disableGetLink = !seq || seq.length <= 2;
         } else {
             disableGetLink = !seq || seq.length <= 1;
@@ -480,18 +466,20 @@ class Mapbox extends React.Component {
             disableLinkRemove: false
         })
     }
-    onChangeSelectSeq = (e) => this.setState({ selectedSeq: e.target.value });
+
+    onChangeSelectSeq = (e) => this.setState({selectedSeq: e.target.value});
+
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-          alert("Please input a sequence")
-          return;
+            alert("Please input a sequence")
+            return;
         }
-        if (isNaN(this.state.selectedSeq)){
+        if (isNaN(this.state.selectedSeq)) {
             alert("Please input a valid sequence")
             return;
         }
-        if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1){
+        if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
             alert("Please input a valid sequence")
             return;
         }
@@ -503,7 +491,7 @@ class Mapbox extends React.Component {
         let newClickedNodes = []
         let newDisplayedMarkers = []
 
-        for(let i = 0; i < tempHoldSeq.length; i++) {
+        for (let i = 0; i < tempHoldSeq.length; i++) {
             let currNode = tempHoldSeq[tempHoldSeq.length - i - 1]
             const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
                 .setLngLat(currNode.geometry.coordinate)
@@ -527,7 +515,8 @@ class Mapbox extends React.Component {
             sequenceColours: this.state.sequenceColours.concat([newColor])
         })
         this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]))
-      }
+    }
+
     render() {
         return (
             <div>
@@ -545,11 +534,13 @@ class Mapbox extends React.Component {
                 <Button variant="outline-primary" className='newSeq-button' disabled={this.state.disableNewSeq}
                         onClick={() => this.newSeq()} size="sm">New Sequence</Button>
                 <Form className='seq'>
-                <Form.Group >  
-                    <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq} onChange={this.onChangeSelectSeq} />
-                </Form.Group>
-                <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq} onClick={this.onSubmit}>Reverse</Button>
-                </Form>         
+                    <Form.Group>
+                        <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq}
+                                      onChange={this.onChangeSelectSeq}/>
+                    </Form.Group>
+                    <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
+                            onClick={this.onSubmit}>Reverse</Button>
+                </Form>
                 <Button variant="outline-primary" className='remove-links-button'
                         disabled={this.state.disableLinkRemove} onClick={() => this.removeAllLinkSources()} size="sm">
                     Remove Links</Button>
