@@ -132,7 +132,6 @@ class Mapbox extends React.Component {
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
-        console.log(this.state.linksData)
         this.drawLinks(linkDataArr, sequence);
         /* comment this if does not want to disable dragging after get link */
         const lockedMarkers = [...this.state.displayedMarker[this.state.currentSequence]]
@@ -153,8 +152,6 @@ class Mapbox extends React.Component {
     };
 
     checkIfLinkDirDrawn(checkCoor) {
-        console.log(this.state.linksData)
-        console.log(checkCoor)
         let holdCoorArr = []
         for(let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++){
             holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates
