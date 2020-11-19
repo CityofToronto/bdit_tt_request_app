@@ -15,7 +15,7 @@ const handleResponseError = (err) => {
         if (err.response.status === 500) {
             alert("Internal Server Error");
         } else {
-            alert(err.response.data.error)
+            alert(err.response.data.error);
         }
     }
 };
@@ -46,7 +46,7 @@ export const getClosestNode = (page, data) => {
         } else {
             alert("FAILED TO FETCH CLOSEST NODE");
         }
-    }).catch(err => handleResponseError(err))
+    }).catch(err => handleResponseError(err));
 };
 
 /* GET update closest node given coordinate */
@@ -58,7 +58,7 @@ export const updateClosestNode = (page, data) => {
         } else {
             alert("FAILED TO FETCH CLOSEST NODE");
         }
-    }).catch(err => handleResponseError(err))
+    }).catch(err => handleResponseError(err));
 };
 
 /* GET date time boundary of the data sets */
@@ -74,7 +74,7 @@ export const getDateBoundary = (page) => {
         } else {
             alert("FAILED TO FETCH DATE BOUNDARY");
         }
-    }).catch(err => handleResponseError(err))
+    }).catch(err => handleResponseError(err));
 };
 
 /* GET links given two nodes */
@@ -92,9 +92,9 @@ export const getLinksBetweenNodes = (page, nodes, enableInteractions) => {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }
         }).catch(err => {
-            handleResponseError(err)
-            enableInteractions()
-        })
+            handleResponseError(err);
+            enableInteractions();
+        });
     });
 };
 
@@ -107,7 +107,7 @@ export const getProjectTitle = (page) => {
         } else {
             alert("FAILED TO GET PROJECT TITLE");
         }
-    }).catch(err => handleResponseError(err))
+    }).catch(err => handleResponseError(err));
 };
 
 
@@ -136,11 +136,11 @@ export const getTravelDataFile = (data, enableGetButton) => {
         }
     }).then(res => {
         if (res.data) {
-            fileDownload(res.data, `report.${data.fileType}`)
+            fileDownload(res.data, `report.${data.fileType}`);
         } else {
             alert("FAILED TO GET TRAVEL DATA FILE");
         }
-        enableGetButton()
+        enableGetButton();
     }).catch(err => {
         if (!err || !err.response.status) {
             console.error(err);
@@ -149,13 +149,14 @@ export const getTravelDataFile = (data, enableGetButton) => {
             if (err.response.status === 500) {
                 alert("Internal Server Error");
             } else {
-                const blob = err.response.data,
-                    reader = new FileReader()
+                const blob = err.response.data;
+                const reader = new FileReader();
                 reader.onload = function() {
-                    alert(JSON.parse(this.result).error)
+                    alert(JSON.parse(this.result).error);
                 };
                 reader.readAsText(blob);
             }
         }
-        enableGetButton()})
+        enableGetButton();
+    });
 };

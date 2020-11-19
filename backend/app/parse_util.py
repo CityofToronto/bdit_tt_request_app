@@ -179,28 +179,6 @@ def parse_time_periods(tps_data):
             abort(400, description=(
                     "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
             return
-        # try:
-        #     start_datetime = datetime.strptime("%s %s" % (start_date, start_time), DATE_TIME_FORMAT)
-        #     end_datetime = datetime.strptime("%s %s" % (end_date, end_time), DATE_TIME_FORMAT)
-        #     curr_datetime = start_datetime
-        #     curr_end_time = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
-        #                                           second=end_datetime.second)
-        #     while curr_datetime <= end_datetime:
-        #         curr_weekday = curr_datetime.weekday()
-        #         if days_of_week[curr_weekday] and curr_datetime < curr_end_time:
-        #             curr_end_datetime = min(curr_datetime + timedelta(hours=1), curr_end_time)
-        #             tp_parsed.append((curr_datetime, curr_end_datetime))
-        #             curr_datetime = curr_end_datetime
-        #         else:
-        #             curr_datetime.replace(hour=start_datetime.hour, minute=start_datetime.minute,
-        #                                   second=start_datetime.second)
-        #             curr_datetime = curr_datetime + timedelta(days=1)
-        #             curr_end_time = curr_datetime.replace(hour=end_datetime.hour, minute=end_datetime.minute,
-        #                                                   second=end_datetime.second)
-        # except ValueError:
-        #     abort(400, description=(
-        #             "Start time and end time in time_periods must follow date time format: %s" % DATE_TIME_FORMAT))
-        #     return
 
         tps_parsed.append(tp_parsed)
     return tps_parsed
