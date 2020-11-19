@@ -263,7 +263,8 @@ class Mapbox extends React.Component {
             this.state.map.removeLayer(linkSrc + '2DL2');
             this.state.map.removeLayer(linkSrc + '1D');
             this.state.map.removeLayer(linkSrc + '2D');
-            this.state.map.removeSource(linkSrc);
+            this.state.map.removeSource(linkSrc + '1D');
+            this.state.map.removeSource(linkSrc + '2D');
         });
         this.setState({displayedLinkSources: []});
     }
