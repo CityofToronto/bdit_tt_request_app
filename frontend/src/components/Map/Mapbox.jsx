@@ -370,11 +370,18 @@ class Mapbox extends React.Component {
             newDisplayedMarkerArray.pop()
         }
         // this is where nodes are removed
+        let disableGetLink;
+        const seq = this.state.displayedMarker[tempCurrentSeq];
+        if (tempCurrentSeq === this.state.currentSequence){
+            disableGetLink = !seq || seq.length <= 2;
+        } else {
+            disableGetLink = !seq || seq.length <= 1;
+        }
         this.setState({
             clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2 : this.state.displayedMarker[tempCurrentSeq].length <= 1,
+            disableGetLink: disableGetLink,
             disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-            disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2 : this.state.displayedMarker[tempCurrentSeq].length <= 1,
+            disableNewSeq: disableGetLink,
             currentSequence: tempCurrentSeq,
             disableLinkRemove: false
         });
