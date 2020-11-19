@@ -190,7 +190,7 @@ class SidebarContent extends React.Component {
                             color="primary"
                             onClick={this.props.onGo}
                             disabled={this.props.disableGetButton}
-                        >{this.props.disableGetButton ? `Please Wait` : `Get Travel Data`}
+                        >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
                         </Button>
                     </Grid>
 
