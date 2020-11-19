@@ -432,22 +432,30 @@ class Mapbox extends React.Component {
             newArray.pop();
             newDisplayedMarkerArray.pop();
         }
-        // this is where nodes are removed
-        let disableGetLink;
-        const seq = this.state.displayedMarker[tempCurrentSeq];
-        if (tempCurrentSeq === this.state.currentSequence) {
-            disableGetLink = !seq || seq.length <= 2;
-        } else {
-            disableGetLink = !seq || seq.length <= 1;
-        }
-        this.setState({
-            clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-            disableGetLink: disableGetLink,
-            disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-            disableNewSeq: disableGetLink,
-            currentSequence: tempCurrentSeq,
-            disableLinkRemove: false
-        });
+        // this is where alll nodes are removed
+        if (tempCurrentSeq === -1) {
+        //     this.setState({
+        //         clickedNodes: [[]],
+        //         displayedMarker: [[]],
+        //         disableGetLink: true, 
+        //         disableNodeRemove: true,
+        //         disableNewSeq: true,
+        //         currentSequence:0,
+        //         disableLinkRemove: false,
+        //         sequenceColours: [this.getRandomColor()]
+        //    });
+        this.resetMap()
+       }
+       else{
+           this.setState({
+               clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+               disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+               disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+               disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
+               currentSequence:tempCurrentSeq,
+               disableLinkRemove: false
+           });
+       }
         this.props.onNodeUpdate(newArray);
     }
 
