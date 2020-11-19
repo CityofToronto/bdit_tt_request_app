@@ -152,39 +152,36 @@ class Mapbox extends React.Component {
         this.props.onLinkUpdate(linkDataArr);
     };
 
-    checkIfLinkDirDrawn(checkedLinkDir) {
+    checkIfLinkDirDrawn(checkCoor) {
         console.log(this.state.linksData)
-        console.log(checkedLinkDir)
-        let result = false
+        console.log(checkCoor)
+        let holdCoorArr = []
         for(let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++){
-            console.log(this.state.linksData[sequenceIndex][0].link_dirs.length)
-            for(let link_dirsIndex = 0; link_dirsIndex < this.state.linksData[sequenceIndex][0].link_dirs.length; link_dirsIndex++){
-                if(this.state.linksData[sequenceIndex][0].link_dirs[link_dirsIndex].slice(0,9) === checkedLinkDir.slice(0,9)){
-                    if(this.state.linksData[sequenceIndex][0].link_dirs[link_dirsIndex].slice(-1) != checkedLinkDir.slice(-1)){
+            holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates
+            for(let coorIndex = 0; coorIndex < holdCoorArr.length; coorIndex++){
+                if(JSON.stringify(holdCoorArr[coorIndex][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])){
+                    if(JSON.stringify(holdCoorArr[coorIndex][holdCoorArr[coorIndex].length - 1]) === JSON.stringify(checkCoor[0])){
                         return true
                     }
                 }
             }
         }
-        return result
+        return false
     }
 
     drawLinks(linkDataArr, sequence) {
         linkDataArr.forEach((link, index) => {
-            console.log(link)
             const currSourceId = `route${sequence},${index}`
             let overlappedBidirectionalCoor = []
             let notOverlappedCoor = []
             for(let i = 0; i < link.link_dirs.length; i++){
-                if(this.checkIfLinkDirDrawn(link.link_dirs[i])){
+                if(this.checkIfLinkDirDrawn(link.geometry.coordinates[i])){
                     overlappedBidirectionalCoor.push(link.geometry.coordinates[i])
                 }
                 else{
                     notOverlappedCoor.push(link.geometry.coordinates[i])
                 }
             }
-            console.log(overlappedBidirectionalCoor)
-            console.log(notOverlappedCoor)
             this.state.map.addSource(currSourceId+'1D', {
                 'type': 'geojson',
                 'maxzoom': 24,
