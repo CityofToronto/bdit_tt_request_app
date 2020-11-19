@@ -62,9 +62,20 @@
   padding: 0.25rem 0.85rem;
 }
 
-.remove-links-button {
+
+.seq{
     position: fixed;
     bottom: 140px;
+    right: 0;
+}
+.seq-button{
+    position: fixed;
+    bottom: 140px;
+    right: 0;
+}
+.remove-links-button {
+    position: fixed;
+    bottom: 160px;
     right: 0;
     display: inline-block;
     vertical-align: middle;
@@ -76,4 +87,5 @@
     border: 1px solid #030303; */
     cursor: pointer;
     padding: 0.25rem 0.85rem;
+
 }
