@@ -56,8 +56,8 @@ class Layout extends React.Component {
         this.setState({linksList: tempLinksList})
     }
 
-    getLinks = (doc) => {
-        getLinksBetweenNodes(doc, this.state.nodesList)
+    getLinks = (doc, enableInteractions) => {
+        getLinksBetweenNodes(doc, this.state.nodesList, enableInteractions)
     }
 
     resetMapVars = () => {
@@ -68,6 +68,10 @@ class Layout extends React.Component {
         let rangeChoice = event.value;
         let choice = parseInt(rangeChoice.split(" ")[1]);
         this.setState({activeRange: choice - 1});
+    }
+
+    removeAllLinks = () => {
+        this.setState({linksList: []});
     }
 
     addRange() {
@@ -101,16 +105,16 @@ class Layout extends React.Component {
         let activeRange = {...ranges[this.state.activeRange]};
         switch (event.value) {
             case "Working Week Morning":
-                activeRange.startTime = new Date('2020-01-01 06:00:00');
-                activeRange.endTime = new Date('2020-01-01 09:00:00');
+                activeRange.startTime = "06:00";
+                activeRange.endTime = "09:00";
                 activeRange.daysOfWeek = [true, true, true, true, true, false, false];
                 ranges[this.state.activeRange] = activeRange;
                 this.setState({ranges: ranges});
                 break;
 
             case "Working Week Night":
-                activeRange.startTime = new Date('2020-01-01 15:00:00');
-                activeRange.endTime = new Date('2020-01-01 18:00:00');
+                activeRange.startTime = "15:00";
+                activeRange.endTime = "18:00";
                 activeRange.daysOfWeek = [true, true, true, true, true, false, false];
                 ranges[this.state.activeRange] = activeRange;
                 this.setState({ranges: ranges});
@@ -186,7 +190,6 @@ class Layout extends React.Component {
             }
 
             const fileData = this.state.fileType.split("-");
-
             let params = {
                 listOfTimePeriods: list_of_time_periods,
                 listOfLinkDirs: allLinkDirs,
@@ -314,6 +317,7 @@ class Layout extends React.Component {
                     onNodeUpdate={this.updateNodes}
                     getLinks={this.getLinks}
                     resetMapVars={this.resetMapVars}
+                    removeAllLinks={this.removeAllLinks}
                 />
             </div>
         );

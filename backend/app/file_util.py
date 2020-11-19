@@ -78,27 +78,29 @@ def make_travel_data_xlsx(travel_data_list, args=None):
         col = 0
         if args == 'time':
             for same_time_travel_data in travel_data_list:
-                for i in range(len(travel_data_fields)):
-                    travel_data_worksheet.write(row, col + i,
-                                                same_time_travel_data[worksheet_idx][travel_data_fields[i]])
-
-                travel_data_worksheet.set_row(row, 15, cell_format)
-                row += 1
-        elif args == 'seg':
-            for segment_data in travel_data_list[worksheet_idx]:
-                for i in range(len(travel_data_fields)):
-                    travel_data_worksheet.write(row, col + i, segment_data[travel_data_fields[i]])
-
-                travel_data_worksheet.set_row(row, 15, cell_format)
-                row += 1
-        else:
-            for segment_data in travel_data_list:
-                for data in segment_data:
+                for interval_data in same_time_travel_data[worksheet_idx]:
                     for i in range(len(travel_data_fields)):
-                        travel_data_worksheet.write(row, col + i, data[travel_data_fields[i]])
+                        travel_data_worksheet.write(row, col + i, interval_data[travel_data_fields[i]])
 
                     travel_data_worksheet.set_row(row, 15, cell_format)
                     row += 1
+        elif args == 'seg':
+            for segment_data in travel_data_list[worksheet_idx]:
+                for segment_tp_data in segment_data:
+                    for i in range(len(travel_data_fields)):
+                        travel_data_worksheet.write(row, col + i, segment_tp_data[travel_data_fields[i]])
+
+                    travel_data_worksheet.set_row(row, 15, cell_format)
+                    row += 1
+        else:
+            for segment_data in travel_data_list:
+                for tp_data in segment_data:
+                    for interval_data in tp_data:
+                        for i in range(len(travel_data_fields)):
+                            travel_data_worksheet.write(row, col + i, interval_data[travel_data_fields[i]])
+
+                        travel_data_worksheet.set_row(row, 15, cell_format)
+                        row += 1
 
     travel_data_workbook.close()
     return file_path
@@ -124,7 +126,8 @@ def make_travel_data_csv(travel_data_list):
         csv_writer.writeheader()
         for segment_data in travel_data_list:
             for travel_data in segment_data:
-                csv_writer.writerow(travel_data)
+                for interval_data in travel_data:
+                    csv_writer.writerow(interval_data)
 
         csvfile.flush()
 
