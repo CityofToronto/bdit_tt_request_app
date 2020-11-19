@@ -72,10 +72,10 @@
     position: fixed;
     bottom: 140px;
     right: 0;
-
+}
 .remove-links-button {
     position: fixed;
-    bottom: 170px;
+    bottom: 160px;
     right: 0;
     display: inline-block;
     vertical-align: middle;
