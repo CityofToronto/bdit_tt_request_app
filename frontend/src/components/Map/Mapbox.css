@@ -1,10 +1,10 @@
-#seq {
+.seq {
     position: fixed;
     bottom: 170px;
     right: 0;
 }
 
-#seq-button {
+.seq-button {
     position: fixed;
     bottom: 170px;
     right: 0;

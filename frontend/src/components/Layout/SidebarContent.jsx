@@ -82,7 +82,7 @@ class SidebarContent extends React.Component {
                     </Grid>
 
                     <Grid item>
-                        <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={0.5}>
+                        <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={1}>
                             <Grid item>
                                 <h5>Start Date</h5>
                                 <DatePicker required={true} locale={"en-CA"}
