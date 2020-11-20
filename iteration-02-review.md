@@ -4,7 +4,7 @@
 ## Iteration 1 - Review & Retrospect
 
  * When:  Nov 19, 2020
- * Where: ONLINE THROUGH DISCORD
+ * Where: online through discord
 
 ## Process - Reflection
 
