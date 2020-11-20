@@ -44,8 +44,10 @@ class Mapbox extends React.Component {
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom
+            zoom: this.state.zoom,
+            attributionControl: false
         });
+        map.addControl(new mapboxgl.AttributionControl(), 'top-right');
         map.on('load', () => {
             map.loadImage(
                 arrowImage,
@@ -533,7 +535,6 @@ class Mapbox extends React.Component {
     }
 
     render() {
-        console.log(this.state.sequenceColours)
         return (
             <div>
                 <div className='sidebarStyle'>
@@ -542,12 +543,12 @@ class Mapbox extends React.Component {
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
 
-                <Form id='seq'>
+                <Form className='seq'>
                     <Form.Group>
                         <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq}
                                       onChange={this.onChangeSelectSeq}/>
                     </Form.Group>
-                    <Button id='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
+                    <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
                 </Form>
 
