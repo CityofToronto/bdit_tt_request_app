@@ -44,8 +44,10 @@ class Mapbox extends React.Component {
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom
+            zoom: this.state.zoom,
+            attributionControl: false
         });
+        map.addControl(new mapboxgl.AttributionControl(), 'top-right');
         map.on('load', () => {
             map.loadImage(
                 arrowImage,
