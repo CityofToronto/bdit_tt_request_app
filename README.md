@@ -1,14 +1,6 @@
 # Toronto Transportation Traffic Data Filter Web Application  
 # Team Gabriel (Team 22) 
 
-University of Toronto CSC301 Team Project - Toronto Big Data Innovation Team
-
-AWS CI/CD URLs:
-  - [backend production server](http://backendproduction-env.eba-5qbcpngm.ca-central-1.elasticbeanstalk.com/)
-  - [backend test server](http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com/)
-  - [frontend production server](http://frontendproduction-env.eba-4ef5jwdw.ca-central-1.elasticbeanstalk.com/)
-  - [frontend test server](http://frontendtest-env.eba-wempu9ue.ca-central-1.elasticbeanstalk.com/)
-  
 ## Description 
 
  * **Context**:  The toronto big data innovation team handles data requests from a wide variety of clients including academia and industry. These data requests are about traffic travel times across the city of toronto. They collect and store data of roads all across Toronto and the expected travel times on the roads at any time of day, at any time of the year.
