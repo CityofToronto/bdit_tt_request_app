@@ -1,6 +1,6 @@
 # Toronto Transportation Traffic Data Filter Web Application  
+# Team Gabriel (Team 22) 
 
-# team-project-22-toronto-big-data-innovation-team
 University of Toronto CSC301 Team Project - Toronto Big Data Innovation Team
 
 AWS CI/CD URLs:
