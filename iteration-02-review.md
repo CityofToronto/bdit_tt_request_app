@@ -33,22 +33,22 @@
  
 	  The use of css to control the position of components on the sidebar made it so that, while the components looked properly positioned on the monitor of the person making the changes, when viewed from another monitor, or when the vertical size of the window was changed, the position of the components and their relative locations would vary wildly, even merging into each other. In the end we had to scrap this decision and use React form control to manage the components, all their labels and their positioning on screen.
 
-
 #### Q3. Planned changes
 
-List any **process-related** (i.e. team organization and how you work) changes you are planning to make (if there are any)
-
- * Ordered from most to least important.
- * Explain why you are making a change.
-
+Our workflow for this phase of the project was relatively smooth and there were no major bumps that we encountered. We will continue to work as we have been for the next deliverables. 
 
 ## Product - Review
 
 #### Q4. How was your product demo?
- * How did you prepare your demo?
- * What did you manage to demo to your partner?
- * Did your partner accept the features?
- * Were there change requests?
- * What did you learn from the demo from either a process or product perspective?
- * *This section will be marked very leniently so keep it brief and just make sure the points are addressed*
 
+ * Prior to the meeting we pretested every functionality in advance to make sure that everything works as expected. We regularly test the app before each weekly meeting and always present a functional project to the partner. 
+
+ * During the meeting, we showed our partner all the features that we have currently deployed, and the partner later used the testing link to explore the app themselves. We explained to our partner in detail the technical implementation of the app, the problems we encountered along the way and our solutions to the problems. 
+
+ * We believe that our partner accepted the features as they are impressed by our app, and didn’t complain or negatively commented about any features. Our partner said “wow, I am quite impressed.”  : )
+
+ * Our partner did not propose any changes, they said they would compile a document with comments from their team and send it to us some time during D3. 
+
+ * What we learned during this deliverable: 
+   * We learned the importance of having a good workflow and its wider impact on the health of a project.
+   * We also learned that examining and considering edge cases prior to our development is very important, or we may encounter problems down the line. 
