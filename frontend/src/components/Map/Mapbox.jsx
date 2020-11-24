@@ -241,7 +241,6 @@ class Mapbox extends React.Component {
                     'icon-size': 0.1
                 }
             });
-            console.log(linkDataArr)
             let popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
