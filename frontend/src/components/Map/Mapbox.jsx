@@ -592,7 +592,7 @@ class Mapbox extends React.Component {
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
 
-                <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect}>
+                <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect} disableBackdropClick={true}>
                     <DialogTitle>Select a Closest Node</DialogTitle>
                     <List>
                         {this.state.nodeCandidates.map((nodeCandidate) => (
