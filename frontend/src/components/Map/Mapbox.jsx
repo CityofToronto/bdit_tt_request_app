@@ -5,6 +5,11 @@ import {getClosestNode, updateClosestNode} from '../../actions/actions';
 import {Button, Form} from 'react-bootstrap';
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -31,7 +36,9 @@ class Mapbox extends React.Component {
             disableNewSeq: true,
             selectedSeq: "",
             linksData: [],
-            disableLinkRemove: false
+            disableLinkRemove: false,
+            nodeCandidates: [],
+            nodeCandidateSelect: false
         };
     };
 
@@ -389,8 +396,8 @@ class Mapbox extends React.Component {
     }
 
     /* this function is called only by action.js after adding a new marker */
-    addNodeToMapDisplay(nodeCandidates) {
-        const newNode = nodeCandidates[0];
+    addNodeToMapDisplay(nodeCandidate, nodeCandidateClose) {
+        const newNode = nodeCandidate
 
         if (this.isDuplicateEndNode(newNode)) {
             alert("Can not select the same node as the last node!");
@@ -437,6 +444,7 @@ class Mapbox extends React.Component {
             });
             this.props.onNodeUpdate(newNodesArr);
         }
+        nodeCandidateClose()
     };
 
     getRandomColor() {
@@ -521,6 +529,10 @@ class Mapbox extends React.Component {
         });
     }
 
+    nodeCandidateClose = () => {
+        this.setState({nodeCandidateSelect: false})
+    }
+
     onChangeSelectSeq = (e) => this.setState({selectedSeq: e.target.value});
 
     onSubmit = (e) => {
@@ -579,6 +591,17 @@ class Mapbox extends React.Component {
                         Current Sequence #{this.state.currentSequence}</div>
                 </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
+
+                <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect}>
+                    <DialogTitle>Select a Closest Node</DialogTitle>
+                    <List>
+                        {this.state.nodeCandidates.map((nodeCandidate) => (
+                            <ListItem button onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)} key={nodeCandidate.nodeId}>
+                                <ListItemText primary={nodeCandidate.nodeId} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Dialog>
 
                 <Form className='seq'>
                     <Form.Group>
