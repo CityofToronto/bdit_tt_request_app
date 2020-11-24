@@ -1,13 +1,21 @@
+.map-options{
+    position: fixed;
+    background-color: #b9bcbf;
+    bottom: 10px;
+    left: 10%;
+    width: 80%;
+    min-width: 800px;
+    height: 60px;
+}
 #seq {
     position: fixed;
     bottom: 40px;
-    left: 20%;;
+    left: 20%;
 }
 
 .seq-button {
     position: fixed;
     bottom: 40px;
-    left: 20%;
 }
 
 #newSeq-button {
@@ -88,4 +96,10 @@
     border: 1px solid #030303; */
     cursor: pointer;
     padding: 0.25rem 0.85rem;
+}
+
+.reverse-seq-input{
+    position: fixed;
+    bottom: 20px;
+    left: 70%;
 }
