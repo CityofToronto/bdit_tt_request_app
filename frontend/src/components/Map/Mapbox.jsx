@@ -158,6 +158,7 @@ class Mapbox extends React.Component {
 
     drawLinks(linkDataArr, sequence) {
         let linkSources = [];
+        let curr_map = this.state.map
         linkDataArr.forEach((link, index) => {
             const currSourceId = `route${sequence},${index}`;
             let overlappedBidirectionalCoor = [];
@@ -245,6 +246,36 @@ class Mapbox extends React.Component {
                     'icon-image': 'double-arrow-line',
                     'icon-size': 0.1
                 }
+            });
+            let popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+            this.state.map.on('mouseenter', currSourceId + '1D', function (e) {
+                curr_map.getCanvas().style.cursor = 'pointer';
+                let coordinates = e.lngLat;
+                let description = linkDataArr[0].path_name;
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+                popup.setLngLat(coordinates).setHTML(description).addTo(curr_map);
+            });
+            this.state.map.on('mouseleave', currSourceId + '1D', function () {
+                curr_map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
+            this.state.map.on('mouseenter', currSourceId + '2D', function (e) {
+                curr_map.getCanvas().style.cursor = 'pointer';
+                let coordinates = e.lngLat;
+                let description = linkDataArr[0].path_name;
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+                popup.setLngLat(coordinates).setHTML(description).addTo(curr_map);
+            });
+            this.state.map.on('mouseleave', currSourceId + '2D', function () {
+                curr_map.getCanvas().style.cursor = '';
+                popup.remove();
             });
             linkSources.push(currSourceId);
         });
