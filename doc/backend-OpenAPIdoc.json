@@ -259,6 +259,7 @@
                 "required": [
                     "source",
                     "target",
+                    "path_name",
                     "link_dirs",
                     "geometry"
                 ],
@@ -268,6 +269,9 @@
                     },
                     "target": {
                         "type": "integer"
+                    },
+                    "path_name": {
+                        "type": "string"
                     },
                     "link_dirs": {
                         "type": "array",
@@ -309,6 +313,7 @@
                 "required": [
                     "source",
                     "target",
+                    "path_name",
                     "link_dirs",
                     "geometry"
                 ],
@@ -318,6 +323,9 @@
                     },
                     "target": {
                         "type": "integer"
+                    },
+                    "path_name": {
+                        "type": "string"
                     },
                     "link_dirs": {
                         "type": "array",
