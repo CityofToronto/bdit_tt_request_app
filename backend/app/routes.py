@@ -90,9 +90,11 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         to_node_id = int(to_node_id)
     except ValueError:
         abort(400, description="The node_ids should be integers!")
+        return
 
     if from_node_id == to_node_id:
         abort(400, description="Source node can not be the same as target node.")
+        return
 
     shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)

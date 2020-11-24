@@ -209,9 +209,10 @@ def parse_get_links_btwn_nodes_response(response: str):
 
     :param response: the string response from database function get_links_btwn_nodes
     :return: a dictionary that can be jsonify-ed. It contains the following fields:
-            source(int), target(int), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
+            source(int), target(int), path_name(str), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
     """
     # split the response string by the last comma, which splits source, target, link_dirs from geometry
+    print(response)
     try:
         wkb_str_split = response.rindex(',"{"')
     except ValueError:
@@ -230,14 +231,33 @@ def parse_get_links_btwn_nodes_response(response: str):
     # cast the curly bracket surrounded raw link_dir list to a square bracket surrounds quoted link_dir list
     # so that the link_dirs can be casted to a string list
     source_target_links_tuple = eval(source_target_links_str)
-    link_dirs_str = source_target_links_tuple[2]  # type: str
+
+    path_name_str = source_target_links_tuple[2]  # type: str
+    path_name_str = path_name_str.replace('NULL,', '')
+    path_name_str = path_name_str.replace(',NULL', '')
+    path_name_str = path_name_str.replace('{', '["')
+    path_name_str = path_name_str.replace('}', '"]')
+    path_name_str = path_name_str.replace(',', '","')
+    path_name_list = eval(path_name_str)  # type: list
+    unique_path_name_list = []
+
+    for p_name in path_name_list:
+        if p_name not in unique_path_name_list:
+            if len(unique_path_name_list) >= 3:
+                unique_path_name_list.append("...")
+                unique_path_name_list.append(path_name_list[-1])
+                break
+            unique_path_name_list.append(p_name)
+    path_name = ' -> '.join(unique_path_name_list)
+
+    link_dirs_str = source_target_links_tuple[3]  # type: str
     link_dirs_str = link_dirs_str.replace('{', '["')
     link_dirs_str = link_dirs_str.replace('}', '"]')
     link_dirs_str = link_dirs_str.replace(',', '","')
     link_dirs = eval(link_dirs_str)
 
     return {"source": source_target_links_tuple[0], "target": source_target_links_tuple[1],
-            "link_dirs": link_dirs, "geometry": geom_json}
+            "path_name": path_name, "link_dirs": link_dirs, "geometry": geom_json}
 
 
 def parse_node_response(node_data):
