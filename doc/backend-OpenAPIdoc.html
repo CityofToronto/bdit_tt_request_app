@@ -773,7 +773,7 @@
   }
 };
             defs["MultiLinkPath"] = {
-  "required" : [ "geometry", "link_dirs", "source", "target" ],
+  "required" : [ "geometry", "link_dirs", "path_name", "source", "target" ],
   "type" : "object",
   "properties" : {
     "source" : {
@@ -781,6 +781,9 @@
     },
     "target" : {
       "type" : "integer"
+    },
+    "path_name" : {
+      "type" : "string"
     },
     "link_dirs" : {
       "type" : "array",
@@ -849,7 +852,7 @@
 };
             defs["OneOfinline_response_200"] = {};
             defs["SingleLinkPath"] = {
-  "required" : [ "geometry", "link_dirs", "source", "target" ],
+  "required" : [ "geometry", "link_dirs", "path_name", "source", "target" ],
   "type" : "object",
   "properties" : {
     "source" : {
@@ -857,6 +860,9 @@
     },
     "target" : {
       "type" : "integer"
+    },
+    "path_name" : {
+      "type" : "string"
     },
     "link_dirs" : {
       "type" : "array",
