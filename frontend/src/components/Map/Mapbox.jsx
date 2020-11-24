@@ -162,6 +162,12 @@ class Mapbox extends React.Component {
             const currSourceId = `route${sequence},${index}`;
             let overlappedBidirectionalCoor = [];
             let notOverlappedCoor = [];
+
+            if (link.geometry.type === 'LineString') {
+                link.geometry.type = 'MultiLineString'
+                link.geometry.coordinates = [link.geometry.coordinates]
+            }
+
             for (let i = 0; i < link.link_dirs.length; i++) {
                 if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i])) {
                     overlappedBidirectionalCoor.push(link.geometry.coordinates[i]);
