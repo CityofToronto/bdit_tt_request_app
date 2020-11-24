@@ -2,7 +2,6 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, updateClosestNode} from '../../actions/actions';
-import { Form} from 'react-bootstrap';
 import {Button, TextField} from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
@@ -575,10 +574,10 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
-                <div className='sidebarStyle'>
-                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |
-                        Current Sequence #{this.state.currentSequence}</div>
-                </div>
+                {/*<div className='sidebarStyle'>*/}
+                {/*    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |*/}
+                {/*        Current Sequence #{this.state.currentSequence}</div>*/}
+                {/*</div>*/}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
 
                 {/* <Form className='seq'>
@@ -589,17 +588,23 @@ class Mapbox extends React.Component {
                     <Button className='seq-button' variant="outlined" color="primary" size="small" type="submit" disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
                 </Form> */}
-        
-                <Button variant="contained" color="primary" size="small" id='newSeq-button' disabled={this.state.disableNewSeq}
-                        onClick={() => this.newSeq()} >New Sequence</Button>
-                <Button variant="contained" color="primary" size="small" id='reset-button' disabled={this.state.disableReset}
-                        onClick={() => this.resetMap()} >Reset Map</Button>
-                <Button variant="contained" color="primary" size="small" id='remove-node-button' disabled={this.state.disableNodeRemove}
-                        onClick={() => this.removeNodes()} >Remove Last Node</Button>
-                <Button variant="contained" color="primary" size="small" id='remove-links-button' disabled={this.state.disableLinkRemove}
-                        onClick={() => this.removeAllLinkSources()} >Remove All Links</Button>
-                <Button variant="contained" color="primary" size="small" id='link-button' disabled={this.state.disableGetLink}
-                        onClick={() => this.getLink()} >Update & Display Links</Button>
+                <div className="map-options">
+                    <form className="reverse-seq-input" noValidate autoComplete="off">
+                        <TextField id="filled-basic" label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/>
+                    </form>
+                    <Button variant="contained" color="primary" size="small" id='reverseSeq-button' type="submit" disabled={this.state.disableNewSeq}
+                            onClick={this.onSubmit}>Reverse</Button>
+                    <Button variant="contained" color="primary" size="small" id='newSeq-button' disabled={this.state.disableNewSeq}
+                            onClick={() => this.newSeq()} >New Sequence</Button>
+                    <Button variant="contained" color="primary" size="small" id='reset-button' disabled={this.state.disableReset}
+                            onClick={() => this.resetMap()} >Reset Map</Button>
+                    <Button variant="contained" color="primary" size="small" id='remove-node-button' disabled={this.state.disableNodeRemove}
+                            onClick={() => this.removeNodes()} >Remove Last Node</Button>
+                    <Button variant="contained" color="primary" size="small" id='remove-links-button' disabled={this.state.disableLinkRemove}
+                            onClick={() => this.removeAllLinkSources()} >Remove All Links</Button>
+                    <Button variant="contained" color="primary" size="small" id='link-button' disabled={this.state.disableGetLink}
+                            onClick={() => this.getLink()} >Update & Display Links</Button>
+                </div>
             </div>
         );
     };
