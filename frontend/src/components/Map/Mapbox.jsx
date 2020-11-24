@@ -254,7 +254,7 @@ class Mapbox extends React.Component {
             this.state.map.on('mouseenter', currSourceId + '1D', function (e) {
                 curr_map.getCanvas().style.cursor = 'pointer';
                 let coordinates = e.lngLat;
-                let description = linkDataArr[0].path_name;
+                let description = link.path_name;
                 while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
@@ -267,7 +267,7 @@ class Mapbox extends React.Component {
             this.state.map.on('mouseenter', currSourceId + '2D', function (e) {
                 curr_map.getCanvas().style.cursor = 'pointer';
                 let coordinates = e.lngLat;
-                let description = linkDataArr[0].path_name;
+                let description = link.path_name;
                 while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
