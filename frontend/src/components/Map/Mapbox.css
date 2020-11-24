@@ -1,19 +1,19 @@
-.seq {
+#seq {
     position: fixed;
-    bottom: 170px;
-    right: 0;
+    bottom: 40px;
+    left: 20%;;
 }
 
 .seq-button {
     position: fixed;
-    bottom: 170px;
-    right: 0;
+    bottom: 40px;
+    left: 20%;
 }
 
 #newSeq-button {
     position: fixed;
-    bottom: 140px;
-    right: 0;
+    bottom: 20px;
+    left: 20%;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -28,8 +28,8 @@
 
 #reset-button {
     position: fixed;
-    bottom: 110px;
-    right: 0;
+    bottom: 20px;
+    left: 33%;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -44,8 +44,8 @@
 
 #remove-node-button {
     position: fixed;
-    bottom: 80px;
-    right: 0;
+    bottom: 20px;
+    left: 45%;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -60,8 +60,8 @@
 
 #remove-links-button {
     position: fixed;
-    bottom: 50px;
-    right: 0;
+    bottom: 20px;
+    left: 60%;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -77,7 +77,7 @@
 #link-button {
     position: fixed;
     bottom: 20px;
-    right: 0;
+    left: 80%;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
