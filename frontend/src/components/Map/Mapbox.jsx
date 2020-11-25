@@ -561,7 +561,7 @@ class Mapbox extends React.Component {
                 .setLngLat(currNode.geometry.coordinate)
                 .setPopup(new mapboxgl.Popup().setText(
                     "Sequence Number: " + tempCurrSequence.toString() +
-                    ", Node Number: " + i.toString() + ""))
+                    ", Node Number: " + i.toString() + ", Node_ID: " + currNode.nodeId.toString()))
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
@@ -577,7 +577,8 @@ class Mapbox extends React.Component {
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
             clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
-            sequenceColours: this.state.sequenceColours.concat([newColor])
+            sequenceColours: this.state.sequenceColours.concat([newColor]),
+            selectedSeq: ""
         });
         this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]));
     }
