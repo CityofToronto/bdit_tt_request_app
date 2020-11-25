@@ -2,7 +2,7 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import {getClosestNode, updateClosestNode} from '../../actions/actions';
-import {Button, Form} from 'react-bootstrap';
+import {Button, TextField} from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
 import Dialog from "@material-ui/core/Dialog";
@@ -415,7 +415,7 @@ class Mapbox extends React.Component {
                 "color": this.state.sequenceColours[this.state.currentSequence]
             }).setLngLat(newNode.geometry.coordinate).setPopup(new mapboxgl.Popup()
                 .setText("Sequence Number: " + this.state.currentSequence.toString() + ", Node Number: "
-                    + this.state.clickedNodes[this.state.currentSequence].length.toString() + ""))
+                    + this.state.clickedNodes[this.state.currentSequence].length.toString() + ", Node_ID: " + newNode.nodeId.toString()))
                 .addTo(this.state.map);
             newMarker._element.id = this.state.currentSequence.toString() + "," +
                 this.state.clickedNodes[this.state.currentSequence].length.toString();
@@ -561,7 +561,7 @@ class Mapbox extends React.Component {
                 .setLngLat(currNode.geometry.coordinate)
                 .setPopup(new mapboxgl.Popup().setText(
                     "Sequence Number: " + tempCurrSequence.toString() +
-                    ", Node Number: " + i.toString() + ""))
+                    ", Node Number: " + i.toString() + ", Node_ID: " + currNode.nodeId.toString()))
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
@@ -577,7 +577,8 @@ class Mapbox extends React.Component {
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
             clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
-            sequenceColours: this.state.sequenceColours.concat([newColor])
+            sequenceColours: this.state.sequenceColours.concat([newColor]),
+            selectedSeq: ""
         });
         this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]));
     }
@@ -585,42 +586,35 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
-                <div className='sidebarStyle'>
-                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |
-                        Current Sequence #{this.state.currentSequence}</div>
-                </div>
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect} disableBackdropClick={true}>
-                    <DialogTitle>Select a Closest Node</DialogTitle>
-                    <List>
-                        {this.state.nodeCandidates.map((nodeCandidate) => (
-                            <ListItem button onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)} key={nodeCandidate.nodeId}>
-                                <ListItemText primary={nodeCandidate.nodeId} />
-                            </ListItem>
-                        ))}
-                    </List>
+                  <DialogTitle>Select a Closest Node</DialogTitle>
+                  <List>
+                      {this.state.nodeCandidates.map((nodeCandidate) => (
+                          <ListItem button onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)} key={nodeCandidate.nodeId}>
+                              <ListItemText primary={nodeCandidate.nodeId} />
+                          </ListItem>
+                      ))}
+                  </List>
                 </Dialog>
-
-                <Form className='seq'>
-                    <Form.Group>
-                        <Form.Control type="email" placeholder="Sequence #" value={this.state.selectedSeq}
-                                      onChange={this.onChangeSelectSeq}/>
-                    </Form.Group>
-                    <Button className='seq-button' variant="primary" type="submit" disabled={this.state.disableNewSeq}
+            
+                <div className="map-options">
+                    <form className="reverse-seq-input" noValidate autoComplete="off">
+                        <TextField label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/>
+                    </form>
+                    <Button variant="contained" color="primary" size="small" id='reverseSeq-button' disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
-                </Form>
-
-                <Button variant="outline-primary" id='newSeq-button' disabled={this.state.disableNewSeq}
-                        onClick={() => this.newSeq()} size="sm">New Sequence</Button>
-                <Button variant="outline-primary" id='reset-button' disabled={this.state.disableReset}
-                        onClick={() => this.resetMap()} size="sm">Reset Map</Button>
-                <Button variant="outline-primary" id='remove-node-button' disabled={this.state.disableNodeRemove}
-                        onClick={() => this.removeNodes()} size="sm">Remove Last Node</Button>
-                <Button variant="outline-primary" id='remove-links-button' disabled={this.state.disableLinkRemove}
-                        onClick={() => this.removeAllLinkSources()} size="sm">Remove All Links</Button>
-                <Button variant="outline-primary" id='link-button' disabled={this.state.disableGetLink}
-                        onClick={() => this.getLink()} size="sm">Update & Display Links</Button>
+                    <Button variant="contained" color="primary" size="small" id='newSeq-button' disabled={this.state.disableNewSeq}
+                            onClick={() => this.newSeq()} >New Sequence</Button>
+                    <Button variant="contained" color="primary" size="small" id='reset-button' disabled={this.state.disableReset}
+                            onClick={() => this.resetMap()} >Reset Map</Button>
+                    <Button variant="contained" color="primary" size="small" id='remove-node-button' disabled={this.state.disableNodeRemove}
+                            onClick={() => this.removeNodes()} >Remove Last Node</Button>
+                    <Button variant="contained" color="primary" size="small" id='remove-links-button' disabled={this.state.disableLinkRemove}
+                            onClick={() => this.removeAllLinkSources()} >Remove All Links</Button>
+                    <Button variant="contained" color="primary" size="small" id='link-button' disabled={this.state.disableGetLink}
+                            onClick={() => this.getLink()} >Update & Display Links</Button>
+                </div>
             </div>
         );
     };

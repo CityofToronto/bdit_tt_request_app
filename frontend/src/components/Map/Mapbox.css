@@ -1,19 +1,31 @@
-.seq {
+.map-options{
     position: fixed;
-    bottom: 170px;
-    right: 0;
+    background-color: #FFFFFF;
+    bottom: 10px;
+    right: 5px;
+    width: 250px;
+    border-radius: 10px;
+    height: 250px;
 }
 
-.seq-button {
-    position: fixed;
-    bottom: 170px;
-    right: 0;
+#reverseSeq-button {
+    position: absolute;
+    left: 125px;
+    bottom: 185px;
+}
+
+.reverse-seq-input{
+    position: absolute;
+    top: 8px;
+    left: 20px;
+    bottom: 195px;
+   
 }
 
 #newSeq-button {
-    position: fixed;
-    bottom: 140px;
-    right: 0;
+    position: absolute;
+    left: 20px;
+    bottom: 150px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -27,9 +39,9 @@
 }
 
 #reset-button {
-    position: fixed;
-    bottom: 110px;
-    right: 0;
+    position: absolute;
+    left: 20px;
+    bottom: 115px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -43,9 +55,9 @@
 }
 
 #remove-node-button {
-    position: fixed;
+    position: absolute;
+    left: 20px;
     bottom: 80px;
-    right: 0;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -59,9 +71,9 @@
 }
 
 #remove-links-button {
-    position: fixed;
-    bottom: 50px;
-    right: 0;
+    position: absolute;
+    left: 20px;
+    bottom: 45px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -75,9 +87,9 @@
 }
 
 #link-button {
-    position: fixed;
-    bottom: 20px;
-    right: 0;
+    position: absolute;
+    left: 20px;
+    bottom: 10px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -89,3 +101,4 @@
     cursor: pointer;
     padding: 0.25rem 0.85rem;
 }
+
