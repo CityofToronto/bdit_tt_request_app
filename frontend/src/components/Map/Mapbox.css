@@ -1,27 +1,31 @@
 .map-options{
     position: fixed;
-    background-color: #b9bcbf;
+    background-color: #FFFFFF;
     bottom: 10px;
-    left: 10%;
-    width: 80%;
-    min-width: 800px;
-    height: 60px;
-}
-#seq {
-    position: fixed;
-    bottom: 40px;
-    left: 20%;
+    right: 5px;
+    width: 250px;
+    border-radius: 10px;
+    height: 250px;
 }
 
-.seq-button {
-    position: fixed;
-    bottom: 40px;
+#reverseSeq-button {
+    position: absolute;
+    left: 125px;
+    bottom: 185px;
+}
+
+.reverse-seq-input{
+    position: absolute;
+    top: 8px;
+    left: 20px;
+    bottom: 195px;
+   
 }
 
 #newSeq-button {
-    position: fixed;
-    bottom: 20px;
-    left: 20%;
+    position: absolute;
+    left: 20px;
+    bottom: 150px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -35,9 +39,9 @@
 }
 
 #reset-button {
-    position: fixed;
-    bottom: 20px;
-    left: 33%;
+    position: absolute;
+    left: 20px;
+    bottom: 115px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -51,9 +55,9 @@
 }
 
 #remove-node-button {
-    position: fixed;
-    bottom: 20px;
-    left: 45%;
+    position: absolute;
+    left: 20px;
+    bottom: 80px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -67,9 +71,9 @@
 }
 
 #remove-links-button {
-    position: fixed;
-    bottom: 20px;
-    left: 60%;
+    position: absolute;
+    left: 20px;
+    bottom: 45px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -83,9 +87,9 @@
 }
 
 #link-button {
-    position: fixed;
-    bottom: 20px;
-    left: 80%;
+    position: absolute;
+    left: 20px;
+    bottom: 10px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -98,8 +102,3 @@
     padding: 0.25rem 0.85rem;
 }
 
-.reverse-seq-input{
-    position: fixed;
-    bottom: 20px;
-    left: 70%;
-}

@@ -592,7 +592,7 @@ class Mapbox extends React.Component {
                     <form className="reverse-seq-input" noValidate autoComplete="off">
                         <TextField id="filled-basic" label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/>
                     </form>
-                    <Button variant="contained" color="primary" size="small" id='reverseSeq-button' type="submit" disabled={this.state.disableNewSeq}
+                    <Button variant="contained" color="primary" size="small" id='reverseSeq-button' disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
                     <Button variant="contained" color="primary" size="small" id='newSeq-button' disabled={this.state.disableNewSeq}
                             onClick={() => this.newSeq()} >New Sequence</Button>
