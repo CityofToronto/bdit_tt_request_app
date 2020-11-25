@@ -42,7 +42,7 @@ export const getClosestNode = (page, data) => {
     axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
         if (res.data) {
             const tenClosestNodes = parseClosestNodeResponse(res);
-            page.addNodeToMapDisplay(tenClosestNodes);
+            page.setState({nodeCandidates: tenClosestNodes, nodeCandidateSelect: true})
         } else {
             alert("FAILED TO FETCH CLOSEST NODE");
         }
