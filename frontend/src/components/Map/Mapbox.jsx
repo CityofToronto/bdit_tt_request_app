@@ -354,6 +354,9 @@ class Mapbox extends React.Component {
             let nodeSequenceIndex = nodeIndex.split(",")[1];
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
             const draggedMarker = newMarkers[nodeSequenceIndex];
+            draggedMarker.setPopup(new mapboxgl.Popup()
+            .setText("Sequence Number: " + nodeSequence.toString() + ", Node Number: "
+                + nodeSequenceIndex.toString() + ", Node_ID: " + newNode.nodeId.toString()))
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
