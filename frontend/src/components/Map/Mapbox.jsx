@@ -272,6 +272,7 @@ class Mapbox extends React.Component {
                 this.state.map.off('mouseenter', currSourceId + '2D', tempLinkMouseEnter[sequence][index]);
                 this.state.map.off('mouseleave', currSourceId + '2D', tempLinkMouseLeave[sequence][index]);
                 tempLinkMouseEnter[sequence] = []
+                tempLinkMouseLeave[sequence] = []
             }
             let popup = new mapboxgl.Popup({
                 closeButton: false,
