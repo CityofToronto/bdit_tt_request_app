@@ -596,7 +596,7 @@ class Mapbox extends React.Component {
             clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
             sequenceColours: this.state.sequenceColours.concat([newColor]),
             selectedSeq: ""
-        });
+        },() => this.getLink());
         this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]));
     }
 
