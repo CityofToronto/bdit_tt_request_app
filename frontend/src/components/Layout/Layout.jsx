@@ -350,7 +350,7 @@ class Layout extends React.Component {
                     <Button
                         variant="contained"
                         onClick={() => this.onSetSidebarOpen(true)}
-                        style={{position: "absolute", right: "5%", height: "40px", width: "10%", top: "5px"}}
+                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
                     >
                         Open Sidebar
                     </Button>
