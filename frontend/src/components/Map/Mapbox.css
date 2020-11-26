@@ -5,7 +5,7 @@
     right: 5px;
     width: 250px;
     border-radius: 10px;
-    height: 250px;
+    height: 310px;
 }
 
 .mapboxgl-control-container{
@@ -16,22 +16,23 @@
 
 #reverseSeq-button {
     position: absolute;
-    left: 125px;
-    bottom: 185px;
+    left: 150px;
+    bottom: 190px;
+    width: 60px;
 }
 
 .reverse-seq-input{
     position: absolute;
-    top: 8px;
-    left: 20px;
-    bottom: 195px;
+    top: 18px;
+    left: 25px;
+    bottom: 197px;
    
 }
 
 #newSeq-button {
     position: absolute;
     left: 20px;
-    bottom: 150px;
+    bottom: 115px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -47,7 +48,7 @@
 #reset-button {
     position: absolute;
     left: 20px;
-    bottom: 115px;
+    bottom: 10px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
@@ -95,7 +96,7 @@
 #link-button {
     position: absolute;
     left: 20px;
-    bottom: 10px;
+    bottom: 150px;
     display: inline-block;
     vertical-align: middle;
     border-radius: 15px;
