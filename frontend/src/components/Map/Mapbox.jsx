@@ -10,7 +10,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 
@@ -78,12 +79,14 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
-                    alert("Currently only allow maximum 10 nodes on the map!");
-                } else {
-                    this.disableInteractions();
-                    getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-                }
+                // if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
+                //     alert("Currently only allow maximum 10 nodes on the map!");
+                // } else {
+                //     this.disableInteractions();
+                //     getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+                // }
+                this.disableInteractions();
+                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             }
 
         });
@@ -110,6 +113,7 @@ class Mapbox extends React.Component {
         this.state.map.remove();
         this.createMap();
         this.props.resetMapVars();
+        NotificationManager.success('Reset Map');
     };
 
     disableInteractions() {
@@ -300,6 +304,7 @@ class Mapbox extends React.Component {
             this.state.map.removeSource(linkSrc + '2D');
         });
         this.setState({displayedLinkSources: [], linksData:[]});
+        NotificationManager.success('Updated Links');
     }
 
     resyncAllMarkers() {
@@ -337,7 +342,8 @@ class Mapbox extends React.Component {
     updateMarker(nodeIndex, nodeCandidates) {
         const newNode = nodeCandidates[0];
         if (this.isDuplicateMarker(newNode, nodeIndex)) {
-            alert("Can not drag to the node right before it or after it!");
+            // alert("Can not drag to the node right before it or after it!");
+            NotificationManager.error('Can not drag to the node right before it or after it!');
             this.setState({
                 disableAddMarker: false,
                 disableNodeRemove: false,
@@ -402,7 +408,8 @@ class Mapbox extends React.Component {
         const newNode = nodeCandidate
 
         if (this.isDuplicateEndNode(newNode)) {
-            alert("Can not select the same node as the last node!");
+            // alert("Can not select the same node as the last node!");
+            NotificationManager.error('Can not select the same node as the last node!');
             this.setState({
                 disableAddMarker: false,
                 disableNodeRemove: false,
@@ -484,6 +491,7 @@ class Mapbox extends React.Component {
             newArray.pop();
             newDisplayedMarkerArray.pop();
             tempColorArray.pop()
+            NotificationManager.warning('Removed Last Sequence');
         }
         // this is where alll nodes are removed
         if (tempCurrentSeq === -1) {
@@ -511,10 +519,12 @@ class Mapbox extends React.Component {
            });
        }
         this.props.onNodeUpdate(newArray);
+        NotificationManager.success('Removed Last Node');
     }
 
     newSeq() {
-        alert("New Sequence Created, Please Place a Node");
+        // alert("New Sequence Created, Please Place a Node");
+        NotificationManager.success('New Sequence Created, Please Place a Node');
         let newColor = this.state.sequenceColours[0];
         while (this.state.sequenceColours.includes(newColor)) {
             newColor = this.getRandomColor();
@@ -540,15 +550,18 @@ class Mapbox extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-            alert("Please input a sequence");
+            // alert("Please input a sequence");
+            NotificationManager.error('Please input a sequence');
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
-            alert("Please input a valid sequence");
+            // alert("Please input a valid sequence");
+            NotificationManager.error('Please input a valid sequence');
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
-            alert("Please input a valid sequence");
+            // alert("Please input a valid sequence");
+            NotificationManager.error('Please input a valid sequence');
             return;
         }
         let tempCurrSequence = this.state.currentSequence + 1;
@@ -575,7 +588,8 @@ class Mapbox extends React.Component {
             newClickedNodes.push(currNode);
             newDisplayedMarkers.push(newMarker);
         }
-        alert("Reversed sequence " + this.state.selectedSeq);
+        // alert("Reversed sequence " + this.state.selectedSeq);
+        NotificationManager.success("Reversed sequence " + this.state.selectedSeq);
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
@@ -624,6 +638,7 @@ class Mapbox extends React.Component {
                     <Button variant="contained" color="primary" size="small" id='link-button' disabled={this.state.disableGetLink}
                             onClick={() => this.getLink()} >Update & Display Links</Button>
                 </div>
+                <NotificationContainer/>
             </div>
         );
     };
