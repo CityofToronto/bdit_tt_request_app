@@ -299,7 +299,7 @@ class Mapbox extends React.Component {
             this.state.map.removeSource(linkSrc + '1D');
             this.state.map.removeSource(linkSrc + '2D');
         });
-        this.setState({displayedLinkSources: []});
+        this.setState({displayedLinkSources: [], linksData:[]});
     }
 
     resyncAllMarkers() {
@@ -589,10 +589,10 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
-                <div className='sidebarStyle'>
+                {/* <div className='sidebarStyle'>
                     <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |
                         Current Sequence #{this.state.currentSequence}</div>
-                </div>
+                </div> */}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect} disableBackdropClick={true}>
                   <DialogTitle>Select a Closest Node</DialogTitle>
@@ -607,7 +607,9 @@ class Mapbox extends React.Component {
             
                 <div className="map-options">
                     <form className="reverse-seq-input" noValidate autoComplete="off">
-                        <TextField label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/>
+                        <TextField label="Current Sequence" InputProps={{readOnly: true,}} value= {"Current Sequence #"+ this.state.currentSequence} />
+                        {/* <TextField label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/> */}
+                        <TextField label="Reverse Seq #" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq} variant="filled"/>
                     </form>
                     <Button variant="contained" color="primary" size="small" id='reverseSeq-button' disabled={this.state.disableNewSeq}
                             onClick={this.onSubmit}>Reverse</Button>
