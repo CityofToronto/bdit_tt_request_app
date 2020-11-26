@@ -39,7 +39,9 @@ class Mapbox extends React.Component {
             linksData: [],
             disableLinkRemove: false,
             nodeCandidates: [],
-            nodeCandidateSelect: false
+            nodeCandidateSelect: false,
+            linkMouseEnter: [],
+            linkMouseLeave: []
         };
     };
 
@@ -170,6 +172,8 @@ class Mapbox extends React.Component {
     drawLinks(linkDataArr, sequence) {
         let linkSources = [];
         let curr_map = this.state.map
+        let tempLinkMouseEnter = this.state.linkMouseEnter
+        let tempLinkMouseLeave = this.state.linkMouseLeave
         linkDataArr.forEach((link, index) => {
             const currSourceId = `route${sequence},${index}`;
             let overlappedBidirectionalCoor = [];
@@ -258,11 +262,23 @@ class Mapbox extends React.Component {
                     'icon-size': 0.1
                 }
             });
+            if(this.state.linkMouseEnter.length <= sequence){
+                tempLinkMouseEnter.push([])
+                tempLinkMouseLeave.push([])
+            }
+            else{
+                this.state.map.off('mouseenter', currSourceId + '1D', tempLinkMouseEnter[sequence][index]);
+                this.state.map.off('mouseleave', currSourceId + '1D', tempLinkMouseLeave[sequence][index]);
+                this.state.map.off('mouseenter', currSourceId + '2D', tempLinkMouseEnter[sequence][index]);
+                this.state.map.off('mouseleave', currSourceId + '2D', tempLinkMouseLeave[sequence][index]);
+                tempLinkMouseEnter[sequence] = []
+                tempLinkMouseLeave[sequence] = []
+            }
             let popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
             });
-            this.state.map.on('mouseenter', currSourceId + '1D', function (e) {
+            let newMouseEnter = function onMouseEnter(e){
                 curr_map.getCanvas().style.cursor = 'pointer';
                 let coordinates = e.lngLat;
                 let description = link.path_name;
@@ -270,31 +286,28 @@ class Mapbox extends React.Component {
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
                 popup.setLngLat(coordinates).setHTML(description).addTo(curr_map);
-            });
-            this.state.map.on('mouseleave', currSourceId + '1D', function () {
+            }
+            let newMouseLeave = function onMouseLeave() {
                 curr_map.getCanvas().style.cursor = '';
                 popup.remove();
-            });
-            this.state.map.on('mouseenter', currSourceId + '2D', function (e) {
-                curr_map.getCanvas().style.cursor = 'pointer';
-                let coordinates = e.lngLat;
-                let description = link.path_name;
-                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                }
-                popup.setLngLat(coordinates).setHTML(description).addTo(curr_map);
-            });
-            this.state.map.on('mouseleave', currSourceId + '2D', function () {
-                curr_map.getCanvas().style.cursor = '';
-                popup.remove();
-            });
+            }
+            tempLinkMouseEnter[sequence].push(newMouseEnter)
+            tempLinkMouseLeave[sequence].push(newMouseLeave)
+            this.state.map.on('mouseenter', currSourceId + '1D', newMouseEnter);
+            this.state.map.on('mouseleave', currSourceId + '1D', newMouseLeave);
+            this.state.map.on('mouseenter', currSourceId + '2D', newMouseEnter);
+            this.state.map.on('mouseleave', currSourceId + '2D', newMouseLeave);
             linkSources.push(currSourceId);
         });
-        this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources)});
+        this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources),
+            linkMouseEnter: tempLinkMouseEnter,
+            linkMouseLeave: tempLinkMouseLeave
+        });
     };
 
     removeAllLinkSources() {
         this.props.removeAllLinks();
+        console.log(this.state.displayedLinkSources)
         this.state.displayedLinkSources.forEach(linkSrc => {
             this.state.map.removeLayer(linkSrc + '1DL2');
             this.state.map.removeLayer(linkSrc + '2DL2');
@@ -361,8 +374,8 @@ class Mapbox extends React.Component {
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
             const draggedMarker = newMarkers[nodeSequenceIndex];
             draggedMarker.setPopup(new mapboxgl.Popup()
-            .setText("Sequence Number: " + nodeSequence.toString() + ", Node Number: "
-                + nodeSequenceIndex.toString() + ", Node_ID: " + newNode.nodeId.toString()))
+                .setText("Sequence Number: " + nodeSequence.toString() + ", Node Number: "
+                    + nodeSequenceIndex.toString() + ", Node_ID: " + newNode.nodeId.toString()))
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
@@ -495,29 +508,29 @@ class Mapbox extends React.Component {
         }
         // this is where alll nodes are removed
         if (tempCurrentSeq === -1) {
-        //     this.setState({
-        //         clickedNodes: [[]],
-        //         displayedMarker: [[]],
-        //         disableGetLink: true, 
-        //         disableNodeRemove: true,
-        //         disableNewSeq: true,
-        //         currentSequence:0,
-        //         disableLinkRemove: false,
-        //         sequenceColours: [this.getRandomColor()]
-        //    });
-        this.resetMap()
-       }
-       else{
-           this.setState({
-               clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
-               disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-               disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
-               disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1, 
-               currentSequence:tempCurrentSeq,
-               disableLinkRemove: false,
-               sequenceColours: tempColorArray
-           });
-       }
+            //     this.setState({
+            //         clickedNodes: [[]],
+            //         displayedMarker: [[]],
+            //         disableGetLink: true,
+            //         disableNodeRemove: true,
+            //         disableNewSeq: true,
+            //         currentSequence:0,
+            //         disableLinkRemove: false,
+            //         sequenceColours: [this.getRandomColor()]
+            //    });
+            this.resetMap()
+        }
+        else{
+            this.setState({
+                clickedNodes: newArray, displayedMarker: newDisplayedMarkerArray,
+                disableGetLink: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1,
+                disableNodeRemove: lastNodeNum <= 0 && tempCurrentSeq === -1,
+                disableNewSeq: tempCurrentSeq === this.state.currentSequence ? this.state.displayedMarker[tempCurrentSeq].length <= 2: this.state.displayedMarker[tempCurrentSeq].length <= 1,
+                currentSequence:tempCurrentSeq,
+                disableLinkRemove: false,
+                sequenceColours: tempColorArray
+            });
+        }
         this.props.onNodeUpdate(newArray);
         NotificationManager.success('Removed Last Node');
     }
@@ -609,16 +622,16 @@ class Mapbox extends React.Component {
                 </div> */}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect} disableBackdropClick={true}>
-                  <DialogTitle>Select a Closest Node</DialogTitle>
-                  <List>
-                      {this.state.nodeCandidates.map((nodeCandidate) => (
-                          <ListItem button onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)} key={nodeCandidate.nodeId}>
-                              <ListItemText primary={nodeCandidate.nodeId} />
-                          </ListItem>
-                      ))}
-                  </List>
+                    <DialogTitle>Select a Closest Node</DialogTitle>
+                    <List>
+                        {this.state.nodeCandidates.map((nodeCandidate) => (
+                            <ListItem button onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)} key={nodeCandidate.nodeId}>
+                                <ListItemText primary={nodeCandidate.nodeId} />
+                            </ListItem>
+                        ))}
+                    </List>
                 </Dialog>
-            
+
                 <div className="map-options">
                     <form className="reverse-seq-input" noValidate autoComplete="off">
                         <TextField label="Current Sequence" InputProps={{readOnly: true,}} value= {"Current Sequence #"+ this.state.currentSequence} />
