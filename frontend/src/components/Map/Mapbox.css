@@ -8,6 +8,12 @@
     height: 250px;
 }
 
+.mapboxgl-control-container{
+    z-index: 1 !important;
+    position: absolute;
+    pointer-events: none;
+}
+
 #reverseSeq-button {
     position: absolute;
     left: 125px;

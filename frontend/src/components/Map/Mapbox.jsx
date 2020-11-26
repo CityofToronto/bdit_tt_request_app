@@ -54,7 +54,7 @@ class Mapbox extends React.Component {
             zoom: this.state.zoom,
             attributionControl: false
         });
-        map.addControl(new mapboxgl.AttributionControl(), 'top-right');
+        map.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
         map.on('load', () => {
             map.loadImage(
                 arrowImage,
