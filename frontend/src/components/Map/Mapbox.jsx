@@ -299,7 +299,10 @@ class Mapbox extends React.Component {
             this.state.map.on('mouseleave', currSourceId + '2D', newMouseLeave);
             linkSources.push(currSourceId);
         });
-        this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources)});
+        this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources),
+            linkMouseEnter: tempLinkMouseEnter,
+            linkMouseLeave: tempLinkMouseLeave
+        });
     };
 
     removeAllLinkSources() {
