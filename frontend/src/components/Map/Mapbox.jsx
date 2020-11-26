@@ -39,7 +39,9 @@ class Mapbox extends React.Component {
             linksData: [],
             disableLinkRemove: false,
             nodeCandidates: [],
-            nodeCandidateSelect: false
+            nodeCandidateSelect: false,
+            linkMouseEnter: [],
+            linkMouseLeave: []
         };
     };
 
@@ -170,6 +172,8 @@ class Mapbox extends React.Component {
     drawLinks(linkDataArr, sequence) {
         let linkSources = [];
         let curr_map = this.state.map
+        let tempLinkMouseEnter = this.state.linkMouseEnter
+        let tempLinkMouseLeave = this.state.linkMouseLeave
         linkDataArr.forEach((link, index) => {
             const currSourceId = `route${sequence},${index}`;
             let overlappedBidirectionalCoor = [];
@@ -258,11 +262,22 @@ class Mapbox extends React.Component {
                     'icon-size': 0.1
                 }
             });
+            if(this.state.linkMouseEnter.length <= sequence){
+                tempLinkMouseEnter.push([])
+                tempLinkMouseLeave.push([])
+            }
+            else{
+                this.state.map.off('mouseenter', currSourceId + '1D', tempLinkMouseEnter[sequence][index]);
+                this.state.map.off('mouseleave', currSourceId + '1D', tempLinkMouseLeave[sequence][index]);
+                this.state.map.off('mouseenter', currSourceId + '2D', tempLinkMouseEnter[sequence][index]);
+                this.state.map.off('mouseleave', currSourceId + '2D', tempLinkMouseLeave[sequence][index]);
+                tempLinkMouseEnter[sequence] = []
+            }
             let popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
             });
-            function onMouseEnter(e){
+            let newMouseEnter = function onMouseEnter(e){
                 curr_map.getCanvas().style.cursor = 'pointer';
                 let coordinates = e.lngLat;
                 let description = link.path_name;
@@ -271,18 +286,16 @@ class Mapbox extends React.Component {
                 }
                 popup.setLngLat(coordinates).setHTML(description).addTo(curr_map);
             }
-            function onMouseLeave() {
+            let newMouseLeave = function onMouseLeave() {
                 curr_map.getCanvas().style.cursor = '';
                 popup.remove();
             }
-            this.state.map.off('mouseenter', currSourceId + '1D', onMouseEnter);
-            this.state.map.on('mouseenter', currSourceId + '1D', onMouseEnter);
-            this.state.map.off('mouseleave', currSourceId + '1D', onMouseLeave);
-            this.state.map.on('mouseleave', currSourceId + '1D', onMouseLeave);
-            this.state.map.off('mouseenter', currSourceId + '2D', onMouseEnter);
-            this.state.map.on('mouseenter', currSourceId + '2D', onMouseEnter);
-            this.state.map.off('mouseleave', currSourceId + '2D', onMouseLeave);
-            this.state.map.on('mouseleave', currSourceId + '2D', onMouseLeave);
+            tempLinkMouseEnter[sequence].push(newMouseEnter)
+            tempLinkMouseLeave[sequence].push(newMouseLeave)
+            this.state.map.on('mouseenter', currSourceId + '1D', newMouseEnter);
+            this.state.map.on('mouseleave', currSourceId + '1D', newMouseLeave);
+            this.state.map.on('mouseenter', currSourceId + '2D', newMouseEnter);
+            this.state.map.on('mouseleave', currSourceId + '2D', newMouseLeave);
             linkSources.push(currSourceId);
         });
         this.setState({displayedLinkSources: this.state.displayedLinkSources.concat(linkSources)});
