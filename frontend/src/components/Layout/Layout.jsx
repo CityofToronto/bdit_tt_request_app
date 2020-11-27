@@ -3,6 +3,7 @@ import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
+import { parseTimePeriods, formattedTimeString } from "./DateTimeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
 
@@ -31,8 +32,8 @@ class Layout extends React.Component {
             ranges: [{
                 startDate: new Date(MIN_DATE),
                 endDate: new Date(MAX_DATE),
-                startTime: this.formattedTimeString(MIN_DATE),
-                endTime: this.formattedTimeString(MAX_DATE),
+                startTime: formattedTimeString(MIN_DATE),
+                endTime: formattedTimeString(MAX_DATE),
                 daysOfWeek: [true, true, true, true, true, true, true],
                 includeHolidays: false
             }],
@@ -224,7 +225,7 @@ class Layout extends React.Component {
                 allLinkDirs.push(tmpLinkDirs);
             });
 
-            const list_of_time_periods = this.parseTimePeriods();
+            const list_of_time_periods = parseTimePeriods(this.state.ranges);
             if (!list_of_time_periods) {
                 alert("Must complete all of start date, end date, start time and end time!");
                 return;
@@ -247,60 +248,6 @@ class Layout extends React.Component {
             this.setState({disableGetButton: false});
         }
 
-    }
-
-    formattedDateString(datetime) {
-        const year = datetime.getFullYear();
-        const month = this.zeroPadNumber(datetime.getMonth() + 1);
-        const date = this.zeroPadNumber(datetime.getDate());
-
-        return `${year}-${month}-${date}`;
-    }
-
-    formattedTimeString(datetime) {
-        const hour = this.zeroPadNumber(datetime.getHours());
-        const minute = this.zeroPadNumber(datetime.getMinutes());
-
-        return `${hour}:${minute}`;
-    }
-
-    zeroPadNumber(number) {
-        let padded = number.toString();
-        if (padded.length < 2) {
-            padded = "0" + padded;
-        }
-        return padded;
-    }
-
-    parseTimePeriods() {
-        let timePeriods = [];
-        let succeeded = true;
-        this.state.ranges.forEach(value => {
-            if (!succeeded || !value || !value.startDate || !value.endDate || !value.startTime || !value.endTime) {
-                succeeded = false;
-                return;
-            }
-
-            const startDateStr = this.formattedDateString(value.startDate);
-            const endDateStr = this.formattedDateString(value.endDate);
-            const startTimeStr = value.startTime;
-            const endTimeStr = value.endTime;
-
-            timePeriods.push({
-                "start_time": startTimeStr,
-                "end_time": endTimeStr,
-                "start_date": startDateStr,
-                "end_date": endDateStr,
-                "days_of_week": value.daysOfWeek,
-                "include_holidays": value.includeHolidays
-            });
-        });
-
-        if (succeeded) {
-            return timePeriods;
-        } else {
-            return null;
-        }
     }
 
     render() {
