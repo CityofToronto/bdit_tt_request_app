@@ -3,6 +3,7 @@ import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
+import { MIN_DATE, MAX_DATE } from "./Range";
 import { parseTimePeriods, formattedTimeString } from "./DateTimeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
@@ -17,8 +18,6 @@ export const DAYS_OF_WEEK_MAPPING = [
     "Sunday"
 ];
 
-export const MAX_DATE = new Date("2018-09-30 19:55:00");
-export const MIN_DATE = new Date("2018-09-01 00:00:00");
 
 class Layout extends React.Component {
     constructor(props) {
