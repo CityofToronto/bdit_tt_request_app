@@ -41,7 +41,8 @@ class Mapbox extends React.Component {
             nodeCandidates: [],
             nodeCandidateSelect: false,
             linkMouseEnter: [],
-            linkMouseLeave: []
+            linkMouseLeave: [],
+            linksOnMap: false
         };
     };
 
@@ -107,7 +108,8 @@ class Mapbox extends React.Component {
             disableDragMarker: false,
             disableNewSeq: true,
             currentSequence: 0,
-            selectedSeq: ""
+            selectedSeq: "",
+            linksOnMap: false
         });
     }
 
@@ -149,7 +151,8 @@ class Mapbox extends React.Component {
             disableAddMarker: false,
             disableDragMarker: false,
             disableNewSeq: false,
-            disableLinkRemove: false
+            disableLinkRemove: false,
+            linksOnMap: true
         });
         this.props.onLinkUpdate(linkDataArr);
     };
@@ -316,7 +319,7 @@ class Mapbox extends React.Component {
             this.state.map.removeSource(linkSrc + '1D');
             this.state.map.removeSource(linkSrc + '2D');
         });
-        this.setState({displayedLinkSources: [], linksData:[]});
+        this.setState({displayedLinkSources: [], linksData:[], linksOnMap: false});
         NotificationManager.success('Updated Links');
     }
 
@@ -609,8 +612,14 @@ class Mapbox extends React.Component {
             clickedNodes: this.state.clickedNodes.concat([newClickedNodes]),
             sequenceColours: this.state.sequenceColours.concat([newColor]),
             selectedSeq: ""
-        },() => this.getLink());
+        },() => this.checkLink());
         this.props.onNodeUpdate(this.state.clickedNodes.concat([newClickedNodes]));
+    }
+
+    checkLink() {
+        if (this.state.linksOnMap){
+            this.getLink()
+        }
     }
 
     render() {
