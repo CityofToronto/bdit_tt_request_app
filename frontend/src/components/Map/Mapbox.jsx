@@ -154,19 +154,41 @@ class Mapbox extends React.Component {
         this.props.onLinkUpdate(linkDataArr);
     };
 
-    checkIfLinkDirDrawn(checkCoor) {
+    checkIfLinkDirDrawn(checkCoor, bidirection, other) {
         let holdCoorArr = [];
         for (let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++) {
             holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates;
-            for (let coorIndex = 0; coorIndex < holdCoorArr.length; coorIndex++) {
-                if (JSON.stringify(holdCoorArr[coorIndex][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])) {
-                    if (JSON.stringify(holdCoorArr[coorIndex][holdCoorArr[coorIndex].length - 1]) === JSON.stringify(checkCoor[0])) {
+            if(this.checkArrHelper1(checkCoor, holdCoorArr)){
+                return true
+            }
+        }
+        return this.checkArrHelper2(checkCoor, bidirection) || this.checkArrHelper2(checkCoor, other)
+    }
+
+    checkArrHelper1(checkCoor, arr){
+        for (let index = 0; index < arr.length; index++) {
+            if (JSON.stringify(arr[index][0]) === JSON.stringify(checkCoor[checkCoor.length - 1])) {
+                if (JSON.stringify(arr[index][arr[index].length - 1]) === JSON.stringify(checkCoor[0])) {
+                    return true;
+                }
+            }
+        }
+        return false
+    }
+
+    checkArrHelper2(checkCoor, arr){
+        let holdCoorArr = [];
+        for (let linkPartIndex = 0; linkPartIndex < arr.length; linkPartIndex++) {
+            for (let index = 0; index < arr[linkPartIndex].length; index++) {
+                holdCoorArr = arr[linkPartIndex][index];
+                if (JSON.stringify(holdCoorArr[0]) === JSON.stringify(checkCoor[checkCoor.length - 1])) {
+                    if (JSON.stringify(holdCoorArr[holdCoorArr.length - 1]) === JSON.stringify(checkCoor[0])){
                         return true;
                     }
                 }
             }
         }
-        return false;
+        return false
     }
 
     drawLinks(linkDataArr, sequence) {
@@ -174,6 +196,8 @@ class Mapbox extends React.Component {
         let curr_map = this.state.map
         let tempLinkMouseEnter = this.state.linkMouseEnter
         let tempLinkMouseLeave = this.state.linkMouseLeave
+        let notOverlappedCoors = []
+        let overlappedBidirectionalCoors = []
         linkDataArr.forEach((link, index) => {
             const currSourceId = `route${sequence},${index}`;
             let overlappedBidirectionalCoor = [];
@@ -185,12 +209,14 @@ class Mapbox extends React.Component {
             }
 
             for (let i = 0; i < link.link_dirs.length; i++) {
-                if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i])) {
+                if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i], overlappedBidirectionalCoors, notOverlappedCoors)) {
                     overlappedBidirectionalCoor.push(link.geometry.coordinates[i]);
                 } else {
                     notOverlappedCoor.push(link.geometry.coordinates[i]);
                 }
             }
+            notOverlappedCoors.push(notOverlappedCoor)
+            overlappedBidirectionalCoors.push(overlappedBidirectionalCoor)
             this.state.map.addSource(currSourceId + '1D', {
                 'type': 'geojson',
                 'maxzoom': 24,
@@ -307,7 +333,6 @@ class Mapbox extends React.Component {
 
     removeAllLinkSources() {
         this.props.removeAllLinks();
-        console.log(this.state.displayedLinkSources)
         this.state.displayedLinkSources.forEach(linkSrc => {
             this.state.map.removeLayer(linkSrc + '1DL2');
             this.state.map.removeLayer(linkSrc + '2DL2');
