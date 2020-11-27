@@ -60,4 +60,44 @@ class DatetimeRange{
 
 }
 
-export default DatetimeRange;
+export class RangeBuilder{
+    constructor() {
+        this.range = new DatetimeRange();
+    }
+
+    setStartTime(startTime){
+        this.range.setStartTime(startTime);
+        return this;
+    }
+
+    setEndTime(endTime){
+        this.range.setEndTime(endTime);
+        return this;
+    }
+
+    setStartDate(startDate){
+        this.range.setStartDate(startDate);
+        return this;
+    }
+
+    setEndDate(endDate){
+        this.range.setEndDate(endDate);
+        return this;
+    }
+
+    setDaysOfWeek(daysOfWeek){
+        this.range.setDaysOfWeek(daysOfWeek);
+        return this;
+    }
+
+    setIncludeHolidays(includeHolidays){
+        this.range.setIncludeHolidays(includeHolidays);
+        return this;
+    }
+
+    getRange(){
+        return this.range;
+    }
+}
+
+export default RangeBuilder;
