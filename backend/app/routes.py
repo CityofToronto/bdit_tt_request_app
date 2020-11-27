@@ -55,8 +55,7 @@ def get_closest_node(longitude, latitude):
 
     nodes_ascend_dist_order_query_result = Node.query \
         .with_entities(Node.node_id, Node.geom.ST_AsGeoJSON()) \
-        .order_by(func.ST_Distance(func.ST_Transform(Node.geom, METER_UNIT_SRID),
-                                   _transform_to_meter_srid(origin_point)).asc())
+        .order_by(func.ST_Transform(Node.geom, METER_UNIT_SRID).op('<->')(_transform_to_meter_srid(origin_point)).asc())
 
     ten_closest_nodes = []
     node_count = 0

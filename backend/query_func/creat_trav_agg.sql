@@ -1,9 +1,4 @@
---------------------------------------------------------------------------------------------------------------
---INPUTS
---------------------------------------------------------------------------------------------------------------
--- user's selected time range 
--- period (text): name of period (e.g. 'AM Peak')
--- time_range (timerange): time range of each period (e.g.'[07:00:00,10:00:00)' for 7am to 10am)
+
 WITH selected_time_range AS (
 	SELECT 		period, 
 				time_range, 
@@ -26,7 +21,7 @@ WITH selected_time_range AS (
 -- dow: day of week (e.g. Monday = 1)
 -- is_holiday (Boolean): include holiday or not (e.g. TRUE if include)
 , date_info(start_date, end_date, dow, is_holiday) AS (
-		VALUES ('2020-09-01'::date, '2020-09-15'::date, '{1,2,3,5,6}'::int[], TRUE))
+		VALUES ('2018-09-01'::date, '2018-09-15'::date, '{1,2,3,5,6}'::int[], TRUE))
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- calculate num_days, and interested date
@@ -35,7 +30,7 @@ WITH selected_time_range AS (
 		  (COUNT (dt) OVER ()) as requested_days
 	FROM (SELECT start_date, end_date, dow, is_holiday, generate_series(start_date, end_date, '1 day'::interval)::date as dt 
 		   FROM date_info) dates
-	LEFT JOIN ref.holiday holiday using (dt)
+	LEFT JOIN holiday holiday using (dt)
 	WHERE date_part('isodow', dt::date)::int = ANY(dow)
             AND (((is_holiday is FALSE AND holiday.dt is null)) OR (is_holiday)))
 
@@ -48,7 +43,7 @@ WITH selected_time_range AS (
 		  selected_routes
 		 )a
 	
-    INNER JOIN here.routing_streets_19_4_tc using (link_dir)
+    INNER JOIN here_links using (link_dir)
 )
 
 -- number of segments in an id corridor
@@ -62,8 +57,8 @@ WITH selected_time_range AS (
 
 -- hourly travel time for each link
 , link_hourly AS (
-	SELECT  	id, 
-				link_dir, 
+	SELECT  	study_link.id,
+				link_dir,
 				here_length,
 				datetime_bin(tx, 60) AS datetime_bin, 
 				period,
@@ -72,11 +67,11 @@ WITH selected_time_range AS (
 				requested_days,
 				requested_days * num_5_bin AS total_requested_num_5
 	FROM 		study_link
-	INNER JOIN here.ta a using (link_dir)
+	INNER JOIN travel a using (link_dir)
 	CROSS JOIN selected_time_range
 	INNER JOIN selected_date_range ON dt = date_trunc('day', tx) -- user requested date range
 	WHERE tx::time <@ time_range
-	GROUP BY id, link_dir, period, datetime_bin, here_length, requested_days, total_requested_num_5
+	GROUP BY study_link.id, link_dir, period, datetime_bin, here_length, requested_days, total_requested_num_5
 )
 
 -- sum up link level travel time to get hourly corridor travel time 
