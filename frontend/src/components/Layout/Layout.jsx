@@ -352,7 +352,7 @@ class Layout extends React.Component {
                         onClick={() => this.onSetSidebarOpen(true)}
                         style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
                     >
-                        Open Sidebar
+                        Edit Query
                     </Button>
                 </Sidebar>
                 <Mapbox
