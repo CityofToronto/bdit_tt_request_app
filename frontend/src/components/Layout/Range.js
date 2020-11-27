@@ -60,7 +60,7 @@ class DatetimeRange{
 
 }
 
-export class RangeBuilder{
+class RangeBuilder{
     constructor() {
         this.range = new DatetimeRange();
     }
@@ -100,4 +100,18 @@ export class RangeBuilder{
     }
 }
 
-export default RangeBuilder;
+class RangeFactory{
+    static newRange(params){
+        let startDate = params.startDate !== undefined ? params.startDate : MIN_DATE;
+        let endDate = params.endDate !== undefined ? params.endDate : MAX_DATE;
+        let startTime = params.startTime !== undefined ? params.startTime : formattedTimeString(MIN_DATE);
+        let endTime = params.endTime !== undefined ? params.endTime : formattedTimeString(MAX_DATE);
+        let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
+        let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
+
+        return new RangeBuilder().setStartDate(startDate).setEndDate(endDate).setStartTime(startTime)
+            .setEndTime(endTime).setDaysOfWeek(daysOfWeek).setIncludeHolidays(includeHolidays).getRange();
+    }
+}
+
+export default RangeFactory;
