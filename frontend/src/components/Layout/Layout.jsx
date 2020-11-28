@@ -70,14 +70,7 @@ class Layout extends React.Component {
     addRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
-        ranges.push({
-            startDate: new Date(MIN_DATE),
-            endDate: new Date(MAX_DATE),
-            startTime: this.formattedTimeString(MIN_DATE),
-            endTime: this.formattedTimeString(MAX_DATE),
-            daysOfWeek: [true, true, true, true, true, true, true],
-            includeHolidays: false
-        });
+        ranges.push(RangeFactory.newRange({}));
         this.setState({
             numRanges: numRanges + 1,
             activeRange: numRanges,
@@ -88,15 +81,16 @@ class Layout extends React.Component {
     replicateRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        ranges.push({
-            startDate: activeRange.startDate,
-            endDate: activeRange.endDate,
-            startTime: activeRange.startTime,
-            endTime: activeRange.endTime,
-            daysOfWeek: activeRange.daysOfWeek,
-            includeHolidays: activeRange.includeHolidays
-        });
+        let activeRange = ranges[this.state.activeRange];
+        let params = {};
+        params.startDate = activeRange.getStartDate();
+        params.endDate = activeRange.getEndDate();
+        params.startTime = activeRange.getStartTime();
+        params.endTime = activeRange.getEndTime();
+        params.daysOfWeek = activeRange.getDaysOfWeek();
+        params.includeHolidays = activeRange.getIncludeHolidays();
+        ranges.push(RangeFactory.newRange(params));
+
         this.setState({
             numRanges: numRanges + 1,
             activeRange: numRanges,
@@ -244,8 +238,7 @@ class Layout extends React.Component {
 
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
-        let updatedRange = RangeFactory.newRange(params);
-        ranges[this.state.activeRange] = updatedRange;
+        ranges[this.state.activeRange] = RangeFactory.newRange(params);
         this.setState({ ranges: ranges });
     }
 
