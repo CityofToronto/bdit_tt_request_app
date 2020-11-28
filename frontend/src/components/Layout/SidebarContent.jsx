@@ -40,7 +40,7 @@ class SidebarContent extends React.Component {
     startTimeChange(value){
         let params = this.props.activeRange.getParams();
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
-        params.endTime = new Date(dateStr);
+        params.startTime = new Date(dateStr);
         this.props.replaceActiveRange(params)
     }
 
@@ -48,7 +48,6 @@ class SidebarContent extends React.Component {
         let params = this.props.activeRange.getParams();
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
         params.endTime = new Date(dateStr);
-        console.log(params.endTime);
         this.props.replaceActiveRange(params);
     }
 
@@ -58,7 +57,7 @@ class SidebarContent extends React.Component {
         this.props.replaceActiveRange(params);
     }
 
-    includeHolidaysChange(event){
+    includeHolidaysChange(){
         let params = this.props.activeRange.getParams();
         params.includeHolidays = !params.includeHolidays;
         this.props.replaceActiveRange(params);

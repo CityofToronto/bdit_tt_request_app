@@ -3,8 +3,8 @@ import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
-import RangeFactory, { MIN_DATE, MAX_DATE } from "./Range";
-import { parseTimePeriods, formattedTimeString } from "./DateTimeParser";
+import RangeFactory from "./Range";
+import { parseTimePeriods } from "./DateTimeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
 
@@ -155,81 +155,6 @@ class Layout extends React.Component {
         this.setState({fileType: e.target.value});
     }
 
-    updatePreset = (event) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        switch (event.value) {
-            case "Working Week Morning":
-                activeRange.startTime = "06:00";
-                activeRange.endTime = "09:00";
-                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
-                ranges[this.state.activeRange] = activeRange;
-                this.setState({ranges: ranges});
-                break;
-
-            case "Working Week Night":
-                activeRange.startTime = "15:00";
-                activeRange.endTime = "18:00";
-                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
-                ranges[this.state.activeRange] = activeRange;
-                this.setState({ranges: ranges});
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    onStartDateChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.startDate = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onEndDateChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.endDate = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onStartTimeChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.startTime = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onEndTimeChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.endTime = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onDaysOfWeekChange = (index) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        let newDaysOfWeek = [...activeRange.daysOfWeek];
-        newDaysOfWeek[index] = !newDaysOfWeek[index];
-        activeRange.daysOfWeek = newDaysOfWeek;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    handleHolidays = () => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.includeHolidays = !activeRange.includeHolidays;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
         ranges[this.state.activeRange] = RangeFactory.newRange(params);
@@ -237,18 +162,13 @@ class Layout extends React.Component {
     }
 
     render() {
-        const presets = ["Working Week Morning", "Working Week Night", "Custom"];
         const activeRange = this.state.ranges[this.state.activeRange];
         return (
             <div>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
-
                         onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
-
-                        presets={presets}
-                        onPresetChange={this.updatePreset.bind(this)}
                         range={this.state.activeRange}
 
                         onGo={this.downloadData}

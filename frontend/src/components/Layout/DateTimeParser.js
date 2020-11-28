@@ -51,7 +51,6 @@ export function formattedTimeString(datetime) {
 
 export function parseTime(string){
     let parts = string.split(":");
-    console.log(parts);
     const hour = zeroPadNumber(parseInt(parts[0]));
     const minute = zeroPadNumber(parseInt(parts[1]));
 
