@@ -1,5 +1,11 @@
 #sidebar-container{
-    margin-left: 20px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin: 20px 10px 20px 20px;
+}
+
+.presets{
+    width: 250px;
+}
+
+.download{
+    left: 25%;
 }

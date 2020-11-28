@@ -68,9 +68,40 @@ class SidebarContent extends React.Component {
 
         return (
             <div id="sidebar-container">
-                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
+                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
+
                     <Grid item>
-                        <Grid container direction="row" alignItems="center" alignContent="center" spacing={2}>
+                        <div
+                            ref={React.createRef()}>
+                            File Type:
+                            <Select
+                                native
+                                defaultValue={"csv"}
+                                onChange={this.props.onFileTypeUpdate}
+                            >
+                                <option value={"csv"}>csv</option>
+                                <option value={"xlsx-time"}>xlsx (worksheet by time period)</option>
+                                <option value={"xlsx-seg"}>xlsx (worksheet by segments)</option>
+                                <option value={"xlsx-none"}>xlsx (single worksheet)</option>
+                            </Select>
+                        </div>
+                    </Grid>
+
+                    <Grid item>
+
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.props.onGo}
+                            disabled={this.props.disableGetButton}
+                            className={"download"}
+                        >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                        </Button>
+                    </Grid>
+
+
+                    <Grid item>
+                        <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
                             <Grid item>
                                 <h5>Current time range: </h5>
                             </Grid>
@@ -84,6 +115,7 @@ class SidebarContent extends React.Component {
                             </Grid>
                         </Grid>
                     </Grid>
+
 
                     <Grid item>
                         <Grid container direction="column" alignContent="flex-start" alignItems="flex-start" spacing={1}>
@@ -112,7 +144,7 @@ class SidebarContent extends React.Component {
 
 
                     <Grid item>
-                        <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={2}>
+                        <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={1}>
                             <Grid item>
                                 <h5>Apply Preset:</h5>
                             </Grid>
@@ -121,59 +153,70 @@ class SidebarContent extends React.Component {
                                     options={Presets.getPresets()}
                                     value={params.preset}
                                     onChange={this.updatePreset.bind(this)}
+                                    className={"presets"}
                                 />
                             </Grid>
                         </Grid>
                     </Grid>
 
+
                     <Grid item>
                         <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={1}>
                             <Grid item>
-                                <h5>Start Date</h5>
-                                <DatePicker required={true} locale={"en-CA"}
-                                            maxDate={MAX_DATE}
-                                            minDate={MIN_DATE}
-                                            format={"y-MM-dd"}
-                                            value={params.startDate}
-                                            onChange={this.startDateChange.bind(this)}
-                                />
+                                <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
+                                    <Grid item>
+                                        <h5>Start Date</h5>
+                                        <DatePicker required={true} locale={"en-CA"}
+                                                    maxDate={MAX_DATE}
+                                                    minDate={MIN_DATE}
+                                                    format={"y-MM-dd"}
+                                                    value={params.startDate}
+                                                    onChange={this.startDateChange.bind(this)}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <h5>End Date</h5>
+                                        <DatePicker required={true}
+                                                    locale={"en-CA"}
+                                                    maxDate={MAX_DATE}
+                                                    minDate={MIN_DATE}
+                                                    format={"y-MM-dd"}
+                                                    value={params.endDate}
+                                                    onChange={this.endDateChange.bind(this)}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
 
-                            <Grid item>
-                                <h5>End Date</h5>
-                                <DatePicker required={true}
-                                            locale={"en-CA"}
-                                            maxDate={MAX_DATE}
-                                            minDate={MIN_DATE}
-                                            format={"y-MM-dd"}
-                                            value={params.endDate}
-                                            onChange={this.endDateChange.bind(this)}
-                                />
-                            </Grid>
 
                             <Grid item>
-                                <h5>Start Time</h5>
-                                <TimePicker required={true}
-                                            format={"HH:mm"}
-                                            locale={"en-CA"}
-                                            maxDetail={"minute"}
-                                            disableClock={true}
-                                            value={params.startTime}
-                                            onChange={this.startTimeChange.bind(this)}
-                                />
+                                <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
+                                    <Grid item>
+                                        <h5>Start Time</h5>
+                                        <TimePicker required={true}
+                                                    format={"HH:mm"}
+                                                    locale={"en-CA"}
+                                                    maxDetail={"minute"}
+                                                    disableClock={true}
+                                                    value={params.startTime}
+                                                    onChange={this.startTimeChange.bind(this)}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <h5 className={"endTimeLabel"}>End Time</h5>
+                                        <TimePicker required={true}
+                                                    format={"HH:mm"}
+                                                    locale={"en-CA"}
+                                                    maxDetail={"minute"}
+                                                    disableClock={true}
+                                                    value={params.endTime}
+                                                    onChange={this.endTimeChange.bind(this)}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
 
-                            <Grid item>
-                                <h5 className={"endTimeLabel"}>End Time</h5>
-                                <TimePicker required={true}
-                                            format={"HH:mm"}
-                                            locale={"en-CA"}
-                                            maxDetail={"minute"}
-                                            disableClock={true}
-                                            value={params.endTime}
-                                            onChange={this.endTimeChange.bind(this)}
-                                />
-                            </Grid>
+
                         </Grid>
                     </Grid>
 
@@ -236,33 +279,7 @@ class SidebarContent extends React.Component {
                         />
                     </Grid>
 
-                    <Grid item>
-                        <div
-                            ref={React.createRef()}>
-                            File Type:
-                            <Select
-                                native
-                                defaultValue={"csv"}
-                                onChange={this.props.onFileTypeUpdate}
-                            >
-                                <option value={"csv"}>csv</option>
-                                <option value={"xlsx-time"}>xlsx (worksheet by time period)</option>
-                                <option value={"xlsx-seg"}>xlsx (worksheet by segments)</option>
-                                <option value={"xlsx-none"}>xlsx (single worksheet)</option>
-                            </Select>
-                        </div>
-                    </Grid>
 
-                    <Grid item>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.props.onGo}
-                            disabled={this.props.disableGetButton}
-                        >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
-                        </Button>
-                    </Grid>
 
 
                 </Grid>
