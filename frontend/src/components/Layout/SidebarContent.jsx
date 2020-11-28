@@ -16,11 +16,51 @@ import { MAX_DATE, MIN_DATE } from "./Range";
 
 class SidebarContent extends React.Component {
 
+    getActiveParams() {
+        let params = {};
+        params.startDate = this.props.activeRange.getStartDate();
+        params.endDate = this.props.activeRange.getEndDate();
+        params.startTime = this.props.activeRange.getStartTime();
+        params.endTime = this.props.activeRange.getEndTime();
+        params.daysOfWeek = this.props.activeRange.getDaysOfWeek();
+        params.includeHolidays = this.props.activeRange.getIncludeHolidays();
+        return params;
+    }
+
+    updatePreset(event){
+
+    }
+
+    startDateChange(event){
+
+    }
+
+    endDateChange(event){
+
+    }
+
+    startTimeChange(event){
+
+    }
+
+    endTimeChange(event){
+
+    }
+
+    daysOfWeekChange(index){
+
+    }
+
+    includeHolidaysChange(event){
+
+    }
+
     render() {
         let rangePickerOptions = [];
         for (let i = 0; i < this.props.dateTimeRanges; i++) {
             rangePickerOptions.push(`Range ${i + 1}`);
         }
+        let params = this.getActiveParams();
 
         return (
             <div id="sidebar-container">
@@ -74,9 +114,9 @@ class SidebarContent extends React.Component {
                             </Grid>
                             <Grid item>
                                 <Dropdown
-                                    options={this.props.presets}
+                                    options={["Default"]}
                                     placeholder={"Presets"}
-                                    onChange={this.props.onPresetChange}
+                                    onChange={this.updatePreset}
                                 />
                             </Grid>
                         </Grid>
@@ -90,8 +130,8 @@ class SidebarContent extends React.Component {
                                             maxDate={MAX_DATE}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
-                                            value={this.props.startDate}
-                                            onChange={this.props.onStartDateChange}
+                                            value={params.startDate}
+                                            onChange={this.startDateChange}
                                 />
                             </Grid>
 
@@ -102,8 +142,8 @@ class SidebarContent extends React.Component {
                                             maxDate={MAX_DATE}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
-                                            value={this.props.endDate}
-                                            onChange={this.props.onEndDateChange}
+                                            value={params.endDate}
+                                            onChange={this.endDateChange}
                                 />
                             </Grid>
 
@@ -114,8 +154,8 @@ class SidebarContent extends React.Component {
                                             locale={"en-CA"}
                                             maxDetail={"minute"}
                                             disableClock={true}
-                                            value={this.props.startTime}
-                                            onChange={this.props.onStartTimeChange}
+                                            value={params.startTime}
+                                            onChange={this.startTimeChange}
                                 />
                             </Grid>
 
@@ -126,8 +166,8 @@ class SidebarContent extends React.Component {
                                             locale={"en-CA"}
                                             maxDetail={"minute"}
                                             disableClock={true}
-                                            value={this.props.endTime}
-                                            onChange={this.props.onEndTimeChange}
+                                            value={params.endTime}
+                                            onChange={this.endTimeChange}
                                 />
                             </Grid>
                         </Grid>
@@ -138,44 +178,44 @@ class SidebarContent extends React.Component {
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[0]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 0)}
+                                    control={<Checkbox checked={params.daysOfWeek[0]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 0)}
                                                        name={DAYS_OF_WEEK_MAPPING[0]}/>}
                                     label="Monday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[1]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 1)}
+                                    control={<Checkbox checked={params.daysOfWeek[1]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 1)}
                                                        name={DAYS_OF_WEEK_MAPPING[1]}/>}
                                     label="Tuesday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[2]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 2)}
+                                    control={<Checkbox checked={params.daysOfWeek[2]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 2)}
                                                        name={DAYS_OF_WEEK_MAPPING[2]}/>}
                                     label="Wednesday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[3]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 3)}
+                                    control={<Checkbox checked={params.daysOfWeek[3]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 3)}
                                                        name={DAYS_OF_WEEK_MAPPING[3]}/>}
                                     label="Thursday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[4]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 4)}
+                                    control={<Checkbox checked={params.daysOfWeek[4]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 4)}
                                                        name={DAYS_OF_WEEK_MAPPING[4]}/>}
                                     label="Friday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[5]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 5)}
+                                    control={<Checkbox checked={params.daysOfWeek[5]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 5)}
                                                        name={DAYS_OF_WEEK_MAPPING[5]}/>}
                                     label="Saturday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={this.props.daysOfWeek[6]}
-                                                       onChange={this.props.onDaysOfWeekChange.bind(this, 6)}
+                                    control={<Checkbox checked={params.daysOfWeek[6]}
+                                                       onChange={this.daysOfWeekChange.bind(this, 6)}
                                                        name={DAYS_OF_WEEK_MAPPING[6]}/>}
                                     label="Sunday"
                                 />
@@ -185,8 +225,8 @@ class SidebarContent extends React.Component {
 
                     <Grid item>
                         <FormControlLabel
-                            control={<Checkbox checked={this.props.includeHolidays}
-                                               onChange={this.props.onHolidayUpdate}
+                            control={<Checkbox checked={params.includeHolidays}
+                                               onChange={this.includeHolidaysChange}
                                                name={"holiday"}/>}
                             label="Include Holidays"
                         />

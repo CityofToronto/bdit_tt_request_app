@@ -3,7 +3,7 @@ import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
-import { MIN_DATE, MAX_DATE } from "./Range";
+import RangeFactory, { MIN_DATE, MAX_DATE } from "./Range";
 import { parseTimePeriods, formattedTimeString } from "./DateTimeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
@@ -28,14 +28,7 @@ class Layout extends React.Component {
             linksList: [],
             numRanges: 1,
             activeRange: 0,
-            ranges: [{
-                startDate: new Date(MIN_DATE),
-                endDate: new Date(MAX_DATE),
-                startTime: formattedTimeString(MIN_DATE),
-                endTime: formattedTimeString(MAX_DATE),
-                daysOfWeek: [true, true, true, true, true, true, true],
-                includeHolidays: false
-            }],
+            ranges: [RangeFactory.newRange({})],
             fileType: "csv",
             disableGetButton: false
         };
@@ -133,12 +126,45 @@ class Layout extends React.Component {
         });
     }
 
-    handleHolidays = () => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.includeHolidays = !activeRange.includeHolidays;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
+    downloadData = () => {
+
+        if (this.state.linksList.length !== 0) {
+            let allLinkDirs = [];
+            this.state.linksList.forEach((seq) => {
+                let tmpLinkDirs = [];
+                seq.forEach((link) => {
+                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
+                });
+                allLinkDirs.push(tmpLinkDirs);
+            });
+
+            const list_of_time_periods = parseTimePeriods(this.state.ranges);
+            if (!list_of_time_periods) {
+                alert("Must complete all of start date, end date, start time and end time!");
+                return;
+            }
+
+            const fileData = this.state.fileType.split("-");
+            let params = {
+                listOfTimePeriods: list_of_time_periods,
+                listOfLinkDirs: allLinkDirs,
+                fileType: fileData[0],
+                fileArgs: fileData[1]
+            };
+
+            this.setState({disableGetButton: true});
+            getTravelDataFile(params, () => {
+                this.setState({disableGetButton: false});
+            });
+        } else {
+            alert("Please get links first");
+            this.setState({disableGetButton: false});
+        }
+
+    }
+
+    onFileTypeUpdate = (e) => {
+        this.setState({fileType: e.target.value});
     }
 
     updatePreset = (event) => {
@@ -208,45 +234,19 @@ class Layout extends React.Component {
         this.setState({ranges: ranges});
     }
 
-    onFileTypeUpdate = (e) => {
-        this.setState({fileType: e.target.value});
+    handleHolidays = () => {
+        let ranges = [...this.state.ranges];
+        let activeRange = {...ranges[this.state.activeRange]};
+        activeRange.includeHolidays = !activeRange.includeHolidays;
+        ranges[this.state.activeRange] = activeRange;
+        this.setState({ranges: ranges});
     }
 
-    downloadData = () => {
-
-        if (this.state.linksList.length !== 0) {
-            let allLinkDirs = [];
-            this.state.linksList.forEach((seq) => {
-                let tmpLinkDirs = [];
-                seq.forEach((link) => {
-                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
-                });
-                allLinkDirs.push(tmpLinkDirs);
-            });
-
-            const list_of_time_periods = parseTimePeriods(this.state.ranges);
-            if (!list_of_time_periods) {
-                alert("Must complete all of start date, end date, start time and end time!");
-                return;
-            }
-
-            const fileData = this.state.fileType.split("-");
-            let params = {
-                listOfTimePeriods: list_of_time_periods,
-                listOfLinkDirs: allLinkDirs,
-                fileType: fileData[0],
-                fileArgs: fileData[1]
-            };
-
-            this.setState({disableGetButton: true});
-            getTravelDataFile(params, () => {
-                this.setState({disableGetButton: false});
-            });
-        } else {
-            alert("Please get links first");
-            this.setState({disableGetButton: false});
-        }
-
+    replaceActiveRange = (params) => {
+        let ranges = [...this.state.ranges];
+        let updatedRange = RangeFactory.newRange(params);
+        ranges[this.state.activeRange] = updatedRange;
+        this.setState({ ranges: ranges });
     }
 
     render() {
@@ -260,33 +260,20 @@ class Layout extends React.Component {
 
                         onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
 
-                        onHolidayUpdate={this.handleHolidays.bind(this)}
-                        includeHolidays={activeRange.includeHolidays}
-
                         presets={presets}
                         onPresetChange={this.updatePreset.bind(this)}
+                        range={this.state.activeRange}
 
                         onGo={this.downloadData}
-
-                        onStartDateChange={this.onStartDateChange.bind(this)}
-                        startDate={activeRange.startDate}
-                        onEndDateChange={this.onEndDateChange.bind(this)}
-                        endDate={activeRange.endDate}
-
-                        onStartTimeChange={this.onStartTimeChange.bind(this)}
-                        startTime={activeRange.startTime}
-                        onEndTimeChange={this.onEndTimeChange.bind(this)}
-                        endTime={activeRange.endTime}
-
-                        daysOfWeek={activeRange.daysOfWeek}
-                        onDaysOfWeekChange={this.onDaysOfWeekChange.bind(this)}
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}
                         replicateCurrRange={this.replicateRange.bind(this)}
                         deleteCurrRange={this.deleteCurrRange.bind(this)}
-                        range={this.state.activeRange}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
+
+                        activeRange={activeRange}
+                        replaceActiveRange={this.replaceActiveRange.bind(this)}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}

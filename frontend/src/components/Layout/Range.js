@@ -58,6 +58,10 @@ class DatetimeRange{
         this.includeHolidays = newHolidays;
     }
 
+    getIncludeHolidays(){
+        return this.includeHolidays;
+    }
+
 }
 
 class RangeBuilder{
@@ -102,10 +106,11 @@ class RangeBuilder{
 
 class RangeFactory{
     static newRange(params){
+        console.log(params.startTime !== undefined ? params.startTime : MIN_DATE);
         let startDate = params.startDate !== undefined ? params.startDate : MIN_DATE;
         let endDate = params.endDate !== undefined ? params.endDate : MAX_DATE;
-        let startTime = params.startTime !== undefined ? params.startTime : formattedTimeString(MIN_DATE);
-        let endTime = params.endTime !== undefined ? params.endTime : formattedTimeString(MAX_DATE);
+        let startTime = params.startTime !== undefined ? params.startTime : MIN_DATE;
+        let endTime = params.endTime !== undefined ? params.endTime : MAX_DATE;
         let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
         let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
 
