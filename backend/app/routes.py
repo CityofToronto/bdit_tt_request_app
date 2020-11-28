@@ -5,7 +5,7 @@ from math import sqrt
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func, and_
 
-from app import METER_UNIT_SRID, DATE_TIME_FORMAT
+from app import METER_UNIT_SRID, FULL_DATE_TIME_FORMAT
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Node, Travel, Link
@@ -168,23 +168,27 @@ def get_links_travel_data_file():
     :return: a file containing requested travel data
     """
     file_type, file_args = parse_file_type_request_body(request.json)
-    time_periods, link_dirs = parse_travel_request_body(request.json)
-    travel_data_list = _get_travel_data_list(time_periods, link_dirs)
+    trav_data_query_params = parse_travel_request_body(request.json)
+    all_travel_data = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
 
-    if file_type == 'csv':
-        data_file_path = make_travel_data_csv(travel_data_list)
-        mime_type = "text/csv"
-    elif file_type == 'xlsx':
-        data_file_path = make_travel_data_xlsx(travel_data_list, file_args)
-        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    else:
-        abort(501, description="Currently only support csv files.")
-        return
-
-    file_response = send_file(data_file_path, mimetype=mime_type)
-    if not _need_keep_temp_file():
-        os.remove(data_file_path)
-    return file_response
+    for i in all_travel_data:
+        print(i)
+    return b'dlakfj'
+    #
+    # if file_type == 'csv':
+    #     data_file_path = make_travel_data_csv(travel_data_list)
+    #     mime_type = "text/csv"
+    # elif file_type == 'xlsx':
+    #     data_file_path = make_travel_data_xlsx(travel_data_list, file_args)
+    #     mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    # else:
+    #     abort(501, description="Currently only support csv files.")
+    #     return
+    #
+    # file_response = send_file(data_file_path, mimetype=mime_type)
+    # if not _need_keep_temp_file():
+    #     os.remove(data_file_path)
+    # return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
@@ -203,121 +207,6 @@ def get_date_bounds():
     earliest_time = earliest_travel_data.tx
     latest_time = latest_travel_data.tx
     return {"start_time": str(earliest_time), "end_time": str(latest_time)}
-
-
-class _TravelDataTimePeriodBlock:
-    def __init__(self, start_time, end_time, interval_time):
-        self._start_time = start_time
-        self._end_time = end_time
-        self._interval_time = interval_time
-        time_diff = end_time - start_time  # type: timedelta
-        self._size = _round_up(time_diff.total_seconds() / interval_time)
-        self._intervals = [{'all_means': [], 'all_variances': [], 'all_confidences': [], 'all_pct_50s': []}
-                           for _ in range(self._size)]
-
-    def get_seconds_interval(self):
-        return self._interval_time
-
-    def register_data(self, travel_data_obj):
-        time_diff = travel_data_obj.tx - self._start_time  # type: timedelta
-        slot = int(time_diff.total_seconds() // self._interval_time)
-        travel_data = travel_data_obj.json()
-        self._intervals[slot]['all_means'].append(travel_data['mean'])
-        self._intervals[slot]['all_variances'].append(travel_data['stddev'] ** 2)
-        self._intervals[slot]['all_confidences'].append(travel_data['confidence'])
-        self._intervals[slot]['all_pct_50s'].append(travel_data['pct_50'])
-
-    def get_mean_data_list(self, seg_i: int, from_street: str, to_street: str, path_str: str, links_length: float,
-                           travel_data_length: float):
-        data = []
-        curr_start_time = self._start_time
-
-        for interval in self._intervals:
-            curr_end_time = min(curr_start_time + timedelta(seconds=self._interval_time), self._end_time)
-
-            data.append({
-                'seg_i': seg_i,
-                'from_street': from_street,
-                'to_street': to_street,
-                'path_str': path_str,
-                'from_tx': curr_start_time.strftime(DATE_TIME_FORMAT),
-                'to_tx': curr_end_time.strftime(DATE_TIME_FORMAT),
-                'links_length': links_length,
-                'data_length': travel_data_length,
-                'mean_spd': round(_calc_list_avg(interval['all_means']), 2),
-                'mean_stddev': round(sqrt(_calc_list_avg(interval['all_variances'])), 2),
-                'mean_confidence': round(_calc_list_avg(interval['all_confidences']), 2),
-                'mean_pct_50': round(_calc_list_avg(interval['all_pct_50s']), 2)
-            })
-
-            curr_start_time = curr_end_time
-
-        return data
-
-    def __len__(self):
-        return self._size
-
-
-def _get_travel_data_list(list_of_time_periods, list_of_link_dirs):
-    """
-    Get the travel data within all given time_periods for all segments of links in list_of_link_dirs.
-
-    Caution: This function may take a long time if the time sum of time_periods is a long period of time, or
-            the segments of link_dirs contains too many links. (1~2min)
-
-    :return: a python list containing all the segments. Each segment contains a list of its data, where each index
-            corresponds to a given time period. Each time period is a list containing all intervals.
-    """
-    travel_data_result = []
-
-    segment_count = 0
-    for link_dirs in list_of_link_dirs:
-        segment_data = []
-
-        links = _get_links_by_link_dirs(link_dirs)
-        st_names = get_path_list_from_link_list(links)
-        from_street = st_names[0]
-        to_street = st_names[-1]
-        path_str = "->".join(st_names)
-        links_length = round(sum([float(link.length) for link in links]), 2)
-        visited_links = []
-        travel_data_length = 0
-
-        for time_periods in list_of_time_periods:
-            data_count = 0
-            need_sum_travel_data_length = travel_data_length == 0
-            curr_tp_data = []
-
-            for time_period in time_periods:
-                start_time = time_period[0]
-                end_time = time_period[1]
-                tp_data = _TravelDataTimePeriodBlock(start_time, end_time, 3600)
-
-                travel_query_result = Travel.query \
-                    .filter(and_(start_time <= Travel.tx, Travel.tx < end_time, Travel.link_dir.in_(link_dirs))) \
-                    .order_by(Travel.link_dir.asc(), Travel.tx.asc()).all()
-
-                for travel_data_obj in travel_query_result:
-                    travel_data = travel_data_obj.json()
-
-                    curr_link_dir = travel_data['link_dir']
-                    if need_sum_travel_data_length and curr_link_dir not in visited_links:
-                        visited_links.append(curr_link_dir)
-                        travel_data_length = round(travel_data['length'] + travel_data_length, 2)
-
-                    tp_data.register_data(travel_data_obj)
-                    data_count += 1
-
-                curr_tp_data.extend(
-                    tp_data.get_mean_data_list(segment_count, from_street, to_street, path_str, links_length,
-                                               travel_data_length))
-
-            segment_data.append(curr_tp_data)
-
-        travel_data_result.append(segment_data)
-        segment_count += 1
-
-    return travel_data_result
 
 
 def _calc_list_avg(lst: list) -> float:

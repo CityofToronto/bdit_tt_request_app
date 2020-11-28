@@ -97,30 +97,30 @@ def test_parse_time_periods_inval_data(mock_datetime_format, mock_abort):
          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
 
     with mock_datetime_format:
-        parse_time_periods(tps_not_dict)
+        parse_time_specs(tps_not_dict)
         mock_abort.assert_called_with(400, description="Each time period must be a dictionary (JSON)!")
         mock_abort.reset_mock()
-        parse_time_periods(tps_missing_field)
+        parse_time_specs(tps_missing_field)
         mock_abort.assert_called_with(400, description="Each time period must contain start_date, end_date, "
                                                        "start_time, end_time, days_of_week, and include_holidays.")
         mock_abort.reset_mock()
-        parse_time_periods(tps_inval_field)
+        parse_time_specs(tps_inval_field)
         mock_abort.assert_called_with(400, description="start_date, end_date, start_time, end_time should be str. "
                                                        "days_of_week should be a list. include_holidays "
                                                        "should be a bool!")
         mock_abort.reset_mock()
-        parse_time_periods(tps_inval_dow)
+        parse_time_specs(tps_inval_dow)
         mock_abort.assert_called_with(400, description="days_of_week list must have length 7 (one bool val for each "
                                                        "day in the week)!")
         mock_abort.reset_mock()
-        parse_time_periods(tps_inval_time)
+        parse_time_specs(tps_inval_time)
         mock_abort.assert_called_with(400, description="Start time and end time in time_periods must follow date time "
                                                        "format: %Y-%m-%d %H:%M:%S")
         mock_abort.reset_mock()
-        parse_time_periods(tps_inval_time_range)
+        parse_time_specs(tps_inval_time_range)
         mock_abort.assert_called_with(400, description="start time must not be later than end time!")
         mock_abort.reset_mock()
-        parse_time_periods(tps_inval_date_range)
+        parse_time_specs(tps_inval_date_range)
         mock_abort.assert_called_with(400, description="start datetime must not be later than end datetime")
 
 
@@ -130,7 +130,7 @@ def test_parse_time_periods(mock_datetime_format):
          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
 
     with mock_datetime_format:
-        parsed_tps = parse_time_periods(tps_inval_time)
+        parsed_tps = parse_time_specs(tps_inval_time)
         assert len(parsed_tps[0]) == 2
 
 
