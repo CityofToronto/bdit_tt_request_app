@@ -60,12 +60,17 @@ class Layout extends React.Component {
     addRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
-        ranges.push(RangeFactory.newRange({}));
-        this.setState({
-            numRanges: numRanges + 1,
-            activeRange: numRanges,
-            ranges: ranges
-        });
+        const name = prompt("Name the new range")
+        if(!name || name === ""){
+            alert("You must enter a name");
+        } else {
+            ranges.push(RangeFactory.newRange({ name: name }));
+            this.setState({
+                numRanges: numRanges + 1,
+                activeRange: numRanges,
+                ranges: ranges
+            });
+        }
     }
 
     replicateRange() {
@@ -73,13 +78,20 @@ class Layout extends React.Component {
         let ranges = [...this.state.ranges];
         let activeRange = ranges[this.state.activeRange];
         let params = activeRange.getParams();
-        ranges.push(RangeFactory.newRange(params));
 
-        this.setState({
-            numRanges: numRanges + 1,
-            activeRange: numRanges,
-            ranges: ranges
-        });
+        const name = prompt("Name the new Range");
+
+        if(!name || name === ""){
+            alert("You must enter a name");
+        } else {
+            params.name = name;
+            ranges.push(RangeFactory.newRange(params));
+            this.setState({
+                numRanges: numRanges + 1,
+                activeRange: numRanges,
+                ranges: ranges
+            });
+        }
     }
 
     deleteCurrRange() {
