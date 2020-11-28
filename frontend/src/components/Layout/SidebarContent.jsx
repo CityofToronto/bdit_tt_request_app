@@ -10,9 +10,9 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import {DAYS_OF_WEEK_MAPPING} from "./Layout";
 import { MAX_DATE, MIN_DATE } from "./Range";
 import Presets from "./Presets"
+import Days from "./Days";
 
 
 class SidebarContent extends React.Component {
@@ -186,45 +186,45 @@ class SidebarContent extends React.Component {
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[0]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 0)}
-                                                       name={DAYS_OF_WEEK_MAPPING[0]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Monday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Monday)}
+                                                       name={Days.getDay(Days.Monday)}/>}
                                     label="Monday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[1]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 1)}
-                                                       name={DAYS_OF_WEEK_MAPPING[1]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Tuesday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Tuesday)}
+                                                       name={Days.getDay(Days.Tuesday)}/>}
                                     label="Tuesday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[2]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 2)}
-                                                       name={DAYS_OF_WEEK_MAPPING[2]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Wednesday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Wednesday)}
+                                                       name={Days.getDay(Days.Wednesday)}/>}
                                     label="Wednesday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[3]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 3)}
-                                                       name={DAYS_OF_WEEK_MAPPING[3]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Thursday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Thursday)}
+                                                       name={Days.getDay(Days.Thursday)}/>}
                                     label="Thursday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[4]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 4)}
-                                                       name={DAYS_OF_WEEK_MAPPING[4]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Friday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Friday)}
+                                                       name={Days.getDay(Days.Friday)}/>}
                                     label="Friday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[5]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 5)}
-                                                       name={DAYS_OF_WEEK_MAPPING[5]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Saturday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Saturday)}
+                                                       name={Days.getDay(Days.Saturday)}/>}
                                     label="Saturday"
                                 />
                                 <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[6]}
-                                                       onChange={this.daysOfWeekChange.bind(this, 6)}
-                                                       name={DAYS_OF_WEEK_MAPPING[6]}/>}
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Sunday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Sunday)}
+                                                       name={Days.getDay(Days.Sunday)}/>}
                                     label="Sunday"
                                 />
                             </FormGroup>

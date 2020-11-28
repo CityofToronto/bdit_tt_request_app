@@ -8,16 +8,6 @@ import { parseTimePeriods } from "./DateTimeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
 
-export const DAYS_OF_WEEK_MAPPING = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-];
-
 
 class Layout extends React.Component {
     constructor(props) {
