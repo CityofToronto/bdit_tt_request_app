@@ -62,6 +62,17 @@ class DatetimeRange{
         return this.includeHolidays;
     }
 
+    getParams(){
+        let params = {};
+        params.startDate = this.getStartDate();
+        params.endDate = this.getEndDate();
+        params.startTime = this.getStartTime();
+        params.endTime = this.getEndTime();
+        params.daysOfWeek = this.getDaysOfWeek();
+        params.includeHolidays = this.getIncludeHolidays();
+        return params;
+    }
+
 }
 
 class RangeBuilder{

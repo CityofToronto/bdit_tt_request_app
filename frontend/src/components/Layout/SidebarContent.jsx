@@ -17,57 +17,46 @@ import Presets from "./Presets";
 
 class SidebarContent extends React.Component {
 
-    getActiveParams() {
-        let params = {};
-        params.startDate = this.props.activeRange.getStartDate();
-        params.endDate = this.props.activeRange.getEndDate();
-        params.startTime = this.props.activeRange.getStartTime();
-        params.endTime = this.props.activeRange.getEndTime();
-        params.daysOfWeek = this.props.activeRange.getDaysOfWeek();
-        params.includeHolidays = this.props.activeRange.getIncludeHolidays();
-        return params;
-    }
-
     updatePreset(event){
         let choice = event.value;
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         let newParams = Presets.getParams(choice);
         Object.assign(params, newParams);
         this.props.replaceActiveRange(params)
     }
 
     startDateChange(value){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.startDate = value;
         this.props.replaceActiveRange(params);
     }
 
     endDateChange(value){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.endDate = value;
         this.props.replaceActiveRange(params);
     }
 
     startTimeChange(value){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.startTime = value;
         this.props.replaceActiveRange(params)
     }
 
     endTimeChange(value){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.endTime = value;
         this.props.replaceActiveRange(params);
     }
 
     daysOfWeekChange(index){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.daysOfWeek[index] = !params.daysOfWeek[index];
         this.props.replaceActiveRange(params);
     }
 
     includeHolidaysChange(event){
-        let params = this.getActiveParams();
+        let params = this.props.activeRange.getParams();
         params.includeHolidays = !params.includeHolidays;
         this.props.replaceActiveRange(params);
     }
@@ -77,7 +66,7 @@ class SidebarContent extends React.Component {
         for (let i = 0; i < this.props.dateTimeRanges; i++) {
             rangePickerOptions.push(`Range ${i + 1}`);
         }
-        let params = this.getActiveParams();
+        const params = this.props.activeRange.getParams();
 
         return (
             <div id="sidebar-container">

@@ -82,13 +82,7 @@ class Layout extends React.Component {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         let activeRange = ranges[this.state.activeRange];
-        let params = {};
-        params.startDate = activeRange.getStartDate();
-        params.endDate = activeRange.getEndDate();
-        params.startTime = activeRange.getStartTime();
-        params.endTime = activeRange.getEndTime();
-        params.daysOfWeek = activeRange.getDaysOfWeek();
-        params.includeHolidays = activeRange.getIncludeHolidays();
+        let params = activeRange.getParams();
         ranges.push(RangeFactory.newRange(params));
 
         this.setState({
