@@ -3,23 +3,24 @@ export function parseTimePeriods(DatetimeRanges) {
     let timePeriods = [];
     let succeeded = true;
     DatetimeRanges.forEach(value => {
-        if (!succeeded || !value || !value.startDate || !value.endDate || !value.startTime || !value.endTime) {
+        let params = value.getParams();
+        if (!succeeded || !params || !params.startDate || !params.endDate || !params.startTime || !params.endTime) {
             succeeded = false;
             return;
         }
 
-        const startDateStr = formattedDateString(value.startDate);
-        const endDateStr = formattedDateString(value.endDate);
-        const startTimeStr = value.startTime;
-        const endTimeStr = value.endTime;
+        const startDateStr = formattedDateString(params.startDate);
+        const endDateStr = formattedDateString(params.endDate);
+        const startTimeStr = formattedTimeString(params.startTime);
+        const endTimeStr = formattedTimeString(params.endTime);
 
         timePeriods.push({
             "start_time": startTimeStr,
             "end_time": endTimeStr,
             "start_date": startDateStr,
             "end_date": endDateStr,
-            "days_of_week": value.daysOfWeek,
-            "include_holidays": value.includeHolidays
+            "days_of_week": params.daysOfWeek,
+            "include_holidays": params.includeHolidays
         });
     });
 
