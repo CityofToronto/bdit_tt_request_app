@@ -8,6 +8,7 @@ const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstal
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
+    console.log(err)
     if (!err || !err.response.status) {
         console.error(err);
         alert("Error in React Actions! Check console for error.");
