@@ -12,6 +12,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {DAYS_OF_WEEK_MAPPING} from "./Layout";
 import { MAX_DATE, MIN_DATE } from "./Range";
+import Presets from "./Presets";
 
 
 class SidebarContent extends React.Component {
@@ -28,7 +29,11 @@ class SidebarContent extends React.Component {
     }
 
     updatePreset(event){
-
+        let choice = event.value;
+        let params = this.getActiveParams();
+        let newParams = Presets.getParams(choice);
+        Object.assign(params, newParams);
+        this.props.replaceActiveRange(params)
     }
 
     startDateChange(value){
@@ -126,8 +131,8 @@ class SidebarContent extends React.Component {
                             </Grid>
                             <Grid item>
                                 <Dropdown
-                                    options={["Default"]}
-                                    placeholder={"Presets"}
+                                    options={Presets.getPresets()}
+                                    placeholder={"Custom"}
                                     onChange={this.updatePreset.bind(this)}
                                 />
                             </Grid>
