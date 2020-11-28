@@ -79,7 +79,8 @@ export const getDateBoundary = (page) => {
 };
 
 /* GET links given two nodes */
-export const getLinksBetweenNodes = (page, nodes, enableInteractions) => {
+export const getLinksBetweenNodes = (page, nodes) => {
+    let seq = 0
     nodes.forEach((sequence) => {
         const nodeIds = [];
         sequence.forEach((node) => {
@@ -87,14 +88,14 @@ export const getLinksBetweenNodes = (page, nodes, enableInteractions) => {
         });
         axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
             if (res.data) {
-                page.displayLinks(res.data, nodes.indexOf(sequence));
-               
+                page.displayLinks(res.data, nodes.indexOf(sequence), (seq === nodes.length - 1));
+                seq++
             } else {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }
         }).catch(err => {
             handleResponseError(err);
-            enableInteractions();
+            page.enableInteractions()
         });
     });
 };
