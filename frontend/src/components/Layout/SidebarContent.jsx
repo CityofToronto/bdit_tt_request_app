@@ -12,7 +12,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {DAYS_OF_WEEK_MAPPING} from "./Layout";
 import { MAX_DATE, MIN_DATE } from "./Range";
-import Presets from "./Presets";
+import Presets from "./Presets"
 
 
 class SidebarContent extends React.Component {
@@ -39,13 +39,16 @@ class SidebarContent extends React.Component {
 
     startTimeChange(value){
         let params = this.props.activeRange.getParams();
-        params.startTime = value;
+        let dateStr = '2020-01-01 '.concat(value).concat(':00');
+        params.endTime = new Date(dateStr);
         this.props.replaceActiveRange(params)
     }
 
     endTimeChange(value){
         let params = this.props.activeRange.getParams();
-        params.endTime = value;
+        let dateStr = '2020-01-01 '.concat(value).concat(':00');
+        params.endTime = new Date(dateStr);
+        console.log(params.endTime);
         this.props.replaceActiveRange(params);
     }
 

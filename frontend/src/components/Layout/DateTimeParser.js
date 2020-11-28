@@ -1,34 +1,37 @@
 
 export function parseTimePeriods(DatetimeRanges) {
     let timePeriods = [];
-    let succeeded = true;
     DatetimeRanges.forEach(value => {
-        let params = value.getParams();
-        if (!succeeded || !params || !params.startDate || !params.endDate || !params.startTime || !params.endTime) {
-            succeeded = false;
-            return;
+        let parsedRange;
+        if(!timePeriods || !(parsedRange = parseRange(value))){
+            return null;
+        } else {
+            timePeriods.push(parsedRange)
         }
-
-        const startDateStr = formattedDateString(params.startDate);
-        const endDateStr = formattedDateString(params.endDate);
-        const startTimeStr = formattedTimeString(params.startTime);
-        const endTimeStr = formattedTimeString(params.endTime);
-
-        timePeriods.push({
-            "start_time": startTimeStr,
-            "end_time": endTimeStr,
-            "start_date": startDateStr,
-            "end_date": endDateStr,
-            "days_of_week": params.daysOfWeek,
-            "include_holidays": params.includeHolidays
-        });
     });
 
-    if (succeeded) {
-        return timePeriods;
-    } else {
+    return timePeriods;
+}
+
+function parseRange(range){
+    let params = range.getParams();
+    if (!params || !params.startDate || !params.endDate || !params.startTime || !params.endTime) {
         return null;
     }
+
+    const startDateStr = formattedDateString(params.startDate);
+    const endDateStr = formattedDateString(params.endDate);
+    const startTimeStr = formattedTimeString(params.startTime);
+    const endTimeStr = formattedTimeString(params.endTime);
+
+    return {
+        "start_time": startTimeStr,
+        "end_time": endTimeStr,
+        "start_date": startDateStr,
+        "end_date": endDateStr,
+        "days_of_week": params.daysOfWeek,
+        "include_holidays": params.includeHolidays
+    };
 }
 
 export function formattedDateString(datetime) {
@@ -42,6 +45,15 @@ export function formattedDateString(datetime) {
 export function formattedTimeString(datetime) {
     const hour = zeroPadNumber(datetime.getHours());
     const minute = zeroPadNumber(datetime.getMinutes());
+
+    return `${hour}:${minute}`;
+}
+
+export function parseTime(string){
+    let parts = string.split(":");
+    console.log(parts);
+    const hour = zeroPadNumber(parseInt(parts[0]));
+    const minute = zeroPadNumber(parseInt(parts[1]));
 
     return `${hour}:${minute}`;
 }
