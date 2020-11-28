@@ -49,7 +49,7 @@ class Layout extends React.Component {
 
     changeDateTimeRange(event) {
         let rangeChoice = event.value;
-        let choice = parseInt(rangeChoice.split(" ")[1]);
+        let choice = parseInt(rangeChoice.split(" ")[0]);
         this.setState({activeRange: choice - 1});
     }
 
@@ -153,6 +153,11 @@ class Layout extends React.Component {
 
     render() {
         const activeRange = this.state.ranges[this.state.activeRange];
+        let rangeNames = [];
+        for(let i = 0; i < this.state.numRanges; i++){
+            rangeNames.push(`${i+1} ${this.state.ranges[i].getName()}`);
+        }
+
         return (
             <div>
                 <Sidebar
@@ -171,6 +176,7 @@ class Layout extends React.Component {
 
                         activeRange={activeRange}
                         replaceActiveRange={this.replaceActiveRange.bind(this)}
+                        rangeNames={rangeNames}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}

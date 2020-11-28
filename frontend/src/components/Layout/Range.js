@@ -11,6 +11,7 @@ class DatetimeRange{
         this.daysOfWeek = null;
         this.includeHolidays = null;
         this.preset = null;
+        this.name = null;
     }
 
     setStartDate(startDate){
@@ -69,6 +70,14 @@ class DatetimeRange{
         this.preset = preset;
     }
 
+    setName(name){
+        this.name = name;
+    }
+
+    getName(){
+        return this.name;
+    }
+
     getParams(){
         let params = {};
         params.startDate = this.getStartDate();
@@ -78,6 +87,7 @@ class DatetimeRange{
         params.daysOfWeek = this.getDaysOfWeek();
         params.includeHolidays = this.getIncludeHolidays();
         params.preset = this.getPreset();
+        params.name = this.getName();
         return params;
     }
 
@@ -123,6 +133,11 @@ class RangeBuilder{
         return this;
     }
 
+    setName(name){
+        this.range.setName(name);
+        return this;
+    }
+
     getRange(){
         return this.range;
     }
@@ -137,10 +152,11 @@ class RangeFactory{
         let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
         let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
         let preset = params.preset !== undefined ? params.preset : "Custom";
+        let name = params.name !== undefined ? params.name : "new range";
 
         return new RangeBuilder().setStartDate(startDate).setEndDate(endDate).setStartTime(startTime)
             .setEndTime(endTime).setDaysOfWeek(daysOfWeek).setIncludeHolidays(includeHolidays).setPreset(preset)
-            .getRange();
+            .setName(name).getRange();
     }
 }
 

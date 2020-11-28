@@ -64,10 +64,6 @@ class SidebarContent extends React.Component {
     }
 
     render() {
-        let rangePickerOptions = [];
-        for (let i = 0; i < this.props.dateTimeRanges; i++) {
-            rangePickerOptions.push(`Range ${i + 1}`);
-        }
         const params = this.props.activeRange.getParams();
 
         return (
@@ -80,8 +76,8 @@ class SidebarContent extends React.Component {
                             </Grid>
                             <Grid item>
                                 <Dropdown
-                                    options={rangePickerOptions}
-                                    value={rangePickerOptions[this.props.range]}
+                                    options={this.props.rangeNames}
+                                    value={this.props.rangeNames[this.props.range]}
                                     onChange={this.props.changeDateTimeRange}
                                 />
 
