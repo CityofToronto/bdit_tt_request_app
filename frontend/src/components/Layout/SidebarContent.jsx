@@ -31,28 +31,40 @@ class SidebarContent extends React.Component {
 
     }
 
-    startDateChange(event){
-
+    startDateChange(value){
+        let params = this.getActiveParams();
+        params.startDate = value;
+        this.props.replaceActiveRange(params);
     }
 
-    endDateChange(event){
-
+    endDateChange(value){
+        let params = this.getActiveParams();
+        params.endDate = value;
+        this.props.replaceActiveRange(params);
     }
 
-    startTimeChange(event){
-
+    startTimeChange(value){
+        let params = this.getActiveParams();
+        params.startTime = value;
+        this.props.replaceActiveRange(params)
     }
 
-    endTimeChange(event){
-
+    endTimeChange(value){
+        let params = this.getActiveParams();
+        params.endTime = value;
+        this.props.replaceActiveRange(params);
     }
 
     daysOfWeekChange(index){
-
+        let params = this.getActiveParams();
+        params.daysOfWeek[index] = !params.daysOfWeek[index];
+        this.props.replaceActiveRange(params);
     }
 
     includeHolidaysChange(event){
-
+        let params = this.getActiveParams();
+        params.includeHolidays = !params.includeHolidays;
+        this.props.replaceActiveRange(params);
     }
 
     render() {
@@ -116,7 +128,7 @@ class SidebarContent extends React.Component {
                                 <Dropdown
                                     options={["Default"]}
                                     placeholder={"Presets"}
-                                    onChange={this.updatePreset}
+                                    onChange={this.updatePreset.bind(this)}
                                 />
                             </Grid>
                         </Grid>
@@ -131,7 +143,7 @@ class SidebarContent extends React.Component {
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.startDate}
-                                            onChange={this.startDateChange}
+                                            onChange={this.startDateChange.bind(this)}
                                 />
                             </Grid>
 
@@ -143,7 +155,7 @@ class SidebarContent extends React.Component {
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.endDate}
-                                            onChange={this.endDateChange}
+                                            onChange={this.endDateChange.bind(this)}
                                 />
                             </Grid>
 
@@ -155,7 +167,7 @@ class SidebarContent extends React.Component {
                                             maxDetail={"minute"}
                                             disableClock={true}
                                             value={params.startTime}
-                                            onChange={this.startTimeChange}
+                                            onChange={this.startTimeChange.bind(this)}
                                 />
                             </Grid>
 
@@ -167,7 +179,7 @@ class SidebarContent extends React.Component {
                                             maxDetail={"minute"}
                                             disableClock={true}
                                             value={params.endTime}
-                                            onChange={this.endTimeChange}
+                                            onChange={this.endTimeChange.bind(this)}
                                 />
                             </Grid>
                         </Grid>
@@ -226,7 +238,7 @@ class SidebarContent extends React.Component {
                     <Grid item>
                         <FormControlLabel
                             control={<Checkbox checked={params.includeHolidays}
-                                               onChange={this.includeHolidaysChange}
+                                               onChange={this.includeHolidaysChange.bind(this)}
                                                name={"holiday"}/>}
                             label="Include Holidays"
                         />
