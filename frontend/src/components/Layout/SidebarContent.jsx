@@ -123,7 +123,7 @@ class SidebarContent extends React.Component {
                             <Grid item>
                                 <Dropdown
                                     options={Presets.getPresets()}
-                                    placeholder={"Custom"}
+                                    value={params.preset}
                                     onChange={this.updatePreset.bind(this)}
                                 />
                             </Grid>

@@ -3,13 +3,15 @@ const Presets = Object.freeze({
         daysOfWeek: [true, true, true, true, true, false, false],
         startTime: new Date("2018-09-30 06:00:00"),
         endTime: new Date("2018-09-30 09:00:00"),
-        includeHolidays: false
+        includeHolidays: false,
+        preset: 'Working Week Morning'
     },
     'Working Week Night': {
         daysOfWeek: [true, true, true, true, true, false, false],
         startTime: new Date("2018-09-30 15:00:00"),
         endTime: new Date("2018-09-30 18:00:00"),
-        includeHolidays: false
+        includeHolidays: false,
+        preset: 'Working Week Night'
     },
 
     getParams(preset){

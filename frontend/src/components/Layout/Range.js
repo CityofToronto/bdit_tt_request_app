@@ -1,17 +1,16 @@
-import {formattedTimeString} from "./DateTimeParser";
-
 export const MAX_DATE = new Date("2018-09-30 19:55:00");
 export const MIN_DATE = new Date("2018-09-01 00:00:00");
 
 class DatetimeRange{
 
     constructor() {
-        this.startDate = new Date(MIN_DATE);
-        this.endDate = new Date(MAX_DATE);
-        this.startTime = formattedTimeString(MIN_DATE);
-        this.endTime = formattedTimeString(MAX_DATE);
-        this.daysOfWeek = [true, true, true, true, true, true, true];
-        this.includeHolidays = false;
+        this.startDate = null;
+        this.endDate = null;
+        this.startTime = null;
+        this.endTime = null;
+        this.daysOfWeek = null;
+        this.includeHolidays = null;
+        this.preset = null;
     }
 
     setStartDate(startDate){
@@ -62,6 +61,14 @@ class DatetimeRange{
         return this.includeHolidays;
     }
 
+    getPreset(){
+        return this.preset;
+    }
+
+    setPreset(preset){
+        this.preset = preset;
+    }
+
     getParams(){
         let params = {};
         params.startDate = this.getStartDate();
@@ -70,6 +77,7 @@ class DatetimeRange{
         params.endTime = this.getEndTime();
         params.daysOfWeek = this.getDaysOfWeek();
         params.includeHolidays = this.getIncludeHolidays();
+        params.preset = this.getPreset();
         return params;
     }
 
@@ -110,6 +118,11 @@ class RangeBuilder{
         return this;
     }
 
+    setPreset(preset){
+        this.range.setPreset(preset);
+        return this;
+    }
+
     getRange(){
         return this.range;
     }
@@ -123,9 +136,11 @@ class RangeFactory{
         let endTime = params.endTime !== undefined ? params.endTime : MAX_DATE;
         let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
         let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
+        let preset = params.preset !== undefined ? params.preset : "Custom";
 
         return new RangeBuilder().setStartDate(startDate).setEndDate(endDate).setStartTime(startTime)
-            .setEndTime(endTime).setDaysOfWeek(daysOfWeek).setIncludeHolidays(includeHolidays).getRange();
+            .setEndTime(endTime).setDaysOfWeek(daysOfWeek).setIncludeHolidays(includeHolidays).setPreset(preset)
+            .getRange();
     }
 }
 
