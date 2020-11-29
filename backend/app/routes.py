@@ -5,7 +5,7 @@ from math import sqrt
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func, and_
 
-from app import METER_UNIT_SRID, FULL_DATE_TIME_FORMAT
+from app import METER_UNIT_SRID
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Node, Travel, Link
@@ -167,28 +167,25 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
-    file_type, file_args = parse_file_type_request_body(request.json)
+    file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
-    all_travel_data = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
+    trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
+    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
+    print(travel_data_list)
+    if file_type == 'csv':
+        data_file_path = make_travel_data_csv(travel_data_list, columns)
+        mime_type = "text/csv"
+    elif file_type == 'xlsx':
+        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
+        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    else:
+        abort(501, description="Currently only support csv and xlsx files.")
+        return
 
-    for i in all_travel_data:
-        print(i)
-    return b'dlakfj'
-    #
-    # if file_type == 'csv':
-    #     data_file_path = make_travel_data_csv(travel_data_list)
-    #     mime_type = "text/csv"
-    # elif file_type == 'xlsx':
-    #     data_file_path = make_travel_data_xlsx(travel_data_list, file_args)
-    #     mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    # else:
-    #     abort(501, description="Currently only support csv files.")
-    #     return
-    #
-    # file_response = send_file(data_file_path, mimetype=mime_type)
-    # if not _need_keep_temp_file():
-    #     os.remove(data_file_path)
-    # return file_response
+    file_response = send_file(data_file_path, mimetype=mime_type)
+    if not _need_keep_temp_file():
+        os.remove(data_file_path)
+    return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])

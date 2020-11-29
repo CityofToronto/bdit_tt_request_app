@@ -3,41 +3,53 @@ from datetime import datetime
 
 from flask import abort
 
-from app import ALLOWED_FILE_TYPES, TIME_FORMAT, DATE_FORMAT
+from app import ALLOWED_FILE_TYPES, TIME_FORMAT, DATE_FORMAT, DB_TRAVEL_DATA_QUERY_RESULT_FORMAT
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
-           'parse_get_links_btwn_nodes_response', 'parse_node_response',
+           'parse_get_links_btwn_nodes_response', 'parse_node_response', 'parse_travel_data_query_result',
            'parse_get_links_between_multi_nodes_request_body', 'get_path_list_from_link_list']
 
 
 def parse_file_type_request_body(file_request_data):
     """
-    Parse the request body that contains a file type and arguments.
+    Parse the request body that contains a file type and wanted column names.
     The file type should be specified in the request body JSON's field file_type.
-    The file argument should be a string.
+    The column names should be a list of strings.
 
     If the file type specified in the request body is not an valid and allowed file type, the first file type defined
     in the ALLOWED_FILE_TYPES is used by default (csv by default).
 
-    Caution: If file type is invalid, file arguments will be automatically ignored.
+    If column names is not given, all columns will be included in the data file.
+
+    Caution: If file type is invalid, this function will call abort with error code 400.
+            If an invalid column name was given, this function will call abort with error code 400.
 
     :param file_request_data: the request body json
     :return: A tuple of file info. First index is the first allowed file type (csv by default) if the file type
             specified in the request body JSON is invalid or not allowed, or the specified file type otherwise.
-            Second index is a string representing file arguments (None if does not exist)
+            Second index is a list of column names to be included.
     """
-    if 'file_type' not in file_request_data:
-        return ALLOWED_FILE_TYPES[0], None
 
-    given_file_type = file_request_data['file_type']
+    if 'file_type' in file_request_data:
+        file_type = file_request_data['file_type']
 
-    if given_file_type not in ALLOWED_FILE_TYPES:
-        return ALLOWED_FILE_TYPES[0], None
+        if file_type not in ALLOWED_FILE_TYPES:
+            abort(400, description="Invalid file type %s! Allowed types: %s" % (file_type, ALLOWED_FILE_TYPES))
+            return
+    else:
+        file_type = ALLOWED_FILE_TYPES[0]
 
-    if 'file_args' not in file_request_data or type(file_request_data['file_args']) != str:
-        return given_file_type, None
+    if 'columns' in file_request_data and type(file_request_data['columns']) == list:
+        columns = file_request_data['columns']
 
-    return given_file_type, file_request_data['file_args']
+        if False in [col in DB_TRAVEL_DATA_QUERY_RESULT_FORMAT for col in columns]:
+            abort(400, description="Column name invalid! Legal values are: %s" % str(
+                list(DB_TRAVEL_DATA_QUERY_RESULT_FORMAT.keys())))
+            return
+    else:
+        columns = list(DB_TRAVEL_DATA_QUERY_RESULT_FORMAT)
+
+    return file_type, columns
 
 
 def parse_get_links_between_multi_nodes_request_body(nodes_data):
@@ -74,6 +86,51 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
         node_ids.append(node_id_int)
 
     return node_ids
+
+
+def parse_travel_data_query_result(travel_query_result, columns):
+    """
+    Parse the travel data query result into python dictionaries (col_name mapped to their values).
+
+    CAUTION: This function needs to be changed accordingly if the format of the query result has changed.
+
+    :param travel_query_result the raw query result from database
+    :param columns the column names to be included in the query result
+    :return: a list of dictionaries containing all the travel data
+    """
+    travel_data_list = []
+
+    import ast
+    for result in travel_query_result:
+        str_data = result[0]  # type: str
+
+        str_data = str_data.replace('"', '').replace("'", "").replace(',', '","').replace('(', '("').replace(')', '")')
+
+        raw_data = ast.literal_eval(str_data)
+        parsed_data = {}
+
+        for i in range(len(columns)):
+            col_name = columns[i]
+            col_spec = DB_TRAVEL_DATA_QUERY_RESULT_FORMAT[col_name]
+            raw_data_type = col_spec[0]
+            raw_data_i = col_spec[1]
+            curr_raw_data = raw_data[raw_data_i]
+
+            if curr_raw_data == '' or len(curr_raw_data) == 0 or curr_raw_data.isspace():
+                parsed_data[col_name] = None
+            else:
+                try:
+                    value = raw_data_type(curr_raw_data)
+                    if raw_data_type == float:
+                        value = round(value, 2)
+                except ValueError:
+                    abort(500, description="Database travel data query result does not match server expectations!")
+                    return
+                parsed_data[col_name] = value
+
+        travel_data_list.append(parsed_data)
+
+    return travel_data_list
 
 
 def parse_travel_request_body(travel_request_data):

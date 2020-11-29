@@ -28,15 +28,14 @@ def make_temp_file_path(filename):
     return temp_file_path
 
 
-def make_travel_data_xlsx(travel_data_list, args=None):
+def make_travel_data_xlsx(travel_data_list, columns):
     """
     Make an xlsx file containing all the travel data in order.
     The xlsx file's first row is the header containing column names 'seg_i', 'from_street', 'to_street', 'path_str',
     'links_length', 'data_length', 'from_tx', 'to_tx', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50'
 
-    :param args: 'time' if work sheet should be created by time_periods. 'seg' if work sheet
-                    should be created by segments. Otherwise there will only be 1 worksheet.
     :param travel_data_list: the list of travel data
+    :param columns the column header of the data file
     :return: the file path of the xlsx file
     """
     filename = "%s.xlsx" % TEMP_FILE_NAME
@@ -46,88 +45,47 @@ def make_travel_data_xlsx(travel_data_list, args=None):
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
 
-    if args == 'seg':
-        worksheet_range = len(travel_data_list)
-        worksheet_name_ = "segment_%d"
-    elif args == 'time':
-        worksheet_range = len(travel_data_list[0])
-        worksheet_name_ = "time_period_%d"
-    else:
-        worksheet_range = 1
-        worksheet_name_ = "%d"
+    travel_data_worksheet = travel_data_workbook.add_worksheet("travel_data")
 
-    for worksheet_idx in range(worksheet_range):
-        worksheet_name = worksheet_name_ % worksheet_idx
-        travel_data_worksheet = travel_data_workbook.add_worksheet(worksheet_name)
+    for i in range(len(columns)):
+        travel_data_worksheet.write(0, i, columns[i])
 
-        travel_data_fields = ['seg_i', 'from_street', 'to_street', 'path_str', 'from_tx', 'to_tx', 'links_length',
-                              'data_length', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50']
-        for i in range(len(travel_data_fields)):
-            travel_data_worksheet.write(0, i, travel_data_fields[i])
+    travel_data_worksheet.set_column('A:AF', 10, cell_format)
 
-        travel_data_worksheet.set_column('A:A', 5, cell_format)
-        travel_data_worksheet.set_column('B:C', 15, cell_format)
-        travel_data_worksheet.set_column('D:D', 10, cell_format)
-        travel_data_worksheet.set_column('E:F', 18, cell_format)
-        travel_data_worksheet.set_column('G:I', 10, cell_format)
-        travel_data_worksheet.set_column('J:L', 12, cell_format)
+    travel_data_worksheet.set_row(0, 15, cell_format)
 
-        travel_data_worksheet.set_row(0, 15, cell_format)
+    row = 1
+    col = 0
+    for data in travel_data_list:
+        for i in range(len(columns)):
+            travel_data_worksheet.write(row, col + i, data[columns[i]])
 
-        row = 1
-        col = 0
-        if args == 'time':
-            for same_time_travel_data in travel_data_list:
-                for interval_data in same_time_travel_data[worksheet_idx]:
-                    for i in range(len(travel_data_fields)):
-                        travel_data_worksheet.write(row, col + i, interval_data[travel_data_fields[i]])
-
-                    travel_data_worksheet.set_row(row, 15, cell_format)
-                    row += 1
-        elif args == 'seg':
-            for segment_data in travel_data_list[worksheet_idx]:
-                for segment_tp_data in segment_data:
-                    for i in range(len(travel_data_fields)):
-                        travel_data_worksheet.write(row, col + i, segment_tp_data[travel_data_fields[i]])
-
-                    travel_data_worksheet.set_row(row, 15, cell_format)
-                    row += 1
-        else:
-            for segment_data in travel_data_list:
-                for tp_data in segment_data:
-                    for interval_data in tp_data:
-                        for i in range(len(travel_data_fields)):
-                            travel_data_worksheet.write(row, col + i, interval_data[travel_data_fields[i]])
-
-                        travel_data_worksheet.set_row(row, 15, cell_format)
-                        row += 1
+        travel_data_worksheet.set_row(row, 15, cell_format)
+        row += 1
 
     travel_data_workbook.close()
     return file_path
 
 
-def make_travel_data_csv(travel_data_list):
+def make_travel_data_csv(travel_data_list, columns):
     """
     Make a csv file containing all the travel data in order.
     The csv has headers 'seg_i', 'from_street', 'to_street', 'path_str', 'links_length', 'data_length',
                         'from_tx', 'to_tx', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50'
 
     :param travel_data_list: the list of travel data
+    :param columns the column header of the data file
     :return: the file path of the csv file
     """
     filename = "%s.csv" % TEMP_FILE_NAME
     file_path = make_temp_file_path(filename)
 
     with open(file_path, 'w', newline='') as csvfile:
-        travel_data_fields = ['seg_i', 'from_street', 'to_street', 'path_str', 'from_tx', 'to_tx', 'links_length',
-                              'data_length', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50']
-        csv_writer = csv.DictWriter(csvfile, fieldnames=travel_data_fields)
+        csv_writer = csv.DictWriter(csvfile, fieldnames=columns)
 
         csv_writer.writeheader()
-        for segment_data in travel_data_list:
-            for travel_data in segment_data:
-                for interval_data in travel_data:
-                    csv_writer.writerow(interval_data)
+        for data in travel_data_list:
+            csv_writer.writerow(data)
 
         csvfile.flush()
 
