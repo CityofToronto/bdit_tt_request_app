@@ -331,17 +331,32 @@ def parse_get_links_btwn_nodes_response(response: str):
             "path_name": path_name, "link_dirs": link_dirs, "geometry": geom_json}
 
 
-def parse_node_response(node_data):
+def parse_node_response(node_data: str):
     """
     Parse the given Node query result to a dictionary that can be jsonify-ed.
-    The received the node_data should have all columns in Node model in a tuple.
-    The link_data should contain the following fields (in order):
-        node_id(int), geometry(geom{type(str), coordinates(list[int, int])})
 
     :param node_data: the query result from the Node table in the database
-    :return: a dictionary containing the attributes for the Node query that can be jsonify-ed.
+    :return: a tuple with first index the distance of the node and
+            second index a dictionary containing the attributes for the Node query that can be jsonify-ed.
     """
-    return {"node_id": node_data[0], "geometry": json.loads(node_data[1])}
+    import ast
+    node_data = node_data.replace(',,', ',"<nameless road>",')
+
+    # sometimes intersec name is not quote surrounded
+    first_comma = node_data.index(',')
+    first_comma_quote = node_data.index(',"')
+    second_comma = node_data.index(',', first_comma + 1)
+
+    if first_comma != first_comma_quote:
+        node_data = node_data[:first_comma + 1] + '"' + node_data[first_comma + 1:second_comma] + '"' + node_data[
+                                                                                                        second_comma:]
+
+    data = ast.literal_eval(node_data)
+    geom_raw = data[2]  # type: str
+
+    geom_raw = geom_raw.replace('type:', '"type":"').replace(',coordinates:', '","coordinates":')
+
+    return data[3], {'node_id': data[0], 'name': data[1], 'geometry': json.loads(geom_raw)}
 
 
 def get_path_list_from_link_list(links):

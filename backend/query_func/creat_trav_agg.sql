@@ -1,3 +1,56 @@
+create type aggregation_ret_type as
+(
+    id             integer,
+    period         text,
+    mean_tt        double precision,
+    min_tt         double precision,
+    max_tt         double precision,
+    pct_5_tt       double precision,
+    pct_10_tt      double precision,
+    pct_15_tt      double precision,
+    pct_20_tt      double precision,
+    pct_25_tt      double precision,
+    pct_30_tt      double precision,
+    pct_35_tt      double precision,
+    pct_40_tt      double precision,
+    pct_45_tt      double precision,
+    pct_50_tt      double precision,
+    pct_55_tt      double precision,
+    pct_60_tt      double precision,
+    pct_65_tt      double precision,
+    pct_70_tt      double precision,
+    pct_75_tt      double precision,
+    pct_80_tt      double precision,
+    pct_85_tt      double precision,
+    pct_90_tt      double precision,
+    pct_95_tt      double precision,
+    std_dev        double precision,
+    min_spd        double precision,
+    mean_spd       double precision,
+    max_spd        double precision,
+    total_length   double precision,
+    days_of_data   bigint,
+    requested_days bigint,
+    prop_5min      double precision
+);
+
+CREATE TYPE link_segment as
+(
+    id       integer,
+    link_agg text[]
+);
+
+CREATE TYPE time_period AS
+(
+    period     text,
+    time_range timerange
+);
+
+CREATE TYPE public.timerange AS RANGE
+(
+    subtype = TIME
+);
+
 create or replace function fetch_aggregated_travel_data(time_periods time_period[], segments link_segment[],
                                                         start_date date, end_date date,
                                                         days_of_week int[], include_holidays bool)
@@ -156,4 +209,3 @@ FROM corridor_daily
 GROUP BY id, period, total_length, requested_days, actual_obs, total_requested_num_5
 $$ LANGUAGE sql stable
                 strict;
-

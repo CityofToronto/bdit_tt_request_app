@@ -1,14 +1,12 @@
 import os
-from datetime import timedelta
-from math import sqrt
 
 from flask import abort, jsonify, request, send_file
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from app import METER_UNIT_SRID
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.models import Node, Travel, Link
+from app.models import Travel, Link
 from app.parse_util import *
 
 
@@ -39,33 +37,41 @@ def index():
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
 def get_closest_node(longitude, latitude):
     """
-    Get the closest 10 nodes to the given longitude and latitude.
-    This function converts geometry points to srid METER_UNIT_SRID(26986) point
-    using ST_Transform and then calculate their distance in meters using ST_Distance.
-    This function may not return an array of exact length 10 if there is less than 10 points
-    in the database.
+    Get the closest nodes to the given longitude and latitude.
+    This function uses database function get_closest_nodes to fetch series of closest nodes to the given
+    longitude and latitude, sorted by ascending distance order.
+    Only points with distance less than 5 are returned by this function.
 
     :param longitude: the longitude of the origin point
     :param latitude: the latitude of the origin point
-    :return: JSON of an array containing the 10 closest nodes (if there are more than 10 nodes).
+    :return: JSON of an array containing the satisfying nodes.
             The array is sorted in ascending distance order. node object keys: node_id(int),
-            geometry(geom{type(str), coordinates(list[int])})
+            geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
-    origin_point = _get_srid_point(longitude, latitude)
+    try:
+        longitude = float(longitude)
+        latitude = float(latitude)
+    except ValueError:
+        abort(400, description="Longitude and latitude must be decimal numbers!")
+        return
 
-    nodes_ascend_dist_order_query_result = Node.query \
-        .with_entities(Node.node_id, Node.geom.ST_AsGeoJSON()) \
-        .order_by(func.ST_Transform(Node.geom, METER_UNIT_SRID).op('<->')(_transform_to_meter_srid(origin_point)).asc())
+    nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
 
-    ten_closest_nodes = []
+    candidate_nodes = []
     node_count = 0
-    for node_data in nodes_ascend_dist_order_query_result:
-        if node_count >= 10:
+    for node_query_result in nodes_ascend_dist_order_query_result:
+        node_data = parse_node_response(node_query_result[0])
+        node_dist = node_data[0]
+        node_json = node_data[1]
+
+        if node_count == 0 or node_dist < 5:
+            candidate_nodes.append(node_json)
+        else:
             break
-        ten_closest_nodes.append(parse_node_response(node_data))
+
         node_count += 1
 
-    return jsonify(ten_closest_nodes)
+    return jsonify(candidate_nodes)
 
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
@@ -131,27 +137,6 @@ def get_links_between_multi_nodes():
     return jsonify(optimal_links_data_list)
 
 
-# DEPRECATED
-# @app.route('/travel-data', methods=['POST'])
-# def get_links_travel_data():
-#     """
-#     Get the travel data from start_time to end_time for all links in link_dirs.
-#
-#     Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs
-#               contains too many links. (1~2min)
-#
-#     Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-#                 link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-#     This function will be aborted if any of the assumption is not met.
-#
-#     :return: a JSON list containing all the travel data, sorted in ascending link_dir order then ascending time order.
-#             Fields of travel objects in the list: confidence(int), length(int), link_dir(str), mean(float),
-#             pct_50(int), stddev(float), tx(str)
-#     """
-#     start_time, end_time, link_dirs = parse_travel_request_body(request.json)
-#     return jsonify(_get_travel_data_list(start_time, end_time, link_dirs))
-
-
 @app.route('/travel-data-file', methods=['POST'])
 def get_links_travel_data_file():
     """
@@ -171,7 +156,7 @@ def get_links_travel_data_file():
     trav_data_query_params = parse_travel_request_body(request.json)
     trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
     travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
-    print(travel_data_list)
+
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list, columns)
         mime_type = "text/csv"
