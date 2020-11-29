@@ -156,61 +156,45 @@
     },
     "components": {
         "schemas": {
-            "TravelRequestBody": {
-                "type": "object",
-                "required": [
-                    "start_time",
-                    "end_time",
-                    "link_dirs"
-                ],
-                "properties": {
-                    "start_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2018-09-30 19:55:00"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2018-09-30 19:55:00"
-                    },
-                    "link_dirs": {
-                        "type": "array",
-                        "items":{
-                            "type": "string",
-                            "example": "1242626341F"
-                        }
-                    }
-                }
-            },
             "TravelFileRequestBody": {
                 "type": "object",
                 "required": [
                     "list_of_time_periods",
-                    "list_of_links"
+                    "list_of_links",
+                    "start_date",
+                    "end_date",
+                    "days_of_week",
+                    "include_holidays"
                 ],
                 "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "example": "2018-09-01"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "example": "2018-09-30"
+                    },
+                    "days_of_week": {
+                        "type": "array",
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "example": "[true, false, true, false, true, false, false]"
+                    },
+                    "include_holidays": {
+                        "type": "boolean"
+                    },
                     "list_of_time_periods": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "required": [
-                                "start_date",
-                                "end_date",
                                 "start_time",
                                 "end_time",
-                                "days_of_week",
-                                "include_holidays"
+                                "name"
                             ],
                             "properties": {
-                                "start_date": {
-                                    "type": "string",
-                                    "example": "2018-09-01"
-                                },
-                                "end_date": {
-                                    "type": "string",
-                                    "example": "2018-09-30"
-                                },
                                 "start_time": {
                                     "type": "string",
                                     "example":"00:00:00"
@@ -219,20 +203,11 @@
                                     "type": "string",
                                     "example":"19:55:00"
                                 },
-                                "days_of_week": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "boolean"
-                                    },
-                                    "example": "[true, false, true, false, true, false, false]"
-                                },
-                                "include_holidays": {
-                                    "type": "boolean"
+                                "name": {
+                                    "type": "string"
                                 }
-                            },
-                            "example": "{start_date: 2018-09-01,\nend_date: 2018-09-01,\nstart_time: 00:00:00,\nend_time: 09:00:00,\ndays_of_week: [true, true, true, true, true, true, true],\ninclude_holidays: true}"
-                        },
-                        "example": "[time_period_1, time_period_2]"
+                            }
+                        }
                     },
                     "list_of_links": {
                         "type": "array",
@@ -248,9 +223,12 @@
                         "type": "string",
                         "example": "csv"
                     },
-                    "file_args": {
-                        "type": "string",
-                        "example": "time"
+                    "columns": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": "[id, period, mean_tt, pct_45_tt, pct_95_tt, min_spd, max_spd, total_length]"
                     }
                 }
             },
@@ -359,63 +337,6 @@
                     }
                 }
             },
-            "Link": {
-                "type": "object",
-                "required": [
-                    "link_dir",
-                    "link_id",
-                    "st_name",
-                    "source",
-                    "target",
-                    "length",
-                    "geometry"
-                ],
-                "properties": {
-                    "link_dir": {
-                        "type": "string",
-                        "example": "1242626341F"
-                    },
-                    "link_id": {
-                        "type": "integer"
-                    },
-                    "st_name": {
-                        "type": "string"
-                    },
-                    "source": {
-                        "type": "integer"
-                    },
-                    "target": {
-                        "type": "integer"
-                    },
-                    "length": {
-                        "type": "number"
-                    },
-                    "geometry": {
-                        "type": "object",
-                        "required": [
-                            "type",
-                            "coordinates"
-                        ],
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "example": "LineString"
-                            },
-                            "coordinates": {
-                                "type": "array",
-                                "items": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "number",
-                                        "format": "double"
-                                    }
-                                },
-                                "example": "[ [ -79.4611, 43.72609 ], [ -79.46082, 43.72616 ] ]"
-                            }
-                        }
-                    }
-                }
-            },
             "Node": {
                 "type": "object",
                 "required": [
@@ -446,46 +367,6 @@
                                 "example": "[ -79.38546, 43.64222 ]"
                             }
                         }
-                    }
-                }
-            },
-            "TravelData": {
-                "type": "object",
-                "required": [
-                    "link_dir",
-                    "tx",
-                    "length",
-                    "mean",
-                    "stddev",
-                    "confidence",
-                    "pct_50"
-                ],
-                "properties": {
-                    "link_dir": {
-                        "type": "string",
-                        "example": "1242626341F"
-                    },
-                    "tx": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2018-09-30 19:55:00"
-                    },
-                    "length": {
-                        "type": "integer"
-                    },
-                    "mean": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "stddev": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "confidence": {
-                        "type": "integer"
-                    },
-                    "pct_50": {
-                        "type": "integer"
                     }
                 }
             },
