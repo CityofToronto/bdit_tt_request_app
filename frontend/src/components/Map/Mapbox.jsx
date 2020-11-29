@@ -99,6 +99,8 @@ class Mapbox extends React.Component {
             displayedMarker: [[]],
             linksData: [],
             displayedLinkSources: [],
+            linkMouseEnter: [],
+            linkMouseLeave: [],
             sequenceColours: [this.getRandomColor()],
             disableAddMarker: false,
             disableNodeRemove: true,
@@ -302,8 +304,10 @@ class Mapbox extends React.Component {
                 }
             });
             if(this.state.linkMouseEnter.length <= sequence){
-                tempLinkMouseEnter.push([])
-                tempLinkMouseLeave.push([])
+                while(this.state.linkMouseEnter.length <= sequence){
+                    tempLinkMouseEnter.push([])
+                    tempLinkMouseLeave.push([])
+                }
             }
             else{
                 this.state.map.off('mouseenter', currSourceId + '1D', tempLinkMouseEnter[sequence][index]);
@@ -660,10 +664,6 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
-                {/* <div className='sidebarStyle'>
-                    <div>Longitude: {this.state.lng} | Latitude: {this.state.lat} | Zoom: {this.state.zoom} |
-                        Current Sequence #{this.state.currentSequence}</div>
-                </div> */}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect} disableBackdropClick={true}>
                     <DialogTitle>Select a Closest Node</DialogTitle>
