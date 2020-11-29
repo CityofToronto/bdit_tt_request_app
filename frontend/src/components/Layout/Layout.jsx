@@ -2,6 +2,10 @@ import React from "react";
 import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import RangeFactory from "./Range";
@@ -215,6 +219,7 @@ class Layout extends React.Component {
                         Edit Query
                     </Button>
                 </Sidebar>
+
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
@@ -222,8 +227,25 @@ class Layout extends React.Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
-                <Dialog open={this.state.popupOpen} onClose={this.handleClose.bind(this)}>
-                    <h5>This is a dialog</h5>
+
+                <Dialog fullScreen
+                        open={this.state.popupOpen}
+                        onClose={this.handleClose.bind(this)}
+                        aria-labelledby="form-dialog-title"
+                >
+
+                    <DialogTitle id="form-dialog-title">Field Selection</DialogTitle>
+
+                    <DialogContentText>
+                        Please choose which fields to include in the response
+                    </DialogContentText>
+
+                    <DialogActions>
+                        <Button onClick={this.handleClose.bind(this)} variant="contained" color="primary">
+                            Done
+                        </Button>
+                    </DialogActions>
+
                 </Dialog>
             </div>
         );
