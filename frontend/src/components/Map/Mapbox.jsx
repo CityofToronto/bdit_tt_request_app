@@ -99,6 +99,8 @@ class Mapbox extends React.Component {
             displayedMarker: [[]],
             linksData: [],
             displayedLinkSources: [],
+            linkMouseEnter: [],
+            linkMouseLeave: [],
             sequenceColours: [this.getRandomColor()],
             disableAddMarker: false,
             disableNodeRemove: true,
@@ -302,8 +304,10 @@ class Mapbox extends React.Component {
                 }
             });
             if(this.state.linkMouseEnter.length <= sequence){
-                tempLinkMouseEnter.push([])
-                tempLinkMouseLeave.push([])
+                while(this.state.linkMouseEnter.length <= sequence){
+                    tempLinkMouseEnter.push([])
+                    tempLinkMouseLeave.push([])
+                }
             }
             else{
                 this.state.map.off('mouseenter', currSourceId + '1D', tempLinkMouseEnter[sequence][index]);
