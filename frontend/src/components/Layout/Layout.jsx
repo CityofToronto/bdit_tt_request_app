@@ -1,6 +1,7 @@
 import React from "react";
 import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
+import Dialog from "@material-ui/core/Dialog";
 import SidebarContent from "./SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import RangeFactory from "./Range";
@@ -14,6 +15,7 @@ class Layout extends React.Component {
         super(props);
         this.state = {
             sidebarOpen: true,
+            popupOpen: false,
             nodesList: [],
             linksList: [],
             numRanges: 1,
@@ -157,6 +159,14 @@ class Layout extends React.Component {
         this.setState({fileType: e.target.value});
     }
 
+    openPopup(){
+        this.setState({ popupOpen: true })
+    }
+
+    handleClose(){
+        this.setState({ popupOpen: false });
+    }
+
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
         ranges[this.state.activeRange] = RangeFactory.newRange(params);
@@ -176,6 +186,8 @@ class Layout extends React.Component {
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
                         onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
+                        openPopup={this.openPopup.bind(this)}
+
                         range={this.state.activeRange}
 
                         onGo={this.downloadData}
@@ -210,6 +222,9 @@ class Layout extends React.Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
+                <Dialog open={this.state.popupOpen} onClose={this.handleClose.bind(this)}>
+                    <h5>This is a dialog</h5>
+                </Dialog>
             </div>
         );
 

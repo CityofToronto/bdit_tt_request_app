@@ -88,6 +88,17 @@ class SidebarContent extends React.Component {
                     </Grid>
 
                     <Grid item>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.props.openPopup}
+                            className={"popup"}
+                        >
+                            Choose Response Fields
+                        </Button>
+                    </Grid>
+
+                    <Grid item>
 
                         <Button
                             variant="contained"
