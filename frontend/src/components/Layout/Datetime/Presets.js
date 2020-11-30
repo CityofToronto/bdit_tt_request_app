@@ -1,26 +1,22 @@
 const Presets = Object.freeze({
-    'Working Week Morning': {
-        daysOfWeek: [true, true, true, true, true, false, false],
-        startTime: new Date("2018-09-30 06:00:00"),
-        endTime: new Date("2018-09-30 09:00:00"),
-        includeHolidays: false,
-        preset: 'Working Week Morning'
+    'AM Peak': {
+        startTime: new Date("2018-09-30 07:00:00"),
+        endTime: new Date("2018-09-30 10:00:00"),
+        preset: 'AM Peak'
     },
-    'Working Week Night': {
-        daysOfWeek: [true, true, true, true, true, false, false],
-        startTime: new Date("2018-09-30 15:00:00"),
+    'PM Peak': {
+        startTime: new Date("2018-09-30 16:00:00"),
         endTime: new Date("2018-09-30 18:00:00"),
-        includeHolidays: false,
-        preset: 'Working Week Night'
+        preset: 'PM Peak'
     },
 
     getParams(preset){
         switch (preset){
-            case 'Working Week Morning':
-                return this["Working Week Morning"]
+            case 'AM Peak':
+                return this["AM Peak"]
 
-            case 'Working Week Night':
-                return this["Working Week Night"]
+            case 'PM Peak':
+                return this["PM Peak"]
 
             default:
                 return {}
@@ -28,7 +24,7 @@ const Presets = Object.freeze({
     },
 
     getPresets(){
-        return ['Working Week Morning', 'Working Week Night']
+        return ['AM Peak', 'PM Peak']
     }
 });
 
