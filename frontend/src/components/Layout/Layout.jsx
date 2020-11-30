@@ -3,7 +3,6 @@ import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import SidebarContent from "./Sidebar/SidebarContent";
 import Mapbox from "../Map/Mapbox";
@@ -242,11 +241,7 @@ class Layout extends React.Component {
                         aria-labelledby="form-dialog-title"
                 >
 
-                    <DialogTitle id="form-dialog-title">Field Selection</DialogTitle>
-
-                    <DialogContentText>
-                        Please choose which fields to include in the response
-                    </DialogContentText>
+                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if requires all)</DialogTitle>
 
                     <DialogActions>
                         <FieldSelectMenu replaceSettings={this.replaceSettings.bind(this)}

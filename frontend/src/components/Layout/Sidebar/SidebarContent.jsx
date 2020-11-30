@@ -10,48 +10,48 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { MAX_DATE, MIN_DATE } from "../Datetime/Range";
+import {MAX_DATE, MIN_DATE} from "../Datetime/Range";
 import Presets from "../Datetime/Presets"
 import Days from "../Settings/Days";
 
 
 class SidebarContent extends React.Component {
 
-    updatePreset(event){
+    updatePreset(event) {
         let choice = event.value;
         let params = this.props.activeRange.getParams();
         let newParams = Presets.getParams(choice);
         Object.assign(params, newParams);
-        this.props.replaceActiveRange(params)
+        this.props.replaceActiveRange(params);
     }
 
-    startDateChange(value){
+    startDateChange(value) {
         let params = this.props.fileSettings.getParams();
         params.startDate = value;
         this.props.replaceSettings(params);
     }
 
-    endDateChange(value){
+    endDateChange(value) {
         let params = this.props.fileSettings.getParams();
         params.endDate = value;
         this.props.replaceSettings(params);
     }
 
-    startTimeChange(value){
+    startTimeChange(value) {
         let params = this.props.activeRange.getParams();
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
         params.startTime = new Date(dateStr);
-        this.props.replaceActiveRange(params)
+        this.props.replaceActiveRange(params);
     }
 
-    endTimeChange(value){
+    endTimeChange(value) {
         let params = this.props.activeRange.getParams();
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
         params.endTime = new Date(dateStr);
         this.props.replaceActiveRange(params);
     }
 
-    daysOfWeekChange(index){
+    daysOfWeekChange(index) {
         let params = this.props.fileSettings.getParams();
         let newDaysOfWeek = [...params.daysOfWeek];
         newDaysOfWeek[index] = !newDaysOfWeek[index];
@@ -59,13 +59,13 @@ class SidebarContent extends React.Component {
         this.props.replaceSettings(params);
     }
 
-    includeHolidaysChange(){
+    includeHolidaysChange() {
         let params = this.props.fileSettings.getParams();
         params.includeHolidays = !params.includeHolidays;
         this.props.replaceSettings(params);
     }
 
-    fileTypeChange(event){
+    fileTypeChange(event) {
         let params = this.props.fileSettings.getParams();
         params.fileType = event.target.value;
         this.props.replaceSettings(params);
@@ -76,52 +76,55 @@ class SidebarContent extends React.Component {
         const fileParams = this.props.fileSettings.getParams();
         let params = {};
         Object.assign(params, rangeParams);
-        Object.assign(params, fileParams)
+        Object.assign(params, fileParams);
 
         return (
             <div id="sidebar-container">
-                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
+                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={6}>
 
                     <Grid item>
-                        <div
-                            ref={React.createRef()}>
-                            File Type:
-                            <Select
-                                native
-                                value={params.fileType}
-                                onChange={this.fileTypeChange.bind(this)}
-                            >
-                                <option value={"csv"}>csv</option>
-                                <option value={"xlsx"}>xlsx</option>
-                            </Select>
-                        </div>
+                        <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
+                            <Grid item>
+                                <div
+                                    ref={React.createRef()}>
+                                    File Type: &nbsp; &nbsp;
+                                    <Select
+                                        native
+                                        value={params.fileType}
+                                        onChange={this.fileTypeChange.bind(this)}
+                                    >
+                                        <option value={"csv"}>csv</option>
+                                        <option value={"xlsx"}>xlsx</option>
+                                    </Select>
+                                </div>
+                            </Grid>
+
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.props.openPopup}
+                                    className={"popup"}
+                                >
+                                    Choose Response Fields
+                                </Button>
+                            </Grid>
+
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.props.onGo}
+                                    disabled={this.props.disableGetButton}
+                                    className={"download"}
+                                >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </Grid>
 
                     <Grid item>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.props.openPopup}
-                            className={"popup"}
-                        >
-                            Choose Response Fields
-                        </Button>
-                    </Grid>
-
-                    <Grid item>
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.props.onGo}
-                            disabled={this.props.disableGetButton}
-                            className={"download"}
-                        >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
-                        </Button>
-                    </Grid>
-
-                    <Grid item>
-                        <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
+                        <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
                                 <DatePicker required={true} locale={"en-CA"}
@@ -207,90 +210,95 @@ class SidebarContent extends React.Component {
                         />
                     </Grid>
 
-
                     <Grid item>
-                        <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
+                        <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Grid item>
-                                <h5>Current time range: </h5>
-                            </Grid>
-                            <Grid item>
-                                <Dropdown
-                                    options={this.props.rangeNames}
-                                    value={this.props.rangeNames[this.props.range]}
-                                    onChange={this.props.changeDateTimeRange}
-                                />
+                                <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
+                                    <Grid item>
+                                        <h5>Current time range: </h5>
+                                    </Grid>
+                                    <Grid item>
+                                        <Dropdown
+                                            options={this.props.rangeNames}
+                                            value={this.props.rangeNames[this.props.range]}
+                                            onChange={this.props.changeDateTimeRange}
+                                        />
 
-                            </Grid>
-                        </Grid>
-                    </Grid>
-
-
-                    <Grid item>
-                        <Grid container direction="column" alignContent="flex-start" alignItems="flex-start" spacing={1}>
-                            <Grid item>
-                                <Button variant="outlined" color="primary" size="small"
-                                        onClick={this.props.addNewRange}>
-                                    Add New Time Range
-                                </Button>
+                                    </Grid>
+                                </Grid>
                             </Grid>
 
-                            <Grid item>
-                                <Button variant="outlined" color="primary" size="small"
-                                        onClick={this.props.replicateCurrRange}>
-                                    Replicate Current Time Range
-                                </Button>
-                            </Grid>
 
                             <Grid item>
-                                <Button variant="outlined" color="primary" size="small"
-                                        onClick={this.props.deleteCurrRange}>
-                                    Remove Current Time Range
-                                </Button>
+                                <Grid container direction="column" alignContent="flex-start" alignItems="flex-start"
+                                      spacing={1}>
+                                    <Grid item>
+                                        <Button variant="outlined" color="primary" size="small"
+                                                onClick={this.props.addNewRange}>
+                                            Add New Time Range
+                                        </Button>
+                                    </Grid>
+
+                                    <Grid item>
+                                        <Button variant="outlined" color="primary" size="small"
+                                                onClick={this.props.replicateCurrRange}>
+                                            Replicate Current Time Range
+                                        </Button>
+                                    </Grid>
+
+                                    <Grid item>
+                                        <Button variant="outlined" color="primary" size="small"
+                                                onClick={this.props.deleteCurrRange}>
+                                            Remove Current Time Range
+                                        </Button>
+                                    </Grid>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </Grid>
 
 
-                    <Grid item>
-                        <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={1}>
                             <Grid item>
-                                <h5>Apply Preset:</h5>
+                                <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={1}>
+                                    <Grid item>
+                                        <h5>Apply Preset:</h5>
+                                    </Grid>
+                                    <Grid item>
+                                        <Dropdown
+                                            options={Presets.getPresets()}
+                                            value={params.preset}
+                                            onChange={this.updatePreset.bind(this)}
+                                            className={"presets"}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
-                            <Grid item>
-                                <Dropdown
-                                    options={Presets.getPresets()}
-                                    value={params.preset}
-                                    onChange={this.updatePreset.bind(this)}
-                                    className={"presets"}
-                                />
-                            </Grid>
-                        </Grid>
-                    </Grid>
 
 
-                    <Grid item>
-                        <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
                             <Grid item>
-                                <h5>Start Time</h5>
-                                <TimePicker required={true}
-                                            format={"HH:mm"}
-                                            locale={"en-CA"}
-                                            maxDetail={"minute"}
-                                            disableClock={true}
-                                            value={params.startTime}
-                                            onChange={this.startTimeChange.bind(this)}
-                                />
-                            </Grid>
-                            <Grid item>
-                                <h5 className={"endTimeLabel"}>End Time</h5>
-                                <TimePicker required={true}
-                                            format={"HH:mm"}
-                                            locale={"en-CA"}
-                                            maxDetail={"minute"}
-                                            disableClock={true}
-                                            value={params.endTime}
-                                            onChange={this.endTimeChange.bind(this)}
-                                />
+                                <Grid container direction="row" alignContent="center" alignItems="flex-start"
+                                      spacing={4}>
+                                    <Grid item>
+                                        <h5>Start Time</h5>
+                                        <TimePicker required={true}
+                                                    format={"HH:mm"}
+                                                    locale={"en-CA"}
+                                                    maxDetail={"minute"}
+                                                    disableClock={true}
+                                                    value={params.startTime}
+                                                    onChange={this.startTimeChange.bind(this)}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <h5 className={"endTimeLabel"}>End Time</h5>
+                                        <TimePicker required={true}
+                                                    format={"HH:mm"}
+                                                    locale={"en-CA"}
+                                                    maxDetail={"minute"}
+                                                    disableClock={true}
+                                                    value={params.endTime}
+                                                    onChange={this.endTimeChange.bind(this)}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Grid>

@@ -31,8 +31,6 @@ def make_temp_file_path(filename):
 def make_travel_data_xlsx(travel_data_list, columns):
     """
     Make an xlsx file containing all the travel data in order.
-    The xlsx file's first row is the header containing column names 'seg_i', 'from_street', 'to_street', 'path_str',
-    'links_length', 'data_length', 'from_tx', 'to_tx', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50'
 
     :param travel_data_list: the list of travel data
     :param columns the column header of the data file
@@ -72,8 +70,6 @@ def make_travel_data_xlsx(travel_data_list, columns):
 def make_travel_data_csv(travel_data_list, columns):
     """
     Make a csv file containing all the travel data in order.
-    The csv has headers 'seg_i', 'from_street', 'to_street', 'path_str', 'links_length', 'data_length',
-                        'from_tx', 'to_tx', 'mean_spd', 'mean_stddev', 'mean_confidence', 'mean_pct_50'
 
     :param travel_data_list: the list of travel data
     :param columns the column header of the data file
