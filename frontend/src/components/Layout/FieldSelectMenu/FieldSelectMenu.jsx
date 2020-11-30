@@ -5,8 +5,14 @@ import {Button, Checkbox} from "@material-ui/core";
 import React from "react";
 import "./FieldSelectMenu.css"
 
-class FieldSelectMenu extends React.Component{
-    fieldsChange(index){
+export const VALID_COLUMN_NAMES = ['mean_tt', 'min_tt',
+    'max_tt', 'pct_5_tt', 'pct_10_tt', 'pct_15_tt', 'pct_20_tt', 'pct_25_tt', 'pct_30_tt', 'pct_35_tt', 'pct_40_tt',
+    'pct_45_tt', 'pct_50_tt', 'pct_55_tt', 'pct_60_tt', 'pct_65_tt', 'pct_70_tt', 'pct_75_tt', 'pct_80_tt',
+    'pct_85_tt', 'pct_90_tt', 'pct_95_tt', 'std_dev', 'min_spd', 'mean_spd', 'max_spd', 'total_length',
+    'days_of_data', 'requested_days', 'prop_5min']
+
+class FieldSelectMenu extends React.Component {
+    fieldsChange(index) {
         let params = this.props.fileSettings.getParams();
         let newFields = [...params.fields];
         newFields[index] = !newFields[index];
@@ -14,218 +20,217 @@ class FieldSelectMenu extends React.Component{
         this.props.replaceSettings(params);
     }
 
-    render(){
+    render() {
         let fileParams = this.props.fileSettings.getParams();
         return (
             <div>
                 <FormControl>
                     <FormGroup row>
-
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[0]}
                                                onChange={this.fieldsChange.bind(this, 0)}
-                                               name={"mean_tt"}/>}
-                            label="mean_tt"
+                                               name={VALID_COLUMN_NAMES[0]}/>}
+                            label={VALID_COLUMN_NAMES[0]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[1]}
                                                onChange={this.fieldsChange.bind(this, 1)}
-                                               name={"min_tt"}/>}
-                            label="min_tt"
+                                               name={VALID_COLUMN_NAMES[1]}/>}
+                            label={VALID_COLUMN_NAMES[1]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[2]}
                                                onChange={this.fieldsChange.bind(this, 2)}
-                                               name={"pct_5_tt"}/>}
-                            label="pct_5_tt"
+                                               name={VALID_COLUMN_NAMES[2]}/>}
+                            label={VALID_COLUMN_NAMES[2]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[3]}
                                                onChange={this.fieldsChange.bind(this, 3)}
-                                               name={"pct_10_tt"}/>}
-                            label="pct_10_tt"
+                                               name={VALID_COLUMN_NAMES[3]}/>}
+                            label={VALID_COLUMN_NAMES[3]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[4]}
                                                onChange={this.fieldsChange.bind(this, 4)}
-                                               name={"pct_15_tt"}/>}
-                            label="pct_15_tt"
+                                               name={VALID_COLUMN_NAMES[4]}/>}
+                            label={VALID_COLUMN_NAMES[4]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[5]}
                                                onChange={this.fieldsChange.bind(this, 5)}
-                                               name={"pct_20_tt"}/>}
-                            label="pct_20_tt"
+                                               name={VALID_COLUMN_NAMES[5]}/>}
+                            label={VALID_COLUMN_NAMES[5]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[6]}
                                                onChange={this.fieldsChange.bind(this, 6)}
-                                               name={"pct_25_tt"}/>}
-                            label="pct_25_tt"
+                                               name={VALID_COLUMN_NAMES[6]}/>}
+                            label={VALID_COLUMN_NAMES[6]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[7]}
                                                onChange={this.fieldsChange.bind(this, 7)}
-                                               name={"pct_30_tt"}/>}
-                            label="pct_30_tt"
+                                               name={VALID_COLUMN_NAMES[7]}/>}
+                            label={VALID_COLUMN_NAMES[7]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[8]}
                                                onChange={this.fieldsChange.bind(this, 8)}
-                                               name={"pct_35_tt"}/>}
-                            label="pct_35_tt"
+                                               name={VALID_COLUMN_NAMES[8]}/>}
+                            label={VALID_COLUMN_NAMES[8]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[9]}
                                                onChange={this.fieldsChange.bind(this, 9)}
-                                               name={"pct_40_tt"}/>}
-                            label="pct_40_tt"
+                                               name={VALID_COLUMN_NAMES[9]}/>}
+                            label={VALID_COLUMN_NAMES[9]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[10]}
                                                onChange={this.fieldsChange.bind(this, 10)}
-                                               name={"pct_45_tt"}/>}
-                            label="pct_45_tt"
+                                               name={VALID_COLUMN_NAMES[10]}/>}
+                            label={VALID_COLUMN_NAMES[10]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[11]}
                                                onChange={this.fieldsChange.bind(this, 11)}
-                                               name={"pct_50_tt"}/>}
-                            label="pct_50_tt"
+                                               name={VALID_COLUMN_NAMES[11]}/>}
+                            label={VALID_COLUMN_NAMES[11]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[12]}
                                                onChange={this.fieldsChange.bind(this, 12)}
-                                               name={"pct_55_tt"}/>}
-                            label="pct_55_tt"
+                                               name={VALID_COLUMN_NAMES[12]}/>}
+                            label={VALID_COLUMN_NAMES[12]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[13]}
                                                onChange={this.fieldsChange.bind(this, 13)}
-                                               name={"pct_60_tt"}/>}
-                            label="pct_60_tt"
+                                               name={VALID_COLUMN_NAMES[13]}/>}
+                            label={VALID_COLUMN_NAMES[13]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[14]}
                                                onChange={this.fieldsChange.bind(this, 14)}
-                                               name={"pct_65_tt"}/>}
-                            label="pct_65_tt"
+                                               name={VALID_COLUMN_NAMES[14]}/>}
+                            label={VALID_COLUMN_NAMES[14]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[15]}
                                                onChange={this.fieldsChange.bind(this, 15)}
-                                               name={"pct_70_tt"}/>}
-                            label="pct_70_tt"
+                                               name={VALID_COLUMN_NAMES[15]}/>}
+                            label={VALID_COLUMN_NAMES[15]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[16]}
                                                onChange={this.fieldsChange.bind(this, 16)}
-                                               name={"pct_75_tt"}/>}
-                            label="pct_75_tt"
+                                               name={VALID_COLUMN_NAMES[16]}/>}
+                            label={VALID_COLUMN_NAMES[16]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[17]}
                                                onChange={this.fieldsChange.bind(this, 17)}
-                                               name={"pct_80_tt"}/>}
-                            label="pct_80_tt"
+                                               name={VALID_COLUMN_NAMES[17]}/>}
+                            label={VALID_COLUMN_NAMES[17]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[18]}
                                                onChange={this.fieldsChange.bind(this, 18)}
-                                               name={"pct_85_tt"}/>}
-                            label="pct_85_tt"
+                                               name={VALID_COLUMN_NAMES[18]}/>}
+                            label={VALID_COLUMN_NAMES[18]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[19]}
                                                onChange={this.fieldsChange.bind(this, 19)}
-                                               name={"pct_90_tt"}/>}
-                            label="pct_90_tt"
+                                               name={VALID_COLUMN_NAMES[19]}/>}
+                            label={VALID_COLUMN_NAMES[19]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[20]}
                                                onChange={this.fieldsChange.bind(this, 20)}
-                                               name={"pct_95_tt"}/>}
-                            label="pct_95_tt"
+                                               name={VALID_COLUMN_NAMES[20]}/>}
+                            label={VALID_COLUMN_NAMES[20]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[21]}
                                                onChange={this.fieldsChange.bind(this, 21)}
-                                               name={"std_dev"}/>}
-                            label="std_dev"
+                                               name={VALID_COLUMN_NAMES[21]}/>}
+                            label={VALID_COLUMN_NAMES[21]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[22]}
                                                onChange={this.fieldsChange.bind(this, 22)}
-                                               name={"min_spd"}/>}
-                            label="min_spd"
+                                               name={VALID_COLUMN_NAMES[22]}/>}
+                            label={VALID_COLUMN_NAMES[22]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[23]}
                                                onChange={this.fieldsChange.bind(this, 23)}
-                                               name={"mean_spd"}/>}
-                            label="mean_spd"
+                                               name={VALID_COLUMN_NAMES[23]}/>}
+                            label={VALID_COLUMN_NAMES[23]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[24]}
                                                onChange={this.fieldsChange.bind(this, 24)}
-                                               name={"max_spd"}/>}
-                            label="max_spd"
+                                               name={VALID_COLUMN_NAMES[24]}/>}
+                            label={VALID_COLUMN_NAMES[24]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[25]}
                                                onChange={this.fieldsChange.bind(this, 25)}
-                                               name={"total_length"}/>}
-                            label="total_length"
+                                               name={VALID_COLUMN_NAMES[25]}/>}
+                            label={VALID_COLUMN_NAMES[25]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[26]}
                                                onChange={this.fieldsChange.bind(this, 26)}
-                                               name={"days_of_data"}/>}
-                            label="days_of_data"
+                                               name={VALID_COLUMN_NAMES[26]}/>}
+                            label={VALID_COLUMN_NAMES[26]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[27]}
                                                onChange={this.fieldsChange.bind(this, 27)}
-                                               name={"requested_days"}/>}
-                            label="requested_days"
+                                               name={VALID_COLUMN_NAMES[27]}/>}
+                            label={VALID_COLUMN_NAMES[27]}
                         />
 
                         <FormControlLabel
                             control={<Checkbox checked={fileParams.fields[28]}
                                                onChange={this.fieldsChange.bind(this, 28)}
-                                               name={"prop_5min"}/>}
-                            label="prop_5min"
+                                               name={VALID_COLUMN_NAMES[28]}/>}
+                            label={VALID_COLUMN_NAMES[28]}
                         />
                     </FormGroup>
                 </FormControl>
-                <Button onClick={this.props.handleClose} variant="contained" color="primary" className={"done"}>
+                <Button onClick={this.props.handleClose} variant="contained" color="primary" classname={"done"}>
                     Done
                 </Button>
             </div>
