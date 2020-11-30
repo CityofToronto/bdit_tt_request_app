@@ -12,6 +12,11 @@ def mock_allowed_file_types():
 
 
 @pytest.fixture()
+def mock_travel_query_format():
+    yield patch.object(app.parse_util, 'DB_TRAVEL_DATA_QUERY_RESULT_FORMAT', {'t1': (int, 0), 't2': (float, 2)})
+
+
+@pytest.fixture()
 def mock_datetime_format():
     yield patch.object(app.parse_util, 'DATE_TIME_FORMAT', "%Y-%m-%d %H:%M:%S")
 
@@ -22,26 +27,28 @@ def mock_abort():
         yield mock_abort
 
 
-def test_parse_file_type_request_body_empty_request(mock_allowed_file_types):
+def test_parse_file_type_request_body_empty_request(mock_allowed_file_types, mock_travel_query_format):
     empty_request = {}
 
     with mock_allowed_file_types:
         assert parse_file_type_request_body(empty_request)[0] == 'test0'
 
 
-def test_parse_file_type_request_body_undefined_type(mock_allowed_file_types):
+def test_parse_file_type_request_body_undefined_type(mock_allowed_file_types, mock_travel_query_format):
     request_without_file_type = {'test': 'test'}
     with mock_allowed_file_types:
         assert parse_file_type_request_body(request_without_file_type)[0] == 'test0'
 
 
-def test_parse_file_type_request_body_invalid_type(mock_allowed_file_types):
+def test_parse_file_type_request_body_invalid_type(mock_allowed_file_types, mock_travel_query_format, mock_abort):
     request_with_invalid_file_type = {'test': 'test', 'file_type': 'test-1'}
     with mock_allowed_file_types:
-        assert parse_file_type_request_body(request_with_invalid_file_type)[0] == 'test0'
+        parse_file_type_request_body(request_with_invalid_file_type)
+        mock_abort.assert_called_with(400,
+                                      description="Invalid file type test-1! Allowed types: ['test0', 'test1']")
 
 
-def test_parse_file_type_request_body_existing_types(mock_allowed_file_types):
+def test_parse_file_type_request_body_existing_types(mock_allowed_file_types, mock_travel_query_format):
     request_with_valid_file_type_default = {'test': 'test', 'file_type': 'test0'}
     request_with_valid_file_type_non_default = {'test': 'test', 'file_type': 'test1'}
     with mock_allowed_file_types:
@@ -49,89 +56,91 @@ def test_parse_file_type_request_body_existing_types(mock_allowed_file_types):
         assert parse_file_type_request_body(request_with_valid_file_type_non_default)[0] == 'test1'
 
 
-def test_parse_travel_request_body_invalid_fields(mock_abort):
-    request_missing_tps = {'list_of_links': []}
-    request_missing_links = {'list_of_time_periods': []}
-    request_inval_links = {'list_of_links': 1, 'list_of_time_periods': []}
+# CAUTION: THE FOLLOWING TESTS ARE DEPRECATED
+#
+# def test_parse_travel_request_body_invalid_fields(mock_abort):
+#     request_missing_tps = {'list_of_links': []}
+#     request_missing_links = {'list_of_time_periods': []}
+#     request_inval_links = {'list_of_links': 1, 'list_of_time_periods': []}
+#
+#     parse_travel_request_body(request_missing_tps)
+#     mock_abort.assert_called_with(400,
+#                                   description="Request body must contain list_of_time_periods and list_of_links.")
+#     mock_abort.reset_mock()
+#     parse_travel_request_body(request_missing_links)
+#     mock_abort.assert_called_with(400,
+#                                   description="Request body must contain list_of_time_periods and list_of_links.")
+#     mock_abort.reset_mock()
+#     parse_travel_request_body(request_inval_links)
+#     mock_abort.assert_called_with(400, description="both list_of_links and time_periods must be lists!")
+#     mock_abort.reset_mock()
+#
+#
+# @patch('app.parse_util.parse_time_periods')
+# def test_parse_travel_request_body(mock_parse_tp):
+#     mock_parse_tp.return_value = "test return"
+#     list_of_links = [["1", "2", "3"]]
+#     list_of_tps = ["1", "2"]
+#     request_body = {'list_of_links': list_of_links, 'list_of_time_periods': list_of_tps}
+#
+#     assert parse_travel_request_body(request_body) == ("test return", [["1", "2", "3"]])
+#     mock_parse_tp.assert_called_once_with(["1", "2"])
 
-    parse_travel_request_body(request_missing_tps)
-    mock_abort.assert_called_with(400,
-                                  description="Request body must contain list_of_time_periods and list_of_links.")
-    mock_abort.reset_mock()
-    parse_travel_request_body(request_missing_links)
-    mock_abort.assert_called_with(400,
-                                  description="Request body must contain list_of_time_periods and list_of_links.")
-    mock_abort.reset_mock()
-    parse_travel_request_body(request_inval_links)
-    mock_abort.assert_called_with(400, description="both list_of_links and time_periods must be lists!")
-    mock_abort.reset_mock()
-
-
-@patch('app.parse_util.parse_time_periods')
-def test_parse_travel_request_body(mock_parse_tp):
-    mock_parse_tp.return_value = "test return"
-    list_of_links = [["1", "2", "3"]]
-    list_of_tps = ["1", "2"]
-    request_body = {'list_of_links': list_of_links, 'list_of_time_periods': list_of_tps}
-
-    assert parse_travel_request_body(request_body) == ("test return", [["1", "2", "3"]])
-    mock_parse_tp.assert_called_once_with(["1", "2"])
-
-
-def test_parse_time_periods_inval_data(mock_datetime_format, mock_abort):
-    tps_not_dict = ['1', '2']
-    tps_missing_field = [{'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': []}]
-    tps_inval_field = [
-        {'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': 1, 'include_holidays': True}]
-    tps_inval_dow = [
-        {'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': [True, True, True],
-         'include_holidays': True}]
-    tps_inval_time = [
-        {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "31:11:11", 'end_date': "2012-12-32",
-         'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
-    tps_inval_time_range = [
-        {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "10:11:11", 'end_date': "2012-12-13",
-         'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
-    tps_inval_date_range = [
-        {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "12:11:11", 'end_date': "2012-12-11",
-         'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
-
-    with mock_datetime_format:
-        parse_time_periods(tps_not_dict)
-        mock_abort.assert_called_with(400, description="Each time period must be a dictionary (JSON)!")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_missing_field)
-        mock_abort.assert_called_with(400, description="Each time period must contain start_date, end_date, "
-                                                       "start_time, end_time, days_of_week, and include_holidays.")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_inval_field)
-        mock_abort.assert_called_with(400, description="start_date, end_date, start_time, end_time should be str. "
-                                                       "days_of_week should be a list. include_holidays "
-                                                       "should be a bool!")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_inval_dow)
-        mock_abort.assert_called_with(400, description="days_of_week list must have length 7 (one bool val for each "
-                                                       "day in the week)!")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_inval_time)
-        mock_abort.assert_called_with(400, description="Start time and end time in time_periods must follow date time "
-                                                       "format: %Y-%m-%d %H:%M:%S")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_inval_time_range)
-        mock_abort.assert_called_with(400, description="start time must not be later than end time!")
-        mock_abort.reset_mock()
-        parse_time_periods(tps_inval_date_range)
-        mock_abort.assert_called_with(400, description="start datetime must not be later than end datetime")
-
-
-def test_parse_time_periods(mock_datetime_format):
-    tps_inval_time = [
-        {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "12:11:11", 'end_date': "2012-12-13",
-         'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
-
-    with mock_datetime_format:
-        parsed_tps = parse_time_periods(tps_inval_time)
-        assert len(parsed_tps[0]) == 2
+#
+# def test_parse_time_periods_inval_data(mock_datetime_format, mock_abort):
+#     tps_not_dict = ['1', '2']
+#     tps_missing_field = [{'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': []}]
+#     tps_inval_field = [
+#         {'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': 1, 'include_holidays': True}]
+#     tps_inval_dow = [
+#         {'start_time': 1, 'start_date': 1, 'end_time': 1, 'end_date': 1, 'days_of_week': [True, True, True],
+#          'include_holidays': True}]
+#     tps_inval_time = [
+#         {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "31:11:11", 'end_date': "2012-12-32",
+#          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
+#     tps_inval_time_range = [
+#         {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "10:11:11", 'end_date': "2012-12-13",
+#          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
+#     tps_inval_date_range = [
+#         {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "12:11:11", 'end_date': "2012-12-11",
+#          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
+#
+#     with mock_datetime_format:
+#         parse_time_specs(tps_not_dict)
+#         mock_abort.assert_called_with(400, description="Each time period must be a dictionary (JSON)!")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_missing_field)
+#         mock_abort.assert_called_with(400, description="Each time period must contain start_date, end_date, "
+#                                                        "start_time, end_time, days_of_week, and include_holidays.")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_inval_field)
+#         mock_abort.assert_called_with(400, description="start_date, end_date, start_time, end_time should be str. "
+#                                                        "days_of_week should be a list. include_holidays "
+#                                                        "should be a bool!")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_inval_dow)
+#         mock_abort.assert_called_with(400, description="days_of_week list must have length 7 (one bool val for each "
+#                                                        "day in the week)!")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_inval_time)
+#         mock_abort.assert_called_with(400, description="Start time and end time in time_periods must follow date time "
+#                                                        "format: %Y-%m-%d %H:%M:%S")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_inval_time_range)
+#         mock_abort.assert_called_with(400, description="start time must not be later than end time!")
+#         mock_abort.reset_mock()
+#         parse_time_specs(tps_inval_date_range)
+#         mock_abort.assert_called_with(400, description="start datetime must not be later than end datetime")
+#
+#
+# def test_parse_time_periods(mock_datetime_format):
+#     tps_inval_time = [
+#         {'start_time': "11:11:11", 'start_date': "2012-12-12", 'end_time': "12:11:11", 'end_date': "2012-12-13",
+#          'days_of_week': [True, True, True, True, True, True, True], 'include_holidays': True}]
+#
+#     with mock_datetime_format:
+#         parsed_tps = parse_time_specs(tps_inval_time)
+#         assert len(parsed_tps[0]) == 2
 
 
 def test_parse_link_response():

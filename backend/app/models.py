@@ -27,6 +27,7 @@ class Node(db.Model):
 
     ogc_fid = db.Column(INTEGER, primary_key=True)
     node_id = db.Column(INTEGER)
+    intersec_name = db.Column(VARCHAR)
     geom = db.Column(Geometry(geometry_type='POINT', srid=int(environ["POSTGIS_GEOM_SRID"])))
 
 
