@@ -5,7 +5,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import SidebarContent from "./SidebarContent";
+import SidebarContent from "./Sidebar/SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import RangeFactory from "./Datetime/Range";
 import { parseTimePeriods } from "./Datetime/DateTimeParser";
