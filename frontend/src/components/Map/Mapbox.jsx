@@ -508,7 +508,9 @@ class Mapbox extends React.Component {
             });
             this.props.onNodeUpdate(newNodesArr);
         }
-        nodeCandidateClose()
+        if (nodeCandidateClose){
+            nodeCandidateClose()
+        }
     };
 
     getRandomColor() {

@@ -3,8 +3,8 @@ import Axios from "axios";
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-// const domain = "http://127.0.0.1:5000";
+// const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
+const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
@@ -42,8 +42,19 @@ const parseClosestNodeResponse = (res) => {
 export const getClosestNode = (page, data) => {
     axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
         if (res.data) {
-            const tenClosestNodes = parseClosestNodeResponse(res);
-            page.setState({nodeCandidates: tenClosestNodes, nodeCandidateSelect: true})
+            if (res.data.length === 1) {
+                const newNode = {
+                    nodeId: res.data[0].node_id,
+                    geometry: {
+                        coordinate: res.data[0].geometry.coordinates,
+                        type: res.data[0].geometry.type
+                    }
+                }
+                page.addNodeToMapDisplay(newNode)
+            } else {
+                const closestNodes = parseClosestNodeResponse(res);
+                page.setState({nodeCandidates: closestNodes, nodeCandidateSelect: true})
+            }
         } else {
             alert("FAILED TO FETCH CLOSEST NODE");
         }
