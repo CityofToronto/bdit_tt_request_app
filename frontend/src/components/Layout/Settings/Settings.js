@@ -57,3 +57,43 @@ class Settings{
     }
 
 }
+
+class SettingsBuilder{
+    constructor() {
+        this.settings = new Settings();
+    }
+
+    setStartDate(startDate){
+        this.settings.setStartDate(startDate);
+        return this;
+    }
+
+    setEndDate(endDate){
+        this.settings.setEndDate(endDate);
+        return this;
+    }
+
+    setIncludeHolidays(includeHolidays){
+        this.settings.setIncludeHolidays(includeHolidays);
+        return this;
+    }
+
+    setDaysOfWeek(daysOfWeek){
+        this.settings.setDaysOfWeek(daysOfWeek);
+        return this;
+    }
+
+    setFileType(fileType){
+        this.settings.setFileType(fileType);
+        return this;
+    }
+
+    setFields(fields){
+        this.settings.setFields(fields);
+        return this;
+    }
+
+    getSettings(){
+        return this.settings;
+    }
+}
