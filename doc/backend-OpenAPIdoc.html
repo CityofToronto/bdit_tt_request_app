@@ -710,34 +710,6 @@
     "$ref" : "#/components/schemas/MultiLinkPath"
   } ]
 };
-            defs["Link"] = {
-  "required" : [ "geometry", "length", "link_dir", "link_id", "source", "st_name", "target" ],
-  "type" : "object",
-  "properties" : {
-    "link_dir" : {
-      "type" : "string",
-      "example" : "1242626341F"
-    },
-    "link_id" : {
-      "type" : "integer"
-    },
-    "st_name" : {
-      "type" : "string"
-    },
-    "source" : {
-      "type" : "integer"
-    },
-    "target" : {
-      "type" : "integer"
-    },
-    "length" : {
-      "type" : "number"
-    },
-    "geometry" : {
-      "$ref" : "#/components/schemas/Link_geometry"
-    }
-  }
-};
             defs["LinkNodesRequestBody"] = {
   "required" : [ "node_ids" ],
   "type" : "object",
@@ -747,27 +719,6 @@
       "items" : {
         "type" : "integer",
         "example" : 30310655
-      }
-    }
-  }
-};
-            defs["Link_geometry"] = {
-  "required" : [ "coordinates", "type" ],
-  "type" : "object",
-  "properties" : {
-    "type" : {
-      "type" : "string",
-      "example" : "LineString"
-    },
-    "coordinates" : {
-      "type" : "array",
-      "example" : "[ [ -79.4611, 43.72609 ], [ -79.46082, 43.72616 ] ]",
-      "items" : {
-        "type" : "array",
-        "items" : {
-          "type" : "number",
-          "format" : "double"
-        }
       }
     }
   }
@@ -833,12 +784,16 @@
   }
 };
             defs["Node_geometry"] = {
-  "required" : [ "coordinates", "type" ],
+  "required" : [ "coordinates", "name", "type" ],
   "type" : "object",
   "properties" : {
     "type" : {
       "type" : "string",
       "example" : "Point"
+    },
+    "name" : {
+      "type" : "string",
+      "example" : "Hwy 401"
     },
     "coordinates" : {
       "type" : "array",
@@ -896,44 +851,30 @@
     }
   }
 };
-            defs["TravelData"] = {
-  "required" : [ "confidence", "length", "link_dir", "mean", "pct_50", "stddev", "tx" ],
-  "type" : "object",
-  "properties" : {
-    "link_dir" : {
-      "type" : "string",
-      "example" : "1242626341F"
-    },
-    "tx" : {
-      "type" : "string",
-      "format" : "date-time"
-    },
-    "length" : {
-      "type" : "integer"
-    },
-    "mean" : {
-      "type" : "number",
-      "format" : "double"
-    },
-    "stddev" : {
-      "type" : "number",
-      "format" : "double"
-    },
-    "confidence" : {
-      "type" : "integer"
-    },
-    "pct_50" : {
-      "type" : "integer"
-    }
-  }
-};
             defs["TravelFileRequestBody"] = {
-  "required" : [ "list_of_links", "list_of_time_periods" ],
+  "required" : [ "days_of_week", "end_date", "include_holidays", "list_of_links", "list_of_time_periods", "start_date" ],
   "type" : "object",
   "properties" : {
+    "start_date" : {
+      "type" : "string",
+      "example" : "2018-09-01"
+    },
+    "end_date" : {
+      "type" : "string",
+      "example" : "2018-09-30"
+    },
+    "days_of_week" : {
+      "type" : "array",
+      "example" : "[true, false, true, false, true, false, false]",
+      "items" : {
+        "type" : "boolean"
+      }
+    },
+    "include_holidays" : {
+      "type" : "boolean"
+    },
     "list_of_time_periods" : {
       "type" : "array",
-      "example" : "[time_period_1, time_period_2]",
       "items" : {
         "$ref" : "#/components/schemas/TravelFileRequestBody_list_of_time_periods"
       }
@@ -952,24 +893,19 @@
       "type" : "string",
       "example" : "csv"
     },
-    "file_args" : {
-      "type" : "string",
-      "example" : "time"
+    "columns" : {
+      "type" : "array",
+      "example" : "[id, period, mean_tt, pct_45_tt, pct_95_tt, min_spd, max_spd, total_length]",
+      "items" : {
+        "type" : "string"
+      }
     }
   }
 };
             defs["TravelFileRequestBody_list_of_time_periods"] = {
-  "required" : [ "days_of_week", "end_date", "end_time", "include_holidays", "start_date", "start_time" ],
+  "required" : [ "end_time", "name", "start_time" ],
   "type" : "object",
   "properties" : {
-    "start_date" : {
-      "type" : "string",
-      "example" : "2018-09-01"
-    },
-    "end_date" : {
-      "type" : "string",
-      "example" : "2018-09-30"
-    },
     "start_time" : {
       "type" : "string",
       "example" : "00:00:00"
@@ -978,37 +914,8 @@
       "type" : "string",
       "example" : "19:55:00"
     },
-    "days_of_week" : {
-      "type" : "array",
-      "example" : "[true, false, true, false, true, false, false]",
-      "items" : {
-        "type" : "boolean"
-      }
-    },
-    "include_holidays" : {
-      "type" : "boolean"
-    }
-  },
-  "example" : "{start_date: 2018-09-01,\nend_date: 2018-09-01,\nstart_time: 00:00:00,\nend_time: 09:00:00,\ndays_of_week: [true, true, true, true, true, true, true],\ninclude_holidays: true}"
-};
-            defs["TravelRequestBody"] = {
-  "required" : [ "end_time", "link_dirs", "start_time" ],
-  "type" : "object",
-  "properties" : {
-    "start_time" : {
-      "type" : "string",
-      "format" : "date-time"
-    },
-    "end_time" : {
-      "type" : "string",
-      "format" : "date-time"
-    },
-    "link_dirs" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string",
-        "example" : "1242626341F"
-      }
+    "name" : {
+      "type" : "string"
     }
   }
 };

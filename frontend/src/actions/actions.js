@@ -4,112 +4,137 @@ const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-// const domain = "http://127.0.0.1:5000";
+//const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
-    console.log(err)
-    if (!err || !err.response.status) {
-        console.error(err);
-        alert("Error in React Actions! Check console for error.");
-    } else {
-        if (err.response.status === 500) {
-            alert("Internal Server Error");
-        } else {
-            alert(err.response.data.error);
-        }
-    }
+	console.log(err)
+	if (!err || !err.response.status) {
+		console.error(err);
+		alert("Error in React Actions! Check console for error.");
+	} else {
+		if (err.response.status === 500) {
+			alert("Internal Server Error");
+		} else {
+			alert(err.response.data.error);
+		}
+	}
 };
 
 
 const parseClosestNodeResponse = (res) => {
-    const nodeArr = [];
-    res.data.forEach((node) => {
-        nodeArr.push({
-            nodeId: node.node_id,
-            geometry: {
-                coordinate: node.geometry.coordinates,
-                type: node.geometry.type
-            }
-        });
-    });
+	const nodeArr = [];
+	res.data.forEach((node) => {
+		nodeArr.push({
+			nodeId: node.node_id,
+			name: res.data[0].name,
+			geometry: {
+				coordinate: node.geometry.coordinates,
+				type: node.geometry.type
+			}
+		});
+	});
 
-    return nodeArr;
+	return nodeArr;
 };
 
 
 /* GET ten closest node given coordinate */
 export const getClosestNode = (page, data) => {
-    axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
-        if (res.data) {
-            const tenClosestNodes = parseClosestNodeResponse(res);
-            page.setState({nodeCandidates: tenClosestNodes, nodeCandidateSelect: true})
-        } else {
-            alert("FAILED TO FETCH CLOSEST NODE");
-        }
-    }).catch(err => handleResponseError(err));
+	axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
+		if (res.data) {
+			if (res.data.length === 1) {
+				const newNode = {
+					nodeId: res.data[0].node_id,
+					name: res.data[0].name,
+					geometry: {
+						coordinate: res.data[0].geometry.coordinates,
+						type: res.data[0].geometry.type
+					}
+				}
+				page.addNodeToMapDisplay(newNode)
+			} else {
+				const closestNodes = parseClosestNodeResponse(res);
+				page.setState({nodeCandidates: closestNodes, nodeCandidateSelect: true})
+			}
+		} else {
+			alert("FAILED TO FETCH CLOSEST NODE");
+		}
+	}).catch(err => handleResponseError(err));
 };
 
 /* GET update closest node given coordinate */
 export const updateClosestNode = (page, data) => {
-    axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
-        if (res.data) {
-            const tenClosestNodes = parseClosestNodeResponse(res);
-            page.updateMarker(data.nodeIndex, tenClosestNodes);
-        } else {
-            alert("FAILED TO FETCH CLOSEST NODE");
-        }
-    }).catch(err => handleResponseError(err));
+	axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
+		if (res.data) {
+			if (res.data.length === 1) {
+				const newNode = {
+					nodeId: res.data[0].node_id,
+					name: res.data[0].name,
+					geometry: {
+						coordinate: res.data[0].geometry.coordinates,
+						type: res.data[0].geometry.type
+					}
+				}
+				page.updateMarker(data.nodeIndex, newNode)
+			} else {
+				const closestNodes = parseClosestNodeResponse(res);
+				page.setState({updateNodeCandidates: closestNodes, updateNodeCandidateSelect: true, updateNodeIndex: data.nodeIndex})
+			}
+		} else {
+			alert("FAILED TO FETCH CLOSEST NODE");
+		}
+	}).catch(err => handleResponseError(err));
 };
 
 /* GET date time boundary of the data sets */
 export const getDateBoundary = (page) => {
-    axios.get(`${domain}/date-bounds`).then(res => {
-        if (res.data) {
-            page.setState({
-                dateBoundary: {
-                    startTime: res.data.start_time,
-                    endTime: res.data.end_time
-                }
-            });
-        } else {
-            alert("FAILED TO FETCH DATE BOUNDARY");
-        }
-    }).catch(err => handleResponseError(err));
+	axios.get(`${domain}/date-bounds`).then(res => {
+		if (res.data) {
+			page.setState({
+				dateBoundary: {
+					startTime: res.data.start_time,
+					endTime: res.data.end_time
+				}
+			});
+		} else {
+			alert("FAILED TO FETCH DATE BOUNDARY");
+		}
+	}).catch(err => handleResponseError(err));
 };
 
 /* GET links given two nodes */
 export const getLinksBetweenNodes = (page, nodes) => {
-    let seq = 0
-    nodes.forEach((sequence) => {
-        const nodeIds = [];
-        sequence.forEach((node) => {
-            nodeIds.push(node.nodeId);
-        });
-        axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
-            if (res.data) {
-                page.displayLinks(res.data, nodes.indexOf(sequence), (seq === nodes.length - 1));
-                seq++
-            } else {
-                alert("FAILED TO FETCH LINKS BETWEEN NODES");
-            }
-        }).catch(err => {
-            handleResponseError(err);
-            page.enableInteractions()
-        });
-    });
+	let seq = 0
+	nodes.forEach((sequence) => {
+		const nodeIds = [];
+		sequence.forEach((node) => {
+			nodeIds.push(node.nodeId);
+		});
+		axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
+			if (res.data) {
+				page.displayLinks(res.data, nodes.indexOf(sequence), (seq === nodes.length - 1));
+				seq++
+			} else {
+				alert("FAILED TO FETCH LINKS BETWEEN NODES");
+			}
+		}).catch(err => {
+			handleResponseError(err);
+			page.enableInteractions()
+		});
+	});
 };
 
 
 /* GET project title */
 export const getProjectTitle = (page) => {
-    axios.get(`${domain}/`).then(res => {
-        if (res.data) {
-            page.setState({title: res.data});
-        } else {
-            alert("FAILED TO GET PROJECT TITLE");
-        }
-    }).catch(err => handleResponseError(err));
+	axios.get(`${domain}/`).then(res => {
+		if (res.data) {
+			page.setState({title: res.data});
+		} else {
+			alert("FAILED TO GET PROJECT TITLE");
+		}
+	}).catch(err => handleResponseError(err));
 };
 
 
@@ -122,9 +147,9 @@ export const getProjectTitle = (page) => {
 	}
 */
 export const getTravelDataFile = (data, enableGetButton) => {
-    if (!data.fileType) {
-        data.fileType = 'csv';
-    }
+	if (!data.fileType) {
+		data.fileType = 'csv';
+	}
 
     Axios({
         url: `${domain}/travel-data-file`,
