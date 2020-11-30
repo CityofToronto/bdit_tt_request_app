@@ -398,7 +398,7 @@ class Mapbox extends React.Component {
 	}
 
 	/* this function is called only by action.js after a marker drag */
-	updateMarker(nodeIndex, nodeCandidate, nodeCandidateClose) {
+	updateMarker(nodeIndex, nodeCandidate, updateNodeCandidateClose) {
 		const newNode = nodeCandidate;
 		if (this.isDuplicateMarker(newNode, nodeIndex)) {
 			// alert("Can not drag to the node right before it or after it!");
@@ -447,8 +447,8 @@ class Mapbox extends React.Component {
 			});
 			this.props.onNodeUpdate(newNodesArray);
 		}
-		if (nodeCandidateClose) {
-			nodeCandidateClose()
+		if (updateNodeCandidateClose) {
+			updateNodeCandidateClose()
 		}
 	}
 
@@ -696,7 +696,7 @@ class Mapbox extends React.Component {
 					<List>
 						{this.state.updateNodeCandidates.map((nodeCandidate) => (
 							<ListItem button
-							          onClick={() => this.updateMarker(this.state.updateNodeIndex, nodeCandidate, this.nodeCandidateClose)}
+							          onClick={() => this.updateMarker(this.state.updateNodeIndex, nodeCandidate, this.updateNodeCandidateClose)}
 							          key={nodeCandidate.nodeId}>
 								<ListItemText primary={"Name: " + nodeCandidate.name.toString() + ", ID: " + nodeCandidate.nodeId.toString()}/>
 							</ListItem>
