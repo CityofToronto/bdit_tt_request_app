@@ -41,9 +41,12 @@ class Mapbox extends React.Component {
 			disableLinkRemove: false,
 			nodeCandidates: [],
 			nodeCandidateSelect: false,
+			updateNodeCandidates: [],
+			updateNodeCandidateSelect: false,
 			linkMouseEnter: [],
 			linkMouseLeave: [],
-			linksOnMap: false
+			linksOnMap: false,
+			updateNodeIndex: 0
 		};
 	};
 
@@ -395,8 +398,8 @@ class Mapbox extends React.Component {
 	}
 
 	/* this function is called only by action.js after a marker drag */
-	updateMarker(nodeIndex, nodeCandidates) {
-		const newNode = nodeCandidates[0];
+	updateMarker(nodeIndex, nodeCandidate, nodeCandidateClose) {
+		const newNode = nodeCandidate;
 		if (this.isDuplicateMarker(newNode, nodeIndex)) {
 			// alert("Can not drag to the node right before it or after it!");
 			NotificationManager.error('Can not drag to the node right before it or after it!');
@@ -418,7 +421,7 @@ class Mapbox extends React.Component {
 			const draggedMarker = newMarkers[nodeSequenceIndex];
 			draggedMarker.setPopup(new mapboxgl.Popup()
 				.setText("Sequence Number: " + nodeSequence.toString() + ", Node Number: "
-					+ nodeSequenceIndex.toString() + ", Node_ID: " + newNode.nodeId.toString()))
+					+ nodeSequenceIndex.toString() + ", Node Name: " + newNode.name.toString()+ ", Node_ID: " + newNode.nodeId.toString()))
 			const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
 			draggedMarker.setLngLat(newCoordinate);
 
@@ -443,6 +446,9 @@ class Mapbox extends React.Component {
 				disableNewSeq: this.state.clickedNodes[nodeSequence].length < 2
 			});
 			this.props.onNodeUpdate(newNodesArray);
+		}
+		if (nodeCandidateClose) {
+			nodeCandidateClose()
 		}
 	}
 
@@ -602,6 +608,10 @@ class Mapbox extends React.Component {
 		this.setState({nodeCandidateSelect: false})
 	}
 
+	updateNodeCandidateClose = () => {
+		this.setState({updateNodeCandidateSelect: false})
+	}
+
 	onChangeSelectSeq = (e) => this.setState({selectedSeq: e.target.value});
 
 	onSubmit = (e) => {
@@ -680,7 +690,19 @@ class Mapbox extends React.Component {
 						))}
 					</List>
 				</Dialog>
-
+				<Dialog onClose={this.updateNodeCandidateClose} open={this.state.updateNodeCandidateSelect}
+				        disableBackdropClick={true}>
+					<DialogTitle>Select a Closest Node</DialogTitle>
+					<List>
+						{this.state.updateNodeCandidates.map((nodeCandidate) => (
+							<ListItem button
+							          onClick={() => this.updateMarker(this.state.updateNodeIndex, nodeCandidate, this.nodeCandidateClose)}
+							          key={nodeCandidate.nodeId}>
+								<ListItemText primary={"Name: " + nodeCandidate.name.toString() + ", ID: " + nodeCandidate.nodeId.toString()}/>
+							</ListItem>
+						))}
+					</List>
+				</Dialog>
 				<div className="map-options">
 					<form className="reverse-seq-input" noValidate autoComplete="off">
 						<TextField label="Current Sequence" InputProps={{readOnly: true,}}

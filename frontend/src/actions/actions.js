@@ -67,8 +67,20 @@ export const getClosestNode = (page, data) => {
 export const updateClosestNode = (page, data) => {
 	axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
 		if (res.data) {
-			const tenClosestNodes = parseClosestNodeResponse(res);
-			page.updateMarker(data.nodeIndex, tenClosestNodes);
+			if (res.data.length === 1) {
+				const newNode = {
+					nodeId: res.data[0].node_id,
+					name: res.data[0].name,
+					geometry: {
+						coordinate: res.data[0].geometry.coordinates,
+						type: res.data[0].geometry.type
+					}
+				}
+				page.updateMarker(data.nodeIndex, newNode)
+			} else {
+				const closestNodes = parseClosestNodeResponse(res);
+				page.setState({updateNodeCandidates: closestNodes, updateNodeCandidateSelect: true, updateNodeIndex: data.nodeIndex})
+			}
 		} else {
 			alert("FAILED TO FETCH CLOSEST NODE");
 		}
