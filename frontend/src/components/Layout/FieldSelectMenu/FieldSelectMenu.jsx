@@ -253,9 +253,9 @@ class FieldSelectMenu extends React.Component {
                     </Grid>
 
                     <Grid item>
-                        <Button onClick={this.selectAll.bind(this)} variant="contained" color="primary" className={"select-all-button"}>
-                            Select All
-                        </Button>
+                        {/*<Button onClick={this.selectAll.bind(this)} variant="contained" color="primary" className={"select-all-button"}>*/}
+                        {/*    Select All*/}
+                        {/*</Button>*/}
                         <Button onClick={this.props.handleClose} variant="contained" color="primary" className={"done-button"}>
                             Done
                         </Button>
