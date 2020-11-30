@@ -675,7 +675,7 @@ class Mapbox extends React.Component {
 							<ListItem button
 							          onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)}
 							          key={nodeCandidate.nodeId}>
-								<ListItemText primary={nodeCandidate.nodeId}/>
+								<ListItemText primary={"Name: " + nodeCandidate.name.toString() + ", ID: " + nodeCandidate.nodeId.toString()}/>
 							</ListItem>
 						))}
 					</List>
