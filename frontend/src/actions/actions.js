@@ -159,7 +159,6 @@ export const getTravelDataFile = (data, enableGetButton) => {
             list_of_time_periods: data.listOfTimePeriods,
             list_of_links: data.listOfLinkDirs,
             file_type: data.fileType,
-            file_args: data.fileArgs,
             start_date: data.start_date,
             end_date: data.end_date,
             include_holidays: data.include_holidays,

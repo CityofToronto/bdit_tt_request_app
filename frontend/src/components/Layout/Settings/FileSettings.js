@@ -75,15 +75,13 @@ class FileSettings{
             !this.fileType || !this.fields){
             return null;
         } else {
-            let fileData = this.fileType.split('-');
             return {
                 'start_date': formattedDateString(this.startDate),
                 'end_date': formattedDateString(this.endDate),
                 'days_of_week': this.daysOfWeek,
                 'include_holidays': this.includeHolidays,
-                'file_type': fileData[0],
+                'file_type': this.fileType,
                 'fields': this.fields,
-                'file_args': fileData[1]
             };
         }
     }
