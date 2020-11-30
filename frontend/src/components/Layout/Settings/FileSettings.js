@@ -1,6 +1,6 @@
 import {MAX_DATE, MIN_DATE} from "../Datetime/Range";
 
-class Settings{
+class FileSettings{
     constructor() {
         this.startDate = null;
         this.endDate = null;
@@ -60,9 +60,9 @@ class Settings{
 
 }
 
-class SettingsBuilder{
+class FileSettingsBuilder{
     constructor() {
-        this.settings = new Settings();
+        this.settings = new FileSettings();
     }
 
     setStartDate(startDate){
@@ -117,7 +117,7 @@ class FileSettingsFactory{
         let fileType = params.fileType !== undefined ? params.fileType : "csv";
         let fields = params.fields !== undefined ? params.fields : FileSettingsFactory.getDefaultFields();
 
-        return new SettingsBuilder().setStartDate(startDate).setEndDate(endDate).setDaysOfWeek(daysOfWeek)
+        return new FileSettingsBuilder().setStartDate(startDate).setEndDate(endDate).setDaysOfWeek(daysOfWeek)
             .setIncludeHolidays(includeHolidays).setFileType(fileType).setFields(fields).getSettings();
     }
 }
