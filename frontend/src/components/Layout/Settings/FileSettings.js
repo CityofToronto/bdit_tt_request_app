@@ -131,7 +131,7 @@ class FileSettingsBuilder{
 class FileSettingsFactory{
     static getDefaultFields(){
         let fields = [];
-        for(let i = 0; i < 29; i++){
+        for(let i = 0; i < 30; i++){
             fields.push(false);
         }
         return fields;

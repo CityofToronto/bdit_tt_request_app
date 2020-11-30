@@ -21,6 +21,16 @@ class FieldSelectMenu extends React.Component {
         this.props.replaceSettings(params);
     }
 
+    selectAll() {
+        let params = this.props.fileSettings.getParams();
+        let newFields = [...params.fields];
+        newFields.forEach((field, i) => {
+            newFields[i] = true
+        })
+        params.fields = newFields;
+        this.props.replaceSettings(params);
+    }
+
     render() {
         let fileParams = this.props.fileSettings.getParams();
         return (
@@ -231,12 +241,22 @@ class FieldSelectMenu extends React.Component {
                                                        name={VALID_COLUMN_NAMES[28]}/>}
                                     label={VALID_COLUMN_NAMES[28]}
                                 />
+
+                                <FormControlLabel
+                                    control={<Checkbox checked={fileParams.fields[29]}
+                                                       onChange={this.fieldsChange.bind(this, 29)}
+                                                       name={VALID_COLUMN_NAMES[29]}/>}
+                                    label={VALID_COLUMN_NAMES[29]}
+                                />
                             </FormGroup>
                         </FormControl>
                     </Grid>
 
                     <Grid item>
-                        <Button onClick={this.props.handleClose} variant="contained" color="primary" classname={"done-button"}>
+                        <Button onClick={this.selectAll.bind(this)} variant="contained" color="primary" className={"select-all-button"}>
+                            Select All
+                        </Button>
+                        <Button onClick={this.props.handleClose} variant="contained" color="primary" className={"done-button"}>
                             Done
                         </Button>
                     </Grid>
