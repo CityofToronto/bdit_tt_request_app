@@ -40,12 +40,18 @@ def parse_file_type_request_body(file_request_data):
         file_type = ALLOWED_FILE_TYPES[0]
 
     if 'columns' in file_request_data and type(file_request_data['columns']) == list:
-        columns = file_request_data['columns']
+        columns = file_request_data['columns']  # type: list
 
         if False in [col in DB_TRAVEL_DATA_QUERY_RESULT_FORMAT for col in columns]:
             abort(400, description="Column name invalid! Legal values are: %s" % str(
                 list(DB_TRAVEL_DATA_QUERY_RESULT_FORMAT.keys())))
             return
+
+        columns.insert(0, 'to_street')
+        columns.insert(0, 'from_street')
+        columns.insert(0, 'street')
+        columns.insert(0, 'period')
+        columns.insert(0, 'id')
     else:
         columns = list(DB_TRAVEL_DATA_QUERY_RESULT_FORMAT)
 
@@ -88,7 +94,7 @@ def parse_get_links_between_multi_nodes_request_body(nodes_data):
     return node_ids
 
 
-def parse_travel_data_query_result(travel_query_result, columns):
+def parse_travel_data_query_result(travel_query_result, columns, street_info):
     """
     Parse the travel data query result into python dictionaries (col_name mapped to their values).
 
@@ -96,6 +102,7 @@ def parse_travel_data_query_result(travel_query_result, columns):
 
     :param travel_query_result the raw query result from database
     :param columns the column names to be included in the query result
+    :param street_info the street information of each segment
     :return: a list of dictionaries containing all the travel data
     """
     travel_data_list = []
@@ -108,16 +115,23 @@ def parse_travel_data_query_result(travel_query_result, columns):
 
         raw_data = ast.literal_eval(str_data)
         parsed_data = {}
+        st_info_index = 0
 
         for i in range(len(columns)):
             col_name = columns[i]
             col_spec = DB_TRAVEL_DATA_QUERY_RESULT_FORMAT[col_name]
             raw_data_type = col_spec[0]
             raw_data_i = col_spec[1]
+
+            if raw_data_i < 0:
+                parsed_data[col_name] = street_info[int(raw_data[0]) - 1][st_info_index]  # segment id
+                st_info_index += 1
+                continue
+
             curr_raw_data = raw_data[raw_data_i]
 
             if curr_raw_data == '' or len(curr_raw_data) == 0 or curr_raw_data.isspace():
-                parsed_data[col_name] = None
+                parsed_data[col_name] = '<no data>'
             else:
                 try:
                     value = raw_data_type(curr_raw_data)

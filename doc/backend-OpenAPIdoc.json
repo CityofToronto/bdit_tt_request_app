@@ -351,12 +351,17 @@
                         "type": "object",
                         "required": [
                             "type",
+                            "name",
                             "coordinates"
                         ],
                         "properties": {
                             "type": {
                                 "type": "string",
                                 "example": "Point"
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Hwy 401"
                             },
                             "coordinates": {
                                 "type": "array",

@@ -784,12 +784,16 @@
   }
 };
             defs["Node_geometry"] = {
-  "required" : [ "coordinates", "type" ],
+  "required" : [ "coordinates", "name", "type" ],
   "type" : "object",
   "properties" : {
     "type" : {
       "type" : "string",
       "example" : "Point"
+    },
+    "name" : {
+      "type" : "string",
+      "example" : "Hwy 401"
     },
     "coordinates" : {
       "type" : "array",

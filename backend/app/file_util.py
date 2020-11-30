@@ -50,7 +50,9 @@ def make_travel_data_xlsx(travel_data_list, columns):
     for i in range(len(columns)):
         travel_data_worksheet.write(0, i, columns[i])
 
-    travel_data_worksheet.set_column('A:AF', 10, cell_format)
+    travel_data_worksheet.set_column('A:A', 5, cell_format)
+    travel_data_worksheet.set_column('B:E', 15, cell_format)
+    travel_data_worksheet.set_column('F:AI', 10, cell_format)
 
     travel_data_worksheet.set_row(0, 15, cell_format)
 

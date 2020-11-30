@@ -6,7 +6,7 @@ from sqlalchemy import func
 from app import METER_UNIT_SRID
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.models import Travel, Link
+from app.models import Travel, Link, Node
 from app.parse_util import *
 
 
@@ -51,7 +51,7 @@ def get_closest_node(longitude, latitude):
     try:
         longitude = float(longitude)
         latitude = float(latitude)
-    except ValueError:
+    except ValueError or ArithmeticError:
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
 
@@ -93,7 +93,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
-    except ValueError:
+    except ValueError or ArithmeticError:
         abort(400, description="The node_ids should be integers!")
         return
 
@@ -154,8 +154,9 @@ def get_links_travel_data_file():
     """
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
+    street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked
     trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
-    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
+    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
 
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list, columns)
@@ -202,6 +203,55 @@ def _round_up(num: float):
     if num - result > 0:
         result += 1
     return result
+
+
+def _get_street_info(list_of_link_dirs):
+    street_info = {}
+
+    for i in range(len(list_of_link_dirs)):
+        link_dirs = list_of_link_dirs[i]
+
+        start_link = Link.query.filter_by(link_dir=link_dirs[0]).first()
+        end_link = Link.query.filter_by(link_dir=link_dirs[-1]).first()
+
+        start_node = Node.query.filter_by(node_id=int(start_link.source)).first()
+        end_node = Node.query.filter_by(node_id=int(end_link.target)).first()
+
+        start_node_name = str(start_node.intersec_name)
+        end_node_name = str(end_node.intersec_name)
+
+        start_names = start_node_name.split(" & ")
+        end_names = end_node_name.split(" & ")
+
+        if len(start_names) > 2 or len(end_names) > 2:
+            abort(501,
+                  description="Only support 2-street intersection. Found %s and %s" % (
+                      str(start_names), str(end_names)))
+            return
+
+        intersect = None
+        for s_name in start_names:
+            if s_name in end_names:
+                intersect = s_name
+                break
+
+        if intersect:
+            if len(start_names) == 2:
+                start_names.remove(intersect)
+
+            if len(end_names) == 2:
+                end_names.remove(intersect)
+
+            from_street = start_names[0]
+            to_street = end_names[0]
+        else:
+            intersect = "<multiple streets>"
+            from_street = start_node_name
+            to_street = end_node_name
+
+        street_info[i] = (intersect, from_street, to_street)
+
+    return street_info
 
 
 def _get_links_by_link_dirs(link_dirs):

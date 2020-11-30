@@ -19,6 +19,9 @@ ALLOWED_FILE_TYPES = ['csv', 'xlsx']
 DB_TRAVEL_DATA_QUERY_RESULT_FORMAT = {
     'id': (int, 0),
     'period': (str, 1),
+    'street': (str, -1),
+    'from_street': (str, -1),
+    'to_street': (str, -1),
     'mean_tt': (float, 2),
     'min_tt': (float, 3),
     'max_tt': (float, 4),
