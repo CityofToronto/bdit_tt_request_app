@@ -12,7 +12,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { MAX_DATE, MIN_DATE } from "../Datetime/Range";
 import Presets from "../Datetime/Presets"
-import Days from "../Days";
+import Days from "../Settings/Days";
 
 
 class SidebarContent extends React.Component {
