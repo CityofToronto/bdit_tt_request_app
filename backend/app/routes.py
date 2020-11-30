@@ -223,33 +223,36 @@ def _get_street_info(list_of_link_dirs):
         start_names = start_node_name.split(" & ")
         end_names = end_node_name.split(" & ")
 
-        if len(start_names) > 2 or len(end_names) > 2:
-            abort(501,
-                  description="Only support 2-street intersection. Found %s and %s" % (
-                      str(start_names), str(end_names)))
-            return
-
-        intersect = None
+        intersections = []
         for s_name in start_names:
             if s_name in end_names:
-                intersect = s_name
-                break
+                intersections.append(s_name)
 
-        if intersect:
-            if len(start_names) == 2:
-                start_names.remove(intersect)
+        if len(intersections) > 0:
+            for intersec in intersections:
+                if len(start_names) > 2:
+                    start_names.remove(intersec)
 
-            if len(end_names) == 2:
-                end_names.remove(intersect)
+                if len(end_names) > 2:
+                    end_names.remove(intersec)
 
-            from_street = start_names[0]
-            to_street = end_names[0]
+            intersection = " & ".join(intersections)
+
+            if len(start_names) > 0:
+                from_street = " & ".join(start_names)
+            else:
+                from_street = " & ".join(intersections)
+
+            if len(end_names) > 0:
+                to_street = " & ".join(end_names)
+            else:
+                to_street = " & ".join(intersections)
         else:
-            intersect = "<multiple streets>"
+            intersection = "<multiple streets>"
             from_street = start_node_name
             to_street = end_node_name
 
-        street_info[i] = (intersect, from_street, to_street)
+        street_info[i] = (intersection, from_street, to_street)
 
     return street_info
 

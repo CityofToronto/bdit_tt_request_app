@@ -1,15 +1,7 @@
-#sidebar-container{
-    margin: 20px 10px 20px 20px;
+#sidebar-container {
+    margin: 20px 5px 20px 20px;
 }
 
-.presets{
+.presets {
     width: 250px;
-}
-
-.download{
-    left: 25%;
-}
-
-.popup{
-    left: 25%;
 }
