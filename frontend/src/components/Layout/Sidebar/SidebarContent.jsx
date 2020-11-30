@@ -26,15 +26,15 @@ class SidebarContent extends React.Component {
     }
 
     startDateChange(value){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.startDate = value;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
     }
 
     endDateChange(value){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.endDate = value;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
     }
 
     startTimeChange(value){
@@ -52,15 +52,17 @@ class SidebarContent extends React.Component {
     }
 
     daysOfWeekChange(index){
-        let params = this.props.activeRange.getParams();
-        params.daysOfWeek[index] = !params.daysOfWeek[index];
-        this.props.replaceActiveRange(params);
+        let params = this.props.fileSettings.getParams();
+        let newDaysOfWeek = [...params.daysOfWeek];
+        newDaysOfWeek[index] = !newDaysOfWeek[index];
+        params.daysOfWeek = newDaysOfWeek;
+        this.props.replaceSettings(params);
     }
 
     includeHolidaysChange(){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.includeHolidays = !params.includeHolidays;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
     }
 
     render() {

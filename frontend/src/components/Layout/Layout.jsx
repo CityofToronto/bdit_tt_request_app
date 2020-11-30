@@ -192,6 +192,11 @@ class Layout extends React.Component {
         this.setState({ ranges: ranges });
     }
 
+    replaceSettings = (params) => {
+        let newFileSettings = FileSettingsFactory.newFileSettings(params);
+        this.setState({ fileSettings: newFileSettings });
+    }
+
     render() {
         const activeRange = this.state.ranges[this.state.activeRange];
         let rangeNames = [];
@@ -211,6 +216,7 @@ class Layout extends React.Component {
 
                         onGo={this.downloadData}
                         fileSettings={this.state.fileSettings}
+                        replaceSettings={this.replaceSettings.bind(this)}
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}
