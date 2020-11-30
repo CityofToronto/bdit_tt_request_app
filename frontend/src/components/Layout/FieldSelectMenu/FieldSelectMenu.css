@@ -1,3 +1,7 @@
-.done{
+#done-button {
     left: 75%;
+}
+
+#field-select-menu {
+    margin: 20px 20px 20px 20px;
 }
