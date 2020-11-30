@@ -20,10 +20,6 @@ import FileSettingsFactory from "./Settings/FileSettings";
 class Layout extends React.Component {
     constructor(props) {
         super(props);
-        let fields = []
-        for(let i = 0; i < 29; i++){
-            fields.push(false);
-        }
         this.state = {
             sidebarOpen: true,
             popupOpen: false,
@@ -33,8 +29,6 @@ class Layout extends React.Component {
             activeRange: 0,
             ranges: [RangeFactory.newRange({})],
             fileSettings: FileSettingsFactory.newFileSettings({}),
-            fileType: "csv",
-            fields: fields,
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
