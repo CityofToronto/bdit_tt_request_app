@@ -64,7 +64,11 @@ class SidebarContent extends React.Component {
     }
 
     render() {
-        const params = this.props.activeRange.getParams();
+        const rangeParams = this.props.activeRange.getParams();
+        const fileParams = this.props.fileSettings.getParams();
+        let params = {};
+        Object.assign(params, rangeParams);
+        Object.assign(params, fileParams)
 
         return (
             <div id="sidebar-container">

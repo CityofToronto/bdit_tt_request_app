@@ -14,6 +14,7 @@ import "./Layout.css";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FileSettingsFactory from "./Settings/FileSettings";
 
 
 class Layout extends React.Component {
@@ -31,6 +32,7 @@ class Layout extends React.Component {
             numRanges: 1,
             activeRange: 0,
             ranges: [RangeFactory.newRange({})],
+            fileSettings: FileSettingsFactory.newFileSettings({}),
             fileType: "csv",
             fields: fields,
             disableGetButton: false
@@ -208,6 +210,7 @@ class Layout extends React.Component {
                         range={this.state.activeRange}
 
                         onGo={this.downloadData}
+                        fileSettings={this.state.fileSettings}
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}

@@ -58,6 +58,17 @@ class FileSettings{
         this.fields = fields;
     }
 
+    getParams(){
+        let params = {};
+        params.startDate = this.getStartDate();
+        params.endDate = this.getEndDate();
+        params.daysOfWeek = this.getDaysOfWeek();
+        params.includeHolidays = this.getIncludeHolidays();
+        params.fileType = this.getFileType();
+        params.fields = this.getFields();
+        return params;
+    }
+
 }
 
 class FileSettingsBuilder{
@@ -121,3 +132,5 @@ class FileSettingsFactory{
             .setIncludeHolidays(includeHolidays).setFileType(fileType).setFields(fields).getSettings();
     }
 }
+
+export default FileSettingsFactory;
