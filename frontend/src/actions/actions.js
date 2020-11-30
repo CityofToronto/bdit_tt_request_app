@@ -27,6 +27,7 @@ const parseClosestNodeResponse = (res) => {
     res.data.forEach((node) => {
         nodeArr.push({
             nodeId: node.node_id,
+            name: res.data[0].name,
             geometry: {
                 coordinate: node.geometry.coordinates,
                 type: node.geometry.type
@@ -45,6 +46,7 @@ export const getClosestNode = (page, data) => {
             if (res.data.length === 1) {
                 const newNode = {
                     nodeId: res.data[0].node_id,
+                    name: res.data[0].name,
                     geometry: {
                         coordinate: res.data[0].geometry.coordinates,
                         type: res.data[0].geometry.type
