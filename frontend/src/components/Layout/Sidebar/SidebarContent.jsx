@@ -10,9 +10,9 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { MAX_DATE, MIN_DATE } from "./Range";
-import Presets from "./Presets"
-import Days from "./Days";
+import { MAX_DATE, MIN_DATE } from "../Datetime/Range";
+import Presets from "../Datetime/Presets"
+import Days from "../Settings/Days";
 
 
 class SidebarContent extends React.Component {
@@ -26,15 +26,15 @@ class SidebarContent extends React.Component {
     }
 
     startDateChange(value){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.startDate = value;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
     }
 
     endDateChange(value){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.endDate = value;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
     }
 
     startTimeChange(value){
@@ -52,19 +52,31 @@ class SidebarContent extends React.Component {
     }
 
     daysOfWeekChange(index){
-        let params = this.props.activeRange.getParams();
-        params.daysOfWeek[index] = !params.daysOfWeek[index];
-        this.props.replaceActiveRange(params);
+        let params = this.props.fileSettings.getParams();
+        let newDaysOfWeek = [...params.daysOfWeek];
+        newDaysOfWeek[index] = !newDaysOfWeek[index];
+        params.daysOfWeek = newDaysOfWeek;
+        this.props.replaceSettings(params);
     }
 
     includeHolidaysChange(){
-        let params = this.props.activeRange.getParams();
+        let params = this.props.fileSettings.getParams();
         params.includeHolidays = !params.includeHolidays;
-        this.props.replaceActiveRange(params);
+        this.props.replaceSettings(params);
+    }
+
+    fileTypeChange(event){
+        let params = this.props.fileSettings.getParams();
+        params.fileType = event.target.value;
+        this.props.replaceSettings(params);
     }
 
     render() {
-        const params = this.props.activeRange.getParams();
+        const rangeParams = this.props.activeRange.getParams();
+        const fileParams = this.props.fileSettings.getParams();
+        let params = {};
+        Object.assign(params, rangeParams);
+        Object.assign(params, fileParams)
 
         return (
             <div id="sidebar-container">
@@ -76,8 +88,8 @@ class SidebarContent extends React.Component {
                             File Type:
                             <Select
                                 native
-                                defaultValue={"csv"}
-                                onChange={this.props.onFileTypeUpdate}
+                                value={params.fileType}
+                                onChange={this.fileTypeChange.bind(this)}
                             >
                                 <option value={"csv"}>csv</option>
                                 <option value={"xlsx-time"}>xlsx (worksheet by time period)</option>
@@ -108,6 +120,93 @@ class SidebarContent extends React.Component {
                             className={"download"}
                         >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
                         </Button>
+                    </Grid>
+
+                    <Grid item>
+                        <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
+                            <Grid item>
+                                <h5>Start Date</h5>
+                                <DatePicker required={true} locale={"en-CA"}
+                                            maxDate={MAX_DATE}
+                                            minDate={MIN_DATE}
+                                            format={"y-MM-dd"}
+                                            value={params.startDate}
+                                            onChange={this.startDateChange.bind(this)}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <h5>End Date</h5>
+                                <DatePicker required={true}
+                                            locale={"en-CA"}
+                                            maxDate={MAX_DATE}
+                                            minDate={MIN_DATE}
+                                            format={"y-MM-dd"}
+                                            value={params.endDate}
+                                            onChange={this.endDateChange.bind(this)}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+
+                    <Grid item>
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend">Select Days of Week</FormLabel>
+                            <FormGroup row>
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Monday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Monday)}
+                                                       name={Days.getDay(Days.Monday)}/>}
+                                    label="Monday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Tuesday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Tuesday)}
+                                                       name={Days.getDay(Days.Tuesday)}/>}
+                                    label="Tuesday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Wednesday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Wednesday)}
+                                                       name={Days.getDay(Days.Wednesday)}/>}
+                                    label="Wednesday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Thursday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Thursday)}
+                                                       name={Days.getDay(Days.Thursday)}/>}
+                                    label="Thursday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Friday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Friday)}
+                                                       name={Days.getDay(Days.Friday)}/>}
+                                    label="Friday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Saturday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Saturday)}
+                                                       name={Days.getDay(Days.Saturday)}/>}
+                                    label="Saturday"
+                                />
+                                <FormControlLabel
+                                    control={<Checkbox checked={params.daysOfWeek[Days.Sunday]}
+                                                       onChange={this.daysOfWeekChange.bind(this, Days.Sunday)}
+                                                       name={Days.getDay(Days.Sunday)}/>}
+                                    label="Sunday"
+                                />
+                            </FormGroup>
+                        </FormControl>
+                    </Grid>
+
+
+                    <Grid item>
+                        <FormControlLabel
+                            control={<Checkbox checked={params.includeHolidays}
+                                               onChange={this.includeHolidaysChange.bind(this)}
+                                               name={"holiday"}/>}
+                            label="Include Holidays"
+                        />
                     </Grid>
 
 
@@ -172,125 +271,31 @@ class SidebarContent extends React.Component {
 
 
                     <Grid item>
-                        <Grid container direction="column" alignContent="center" alignItems="flex-start" spacing={1}>
+                        <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
                             <Grid item>
-                                <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
-                                    <Grid item>
-                                        <h5>Start Date</h5>
-                                        <DatePicker required={true} locale={"en-CA"}
-                                                    maxDate={MAX_DATE}
-                                                    minDate={MIN_DATE}
-                                                    format={"y-MM-dd"}
-                                                    value={params.startDate}
-                                                    onChange={this.startDateChange.bind(this)}
-                                        />
-                                    </Grid>
-                                    <Grid item>
-                                        <h5>End Date</h5>
-                                        <DatePicker required={true}
-                                                    locale={"en-CA"}
-                                                    maxDate={MAX_DATE}
-                                                    minDate={MIN_DATE}
-                                                    format={"y-MM-dd"}
-                                                    value={params.endDate}
-                                                    onChange={this.endDateChange.bind(this)}
-                                        />
-                                    </Grid>
-                                </Grid>
+                                <h5>Start Time</h5>
+                                <TimePicker required={true}
+                                            format={"HH:mm"}
+                                            locale={"en-CA"}
+                                            maxDetail={"minute"}
+                                            disableClock={true}
+                                            value={params.startTime}
+                                            onChange={this.startTimeChange.bind(this)}
+                                />
                             </Grid>
-
-
                             <Grid item>
-                                <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={1}>
-                                    <Grid item>
-                                        <h5>Start Time</h5>
-                                        <TimePicker required={true}
-                                                    format={"HH:mm"}
-                                                    locale={"en-CA"}
-                                                    maxDetail={"minute"}
-                                                    disableClock={true}
-                                                    value={params.startTime}
-                                                    onChange={this.startTimeChange.bind(this)}
-                                        />
-                                    </Grid>
-                                    <Grid item>
-                                        <h5 className={"endTimeLabel"}>End Time</h5>
-                                        <TimePicker required={true}
-                                                    format={"HH:mm"}
-                                                    locale={"en-CA"}
-                                                    maxDetail={"minute"}
-                                                    disableClock={true}
-                                                    value={params.endTime}
-                                                    onChange={this.endTimeChange.bind(this)}
-                                        />
-                                    </Grid>
-                                </Grid>
+                                <h5 className={"endTimeLabel"}>End Time</h5>
+                                <TimePicker required={true}
+                                            format={"HH:mm"}
+                                            locale={"en-CA"}
+                                            maxDetail={"minute"}
+                                            disableClock={true}
+                                            value={params.endTime}
+                                            onChange={this.endTimeChange.bind(this)}
+                                />
                             </Grid>
-
-
                         </Grid>
                     </Grid>
-
-                    <Grid item>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend">Select Days of Week</FormLabel>
-                            <FormGroup row>
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Monday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Monday)}
-                                                       name={Days.getDay(Days.Monday)}/>}
-                                    label="Monday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Tuesday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Tuesday)}
-                                                       name={Days.getDay(Days.Tuesday)}/>}
-                                    label="Tuesday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Wednesday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Wednesday)}
-                                                       name={Days.getDay(Days.Wednesday)}/>}
-                                    label="Wednesday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Thursday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Thursday)}
-                                                       name={Days.getDay(Days.Thursday)}/>}
-                                    label="Thursday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Friday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Friday)}
-                                                       name={Days.getDay(Days.Friday)}/>}
-                                    label="Friday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Saturday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Saturday)}
-                                                       name={Days.getDay(Days.Saturday)}/>}
-                                    label="Saturday"
-                                />
-                                <FormControlLabel
-                                    control={<Checkbox checked={params.daysOfWeek[Days.Sunday]}
-                                                       onChange={this.daysOfWeekChange.bind(this, Days.Sunday)}
-                                                       name={Days.getDay(Days.Sunday)}/>}
-                                    label="Sunday"
-                                />
-                            </FormGroup>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item>
-                        <FormControlLabel
-                            control={<Checkbox checked={params.includeHolidays}
-                                               onChange={this.includeHolidaysChange.bind(this)}
-                                               name={"holiday"}/>}
-                            label="Include Holidays"
-                        />
-                    </Grid>
-
-
 
 
                 </Grid>

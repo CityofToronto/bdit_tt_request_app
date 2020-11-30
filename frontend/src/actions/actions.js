@@ -151,39 +151,44 @@ export const getTravelDataFile = (data, enableGetButton) => {
 		data.fileType = 'csv';
 	}
 
-	Axios({
-		url: `${domain}/travel-data-file`,
-		method: 'POST',
-		responseType: 'blob',
-		data: {
-			list_of_time_periods: data.listOfTimePeriods,
-			list_of_links: data.listOfLinkDirs,
-			file_type: data.fileType,
-			file_args: data.fileArgs
-		}
-	}).then(res => {
-		if (res.data) {
-			fileDownload(res.data, `report.${data.fileType}`);
-		} else {
-			alert("FAILED TO GET TRAVEL DATA FILE");
-		}
-		enableGetButton();
-	}).catch(err => {
-		if (!err || !err.response.status) {
-			console.error(err);
-			alert("Error in React Actions! Check console for error.");
-		} else {
-			if (err.response.status === 500) {
-				alert("Internal Server Error");
-			} else {
-				const blob = err.response.data;
-				const reader = new FileReader();
-				reader.onload = function () {
-					alert(JSON.parse(this.result).error);
-				};
-				reader.readAsText(blob);
-			}
-		}
-		enableGetButton();
-	});
+    Axios({
+        url: `${domain}/travel-data-file`,
+        method: 'POST',
+        responseType: 'blob',
+        data: {
+            list_of_time_periods: data.listOfTimePeriods,
+            list_of_links: data.listOfLinkDirs,
+            file_type: data.fileType,
+            file_args: data.fileArgs,
+            start_date: data.start_date,
+            end_date: data.end_date,
+            include_holidays: data.include_holidays,
+            days_of_week: data.days_of_week,
+            fields: data.fields
+        }
+    }).then(res => {
+        if (res.data) {
+            fileDownload(res.data, `report.${data.fileType}`);
+        } else {
+            alert("FAILED TO GET TRAVEL DATA FILE");
+        }
+        enableGetButton();
+    }).catch(err => {
+        if (!err || !err.response.status) {
+            console.error(err);
+            alert("Error in React Actions! Check console for error.");
+        } else {
+            if (err.response.status === 500) {
+                alert("Internal Server Error");
+            } else {
+                const blob = err.response.data;
+                const reader = new FileReader();
+                reader.onload = function() {
+                    alert(JSON.parse(this.result).error);
+                };
+                reader.readAsText(blob);
+            }
+        }
+        enableGetButton();
+    });
 };
