@@ -65,6 +65,12 @@ class SidebarContent extends React.Component {
         this.props.replaceSettings(params);
     }
 
+    fileTypeChange(event){
+        let params = this.props.fileSettings.getParams();
+        params.fileType = event.target.value;
+        this.props.replaceSettings(params);
+    }
+
     render() {
         const rangeParams = this.props.activeRange.getParams();
         const fileParams = this.props.fileSettings.getParams();
@@ -82,8 +88,8 @@ class SidebarContent extends React.Component {
                             File Type:
                             <Select
                                 native
-                                defaultValue={"csv"}
-                                onChange={this.props.onFileTypeUpdate}
+                                value={params.fileType}
+                                onChange={this.fileTypeChange.bind(this)}
                             >
                                 <option value={"csv"}>csv</option>
                                 <option value={"xlsx-time"}>xlsx (worksheet by time period)</option>

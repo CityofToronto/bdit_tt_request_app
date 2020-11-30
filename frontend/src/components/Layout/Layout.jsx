@@ -168,10 +168,6 @@ class Layout extends React.Component {
 
     }
 
-    onFileTypeUpdate = (e) => {
-        this.setState({fileType: e.target.value});
-    }
-
     openPopup(){
         this.setState({ popupOpen: true })
     }
@@ -209,7 +205,6 @@ class Layout extends React.Component {
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
-                        onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
                         openPopup={this.openPopup.bind(this)}
 
                         range={this.state.activeRange}
