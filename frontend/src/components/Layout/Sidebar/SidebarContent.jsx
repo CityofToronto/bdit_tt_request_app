@@ -92,9 +92,7 @@ class SidebarContent extends React.Component {
                                 onChange={this.fileTypeChange.bind(this)}
                             >
                                 <option value={"csv"}>csv</option>
-                                <option value={"xlsx-time"}>xlsx (worksheet by time period)</option>
-                                <option value={"xlsx-seg"}>xlsx (worksheet by segments)</option>
-                                <option value={"xlsx-none"}>xlsx (single worksheet)</option>
+                                <option value={"xlsx"}>xlsx</option>
                             </Select>
                         </div>
                     </Grid>

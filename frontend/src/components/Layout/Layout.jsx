@@ -147,7 +147,6 @@ class Layout extends React.Component {
                 listOfTimePeriods: list_of_time_periods,
                 listOfLinkDirs: allLinkDirs,
                 fileType: fileParams["file_type"],
-                fileArgs: fileParams["file_args"],
                 start_date: fileParams["start_date"],
                 end_date: fileParams["end_date"],
                 include_holidays: fileParams["include_holidays"],
