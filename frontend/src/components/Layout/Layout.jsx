@@ -8,7 +8,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import SidebarContent from "./Sidebar/SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import RangeFactory from "./Datetime/Range";
-import { parseTimePeriods } from "./Datetime/DateTimeParser";
+import parseTimePeriods from "./Datetime/TimeRangeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
@@ -137,16 +137,22 @@ class Layout extends React.Component {
 
             const list_of_time_periods = parseTimePeriods(this.state.ranges);
             if (!list_of_time_periods) {
-                alert("Must complete all of start date, end date, start time and end time!");
+                alert("Must complete all of start time and end time!");
                 return;
             }
 
-            const fileData = this.state.fileType.split("-");
+            const fileParams = this.state.fileSettings.parseSettings();
+
             let params = {
                 listOfTimePeriods: list_of_time_periods,
                 listOfLinkDirs: allLinkDirs,
-                fileType: fileData[0],
-                fileArgs: fileData[1]
+                fileType: fileParams["file_type"],
+                fileArgs: fileParams["file_args"],
+                start_date: fileParams["start_date"],
+                end_date: fileParams["end_date"],
+                include_holidays: fileParams["include_holidays"],
+                days_of_week: fileParams["days_of_week"],
+                fields: fileParams["fields"]
             };
 
             this.setState({disableGetButton: true});

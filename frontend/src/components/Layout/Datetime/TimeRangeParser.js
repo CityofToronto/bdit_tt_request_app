@@ -1,36 +1,32 @@
 
-export function parseTimePeriods(DatetimeRanges) {
-    let timePeriods = [];
-    DatetimeRanges.forEach(value => {
+function parseTimePeriods(TimeRanges) {
+    let listOfTimePeriods = [];
+    TimeRanges.forEach(value => {
         let parsedRange;
-        if(!timePeriods || !(parsedRange = parseRange(value))){
+        if(!listOfTimePeriods || !(parsedRange = parseRange(value))){
             return null;
         } else {
-            timePeriods.push(parsedRange)
+            listOfTimePeriods.push(parsedRange)
         }
     });
 
-    return timePeriods;
+    return listOfTimePeriods;
 }
 
 function parseRange(range){
     let params = range.getParams();
-    if (!params || !params.startDate || !params.endDate || !params.startTime || !params.endTime) {
+    if (!params || !params.startTime || !params.endTime || !params.name) {
         return null;
     }
 
-    const startDateStr = formattedDateString(params.startDate);
-    const endDateStr = formattedDateString(params.endDate);
     const startTimeStr = formattedTimeString(params.startTime);
     const endTimeStr = formattedTimeString(params.endTime);
+    const name = params.name;
 
     return {
         "start_time": startTimeStr,
         "end_time": endTimeStr,
-        "start_date": startDateStr,
-        "end_date": endDateStr,
-        "days_of_week": params.daysOfWeek,
-        "include_holidays": params.includeHolidays
+        "name": name
     };
 }
 

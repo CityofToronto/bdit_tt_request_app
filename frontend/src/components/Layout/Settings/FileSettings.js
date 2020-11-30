@@ -1,4 +1,5 @@
 import {MAX_DATE, MIN_DATE} from "../Datetime/Range";
+import {formattedDateString} from "../Datetime/TimeRangeParser";
 
 class FileSettings{
     constructor() {
@@ -67,6 +68,24 @@ class FileSettings{
         params.fileType = this.getFileType();
         params.fields = this.getFields();
         return params;
+    }
+
+    parseSettings(){
+        if( !this.startDate || !this.endDate || !this.daysOfWeek || this.includeHolidays === null ||
+            !this.fileType || !this.fields){
+            return null;
+        } else {
+            let fileData = this.fileType.split('-');
+            return {
+                'start_date': formattedDateString(this.startDate),
+                'end_date': formattedDateString(this.endDate),
+                'days_of_week': this.daysOfWeek,
+                'include_holidays': this.includeHolidays,
+                'file_type': fileData[0],
+                'fields': this.fields,
+                'file_args': fileData[1]
+            };
+        }
     }
 
 }
