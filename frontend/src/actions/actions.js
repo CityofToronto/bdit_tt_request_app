@@ -28,7 +28,7 @@ const parseClosestNodeResponse = (res) => {
     res.data.forEach((node) => {
         nodeArr.push({
             nodeId: node.node_id,
-            name: res.data[0].name,
+            name: node.name,
             geometry: {
                 coordinate: node.geometry.coordinates,
                 type: node.geometry.type
