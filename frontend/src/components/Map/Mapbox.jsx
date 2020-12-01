@@ -176,9 +176,11 @@ class Mapbox extends React.Component {
     checkIfLinkDirDrawn(checkCoor, bidirection, other) {
         let holdCoorArr = [];
         for (let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++) {
-            holdCoorArr = this.state.linksData[sequenceIndex][0].geometry.coordinates;
-            if (this.checkArrHelper1(checkCoor, holdCoorArr)) {
-                return true;
+            for(let arrIndex = 0; arrIndex < this.state.linksData[sequenceIndex].length; arrIndex++){
+                holdCoorArr = this.state.linksData[sequenceIndex][arrIndex].geometry.coordinates;
+                if (this.checkArrHelper1(checkCoor, holdCoorArr)) {
+                    return true;
+                }
             }
         }
         return this.checkArrHelper2(checkCoor, bidirection) || this.checkArrHelper2(checkCoor, other);
