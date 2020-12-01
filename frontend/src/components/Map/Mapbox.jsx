@@ -618,17 +618,17 @@ class Mapbox extends React.Component {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
             // alert("Please input a sequence");
-            NotificationManager.error('Please input a sequence');
+            NotificationManager.error('Please Input a Sequence');
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
             // alert("Please input a valid sequence");
-            NotificationManager.error('Please input a valid sequence');
+            NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
             // alert("Please input a valid sequence");
-            NotificationManager.error('Please input a valid sequence');
+            NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
         let tempCurrSequence = this.state.currentSequence + 1;
@@ -656,7 +656,7 @@ class Mapbox extends React.Component {
             newDisplayedMarkers.push(newMarker);
         }
         // alert("Reversed sequence " + this.state.selectedSeq);
-        NotificationManager.success("Reversed sequence " + this.state.selectedSeq);
+        NotificationManager.success("Reversed Sequence " + this.state.selectedSeq);
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
