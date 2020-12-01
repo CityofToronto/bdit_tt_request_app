@@ -230,11 +230,8 @@ def _get_street_info(list_of_link_dirs):
 
         if len(intersections) > 0:
             for intersec in intersections:
-                if len(start_names) > 2:
-                    start_names.remove(intersec)
-
-                if len(end_names) > 2:
-                    end_names.remove(intersec)
+                start_names.remove(intersec)
+                end_names.remove(intersec)
 
             intersection = " & ".join(intersections)
 
