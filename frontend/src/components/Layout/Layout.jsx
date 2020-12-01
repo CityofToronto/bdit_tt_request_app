@@ -12,6 +12,7 @@ import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
 import FileSettingsFactory from "./Settings/FileSettings";
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 class Layout extends React.Component {
@@ -218,13 +219,15 @@ class Layout extends React.Component {
                     rootClassName={"topbar"}
                     sidebarClassName={"sidebar"}
                 >
-                    <Button
-                        variant="contained"
-                        onClick={() => this.onSetSidebarOpen(true)}
-                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
-                    >
-                        Edit Query
-                    </Button>
+                    <Tooltip title={<span style={{ fontSize: "20px"}}>Click to edit query and get file.</span>}>
+                        <Button
+                            variant="contained"
+                            onClick={() => this.onSetSidebarOpen(true)}
+                            style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
+                        >
+                            Edit Query
+                        </Button>
+                    </Tooltip>
                 </Sidebar>
 
                 <Mapbox
