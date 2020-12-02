@@ -11,4 +11,4 @@ FROM fetch_aggregated_travel_data(time_periods, segments,
                                   start_date, end_date,
                                   days_of_week, include_holidays);
 
-$$ LANGUAGE sql volatile;
+$$ LANGUAGE sql volatile security definer ;
