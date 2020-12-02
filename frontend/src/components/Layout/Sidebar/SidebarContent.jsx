@@ -86,7 +86,9 @@ class SidebarContent extends React.Component {
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select your desired file format. XLSX and CSV are supported.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>
+                                    Click to select your desired file format. XLSX and CSV are supported.
+                                </span>}>
                                     <div
                                         ref={React.createRef()}>
                                         File Type: &nbsp; &nbsp;
@@ -227,7 +229,7 @@ class SidebarContent extends React.Component {
 
                     <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
-                            <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select time range to edit.</span>}>
+                            <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Click to select time range to edit.</span>}>
                                 <Grid item>
                                     <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
                                         <Grid item>
@@ -271,7 +273,7 @@ class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
 
-                            <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select and apply preset time range. There are 2 preset time ranges: AM Peak and PM Peak.</span>}>
+                            <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Click to select and apply preset time range. There are 2 preset time ranges: AM Peak and PM Peak.</span>}>
                                 <Grid item>
                                     <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={1}>
                                         <Grid item>
