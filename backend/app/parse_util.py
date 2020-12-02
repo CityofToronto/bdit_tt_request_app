@@ -308,10 +308,12 @@ def parse_get_links_btwn_nodes_response(response: str):
     geom_json = json.loads(wkb_str)
 
     source_target_links_str = response[:wkb_str_split] + ')'
+    print(source_target_links_str)
     # if there is only one link between nodes, need to add double quotes to enforce same formatting as multi-link
     if source_target_links_str[-2] != '"' and source_target_links_str[-2] != "'":
         source_target_links_str = source_target_links_str.replace(',{', ',"{')
         source_target_links_str = source_target_links_str.replace('})', '}")')
+        source_target_links_str = source_target_links_str.replace('},', '}",')
 
     # cast the curly bracket surrounded raw link_dir list to a square bracket surrounds quoted link_dir list
     # so that the link_dirs can be casted to a string list
