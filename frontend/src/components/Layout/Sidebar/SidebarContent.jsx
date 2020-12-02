@@ -252,6 +252,13 @@ class SidebarContent extends React.Component {
                                       spacing={1}>
                                     <Grid item>
                                         <Button variant="outlined" color="primary" size="small"
+                                                onclick={null}>
+                                            Rename Range
+                                        </Button>
+                                    </Grid>
+
+                                    <Grid item>
+                                        <Button variant="outlined" color="primary" size="small"
                                                 onClick={this.props.addNewRange}>
                                             Add New Time Range
                                         </Button>
