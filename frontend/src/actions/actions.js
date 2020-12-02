@@ -143,6 +143,18 @@ export const getProjectTitle = (page) => {
 };
 
 
+/* GET end date bound */
+export const getEndDate = (page) => {
+    axios.get(`${domain}/end-date`).then(res => {
+        if (res.data) {
+            page.setState({endDate: res.data});
+        } else {
+            alert("FAILED TO GET END DATE");
+        }
+    }).catch(err => handleResponseError(err));
+};
+
+
 /* GET travel data file of link */
 /* sample data input: {
         "startTime": "2018-09-01 12:00:00",
