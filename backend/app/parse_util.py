@@ -322,6 +322,7 @@ def parse_get_links_btwn_nodes_response(response: str):
     path_name_str = source_target_links_tuple[2]  # type: str
     path_name_str = path_name_str.replace('NULL,', '')
     path_name_str = path_name_str.replace(',NULL', '')
+    path_name_str = path_name_str.replace('NULL', 'nameless road')
     path_name_str = path_name_str.replace('{', '["')
     path_name_str = path_name_str.replace('}', '"]')
     path_name_str = path_name_str.replace(',', '","')
