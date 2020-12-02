@@ -81,7 +81,7 @@ class SidebarContent extends React.Component {
 
         return (
             <div id="sidebar-container">
-                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={6}>
+                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
 
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
