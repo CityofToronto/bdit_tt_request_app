@@ -1,6 +1,5 @@
 import {MIN_DATE} from "../Datetime/Range";
 import {formattedDateString} from "../Datetime/TimeRangeParser";
-import {getEndDate} from "../../../actions/actions";
 
 class FileSettings{
     constructor() {

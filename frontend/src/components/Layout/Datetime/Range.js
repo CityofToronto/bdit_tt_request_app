@@ -1,6 +1,4 @@
 //export const MAX_DATE = new Date("2018-09-30 19:55:00");
-import {getEndDate} from "../../../actions/actions";
-
 export const MIN_DATE = new Date("2018-09-01 00:00:00");
 
 class TimeRange{
