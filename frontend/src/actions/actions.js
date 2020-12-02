@@ -4,8 +4,8 @@ import {VALID_COLUMN_NAMES} from "../components/Layout/FieldSelectMenu/FieldSele
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-// const domain = "http://127.0.0.1:5000";
+//const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
+const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
@@ -144,10 +144,10 @@ export const getProjectTitle = (page) => {
 
 
 /* GET end date bound */
-export const getEndDate = (page) => {
+export const getEndDate = () => {
     axios.get(`${domain}/end-date`).then(res => {
         if (res.data) {
-            page.setState({endDate: res.data});
+            return new Date(res.data)
         } else {
             alert("FAILED TO GET END DATE");
         }

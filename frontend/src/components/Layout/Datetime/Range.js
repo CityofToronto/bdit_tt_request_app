@@ -1,4 +1,6 @@
 //export const MAX_DATE = new Date("2018-09-30 19:55:00");
+import {getEndDate} from "../../../actions/actions";
+
 export const MIN_DATE = new Date("2018-09-01 00:00:00");
 
 class TimeRange{
@@ -86,7 +88,7 @@ class RangeBuilder{
 class RangeFactory{
     static newRange(params){
         let startTime = params.startTime !== undefined ? params.startTime : MIN_DATE;
-        let endTime = params.endTime !== undefined ? params.endTime : MAX_DATE;
+        let endTime = params.endTime !== undefined ? params.endTime : getEndDate();
         let preset = params.preset !== undefined ? params.preset : "Custom";
         let name = params.name !== undefined ? params.name : "new range";
 

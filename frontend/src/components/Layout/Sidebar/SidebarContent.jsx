@@ -142,7 +142,7 @@ class SidebarContent extends React.Component {
                                 <h5>Start Date</h5>
                                 <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the start date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true} locale={"en-CA"}
-                                            maxDate={this.state.endDate}
+                                            maxDate={getEndDate()}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.startDate}
@@ -155,7 +155,7 @@ class SidebarContent extends React.Component {
                                 <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the end date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true}
                                             locale={"en-CA"}
-                                            maxDate={this.state.endDate}
+                                            maxDate={getEndDate()}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.endDate}
