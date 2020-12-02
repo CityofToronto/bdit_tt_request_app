@@ -57,7 +57,7 @@ class Mapbox extends React.Component {
             updateNodeIndex: 0,
             openHelp: false,
             currentHelpIndex: -1,
-            gifArray: [createNodeGif, removeNodeGif, newSeqGif, dragNodeGif, removeLinkGif, resetMapGif, reverseSeqGif, updateLinkGif]
+            gifArray: [createNodeGif, reverseSeqGif, updateLinkGif, newSeqGif, removeNodeGif, removeLinkGif, resetMapGif, dragNodeGif]
         };
     };
 
@@ -696,38 +696,38 @@ class Mapbox extends React.Component {
                         })
         }
         else if (inputNum === 1) {
-            this.setState({currentHelp: "To remove the last node, press the remove last node button.  Example: ",
+            this.setState({currentHelp: "To reverse a sequence, press the reverse sequence button. Example: ",
                             HelpIcon: this.state.gifArray[1],
                             currentHelpIndex: 1
                         })
         }
         else if (inputNum === 2) {
-            this.setState({currentHelp: "To start a new sequence, press the create new sequence button. Example:  ",
-                            HelpIcon: this.state.gifArray[2],
-                            currentHelpIndex: 2
-                        })
+            this.setState({currentHelp: "To update links, press the update & remove link button Example: ",
+            HelpIcon: this.state.gifArray[2],
+            currentHelpIndex: 2
+        })
         }
         else if (inputNum === 3) {
-            this.setState({currentHelp: "To reset the map, press the reset map button. Example: ",
-                            HelpIcon: this.state.gifArray[5],
-                            currentHelpIndex: 3
-                        })
+            this.setState({currentHelp: "To start a new sequence, press the create new sequence button. Example:  ",
+            HelpIcon: this.state.gifArray[3],
+            currentHelpIndex: 3
+        })
         }
         else if (inputNum === 4) {
-            this.setState({currentHelp: "To remove all links, press the remove all links button. Example: ",
+            this.setState({currentHelp: "To remove the last node, press the remove last node button.  Example: ",
                             HelpIcon: this.state.gifArray[4],
                             currentHelpIndex: 4
                         })
         }
         else if (inputNum === 5) {
-            this.setState({currentHelp: "To reverse a sequence, press the reverse sequence button. Example: ",
-                            HelpIcon: this.state.gifArray[6],
-                            currentHelpIndex: 5
-                        })
+            this.setState({currentHelp: "To remove all links, press the remove all links button. Example: ",
+            HelpIcon: this.state.gifArray[5],
+            currentHelpIndex: 5
+        })
         }
         else if (inputNum === 6) {
-            this.setState({currentHelp: "To update links, press the update & remove link button Example: ",
-                            HelpIcon: this.state.gifArray[7],
+            this.setState({currentHelp: "To reset the map, press the reset map button. Example: ",
+                            HelpIcon: this.state.gifArray[6],
                             currentHelpIndex: 6
                         })
         }
@@ -794,25 +794,25 @@ class Mapbox extends React.Component {
                     <Button variant="contained" color="primary" size="small" id='link-button'
                             disabled={this.state.disableGetLink}
                             onClick={() => this.getLink()}>Update & Display Links</Button>
-                    <HelpIcon name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
                     
                     </HelpIcon>
-                    <HelpIcon name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(1)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(1)}>
                 
                     </HelpIcon>
-                    <HelpIcon name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(2)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(2)}>
                 
                     </HelpIcon>
-                    <HelpIcon name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(5)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(3)}>
                 
                     </HelpIcon>
-                    <HelpIcon name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(4)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(4)}>
                 
                     </HelpIcon>
-                    <HelpIcon name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(3)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(5)}>
                 
                     </HelpIcon>
-                    <HelpIcon name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(6)}>
+                    <HelpIcon style={{cursor: "pointer"}} name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(6)}>
                 
                     </HelpIcon>
                 </div>
@@ -824,7 +824,7 @@ class Mapbox extends React.Component {
                 >
                     <DialogTitle id="alert-dialog-title">{this.state.currentHelp}</DialogTitle>
                     <img src={this.state.HelpIcon} alt="loading..." />
-                    {this.state.currentHelpIndex === 0? <div><DialogTitle id="alert-dialog-title">{"To move an existing node, click and drag it. Example:"}</DialogTitle> <img src={this.state.gifArray[3]} alt="loading..." /></div>: <div></div>}
+                    {this.state.currentHelpIndex === 0? <div><DialogTitle id="alert-dialog-title">{"To move an existing node, click and drag it. Example:"}</DialogTitle> <img src={this.state.gifArray[7]} alt="loading..." /></div>: <div></div>}
                 </Dialog>
                 <NotificationContainer/>
             </div>
