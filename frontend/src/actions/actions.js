@@ -144,10 +144,10 @@ export const getProjectTitle = (page) => {
 
 
 /* GET end date bound */
-export const getEndDate = () => {
+export const getEndDate = (page) => {
     axios.get(`${domain}/end-date`).then(res => {
         if (res.data) {
-            return new Date(res.data)
+            page.setState({maxDate: new Date(res.data)})
         } else {
             alert("FAILED TO GET END DATE");
         }

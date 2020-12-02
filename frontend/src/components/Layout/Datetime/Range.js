@@ -88,7 +88,7 @@ class RangeBuilder{
 class RangeFactory{
     static newRange(params){
         let startTime = params.startTime !== undefined ? params.startTime : MIN_DATE;
-        let endTime = params.endTime !== undefined ? params.endTime : getEndDate();
+        let endTime = params.endTime !== undefined ? params.endTime : new Date("2018-09-30 19:55:00");
         let preset = params.preset !== undefined ? params.preset : "Custom";
         let name = params.name !== undefined ? params.name : "new range";
 
