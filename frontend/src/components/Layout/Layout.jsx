@@ -101,6 +101,17 @@ class Layout extends React.Component {
         }
     }
 
+    renameRange(){
+        const name = prompt("Enter the new Name");
+        if(!name || name === ""){
+            alert("You must enter a name");
+        } else {
+            let params = this.state.ranges[this.state.activeRange].getParams();
+            params.name = name;
+            this.replaceActiveRange(params);
+        }
+    }
+
     deleteCurrRange() {
         if (this.state.numRanges <= 1) {
             alert("Must have at least one range!");
@@ -209,6 +220,7 @@ class Layout extends React.Component {
                         replicateCurrRange={this.replicateRange.bind(this)}
                         deleteCurrRange={this.deleteCurrRange.bind(this)}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
+                        renameRange={this.renameRange.bind(this)}
 
                         activeRange={activeRange}
                         replaceActiveRange={this.replaceActiveRange.bind(this)}

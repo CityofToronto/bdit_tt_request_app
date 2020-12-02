@@ -81,12 +81,14 @@ class SidebarContent extends React.Component {
 
         return (
             <div id="sidebar-container">
-                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={6}>
+                <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
 
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select your desired file format. XLSX and CSV are supported.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>
+                                    Click to select your desired file format. XLSX and CSV are supported.
+                                </span>}>
                                     <div
                                         ref={React.createRef()}>
                                         File Type: &nbsp; &nbsp;
@@ -103,7 +105,7 @@ class SidebarContent extends React.Component {
                             </Grid>
 
                             <Grid item>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -116,7 +118,7 @@ class SidebarContent extends React.Component {
                             </Grid>
 
                             <Grid item>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}>
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -134,7 +136,7 @@ class SidebarContent extends React.Component {
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>Set the start date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the start date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true} locale={"en-CA"}
                                             maxDate={MAX_DATE}
                                             minDate={MIN_DATE}
@@ -146,7 +148,7 @@ class SidebarContent extends React.Component {
                             </Grid>
                             <Grid item>
                                 <h5>End Date</h5>
-                                <Tooltip title={<span style={{ fontSize: "20px"}}>Set the end date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
+                                <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the end date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true}
                                             locale={"en-CA"}
                                             maxDate={MAX_DATE}
@@ -162,7 +164,7 @@ class SidebarContent extends React.Component {
 
 
                     <Grid item>
-                        <Tooltip title={<span style={{ fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}>
+                        <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}>
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Select Days of Week</FormLabel>
                                 <FormGroup row>
@@ -215,7 +217,7 @@ class SidebarContent extends React.Component {
 
 
                     <Grid item>
-                        <Tooltip title={<span style={{ fontSize: "20px"}}>Check to whether include holidays in the query.</span>}>
+                        <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Check to whether include holidays in the query.</span>}>
                             <FormControlLabel
                                 control={<Checkbox checked={params.includeHolidays}
                                                    onChange={this.includeHolidaysChange.bind(this)}
@@ -227,7 +229,7 @@ class SidebarContent extends React.Component {
 
                     <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
-                            <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select time range to edit.</span>}>
+                            <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Click to select time range to edit.</span>}>
                                 <Grid item>
                                     <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
                                         <Grid item>
@@ -248,6 +250,14 @@ class SidebarContent extends React.Component {
                             <Grid item>
                                 <Grid container direction="column" alignContent="flex-start" alignItems="flex-start"
                                       spacing={1}>
+
+                                    <Grid item>
+                                        <Button variant="outlined" color="primary" size="small"
+                                                onClick={this.props.renameRange}>
+                                            Rename Range
+                                        </Button>
+                                    </Grid>
+
                                     <Grid item>
                                         <Button variant="outlined" color="primary" size="small"
                                                 onClick={this.props.addNewRange}>
@@ -271,7 +281,7 @@ class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
 
-                            <Tooltip title={<span style={{ fontSize: "20px"}}>Click to select and apply preset time range. There are 2 preset time ranges: AM Peak and PM Peak.</span>}>
+                            <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Click to select and apply preset time range. There are 2 preset time ranges: AM Peak and PM Peak.</span>}>
                                 <Grid item>
                                     <Grid container direction={"row"} alignContent="center" alignItems="center" spacing={1}>
                                         <Grid item>
@@ -295,7 +305,7 @@ class SidebarContent extends React.Component {
                                       spacing={4}>
                                     <Grid item>
                                         <h5>Start Time</h5>
-                                        <Tooltip title={<span style={{ fontSize: "20px"}}>Set the start time of the current time range in the format of HH:MM.</span>}>
+                                        <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the start time of the current time range in the format of HH:MM.</span>}>
                                             <TimePicker required={true}
                                                         format={"HH:mm"}
                                                         locale={"en-CA"}
@@ -308,7 +318,7 @@ class SidebarContent extends React.Component {
                                     </Grid>
                                     <Grid item>
                                         <h5 className={"endTimeLabel"}>End Time</h5>
-                                        <Tooltip title={<span style={{ fontSize: "20px"}}>Set the end time of the current time range in the format of HH:MM.</span>}>
+                                        <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the end time of the current time range in the format of HH:MM.</span>}>
                                             <TimePicker required={true}
                                                         format={"HH:mm"}
                                                         locale={"en-CA"}
