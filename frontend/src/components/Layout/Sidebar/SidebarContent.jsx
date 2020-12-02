@@ -250,9 +250,10 @@ class SidebarContent extends React.Component {
                             <Grid item>
                                 <Grid container direction="column" alignContent="flex-start" alignItems="flex-start"
                                       spacing={1}>
+
                                     <Grid item>
                                         <Button variant="outlined" color="primary" size="small"
-                                                onclick={null}>
+                                                onClick={this.props.renameRange}>
                                             Rename Range
                                         </Button>
                                     </Grid>
