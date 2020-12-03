@@ -20,7 +20,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
-import HelpIcon from '@material-ui/icons/Help';
+import InfoIcon from '@material-ui/icons/Info';
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 
@@ -794,27 +794,28 @@ class Mapbox extends React.Component {
                     <Button variant="contained" color="primary" size="small" id='link-button'
                             disabled={this.state.disableGetLink}
                             onClick={() => this.getLink()}>Update & Display Links</Button>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
                     
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(1)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(1)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(2)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(2)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(3)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(3)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(4)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(4)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(5)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(5)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(6)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(6)}>
                 
-                    </HelpIcon>
+                    </InfoIcon>
+
                 </div>
                 <Dialog
                     open={this.state.openHelp}
