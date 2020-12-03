@@ -97,12 +97,6 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                // if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
-                //     alert("Currently only allow maximum 10 nodes on the map!");
-                // } else {
-                //     this.disableInteractions();
-                //     getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-                // }
                 this.disableInteractions();
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             }
@@ -415,7 +409,6 @@ class Mapbox extends React.Component {
     updateMarker(nodeIndex, nodeCandidate, updateNodeCandidateClose) {
         const newNode = nodeCandidate;
         if (this.isDuplicateMarker(newNode, nodeIndex)) {
-            // alert("Can not drag to the node right before it or after it!");
             NotificationManager.error('Can not drag to the node right before it or after it!');
             this.setState({
                 disableAddMarker: false,
@@ -484,7 +477,6 @@ class Mapbox extends React.Component {
         const newNode = nodeCandidate;
 
         if (this.isDuplicateEndNode(newNode)) {
-            // alert("Can not select the same node as the last node!");
             NotificationManager.error('Can not select the same node as the last node!');
             this.setState({
                 disableAddMarker: false,
@@ -571,7 +563,7 @@ class Mapbox extends React.Component {
             tempColorArray.pop();
             NotificationManager.warning('Removed Last Segment');
         }
-        // this is where alll nodes are removed
+        // this is where all nodes are removed
         if (tempCurrentSeq === -1) {
             //     this.setState({
             //         clickedNodes: [[]],
@@ -600,7 +592,6 @@ class Mapbox extends React.Component {
     }
 
     newSeq() {
-        // alert("New Sequence Created, Please Place a Node");
         NotificationManager.success('New Segment Created, Please Place a Node');
         let newColor = this.state.sequenceColours[0];
         while (this.state.sequenceColours.includes(newColor)) {
@@ -631,17 +622,14 @@ class Mapbox extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-            // alert("Please input a sequence");
             NotificationManager.error('Please Input a Sequence');
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
-            // alert("Please input a valid sequence");
             NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
-            // alert("Please input a valid sequence");
             NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
@@ -669,7 +657,6 @@ class Mapbox extends React.Component {
             newClickedNodes.push(currNode);
             newDisplayedMarkers.push(newMarker);
         }
-        // alert("Reversed sequence " + this.state.selectedSeq);
         NotificationManager.success("Reversed Segment " + this.state.selectedSeq);
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
@@ -772,7 +759,6 @@ class Mapbox extends React.Component {
                     <form className="reverse-seq-input" noValidate autoComplete="off">
                         <TextField label="Current Segment" InputProps={{readOnly: true,}}
                                    value={"Current Segment #" + this.state.currentSequence}/>
-                        {/* <TextField label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/> */}
                         <TextField label="Reverse Seg #" value={this.state.selectedSeq}
                                    onChange={this.onChangeSelectSeq} variant="filled"/>
                     </form>
