@@ -69,7 +69,9 @@ class Layout extends React.Component {
         let ranges = [...this.state.ranges];
         const name = prompt("Name the new range")
         if(!name || name === ""){
-            alert("You must enter a name");
+            if(name === "") {
+                alert("You must enter a name");
+            }
         } else {
             ranges.push(RangeFactory.newRange({ name: name, endTime: this.props.state.maxDate}));
             this.setState({
@@ -89,7 +91,9 @@ class Layout extends React.Component {
         const name = prompt("Name the new Range");
 
         if(!name || name === ""){
-            alert("You must enter a name");
+            if(name === "") {
+                alert("You must enter a name");
+            }
         } else {
             params.name = name;
             ranges.push(RangeFactory.newRange(params));
@@ -104,7 +108,9 @@ class Layout extends React.Component {
     renameRange(){
         const name = prompt("Enter the new Name");
         if(!name || name === ""){
-            alert("You must enter a name");
+            if(name === "") {
+                alert("You must enter a name");
+            }
         } else {
             let params = this.state.ranges[this.state.activeRange].getParams();
             params.name = name;

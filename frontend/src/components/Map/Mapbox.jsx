@@ -20,10 +20,10 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
-import HelpIcon from '@material-ui/icons/Help';
+import InfoIcon from '@material-ui/icons/Info';
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
-
+// Note: Sequence and Segment are the same
 class Mapbox extends React.Component {
 
     constructor(props) {
@@ -97,12 +97,6 @@ class Mapbox extends React.Component {
         });
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                // if (this.state.clickedNodes[this.state.currentSequence].length >= 10) {
-                //     alert("Currently only allow maximum 10 nodes on the map!");
-                // } else {
-                //     this.disableInteractions();
-                //     getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
-                // }
                 this.disableInteractions();
                 getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
             }
@@ -415,7 +409,6 @@ class Mapbox extends React.Component {
     updateMarker(nodeIndex, nodeCandidate, updateNodeCandidateClose) {
         const newNode = nodeCandidate;
         if (this.isDuplicateMarker(newNode, nodeIndex)) {
-            // alert("Can not drag to the node right before it or after it!");
             NotificationManager.error('Can not drag to the node right before it or after it!');
             this.setState({
                 disableAddMarker: false,
@@ -434,7 +427,7 @@ class Mapbox extends React.Component {
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
             const draggedMarker = newMarkers[nodeSequenceIndex];
             draggedMarker.setPopup(new mapboxgl.Popup()
-                .setText("Sequence Number: " + nodeSequence.toString() + ", Node Number: "
+                .setText("Segment Number: " + nodeSequence.toString() + ", Node Number: "
                     + nodeSequenceIndex.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString()))
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
@@ -484,7 +477,6 @@ class Mapbox extends React.Component {
         const newNode = nodeCandidate;
 
         if (this.isDuplicateEndNode(newNode)) {
-            // alert("Can not select the same node as the last node!");
             NotificationManager.error('Can not select the same node as the last node!');
             this.setState({
                 disableAddMarker: false,
@@ -500,7 +492,7 @@ class Mapbox extends React.Component {
                 draggable: true,
                 "color": this.state.sequenceColours[this.state.currentSequence]
             }).setLngLat(newNode.geometry.coordinate).setPopup(new mapboxgl.Popup()
-                .setText("Sequence Number: " + this.state.currentSequence.toString() + ", Node Number: "
+                .setText("Segment Number: " + this.state.currentSequence.toString() + ", Node Number: "
                     + this.state.clickedNodes[this.state.currentSequence].length.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString()))
                 .addTo(this.state.map);
             newMarker._element.id = this.state.currentSequence.toString() + "," +
@@ -569,9 +561,9 @@ class Mapbox extends React.Component {
             newArray.pop();
             newDisplayedMarkerArray.pop();
             tempColorArray.pop();
-            NotificationManager.warning('Removed Last Sequence');
+            NotificationManager.warning('Removed Last Segment');
         }
-        // this is where alll nodes are removed
+        // this is where all nodes are removed
         if (tempCurrentSeq === -1) {
             //     this.setState({
             //         clickedNodes: [[]],
@@ -600,8 +592,7 @@ class Mapbox extends React.Component {
     }
 
     newSeq() {
-        // alert("New Sequence Created, Please Place a Node");
-        NotificationManager.success('New Sequence Created, Please Place a Node');
+        NotificationManager.success('New Segment Created, Please Place a Node');
         let newColor = this.state.sequenceColours[0];
         while (this.state.sequenceColours.includes(newColor)) {
             newColor = this.getRandomColor();
@@ -631,17 +622,14 @@ class Mapbox extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-            // alert("Please input a sequence");
             NotificationManager.error('Please Input a Sequence');
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
-            // alert("Please input a valid sequence");
             NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
-            // alert("Please input a valid sequence");
             NotificationManager.error('Please Input a Valid Sequence');
             return;
         }
@@ -657,8 +645,8 @@ class Mapbox extends React.Component {
             const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
                 .setLngLat(currNode.geometry.coordinate)
                 .setPopup(new mapboxgl.Popup().setText(
-                    "Sequence Number: " + tempCurrSequence.toString() +
-                    ", Node Number: " + i.toString() + ", Node_ID: " + currNode.nodeId.toString()))
+                    "Segment Number: " + tempCurrSequence.toString() +
+                    ", Node Number: " + i.toString() + ", Node Name: " + currNode.name.toString() + ", Node_ID: " + currNode.nodeId.toString()))
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
@@ -669,8 +657,7 @@ class Mapbox extends React.Component {
             newClickedNodes.push(currNode);
             newDisplayedMarkers.push(newMarker);
         }
-        // alert("Reversed sequence " + this.state.selectedSeq);
-        NotificationManager.success("Reversed Sequence " + this.state.selectedSeq);
+        NotificationManager.success("Reversed Segment " + this.state.selectedSeq);
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([newDisplayedMarkers]),
             currentSequence: tempCurrSequence,
@@ -696,7 +683,7 @@ class Mapbox extends React.Component {
                         })
         }
         else if (inputNum === 1) {
-            this.setState({currentHelp: "To reverse a sequence, press the reverse sequence button. Example: ",
+            this.setState({currentHelp: "To reverse a segment, press the reverse segment button. Example: ",
                             HelpIcon: this.state.gifArray[1],
                             currentHelpIndex: 1
                         })
@@ -708,7 +695,7 @@ class Mapbox extends React.Component {
         })
         }
         else if (inputNum === 3) {
-            this.setState({currentHelp: "To start a new sequence, press the create new sequence button. Example:  ",
+            this.setState({currentHelp: "To start a new segment, press the create new segment button. Example:  ",
             HelpIcon: this.state.gifArray[3],
             currentHelpIndex: 3
         })
@@ -770,10 +757,9 @@ class Mapbox extends React.Component {
                 </Dialog>
                 <div className="map-options">
                     <form className="reverse-seq-input" noValidate autoComplete="off">
-                        <TextField label="Current Sequence" InputProps={{readOnly: true,}}
-                                   value={"Current Sequence #" + this.state.currentSequence}/>
-                        {/* <TextField label="Sequence #" variant="filled" value={this.state.selectedSeq}  onChange={this.onChangeSelectSeq}/> */}
-                        <TextField label="Reverse Seq #" value={this.state.selectedSeq}
+                        <TextField label="Current Segment" InputProps={{readOnly: true,}}
+                                   value={"Current Segment #" + this.state.currentSequence}/>
+                        <TextField label="Reverse Seg #" value={this.state.selectedSeq}
                                    onChange={this.onChangeSelectSeq} variant="filled"/>
                     </form>
                     <Button variant="contained" color="primary" size="small" id='reverseSeq-button'
@@ -781,7 +767,7 @@ class Mapbox extends React.Component {
                             onClick={this.onSubmit}>Reverse</Button>
                     <Button variant="contained" color="primary" size="small" id='newSeq-button'
                             disabled={this.state.disableNewSeq}
-                            onClick={() => this.newSeq()}>New Sequence</Button>
+                            onClick={() => this.newSeq()}>New Segment</Button>
                     <Button variant="contained" color="primary" size="small" id='reset-button'
                             disabled={this.state.disableReset}
                             onClick={() => this.resetMap()}>Reset Map</Button>
@@ -794,27 +780,28 @@ class Mapbox extends React.Component {
                     <Button variant="contained" color="primary" size="small" id='link-button'
                             disabled={this.state.disableGetLink}
                             onClick={() => this.getLink()}>Update & Display Links</Button>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="createNodeHelp" onClick={(e) => this.handleIconClicks(0)}>
                     
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(1)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp" onClick={(e) => this.handleIconClicks(1)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(2)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp" onClick={(e) => this.handleIconClicks(2)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(3)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="newSeqGifHelp" onClick={(e) => this.handleIconClicks(3)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(4)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp" onClick={(e) => this.handleIconClicks(4)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(5)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp" onClick={(e) => this.handleIconClicks(5)}>
                 
-                    </HelpIcon>
-                    <HelpIcon style={{cursor: "pointer"}} name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(6)}>
+                    </InfoIcon>
+                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="resetMapGifHelp" onClick={(e) => this.handleIconClicks(6)}>
                 
-                    </HelpIcon>
+                    </InfoIcon>
+
                 </div>
                 <Dialog
                     open={this.state.openHelp}
