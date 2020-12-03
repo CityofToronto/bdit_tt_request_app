@@ -9,11 +9,10 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import RangeFactory, {MIN_DATE} from "../Datetime/Range";
+import {MIN_DATE} from "../Datetime/Range";
 import Presets from "../Datetime/Presets"
 import Days from "../Settings/Days";
 import Tooltip from '@material-ui/core/Tooltip';
-import FileSettingsFactory from "../Settings/FileSettings";
 
 
 class SidebarContent extends React.Component {
