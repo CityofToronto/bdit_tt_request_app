@@ -5,19 +5,17 @@ import "react-dropdown/style.css";
 import "./SidebarContent.css";
 import DatePicker from "react-date-picker";
 import TimePicker from 'react-time-picker';
-
 import FormLabel from "@material-ui/core/FormLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import {MAX_DATE, MIN_DATE} from "../Datetime/Range";
+import {MIN_DATE} from "../Datetime/Range";
 import Presets from "../Datetime/Presets"
 import Days from "../Settings/Days";
 import Tooltip from '@material-ui/core/Tooltip';
 
 
 class SidebarContent extends React.Component {
-
     updatePreset(event) {
         let choice = event.value;
         let params = this.props.activeRange.getParams();
@@ -78,7 +76,6 @@ class SidebarContent extends React.Component {
         let params = {};
         Object.assign(params, rangeParams);
         Object.assign(params, fileParams);
-
         return (
             <div id="sidebar-container">
                 <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
@@ -138,7 +135,7 @@ class SidebarContent extends React.Component {
                                 <h5>Start Date</h5>
                                 <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the start date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true} locale={"en-CA"}
-                                            maxDate={MAX_DATE}
+                                            maxDate={this.props.state.maxDate}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.startDate}
@@ -151,7 +148,7 @@ class SidebarContent extends React.Component {
                                 <Tooltip placement={'right'} title={<span style={{ fontSize: "20px"}}>Set the end date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
                                     <DatePicker required={true}
                                             locale={"en-CA"}
-                                            maxDate={MAX_DATE}
+                                            maxDate={this.props.state.maxDate}
                                             minDate={MIN_DATE}
                                             format={"y-MM-dd"}
                                             value={params.endDate}

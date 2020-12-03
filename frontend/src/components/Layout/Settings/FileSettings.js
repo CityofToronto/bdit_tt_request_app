@@ -1,4 +1,4 @@
-import {MAX_DATE, MIN_DATE} from "../Datetime/Range";
+import {MIN_DATE} from "../Datetime/Range";
 import {formattedDateString} from "../Datetime/TimeRangeParser";
 
 class FileSettings{
@@ -139,7 +139,7 @@ class FileSettingsFactory{
 
     static newFileSettings(params){
         let startDate = params.startDate !== undefined ? params.startDate : MIN_DATE;
-        let endDate = params.endDate !== undefined ? params.endDate : MAX_DATE;
+        let endDate = params.endDate !== undefined ? params.endDate : new Date("2018-09-30 19:55:00");
         let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
         let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
         let fileType = params.fileType !== undefined ? params.fileType : "csv";

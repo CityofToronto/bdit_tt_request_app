@@ -5,7 +5,7 @@ const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-// const domain = "http://127.0.0.1:5000";
+//const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
@@ -138,6 +138,18 @@ export const getProjectTitle = (page) => {
             page.setState({title: res.data});
         } else {
             alert("FAILED TO GET PROJECT TITLE");
+        }
+    }).catch(err => handleResponseError(err));
+};
+
+
+/* GET end date bound */
+export const getEndDate = (page) => {
+    axios.get(`${domain}/end-date`).then(res => {
+        if (res.data) {
+            page.setState({maxDate: new Date(res.data)});
+        } else {
+            alert("FAILED TO GET END DATE");
         }
     }).catch(err => handleResponseError(err));
 };

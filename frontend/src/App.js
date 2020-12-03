@@ -2,21 +2,31 @@ import React from 'react';
 import Layout from './components/Layout/Layout.jsx';
 import Mapbox from "./components/Map/Mapbox";
 import './App.css';
+import {getEndDate} from "./actions/actions";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            maxDate: null
+        };
+    }
+
+    componentDidMount() {
+        getEndDate(this);
     }
 
     render() {
-        return (
-            <div>
+        if (this.state.maxDate == null) {
+            return (<div/>);
+        } else {
+            return (<div>
                 <Mapbox/>
-                <Layout/>
-            </div>
-
-        );
+                <Layout
+                    state={this.state}
+                />
+            </div>);
+        }
     }
 }
 

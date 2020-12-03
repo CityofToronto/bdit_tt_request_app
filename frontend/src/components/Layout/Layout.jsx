@@ -25,8 +25,8 @@ class Layout extends React.Component {
             linksList: [],
             numRanges: 1,
             activeRange: 0,
-            ranges: [RangeFactory.newRange({})],
-            fileSettings: FileSettingsFactory.newFileSettings({}),
+            ranges: [RangeFactory.newRange({endTime: this.props.state.maxDate})],
+            fileSettings: FileSettingsFactory.newFileSettings({endDate: this.props.state.maxDate}),
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
@@ -71,7 +71,7 @@ class Layout extends React.Component {
         if(!name || name === ""){
             alert("You must enter a name");
         } else {
-            ranges.push(RangeFactory.newRange({ name: name }));
+            ranges.push(RangeFactory.newRange({ name: name, endTime: this.props.state.maxDate}));
             this.setState({
                 numRanges: numRanges + 1,
                 activeRange: numRanges,
@@ -225,6 +225,7 @@ class Layout extends React.Component {
                         activeRange={activeRange}
                         replaceActiveRange={this.replaceActiveRange.bind(this)}
                         rangeNames={rangeNames}
+                        state={this.props.state}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
