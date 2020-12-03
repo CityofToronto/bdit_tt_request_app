@@ -13,7 +13,7 @@ import "./Layout.css";
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
 import FileSettingsFactory from "./Settings/FileSettings";
 import Tooltip from '@material-ui/core/Tooltip';
-
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 class Layout extends React.Component {
     constructor(props) {
@@ -70,7 +70,7 @@ class Layout extends React.Component {
         const name = prompt("Name the new range")
         if(!name || name === ""){
             if(name === "") {
-                alert("You must enter a name");
+                NotificationManager.error('You must enter a name');
             }
         } else {
             ranges.push(RangeFactory.newRange({ name: name, endTime: this.props.state.maxDate}));
@@ -92,7 +92,7 @@ class Layout extends React.Component {
 
         if(!name || name === ""){
             if(name === "") {
-                alert("You must enter a name");
+                NotificationManager.error('You must enter a name');
             }
         } else {
             params.name = name;
@@ -109,7 +109,7 @@ class Layout extends React.Component {
         const name = prompt("Enter the new Name");
         if(!name || name === ""){
             if(name === "") {
-                alert("You must enter a name");
+                NotificationManager.error('You must enter a name');
             }
         } else {
             let params = this.state.ranges[this.state.activeRange].getParams();
@@ -120,7 +120,7 @@ class Layout extends React.Component {
 
     deleteCurrRange() {
         if (this.state.numRanges <= 1) {
-            alert("Must have at least one range!");
+            NotificationManager.error('Must have at least one range!');
             return;
         }
         let numRanges = this.state.numRanges;
@@ -154,7 +154,7 @@ class Layout extends React.Component {
 
             const list_of_time_periods = parseTimePeriods(this.state.ranges);
             if (!list_of_time_periods) {
-                alert("Must complete all of start time and end time!");
+                NotificationManager.error('Must complete all of start time and end time!');
                 return;
             }
 
@@ -176,7 +176,7 @@ class Layout extends React.Component {
                 this.setState({disableGetButton: false});
             });
         } else {
-            alert("Please get links first");
+            NotificationManager.error('Please get links first');
             this.setState({disableGetButton: false});
         }
 
@@ -273,6 +273,7 @@ class Layout extends React.Component {
                     </DialogActions>
 
                 </Dialog>
+                <NotificationContainer/>
             </div>
         );
 
