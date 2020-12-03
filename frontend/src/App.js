@@ -17,15 +17,16 @@ class App extends React.Component {
     }
 
     render() {
-        return (
-            (this.state.maxDate == null) ? <div/> : <div>
+        if (this.state.maxDate == null) {
+            return (<div/>);
+        } else {
+            return (<div>
                 <Mapbox/>
                 <Layout
                     state={this.state}
                 />
-            </div>
-
-        );
+            </div>);
+        }
     }
 }
 

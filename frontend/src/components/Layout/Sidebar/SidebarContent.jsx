@@ -16,10 +16,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 
 class SidebarContent extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     updatePreset(event) {
         let choice = event.value;
         let params = this.props.activeRange.getParams();
