@@ -1,5 +1,7 @@
 import Axios from "axios";
 import {VALID_COLUMN_NAMES} from "../components/Layout/FieldSelectMenu/FieldSelectMenu";
+import RangeFactory from "../components/Layout/Datetime/Range";
+import FileSettingsFactory from "../components/Layout/Settings/FileSettings";
 
 const axios = require('axios');
 axios.defaults.withCredentials = true;
@@ -147,7 +149,7 @@ export const getProjectTitle = (page) => {
 export const getEndDate = (page) => {
     axios.get(`${domain}/end-date`).then(res => {
         if (res.data) {
-            page.setState({maxDate: new Date(res.data)})
+            page.setState({maxDate: new Date(res.data)});
         } else {
             alert("FAILED TO GET END DATE");
         }
