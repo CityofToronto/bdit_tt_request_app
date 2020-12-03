@@ -81,7 +81,6 @@ class SidebarContent extends React.Component {
         let params = {};
         Object.assign(params, rangeParams);
         Object.assign(params, fileParams);
-        console.log(this.props.state.maxDate)
         return (
             <div id="sidebar-container">
                 <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>

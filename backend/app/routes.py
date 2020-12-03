@@ -194,7 +194,7 @@ def get_date_bounds():
 
 @app.route('/end-date', methods=['GET'])
 def get_end_date():
-    return "2018-10-03 22:55:00"
+    return "2018-09-30 19:55:00"
 
 
 def _calc_list_avg(lst: list) -> float:

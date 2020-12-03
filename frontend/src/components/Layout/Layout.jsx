@@ -65,7 +65,6 @@ class Layout extends React.Component {
     }
 
     addRange() {
-        console.log(this.props.state.maxDate)
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         const name = prompt("Name the new range")

@@ -18,7 +18,7 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
+            (this.state.maxDate == null) ? <div/> : <div>
                 <Mapbox/>
                 <Layout
                     state={this.state}
