@@ -157,7 +157,7 @@ class Layout extends React.Component {
                     "type": "Feature",
                     "properties": {
                         "segment_index": seg_i,
-                        "node_index": node_i,
+                        "link_index": node_i,
                         "link_dirs": link.link_dirs,
                         "link_name": link.path_name,
                         "source_node_id": link.source,
