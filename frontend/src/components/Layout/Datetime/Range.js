@@ -1,6 +1,3 @@
-//export const MAX_DATE = new Date("2018-09-30 19:55:00");
-export const MIN_DATE = new Date("2018-09-01 00:00:00");
-
 class TimeRange{
 
     constructor() {
@@ -85,10 +82,10 @@ class RangeBuilder{
 
 class RangeFactory{
     static newRange(params){
-        let startTime = params.startTime !== undefined ? params.startTime : MIN_DATE;
-        let endTime = params.endTime !== undefined ? params.endTime : new Date("2018-09-30 19:55:00");
-        let preset = params.preset !== undefined ? params.preset : "Custom";
-        let name = params.name !== undefined ? params.name : "new range";
+        let startTime = params.startTime ? params.startTime : new Date("2000-01-01 00:00:00");
+        let endTime = params.endTime ? params.endTime : new Date();
+        let preset = params.preset ? params.preset : "Custom";
+        let name = params.name ? params.name : "new range";
 
         return new RangeBuilder().setStartTime(startTime).setEndTime(endTime).setPreset(preset).setName(name).getRange();
     }

@@ -2,18 +2,19 @@ import React from 'react';
 import Layout from './components/Layout/Layout.jsx';
 import Mapbox from "./components/Map/Mapbox";
 import './App.css';
-import {getEndDate} from "./actions/actions";
+import {getDateBoundaries} from "./actions/actions";
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            maxDate: null
+            maxDate: null,
+            startDate: null
         };
     }
 
     componentDidMount() {
-        getEndDate(this);
+        getDateBoundaries(this);
     }
 
     render() {

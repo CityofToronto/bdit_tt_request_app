@@ -178,23 +178,13 @@ def get_links_travel_data_file():
 def get_date_bounds():
     """
     Get the earliest timestamp and latest timestamp in the travel database.
-    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d %H:%M:%S").
-
-    Caution: This function takes some time to execute, as it needs to query through the whole travel database to fetch
-            the date range. It is unlikely this function is needed in final production.
+    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d %H:%M").
 
     :return: JSON containing two fields: start_time and end_time
     """
-    earliest_travel_data = Travel.query.order_by(Travel.tx.asc()).first()
-    latest_travel_data = Travel.query.order_by(Travel.tx.desc()).first()
-    earliest_time = earliest_travel_data.tx
-    latest_time = latest_travel_data.tx
-    return {"start_time": str(earliest_time), "end_time": str(latest_time)}
+    from app import FULL_DATE_TIME_FORMAT, DB_START_DATE
 
-
-@app.route('/end-date', methods=['GET'])
-def get_end_date():
-    return "2018-09-30 19:55:00"
+    return {"start_time": DB_START_DATE.strftime(FULL_DATE_TIME_FORMAT), "end_time": "2018-09-30 19:55"}
 
 
 def _calc_list_avg(lst: list) -> float:
