@@ -83,7 +83,7 @@ class SidebarContent extends React.Component {
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
                                 <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>
-                                    Click to select your desired file format. XLSX and CSV are supported.
+                                    Click to select your desired file format. CSV and XLSX for travel data, GeoJSON for geometry data.
                                 </span>}>
                                     <div
                                         ref={React.createRef()}>
