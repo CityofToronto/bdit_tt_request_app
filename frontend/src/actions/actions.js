@@ -5,13 +5,13 @@ const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
 const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
-//const domain = "http://127.0.0.1:5000";
+// const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
-    console.log(err)
-    if (!err || !err.response.status) {
-        console.error(err);
+    console.error(err)
+
+    if (!err || !err.response || !err.response.status) {
         alert("Error in React Actions! Check console for error.");
     } else {
         if (err.response.status === 500) {
@@ -119,7 +119,7 @@ export const getLinksBetweenNodes = (page, nodes) => {
         axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
             if (res.data) {
                 page.displayLinks(res.data, nodes.indexOf(sequence), (seq === nodes.length - 1));
-                seq++
+                seq++;
             } else {
                 alert("FAILED TO FETCH LINKS BETWEEN NODES");
             }
@@ -144,10 +144,10 @@ export const getProjectTitle = (page) => {
 
 
 /* GET end date bound */
-export const getEndDate = (page) => {
-    axios.get(`${domain}/end-date`).then(res => {
+export const getDateBoundaries = (page) => {
+    axios.get(`${domain}/date-bounds`).then(res => {
         if (res.data) {
-            page.setState({maxDate: new Date(res.data)});
+            page.setState({maxDate: new Date(res.data.end_time), minDate: new Date(res.data.start_time)});
         } else {
             alert("FAILED TO GET END DATE");
         }

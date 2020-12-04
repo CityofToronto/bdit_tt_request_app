@@ -25,7 +25,7 @@ class Layout extends React.Component {
             linksList: [],
             numRanges: 1,
             activeRange: 0,
-            ranges: [RangeFactory.newRange({endTime: this.props.state.maxDate})],
+            ranges: [RangeFactory.newRange({startTime: this.props.state.minDate, endTime: this.props.state.maxDate})],
             fileSettings: FileSettingsFactory.newFileSettings({endDate: this.props.state.maxDate}),
             disableGetButton: false
         };
@@ -68,12 +68,16 @@ class Layout extends React.Component {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         const name = prompt("Name the new range")
-        if(!name || name === ""){
-            if(name === "") {
+        if (!name || name === "") {
+            if (name === "") {
                 NotificationManager.error('You must enter a name');
             }
         } else {
-            ranges.push(RangeFactory.newRange({ name: name, endTime: this.props.state.maxDate}));
+            ranges.push(RangeFactory.newRange({
+                name: name,
+                startTime: this.props.state.minDate,
+                endTime: this.props.state.maxDate
+            }));
             this.setState({
                 numRanges: numRanges + 1,
                 activeRange: numRanges,
@@ -90,8 +94,8 @@ class Layout extends React.Component {
 
         const name = prompt("Name the new Range");
 
-        if(!name || name === ""){
-            if(name === "") {
+        if (!name || name === "") {
+            if (name === "") {
                 NotificationManager.error('You must enter a name');
             }
         } else {
@@ -105,10 +109,10 @@ class Layout extends React.Component {
         }
     }
 
-    renameRange(){
+    renameRange() {
         const name = prompt("Enter the new Name");
-        if(!name || name === ""){
-            if(name === "") {
+        if (!name || name === "") {
+            if (name === "") {
                 NotificationManager.error('You must enter a name');
             }
         } else {
@@ -140,8 +144,50 @@ class Layout extends React.Component {
         });
     }
 
-    downloadData = () => {
+    downloadGeoJSON() {
+        let filename = "geometry_data.json";
+        let contentType = "application/json;charset=utf-8;";
 
+        let geoArray = [];
+
+        this.state.linksList.forEach((segment, seg_i) => {
+            let segmentFeatures = [];
+            segment.forEach((link, node_i) => {
+                const linkGeoObject = {
+                    "type": "Feature",
+                    "properties": {
+                        "segment_index": seg_i,
+                        "node_index": node_i,
+                        "link_dirs": link.link_dirs,
+                        "link_name": link.path_name,
+                        "source_node_id": link.source,
+                        "target_node_id": link.target
+                    },
+                    "geometry": link.geometry
+                };
+                segmentFeatures.push(linkGeoObject);
+            });
+            geoArray.push({
+                "type": "FeatureCollection",
+                "features": segmentFeatures
+            });
+        });
+
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            let blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(geoArray, null, "\t")))], {type: contentType});
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            let a = document.createElement('a');
+            a.download = filename;
+            a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(geoArray, null, "\t"));
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+    downloadData = () => {
         if (this.state.linksList.length !== 0) {
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
@@ -159,22 +205,27 @@ class Layout extends React.Component {
             }
 
             const fileParams = this.state.fileSettings.parseSettings();
+            const fileType = fileParams['file_type'];
 
-            let params = {
-                listOfTimePeriods: list_of_time_periods,
-                listOfLinkDirs: allLinkDirs,
-                fileType: fileParams["file_type"],
-                start_date: fileParams["start_date"],
-                end_date: fileParams["end_date"],
-                include_holidays: fileParams["include_holidays"],
-                days_of_week: fileParams["days_of_week"],
-                fields: fileParams["fields"]
-            };
+            if (fileType === 'geojson') {
+                this.downloadGeoJSON();
+            } else {
+                let params = {
+                    listOfTimePeriods: list_of_time_periods,
+                    listOfLinkDirs: allLinkDirs,
+                    fileType: fileType,
+                    start_date: fileParams["start_date"],
+                    end_date: fileParams["end_date"],
+                    include_holidays: fileParams["include_holidays"],
+                    days_of_week: fileParams["days_of_week"],
+                    fields: fileParams["fields"]
+                };
 
-            this.setState({disableGetButton: true});
-            getTravelDataFile(params, () => {
-                this.setState({disableGetButton: false});
-            });
+                this.setState({disableGetButton: true});
+                getTravelDataFile(params, () => {
+                    this.setState({disableGetButton: false});
+                });
+            }
         } else {
             NotificationManager.error('Please get links first');
             this.setState({disableGetButton: false});
@@ -182,30 +233,30 @@ class Layout extends React.Component {
 
     }
 
-    openPopup(){
-        this.setState({ popupOpen: true })
+    openPopup() {
+        this.setState({popupOpen: true})
     }
 
-    handleClose(){
-        this.setState({ popupOpen: false });
+    handleClose() {
+        this.setState({popupOpen: false});
     }
 
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
         ranges[this.state.activeRange] = RangeFactory.newRange(params);
-        this.setState({ ranges: ranges });
+        this.setState({ranges: ranges});
     }
 
     replaceSettings = (params) => {
         let newFileSettings = FileSettingsFactory.newFileSettings(params);
-        this.setState({ fileSettings: newFileSettings });
+        this.setState({fileSettings: newFileSettings});
     }
 
     render() {
         const activeRange = this.state.ranges[this.state.activeRange];
         let rangeNames = [];
-        for(let i = 0; i < this.state.numRanges; i++){
-            rangeNames.push(`${i+1} ${this.state.ranges[i].getName()}`);
+        for (let i = 0; i < this.state.numRanges; i++) {
+            rangeNames.push(`${i + 1} ${this.state.ranges[i].getName()}`);
         }
 
         return (
@@ -238,7 +289,7 @@ class Layout extends React.Component {
                     rootClassName={"topbar"}
                     sidebarClassName={"sidebar"}
                 >
-                    <Tooltip title={<span style={{ fontSize: "20px"}}>Click to edit query and get file.</span>}>
+                    <Tooltip title={<span style={{fontSize: "20px"}}>Click to edit query and get file.</span>}>
                         <Button
                             variant="contained"
                             onClick={() => this.onSetSidebarOpen(true)}
@@ -258,18 +309,19 @@ class Layout extends React.Component {
                 />
 
                 <Dialog
-                        open={this.state.popupOpen}
-                        onClose={this.handleClose.bind(this)}
-                        aria-labelledby="form-dialog-title"
+                    open={this.state.popupOpen}
+                    onClose={this.handleClose.bind(this)}
+                    aria-labelledby="form-dialog-title"
                 >
 
-                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if requires all)</DialogTitle>
+                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if
+                        requires all)</DialogTitle>
 
                     <DialogActions>
                         <FieldSelectMenu replaceSettings={this.replaceSettings.bind(this)}
                                          fileSettings={this.state.fileSettings}
                                          handleClose={this.handleClose.bind(this)}
-                            />
+                        />
                     </DialogActions>
 
                 </Dialog>
