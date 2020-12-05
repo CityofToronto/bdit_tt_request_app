@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from os import environ
 from datetime import datetime
+from pytz import timezone
 
 app = Flask(__name__)
 CORS(app=app, supports_credentials=True)
@@ -13,6 +14,7 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 db.create_all()
 
+TIMEZONE = timezone('US/Eastern')
 METER_UNIT_SRID = 2952
 FULL_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 DATE_FORMAT = "%Y-%m-%d"

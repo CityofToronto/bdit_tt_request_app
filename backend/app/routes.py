@@ -6,7 +6,7 @@ from sqlalchemy import func
 from app import METER_UNIT_SRID
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.models import Travel, Link, Node
+from app.models import Link, Node
 from app.parse_util import *
 
 
@@ -182,9 +182,20 @@ def get_date_bounds():
 
     :return: JSON containing two fields: start_time and end_time
     """
-    from app import FULL_DATE_TIME_FORMAT, DB_START_DATE
+    from app import FULL_DATE_TIME_FORMAT, DB_START_DATE, TIMEZONE
+    from datetime import datetime, timedelta
 
-    return {"start_time": DB_START_DATE.strftime(FULL_DATE_TIME_FORMAT), "end_time": "2018-09-30 19:55"}
+    current_time = TIMEZONE.localize(datetime.now())  # type: datetime
+
+    today_update_time = current_time.replace(hour=17, minute=30, second=00)
+
+    if current_time >= today_update_time:
+        end_time = (current_time - timedelta(days=2)).replace(hour=23, minute=59, second=59)
+    else:
+        end_time = (current_time - timedelta(days=3)).replace(hour=23, minute=59, second=59)
+
+    return {"start_time": DB_START_DATE.strftime(FULL_DATE_TIME_FORMAT),
+            "end_time": end_time.strftime(FULL_DATE_TIME_FORMAT)}
 
 
 def _calc_list_avg(lst: list) -> float:
