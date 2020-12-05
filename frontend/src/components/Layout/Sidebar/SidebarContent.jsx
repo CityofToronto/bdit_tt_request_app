@@ -311,7 +311,7 @@ class SidebarContent extends React.Component {
                                     <Grid item>
                                         <h5>Start Time</h5>
                                         <Tooltip placement={'right'}
-                                                 title={<span style={{fontSize: "20px"}}>Set the start time of the current time range in the format of HH:MM.</span>}>
+                                                 title={<span style={{fontSize: "20px"}}>Start time of the current time range in the format of HH:MM (Inclusive)</span>}>
                                             <TimePicker required={true}
                                                         format={"HH:mm"}
                                                         locale={"en-CA"}
@@ -325,7 +325,7 @@ class SidebarContent extends React.Component {
                                     <Grid item>
                                         <h5 className={"endTimeLabel"}>End Time</h5>
                                         <Tooltip placement={'right'}
-                                                 title={<span style={{fontSize: "20px"}}>Set the end time of the current time range in the format of HH:MM.</span>}>
+                                                 title={<span style={{fontSize: "20px"}}>End time of the current time range in the format of HH:MM (Exclusive)</span>}>
                                             <TimePicker required={true}
                                                         format={"HH:mm"}
                                                         locale={"en-CA"}
