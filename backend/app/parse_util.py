@@ -356,7 +356,7 @@ def parse_node_response(node_data: str):
             second index a dictionary containing the attributes for the Node query that can be jsonify-ed.
     """
     import ast
-    node_data = node_data.replace(',,', ',"<nameless road>",')
+    node_data = node_data.replace(',,', ',"nameless road",')
 
     # sometimes intersec name is not quote surrounded
     first_comma = node_data.index(',')

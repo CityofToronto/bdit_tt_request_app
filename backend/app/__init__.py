@@ -15,10 +15,10 @@ db = SQLAlchemy(app)
 db.create_all()
 
 TIMEZONE = timezone('US/Eastern')
-METER_UNIT_SRID = 2952
 FULL_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
+POSTGIS_GEOM_SRID = int(environ["POSTGIS_GEOM_SRID"])
 ALLOWED_FILE_TYPES = ['csv', 'xlsx']
 DB_START_DATE = datetime.strptime(environ['DB_DATA_START_DATE'], FULL_DATE_TIME_FORMAT)
 DB_TRAVEL_DATA_QUERY_RESULT_FORMAT = {

@@ -3,7 +3,6 @@ import os
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func
 
-from app import METER_UNIT_SRID
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
@@ -64,7 +63,7 @@ def get_closest_node(longitude, latitude):
         node_dist = node_data[0]
         node_json = node_data[1]
 
-        if node_count == 0 or node_dist < 5:
+        if node_count == 0 or node_dist < 10:
             candidate_nodes.append(node_json)
         else:
             break
@@ -258,31 +257,3 @@ def _get_street_info(list_of_link_dirs):
         street_info[i] = (intersection, from_street, to_street)
 
     return street_info
-
-
-def _get_links_by_link_dirs(link_dirs):
-    return [Link.query.filter_by(link_dir=link_dir).first() for link_dir in link_dirs]
-
-
-def _get_srid_point(longitude, latitude):
-    """
-    Make a point at the given longitude and latitude with the SRID provided in the environment.
-    Uses ST_SetSrid and ST_MakePoint.
-
-    Assumption: There is a POSTGIS_GEOM_SRID field in the system environment (os.environ).
-
-    :param longitude: the longitude of the point
-    :param latitude: the latitude of the point
-    :return: a point at the given longitude and latitude with srid in the environment
-    """
-    return func.ST_SetSrid(func.ST_MakePoint(longitude, latitude), int(os.environ['POSTGIS_GEOM_SRID']))
-
-
-def _transform_to_meter_srid(original_point):
-    """
-    Transforms the original point to a new point using the METER_UNIT_SRID.
-
-    :param original_point: the point to be transformed
-    :return: original point with srid transformed to METER_UNIT_SRID
-    """
-    return func.ST_Transform(original_point, METER_UNIT_SRID)
