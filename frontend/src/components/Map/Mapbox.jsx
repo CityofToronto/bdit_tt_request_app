@@ -428,8 +428,12 @@ class Mapbox extends React.Component {
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
             const draggedMarker = newMarkers[nodeSequenceIndex];
             draggedMarker.setPopup(new mapboxgl.Popup()
-                .setText("Segment Number: " + nodeSequence.toString() + ", Node Number: "
-                    + nodeSequenceIndex.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString()))
+                .setHTML("<h3><ul><li>Segment Number: " + nodeSequence.toString()+ "</li><li>Node Number: "
+                + nodeSequenceIndex.toString() + "</li><li>Node Name: "
+                + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
+                // .setText("Segment Number: " + nodeSequence.toString() + ", Node Number: "
+                //     + nodeSequenceIndex.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString())
+                )
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
@@ -493,8 +497,12 @@ class Mapbox extends React.Component {
                 draggable: true,
                 "color": this.state.sequenceColours[this.state.currentSequence]
             }).setLngLat(newNode.geometry.coordinate).setPopup(new mapboxgl.Popup()
-                .setText("Segment Number: " + this.state.currentSequence.toString() + ", Node Number: "
-                    + this.state.clickedNodes[this.state.currentSequence].length.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString()))
+                .setHTML("<h3><ul><li>Segment Number: " + this.state.currentSequence.toString()+ "</li><li>Node Number: "
+                + this.state.clickedNodes[this.state.currentSequence].length.toString() + "</li><li>Node Name: "
+                + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
+                // .setText("Segment Number: " + this.state.currentSequence.toString() + ", Node Number: "
+                //     + this.state.clickedNodes[this.state.currentSequence].length.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString())
+                )
                 .addTo(this.state.map);
             newMarker._element.id = this.state.currentSequence.toString() + "," +
                 this.state.clickedNodes[this.state.currentSequence].length.toString();
@@ -645,9 +653,14 @@ class Mapbox extends React.Component {
             let currNode = tempHoldSeq[tempHoldSeq.length - i - 1];
             const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
                 .setLngLat(currNode.geometry.coordinate)
-                .setPopup(new mapboxgl.Popup().setText(
-                    "Segment Number: " + tempCurrSequence.toString() +
-                    ", Node Number: " + i.toString() + ", Node Name: " + currNode.name.toString() + ", Node_ID: " + currNode.nodeId.toString()))
+                .setPopup(new mapboxgl.Popup()
+                .setHTML("<h3><ul><li>Segment Number: " + tempCurrSequence.toString()+ "</li><li>Node Number: "
+                + i.toString() + "</li><li>Node Name: "
+                + currNode.name.toString() + "</li><li>Node_ID: "+ currNode.nodeId.toString() + "</li></ul></h3>")
+                // .setText(
+                //     "Segment Number: " + tempCurrSequence.toString() +
+                //     ", Node Number: " + i.toString() + ", Node Name: " + currNode.name.toString() + ", Node_ID: " + currNode.nodeId.toString())
+                )
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
