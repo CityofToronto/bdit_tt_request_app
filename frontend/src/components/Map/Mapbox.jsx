@@ -336,7 +336,7 @@ class Mapbox extends React.Component {
             let newMouseEnter = function onMouseEnter(e) {
                 curr_map.getCanvas().style.cursor = 'pointer';
                 let coordinates = e.lngLat;
-                let description = link.path_name;
+                let description = "<h3>" +link.path_name + "</h3>";
                 while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
