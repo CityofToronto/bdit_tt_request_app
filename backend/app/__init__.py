@@ -15,7 +15,6 @@ db = SQLAlchemy(app)
 db.create_all()
 
 TIMEZONE = timezone('US/Eastern')
-METER_UNIT_SRID = int(environ['POSTGIS_METRIC_SRID'])
 FULL_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
