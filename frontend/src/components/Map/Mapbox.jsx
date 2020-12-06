@@ -631,15 +631,15 @@ class Mapbox extends React.Component {
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
-            NotificationManager.error('Please Input a Sequence');
+            NotificationManager.error('Please Input a Segment');
             return;
         }
         if (isNaN(this.state.selectedSeq)) {
-            NotificationManager.error('Please Input a Valid Sequence');
+            NotificationManager.error('Please Input a Valid Segment');
             return;
         }
         if (this.state.selectedSeq < 0 || this.state.selectedSeq > this.state.displayedMarker.length - 1) {
-            NotificationManager.error('Please Input a Valid Sequence');
+            NotificationManager.error('Please Input a Valid Segment');
             return;
         }
         let tempCurrSequence = this.state.currentSequence + 1;
