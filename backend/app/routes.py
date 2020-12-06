@@ -63,7 +63,7 @@ def get_closest_node(longitude, latitude):
         node_dist = node_data[0]
         node_json = node_data[1]
 
-        if node_count == 0 or node_dist < 5:
+        if node_count == 0 or node_dist < 10:
             candidate_nodes.append(node_json)
         else:
             break
