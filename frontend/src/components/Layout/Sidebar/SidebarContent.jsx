@@ -317,7 +317,7 @@ class SidebarContent extends React.Component {
                                                         locale={"en-CA"}
                                                         maxDetail={"minute"}
                                                         disableClock={true}
-                                                        value={params.startTime}
+                                                        value={!isNaN(params.startTime)?params.startTime:"00:00"}
                                                         onChange={this.startTimeChange.bind(this)}
                                             />
                                         </Tooltip>
@@ -331,7 +331,7 @@ class SidebarContent extends React.Component {
                                                         locale={"en-CA"}
                                                         maxDetail={"minute"}
                                                         disableClock={true}
-                                                        value={params.endTime}
+                                                        value={!isNaN(params.endTime)?params.endTime:"00:00"}
                                                         onChange={this.endTimeChange.bind(this)}
                                             />
                                         </Tooltip>
