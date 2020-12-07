@@ -1,6 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
+import mapstyle from './map_style.json';
 import {getClosestNode, updateClosestNode} from '../../actions/actions';
 import {Button, TextField} from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
@@ -21,6 +22,8 @@ import ListItemText from "@material-ui/core/ListItemText";
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 import InfoIcon from '@material-ui/icons/Info';
+
+
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -69,11 +72,26 @@ class Mapbox extends React.Component {
     createMap() {
         const map = new mapboxgl.Map({
             container: this.mapContainer,
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: mapstyle,
             center: [this.state.lng, this.state.lat],
             zoom: this.state.zoom,
-            attributionControl: false
+            attributionControl: false,
+            transformRequest: function(url, resourceType) {
+                if(url.match('vector.*.hereapi.com')) {
+                    return {
+                        url: url,
+                        headers: { 'Authorization': 'Bearer ' + mapboxgl.accessToken } // this function returns your authentication token
+                    }
+                }
+            }
         });
+        // const map = new mapboxgl.Map({
+        //     container: this.mapContainer,
+        //     style: 'mapbox://styles/mapbox/streets-v11',
+        //     center: [this.state.lng, this.state.lat],
+        //     zoom: this.state.zoom,
+        //     attributionControl: false
+        // });
         map.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
         map.on('load', () => {
             map.loadImage(
