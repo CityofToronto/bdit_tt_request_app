@@ -733,9 +733,9 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
-                //Container for the map
+                {/*Container for the map*/}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                //Dialog prompting the user to select a node in the case that they are overlapping
+                {/*Dialog prompting the user to select a node in the case that they are overlapping*/}
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect}
                         disableBackdropClick={true}>
                     <DialogTitle>Select a Closest Node</DialogTitle>
@@ -764,7 +764,7 @@ class Mapbox extends React.Component {
                         ))}
                     </List>
                 </Dialog>
-                //Div containing the buttons on the bottom right of the map
+                {/*Div containing the buttons on the bottom right of the map*/}
                 <div className="map-options">
                     <form className="reverse-seq-input" noValidate autoComplete="off">
                         <TextField label="Current Segment" InputProps={{readOnly: true,}}
@@ -820,7 +820,7 @@ class Mapbox extends React.Component {
                     </InfoIcon>
 
                 </div>
-                //Dialog to display the tutorials on the map
+                {/*Dialog to display the tutorials on the map*/}
                 <Dialog
                     open={this.state.openHelp}
                     onClose={this.handleClose}
