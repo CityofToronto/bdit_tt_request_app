@@ -75,7 +75,7 @@ class Mapbox extends React.Component {
             attributionControl: false
         });
         map.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
-        map.on('load', () => {
+        map.on('load', () => { // the two arrow images
             map.loadImage(
                 arrowImage,
                 function (error, image) {
@@ -132,7 +132,7 @@ class Mapbox extends React.Component {
         this.props.resetMapVars();
         NotificationManager.success('Reset Map');
     }
-
+    // all interactions on the map are disabled until data is returned by backend
     disableInteractions() {
         this.setState({
             disableGetLink: true,
@@ -158,7 +158,7 @@ class Mapbox extends React.Component {
         });
         this.forceUpdate();
     }
-
+    // call backend to get links
     getLink() {
         this.disableInteractions();
         this.removeAllLinkSources();
@@ -179,7 +179,7 @@ class Mapbox extends React.Component {
         });
         this.props.onLinkUpdate(linkDataArr);
     };
-
+    // check if there is already a link drawn in the reverse direction
     checkIfLinkDirDrawn(checkCoor, bidirection, other) {
         let holdCoorArr = [];
         for (let sequenceIndex = 0; sequenceIndex < this.state.linksData.length; sequenceIndex++) {
@@ -218,7 +218,7 @@ class Mapbox extends React.Component {
         }
         return false;
     }
-
+    // draw the links on the map
     drawLinks(linkDataArr, sequence) {
         let linkSources = [];
         let curr_map = this.state.map;
@@ -235,7 +235,7 @@ class Mapbox extends React.Component {
                 link.geometry.type = 'MultiLineString';
                 link.geometry.coordinates = [link.geometry.coordinates];
             }
-
+            // check if there is already a link drawn in the reverse direction, if so, a double arrow will be drawn, otherwise, single arrow
             for (let i = 0; i < link.link_dirs.length; i++) {
                 if (this.checkIfLinkDirDrawn(link.geometry.coordinates[i], overlappedBidirectionalCoors, notOverlappedCoors)) {
                     overlappedBidirectionalCoor.push(link.geometry.coordinates[i]);
@@ -245,7 +245,7 @@ class Mapbox extends React.Component {
             }
             notOverlappedCoors.push(notOverlappedCoor);
             overlappedBidirectionalCoors.push(overlappedBidirectionalCoor);
-            this.state.map.addSource(currSourceId + '1D', {
+            this.state.map.addSource(currSourceId + '1D', { //source for non overlapping links
                 'type': 'geojson',
                 'maxzoom': 24,
                 'data': {
@@ -257,7 +257,7 @@ class Mapbox extends React.Component {
                     }
                 }
             });
-            this.state.map.addSource(currSourceId + '2D', {
+            this.state.map.addSource(currSourceId + '2D', { //source for overlapping links
                 'type': 'geojson',
                 'maxzoom': 24,
                 'data': {
@@ -269,7 +269,7 @@ class Mapbox extends React.Component {
                     }
                 }
             });
-            this.state.map.addLayer({
+            this.state.map.addLayer({ //layer for non overlappinp links
                 'id': currSourceId + '1D',
                 'type': 'line',
                 'source': currSourceId + '1D',
@@ -282,7 +282,7 @@ class Mapbox extends React.Component {
                     'line-width': 8
                 }
             });
-            this.state.map.addLayer({
+            this.state.map.addLayer({ //layer for overlapping links
                 'id': currSourceId + '2D',
                 'type': 'line',
                 'source': currSourceId + '2D',
@@ -295,7 +295,7 @@ class Mapbox extends React.Component {
                     'line-width': 8
                 }
             });
-            this.state.map.addLayer({
+            this.state.map.addLayer({ //single arrow for non overlapping links
                 'id': currSourceId + '1DL2',
 
                 'type': 'symbol',
@@ -306,7 +306,7 @@ class Mapbox extends React.Component {
                     'icon-size': 0.02
                 }
             });
-            this.state.map.addLayer({
+            this.state.map.addLayer({ //double arrow for overlapping links
                 'id': currSourceId + '2DL2',
                 'type': 'symbol',
                 'source': currSourceId + '2D',
@@ -321,7 +321,7 @@ class Mapbox extends React.Component {
                     tempLinkMouseEnter.push([]);
                     tempLinkMouseLeave.push([]);
                 }
-            } else {
+            } else { // remove previous popup after the links are updated
                 this.state.map.off('mouseenter', currSourceId + '1D', tempLinkMouseEnter[sequence][index]);
                 this.state.map.off('mouseleave', currSourceId + '1D', tempLinkMouseLeave[sequence][index]);
                 this.state.map.off('mouseenter', currSourceId + '2D', tempLinkMouseEnter[sequence][index]);
@@ -329,6 +329,7 @@ class Mapbox extends React.Component {
                 tempLinkMouseEnter[sequence] = [];
                 tempLinkMouseLeave[sequence] = [];
             }
+            // create new popup for the link
             let popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
@@ -360,7 +361,7 @@ class Mapbox extends React.Component {
             linkMouseLeave: tempLinkMouseLeave
         });
     };
-
+    //remove all the drawn links on the map
     removeAllLinkSources() {
         this.props.removeAllLinks();
         this.state.displayedLinkSources.forEach(linkSrc => {
@@ -374,7 +375,7 @@ class Mapbox extends React.Component {
         this.setState({displayedLinkSources: [], linksData: [], linksOnMap: false});
         NotificationManager.success('Updated Links');
     }
-
+    // reposition the marker after dragging
     resyncAllMarkers() {
         const restoreMarkers = [...this.state.displayedMarker[this.state.currentSequence]];
 
@@ -389,7 +390,7 @@ class Mapbox extends React.Component {
         newArray[this.state.currentSequence] = restoreMarkers;
         this.setState({displayedMarker: newArray});
     }
-
+    // call after dragging a node
     onDragEnd(marker) {
         if (this.state.disableDragMarker) {
             this.resyncAllMarkers(marker);
@@ -409,6 +410,7 @@ class Mapbox extends React.Component {
     /* this function is called only by action.js after a marker drag */
     updateMarker(nodeIndex, nodeCandidate, updateNodeCandidateClose) {
         const newNode = nodeCandidate;
+        // prevent adding the same node as the last one
         if (this.isDuplicateMarker(newNode, nodeIndex)) {
             NotificationManager.error('Can not drag to the node right before it or after it!');
             this.setState({
@@ -423,6 +425,7 @@ class Mapbox extends React.Component {
             });
             this.resyncAllMarkers();
         } else {
+            // update the dragged marker
             let nodeSequence = nodeIndex.split(",")[0];
             let nodeSequenceIndex = nodeIndex.split(",")[1];
             const newMarkers = [...this.state.displayedMarker[nodeSequence]];
@@ -431,9 +434,7 @@ class Mapbox extends React.Component {
                 .setHTML("<h3><ul><li>Segment Number: " + nodeSequence.toString()+ "</li><li>Node Number: "
                 + nodeSequenceIndex.toString() + "</li><li>Node Name: "
                 + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
-                // .setText("Segment Number: " + nodeSequence.toString() + ", Node Number: "
-                //     + nodeSequenceIndex.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString())
-                )
+               )
             const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
             draggedMarker.setLngLat(newCoordinate);
 
@@ -493,6 +494,7 @@ class Mapbox extends React.Component {
             });
 
         } else {
+            // create a new marker after the map is clicked
             const newMarker = new mapboxgl.Marker({
                 draggable: true,
                 "color": this.state.sequenceColours[this.state.currentSequence]
@@ -500,8 +502,6 @@ class Mapbox extends React.Component {
                 .setHTML("<h3><ul><li>Segment Number: " + this.state.currentSequence.toString()+ "</li><li>Node Number: "
                 + this.state.clickedNodes[this.state.currentSequence].length.toString() + "</li><li>Node Name: "
                 + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
-                // .setText("Segment Number: " + this.state.currentSequence.toString() + ", Node Number: "
-                //     + this.state.clickedNodes[this.state.currentSequence].length.toString() + ", Node Name: " + newNode.name.toString() + ", Node_ID: " + newNode.nodeId.toString())
                 )
                 .addTo(this.state.map);
             newMarker._element.id = this.state.currentSequence.toString() + "," +
@@ -535,6 +535,7 @@ class Mapbox extends React.Component {
         }
     };
 
+    //helper function to get a random color
     getRandomColor() {
         let letters = '0123456789ABCDEF';
         let color = '#';
@@ -544,6 +545,7 @@ class Mapbox extends React.Component {
         return color;
     }
 
+    //removes the last node placed on the map
     removeNodes() {
         let tempCurrentSeq = this.state.currentSequence;
         const targetMarkerID = this.state.currentSequence.toString() + "," +
@@ -574,16 +576,6 @@ class Mapbox extends React.Component {
         }
         // this is where all nodes are removed
         if (tempCurrentSeq === -1) {
-            //     this.setState({
-            //         clickedNodes: [[]],
-            //         displayedMarker: [[]],
-            //         disableGetLink: true,
-            //         disableNodeRemove: true,
-            //         disableNewSeq: true,
-            //         currentSequence:0,
-            //         disableLinkRemove: false,
-            //         sequenceColours: [this.getRandomColor()]
-            //    });
             this.resetMap();
         } else {
             this.setState({
@@ -600,6 +592,7 @@ class Mapbox extends React.Component {
         NotificationManager.success('Removed Last Node');
     }
 
+    //Creates a new segment
     newSeq() {
         NotificationManager.success('New Segment Created, Please Place a Node');
         let newColor = this.state.sequenceColours[0];
@@ -628,6 +621,7 @@ class Mapbox extends React.Component {
 
     onChangeSelectSeq = (e) => this.setState({selectedSeq: e.target.value});
 
+    //The on submit function when reversing sequences
     onSubmit = (e) => {
         e.preventDefault();
         if (this.state.selectedSeq.trim() === '') {
@@ -657,9 +651,6 @@ class Mapbox extends React.Component {
                 .setHTML("<h3><ul><li>Segment Number: " + tempCurrSequence.toString()+ "</li><li>Node Number: "
                 + i.toString() + "</li><li>Node Name: "
                 + currNode.name.toString() + "</li><li>Node_ID: "+ currNode.nodeId.toString() + "</li></ul></h3>")
-                // .setText(
-                //     "Segment Number: " + tempCurrSequence.toString() +
-                //     ", Node Number: " + i.toString() + ", Node Name: " + currNode.name.toString() + ", Node_ID: " + currNode.nodeId.toString())
                 )
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();
@@ -687,7 +678,7 @@ class Mapbox extends React.Component {
             this.getLink();
         }
     }
-
+    //handler for tutorial icons
     handleIconClicks = (inputNum) => {
         this.setState({openHelp: true})
 
@@ -742,7 +733,9 @@ class Mapbox extends React.Component {
     render() {
         return (
             <div>
+                {/*Container for the map*/}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
+                {/*Dialog prompting the user to select a node in the case that they are overlapping*/}
                 <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect}
                         disableBackdropClick={true}>
                     <DialogTitle>Select a Closest Node</DialogTitle>
@@ -771,6 +764,7 @@ class Mapbox extends React.Component {
                         ))}
                     </List>
                 </Dialog>
+                {/*Div containing the buttons on the bottom right of the map*/}
                 <div className="map-options">
                     <form className="reverse-seq-input" noValidate autoComplete="off">
                         <TextField label="Current Segment" InputProps={{readOnly: true,}}
@@ -826,6 +820,7 @@ class Mapbox extends React.Component {
                     </InfoIcon>
 
                 </div>
+                {/*Dialog to display the tutorials on the map*/}
                 <Dialog
                     open={this.state.openHelp}
                     onClose={this.handleClose}
