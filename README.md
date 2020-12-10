@@ -9,6 +9,9 @@
  
  * **Description of Application**: This web-application purpose is to streamline the way users can fetch data from the toronto big data innovation team’s database. Using a map, users can create sequences of nodes in order to designate paths on which to query the data. The user can then use the sidebar to choose specific times during a day, across a period in the year to receive a data file (csv, xmlx) as output. This gives users the ability to shape their desired query through a visual system which is intuitive and fast. This also removes the need for the big data innovation team to intervene with queries as everything can be done by the user.
 
+## Deliverable 4 Video Demo
+https://www.youtube.com/watch?v=y6lnefduogo
+
 ## Key Features
 
 * Header:
@@ -64,7 +67,9 @@
 ## Instructions
 
  * Access to the Application
-   * To access the application, please visit http://frontendproduction-env.eba-4ef5jwdw.ca-central-1.elasticbeanstalk.com/
+   * To access the application
+     * For Deliverable 2, please visit http://frontendproduction-env.eba-4ef5jwdw.ca-central-1.elasticbeanstalk.com/
+     * For final product, please visit http://frontendtest-env.eba-wempu9ue.ca-central-1.elasticbeanstalk.com/
    * Since this application is developed as a prototype of an internal tool for the Toronto Transportation Services Big Data Innovation team, there is no user authentication requirement at the current development stage. All users having access to the application are granted the same and complete access to features and functionalities.
    * On a successful access to the application, you should be able to see: 
      * A sidebar at the left side of the web page. By clicking on other parts of the web page, the sidebar should collapse.
