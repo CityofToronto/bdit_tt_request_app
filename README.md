@@ -1,4 +1,4 @@
-# Travel Time Requet App
+# Travel Time Request App
 University of Toronto CSC301 Team Project - Toronto Big Data Innovation Team
 
 AWS CI/CD URLs:
