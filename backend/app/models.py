@@ -9,8 +9,7 @@ from app import db, POSTGIS_GEOM_SRID
 class Link(db.Model):
     __tablename__ = environ['LINK_TABLE_NAME']
 
-    id = db.Column(BIGINT, primary_key=True)
-    link_dir = db.Column(VARCHAR)
+    link_dir = db.Column(VARCHAR, primary_key=True)
     link_id = db.Column(INTEGER)
     st_name = db.Column(VARCHAR)
     source = db.Column(INTEGER)
@@ -25,7 +24,6 @@ class Link(db.Model):
 class Node(db.Model):
     __tablename__ = environ['NODE_TABLE_NAME']
 
-    ogc_fid = db.Column(INTEGER, primary_key=True)
-    node_id = db.Column(INTEGER)
+    node_id = db.Column(INTEGER, primary_key=True)
     intersec_name = db.Column(VARCHAR)
     geom = db.Column(Geometry(geometry_type='POINT', srid=POSTGIS_GEOM_SRID))
