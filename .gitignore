@@ -23,6 +23,5 @@ tmp/
 
 # common ignore
 .idea/
-package-lock.json
 /doc/debug.log
 /frontend/debug.log

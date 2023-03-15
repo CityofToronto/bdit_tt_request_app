@@ -4,7 +4,7 @@ import {VALID_COLUMN_NAMES} from "../components/Layout/FieldSelectMenu/FieldSele
 const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
-const domain = "http://backendtest-env.eba-aje3qmym.ca-central-1.elasticbeanstalk.com";
+const domain = "http://backendproduction-env.eba-5qbcpngm.ca-central-1.elasticbeanstalk.com/";
 // const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
