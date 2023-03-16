@@ -5,6 +5,7 @@ const axios = require('axios');
 axios.defaults.withCredentials = true;
 /* remote domain and local test domain */
 const domain = "https://10.160.2.198/tt-request-backend";
+// const domain = "http://127.0.0.1:5000";
 const fileDownload = require('js-file-download');
 
 const handleResponseError = (err) => {
