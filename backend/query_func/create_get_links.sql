@@ -1,6 +1,6 @@
 create function get_links_btwn_nodes(_node_start integer, _node_end integer, OUT _node_start_out integer,
-                                     OUT _node_end integer, OUT links character varying[],
-                                     OUT geometry character varying) returns record
+                                     OUT _node_end integer, OUT _st_name character varying[],
+                                     OUT links character varying[], OUT geometry character varying) returns record
     stable
     strict
     language sql
@@ -17,9 +17,10 @@ WITH results as (
                       _node_end)
 )
 
-SELECT _node_start, _node_end, array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+SELECT _node_start, _node_end, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
 from results
          inner join here_links on edge = id
 $$;
 
-alter function get_links_btwn_nodes(integer, integer, out integer, out integer, out character varying[], out varchar) owner to postgres;
+alter function get_links_btwn_nodes(integer, integer, out integer, out integer, out character varying[],
+    out character varying[], out varchar) owner to postgres;

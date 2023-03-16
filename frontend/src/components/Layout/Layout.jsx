@@ -1,42 +1,32 @@
 import React from "react";
 import Sidebar from "react-sidebar";
 import {Button} from "@material-ui/core"
-import SidebarContent from "./SidebarContent";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import SidebarContent from "./Sidebar/SidebarContent";
 import Mapbox from "../Map/Mapbox";
+import RangeFactory from "./Datetime/Range";
+import parseTimePeriods from "./Datetime/TimeRangeParser";
 import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
 import "./Layout.css";
-
-export const DAYS_OF_WEEK_MAPPING = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-];
-
-export const MAX_DATE = new Date("2018-09-30 19:55:00");
-export const MIN_DATE = new Date("2018-09-01 00:00:00");
+import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
+import FileSettingsFactory from "./Settings/FileSettings";
+import Tooltip from '@material-ui/core/Tooltip';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 
 class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            sidebarOpen: true,
+            sidebarOpen: false,
+            popupOpen: false,
             nodesList: [],
             linksList: [],
             numRanges: 1,
             activeRange: 0,
-            ranges: [{
-                startDate: new Date(MIN_DATE),
-                endDate: new Date(MAX_DATE),
-                startTime: this.formattedTimeString(MIN_DATE),
-                endTime: this.formattedTimeString(MAX_DATE),
-                daysOfWeek: [true, true, true, true, true, true, true],
-                includeHolidays: false
-            }],
-            fileType: "csv",
+            ranges: [RangeFactory.newRange({startTime: this.props.state.minDate, endTime: this.props.state.maxDate})],
+            fileSettings: FileSettingsFactory.newFileSettings({endDate: this.props.state.maxDate}),
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
@@ -66,7 +56,7 @@ class Layout extends React.Component {
 
     changeDateTimeRange(event) {
         let rangeChoice = event.value;
-        let choice = parseInt(rangeChoice.split(" ")[1]);
+        let choice = parseInt(rangeChoice.split(" ")[0]);
         this.setState({activeRange: choice - 1});
     }
 
@@ -77,43 +67,64 @@ class Layout extends React.Component {
     addRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
-        ranges.push({
-            startDate: new Date(MIN_DATE),
-            endDate: new Date(MAX_DATE),
-            startTime: this.formattedTimeString(MIN_DATE),
-            endTime: this.formattedTimeString(MAX_DATE),
-            daysOfWeek: [true, true, true, true, true, true, true],
-            includeHolidays: false
-        });
-        this.setState({
-            numRanges: numRanges + 1,
-            activeRange: numRanges,
-            ranges: ranges
-        });
+        const name = prompt("Name the new range")
+        if (!name || name === "") {
+            if (name === "") {
+                NotificationManager.error('You must enter a name');
+            }
+        } else {
+            ranges.push(RangeFactory.newRange({
+                name: name,
+                startTime: this.props.state.minDate,
+                endTime: this.props.state.maxDate
+            }));
+            this.setState({
+                numRanges: numRanges + 1,
+                activeRange: numRanges,
+                ranges: ranges
+            });
+        }
     }
 
     replicateRange() {
         let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        ranges.push({
-            startDate: activeRange.startDate,
-            endDate: activeRange.endDate,
-            startTime: activeRange.startTime,
-            endTime: activeRange.endTime,
-            daysOfWeek: activeRange.daysOfWeek,
-            includeHolidays: activeRange.includeHolidays
-        });
-        this.setState({
-            numRanges: numRanges + 1,
-            activeRange: numRanges,
-            ranges: ranges
-        });
+        let activeRange = ranges[this.state.activeRange];
+        let params = activeRange.getParams();
+
+        const name = prompt("Name the new Range");
+
+        if (!name || name === "") {
+            if (name === "") {
+                NotificationManager.error('You must enter a name');
+            }
+        } else {
+            params.name = name;
+            ranges.push(RangeFactory.newRange(params));
+            this.setState({
+                numRanges: numRanges + 1,
+                activeRange: numRanges,
+                ranges: ranges
+            });
+        }
+    }
+
+    renameRange() {
+        const name = prompt("Enter the new Name");
+        if (!name || name === "") {
+            if (name === "") {
+                NotificationManager.error('You must enter a name');
+            }
+        } else {
+            let params = this.state.ranges[this.state.activeRange].getParams();
+            params.name = name;
+            this.replaceActiveRange(params);
+        }
     }
 
     deleteCurrRange() {
         if (this.state.numRanges <= 1) {
-            alert("Must have at least one range!");
+            NotificationManager.error('Must have at least one range!');
             return;
         }
         let numRanges = this.state.numRanges;
@@ -133,87 +144,50 @@ class Layout extends React.Component {
         });
     }
 
-    handleHolidays = () => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.includeHolidays = !activeRange.includeHolidays;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
+    downloadGeoJSON() {
+        let filename = "geometry_data.json";
+        let contentType = "application/json;charset=utf-8;";
 
-    updatePreset = (event) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        switch (event.value) {
-            case "Working Week Morning":
-                activeRange.startTime = "06:00";
-                activeRange.endTime = "09:00";
-                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
-                ranges[this.state.activeRange] = activeRange;
-                this.setState({ranges: ranges});
-                break;
+        let geoArray = [];
 
-            case "Working Week Night":
-                activeRange.startTime = "15:00";
-                activeRange.endTime = "18:00";
-                activeRange.daysOfWeek = [true, true, true, true, true, false, false];
-                ranges[this.state.activeRange] = activeRange;
-                this.setState({ranges: ranges});
-                break;
+        this.state.linksList.forEach((segment, seg_i) => {
+            let segmentFeatures = [];
+            segment.forEach((link, node_i) => {
+                const linkGeoObject = {
+                    "type": "Feature",
+                    "properties": {
+                        "segment_index": seg_i,
+                        "link_index": node_i,
+                        "link_dirs": link.link_dirs,
+                        "link_name": link.path_name,
+                        "source_node_id": link.source,
+                        "target_node_id": link.target
+                    },
+                    "geometry": link.geometry
+                };
+                segmentFeatures.push(linkGeoObject);
+            });
+            geoArray.push({
+                "type": "FeatureCollection",
+                "features": segmentFeatures
+            });
+        });
 
-            default:
-                break;
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            let blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(geoArray, null, "\t")))], {type: contentType});
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            let a = document.createElement('a');
+            a.download = filename;
+            a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(geoArray, null, "\t"));
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
     }
 
-    onStartDateChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.startDate = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onEndDateChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.endDate = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onStartTimeChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.startTime = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onEndTimeChange = (value) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        activeRange.endTime = value;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onDaysOfWeekChange = (index) => {
-        let ranges = [...this.state.ranges];
-        let activeRange = {...ranges[this.state.activeRange]};
-        let newDaysOfWeek = [...activeRange.daysOfWeek];
-        newDaysOfWeek[index] = !newDaysOfWeek[index];
-        activeRange.daysOfWeek = newDaysOfWeek;
-        ranges[this.state.activeRange] = activeRange;
-        this.setState({ranges: ranges});
-    }
-
-    onFileTypeUpdate = (e) => {
-        this.setState({fileType: e.target.value});
-    }
-
     downloadData = () => {
-
         if (this.state.linksList.length !== 0) {
             let allLinkDirs = [];
             this.state.linksList.forEach((seq) => {
@@ -224,137 +198,108 @@ class Layout extends React.Component {
                 allLinkDirs.push(tmpLinkDirs);
             });
 
-            const list_of_time_periods = this.parseTimePeriods();
+            const list_of_time_periods = parseTimePeriods(this.state.ranges);
             if (!list_of_time_periods) {
-                alert("Must complete all of start date, end date, start time and end time!");
+                NotificationManager.error('Must complete all of start time and end time!');
                 return;
             }
 
-            const fileData = this.state.fileType.split("-");
-            let params = {
-                listOfTimePeriods: list_of_time_periods,
-                listOfLinkDirs: allLinkDirs,
-                fileType: fileData[0],
-                fileArgs: fileData[1]
-            };
+            const fileParams = this.state.fileSettings.parseSettings();
+            const fileType = fileParams['file_type'];
 
-            this.setState({disableGetButton: true});
-            getTravelDataFile(params, () => {
-                this.setState({disableGetButton: false});
-            });
+            if (fileType === 'geojson') {
+                this.downloadGeoJSON();
+            } else {
+                let params = {
+                    listOfTimePeriods: list_of_time_periods,
+                    listOfLinkDirs: allLinkDirs,
+                    fileType: fileType,
+                    start_date: fileParams["start_date"],
+                    end_date: fileParams["end_date"],
+                    include_holidays: fileParams["include_holidays"],
+                    days_of_week: fileParams["days_of_week"],
+                    fields: fileParams["fields"]
+                };
+
+                this.setState({disableGetButton: true});
+                getTravelDataFile(params, () => {
+                    this.setState({disableGetButton: false});
+                });
+            }
         } else {
-            alert("Please get links first");
+            NotificationManager.error('Please get links first');
             this.setState({disableGetButton: false});
         }
 
     }
 
-    formattedDateString(datetime) {
-        const year = datetime.getFullYear();
-        const month = this.zeroPadNumber(datetime.getMonth() + 1);
-        const date = this.zeroPadNumber(datetime.getDate());
-
-        return `${year}-${month}-${date}`;
+    openPopup() {
+        this.setState({popupOpen: true})
     }
 
-    formattedTimeString(datetime) {
-        const hour = this.zeroPadNumber(datetime.getHours());
-        const minute = this.zeroPadNumber(datetime.getMinutes());
-
-        return `${hour}:${minute}`;
+    handleClose() {
+        this.setState({popupOpen: false});
     }
 
-    zeroPadNumber(number) {
-        let padded = number.toString();
-        if (padded.length < 2) {
-            padded = "0" + padded;
-        }
-        return padded;
+    replaceActiveRange = (params) => {
+        let ranges = [...this.state.ranges];
+        ranges[this.state.activeRange] = RangeFactory.newRange(params);
+        this.setState({ranges: ranges});
     }
 
-    parseTimePeriods() {
-        let timePeriods = [];
-        let succeeded = true;
-        this.state.ranges.forEach(value => {
-            if (!succeeded || !value || !value.startDate || !value.endDate || !value.startTime || !value.endTime) {
-                succeeded = false;
-                return;
-            }
-
-            const startDateStr = this.formattedDateString(value.startDate);
-            const endDateStr = this.formattedDateString(value.endDate);
-            const startTimeStr = value.startTime;
-            const endTimeStr = value.endTime;
-
-            timePeriods.push({
-                "start_time": startTimeStr,
-                "end_time": endTimeStr,
-                "start_date": startDateStr,
-                "end_date": endDateStr,
-                "days_of_week": value.daysOfWeek,
-                "include_holidays": value.includeHolidays
-            });
-        });
-
-        if (succeeded) {
-            return timePeriods;
-        } else {
-            return null;
-        }
+    replaceSettings = (params) => {
+        let newFileSettings = FileSettingsFactory.newFileSettings(params);
+        this.setState({fileSettings: newFileSettings});
     }
 
     render() {
-        const presets = ["Working Week Morning", "Working Week Night", "Custom"];
         const activeRange = this.state.ranges[this.state.activeRange];
+        let rangeNames = [];
+        for (let i = 0; i < this.state.numRanges; i++) {
+            rangeNames.push(`${i + 1} ${this.state.ranges[i].getName()}`);
+        }
+
         return (
             <div>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
+                        openPopup={this.openPopup.bind(this)}
 
-                        onFileTypeUpdate={this.onFileTypeUpdate.bind(this)}
-
-                        onHolidayUpdate={this.handleHolidays.bind(this)}
-                        includeHolidays={activeRange.includeHolidays}
-
-                        presets={presets}
-                        onPresetChange={this.updatePreset.bind(this)}
+                        range={this.state.activeRange}
 
                         onGo={this.downloadData}
-
-                        onStartDateChange={this.onStartDateChange.bind(this)}
-                        startDate={activeRange.startDate}
-                        onEndDateChange={this.onEndDateChange.bind(this)}
-                        endDate={activeRange.endDate}
-
-                        onStartTimeChange={this.onStartTimeChange.bind(this)}
-                        startTime={activeRange.startTime}
-                        onEndTimeChange={this.onEndTimeChange.bind(this)}
-                        endTime={activeRange.endTime}
-
-                        daysOfWeek={activeRange.daysOfWeek}
-                        onDaysOfWeekChange={this.onDaysOfWeekChange.bind(this)}
+                        fileSettings={this.state.fileSettings}
+                        replaceSettings={this.replaceSettings.bind(this)}
 
                         dateTimeRanges={this.state.numRanges}
                         addNewRange={this.addRange.bind(this)}
                         replicateCurrRange={this.replicateRange.bind(this)}
                         deleteCurrRange={this.deleteCurrRange.bind(this)}
-                        range={this.state.activeRange}
                         changeDateTimeRange={this.changeDateTimeRange.bind(this)}
+                        renameRange={this.renameRange.bind(this)}
+
+                        activeRange={activeRange}
+                        replaceActiveRange={this.replaceActiveRange.bind(this)}
+                        rangeNames={rangeNames}
+                        state={this.props.state}
                     />}
                     open={this.state.sidebarOpen}
                     onSetOpen={this.onSetSidebarOpen}
                     rootClassName={"topbar"}
                     sidebarClassName={"sidebar"}
                 >
-                    <Button
-                        variant="contained"
-                        onClick={() => this.onSetSidebarOpen(true)}
-                        style={{position: "absolute", right: "5%", height: "40px", width: "10%", top: "5px"}}
-                    >
-                        Open Sidebar
-                    </Button>
+                    <Tooltip title={<span style={{fontSize: "20px"}}>Click to edit query and get file.</span>}>
+                        <Button
+                            variant="contained"
+                            onClick={() => this.onSetSidebarOpen(true)}
+                            style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
+                        >
+                            Edit Query
+                        </Button>
+                    </Tooltip>
                 </Sidebar>
+
                 <Mapbox
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
@@ -362,6 +307,25 @@ class Layout extends React.Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
+
+                <Dialog
+                    open={this.state.popupOpen}
+                    onClose={this.handleClose.bind(this)}
+                    aria-labelledby="form-dialog-title"
+                >
+
+                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if
+                        requires all)</DialogTitle>
+
+                    <DialogActions>
+                        <FieldSelectMenu replaceSettings={this.replaceSettings.bind(this)}
+                                         fileSettings={this.state.fileSettings}
+                                         handleClose={this.handleClose.bind(this)}
+                        />
+                    </DialogActions>
+
+                </Dialog>
+                <NotificationContainer/>
             </div>
         );
 
