@@ -36,11 +36,10 @@ CS Students from UofT created a web application for handling travel time data re
 
 
 # Toronto Transportation Traffic Data Filter Web Application  
-# Team Gabriel (Team 22) 
 
 ## Description 
 
- * **Context**:  The toronto big data innovation team handles data requests from a wide variety of clients including academia and industry. These data requests are about traffic travel times across the city of toronto. They collect and store data of roads all across Toronto and the expected travel times on the roads at any time of day, at any time of the year.
+ * **Context**:  The toronto big data innovation team handles data requests from a wide variety of clients including academia and industry. These data requests are about traffic travel times across the City of Toronto. They collect and store data of roads all across Toronto and the expected travel times on the roads at any time of day, at any time of the year.
  
  * **Problem**:  Queries from these clients are often not specific and not in the proper format, this causes the team to spend a lot of time formatting the queries into something usable. They needed a visual and user-friendly web-application in order to standardize the process to make queries so that users can easily self-serve the travel time data on the city of toronto without needing the team to intervene.
  
@@ -103,16 +102,6 @@ https://www.youtube.com/watch?v=y6lnefduogo
 
 ## Instructions
 
- * Access to the Application
-   * To access the application
-     * For Deliverable 2, please visit http://frontendproduction-env.eba-4ef5jwdw.ca-central-1.elasticbeanstalk.com/
-     * For final product, please visit http://frontendtest-env.eba-wempu9ue.ca-central-1.elasticbeanstalk.com/
-   * Since this application is developed as a prototype of an internal tool for the Toronto Transportation Services Big Data Innovation team, there is no user authentication requirement at the current development stage. All users having access to the application are granted the same and complete access to features and functionalities.
-   * On a successful access to the application, you should be able to see: 
-     * A sidebar at the left side of the web page. By clicking on other parts of the web page, the sidebar should collapse.
-     * A group of 6 buttons (the top one with a text field) at the bottom right corner of the web page.
-     * A top bar with geometrical information and current sequence number displayed on the left and a button on the right. By clicking the button, the left sidebar mentioned previously should expand.
-     * A map interface basically like all popular map tools, which allows you to zoom, drag, and scroll, etc...
  * Nodes
    * Node is the base unit of all what you can create on the map.
    * Creation
@@ -174,9 +163,7 @@ https://www.youtube.com/watch?v=y6lnefduogo
    * Get Travel Data File
      * You are ready to go, hit the “GET DISPLAYED LINKS’ DATA” button to get the file.
      * While the application is making your desired file, you cannot request another file.
- * Server
-   * By any chance if you want to test our API server, the link is given below http://backendproduction-env.eba-5qbcpngm.ca-central-1.elasticbeanstalk.com/ 
-   * To test our APIs, please refer to the application’s API document in https://github.com/Accelsnow/team-project-22-toronto-big-data-innovation-team/tree/dev/doc
+ 
  ## Development requirements
  
  * The project may be deployed on any server running a UNIX-like OS. It requires installation of Python3.6+ and Node.js with pip3 and npm as package managers. The 3rd party libraries are specified in frontend/package.json and backend/requirements.txt.
@@ -191,31 +178,6 @@ https://www.youtube.com/watch?v=y6lnefduogo
  ## Extra Testing
  
 The backend has unit tests powered by pytest for most of the non-database non-API related modules and functions. The tests are located in backend/app/tests. When designing the backend, we followed the single responsibility principle and separated database actions, API interfaces and file actions from logic processing. For example, parse_util.py includes all the parsing logic for error checking incoming request and parsing request body, as well as parsing database query results into proper response formats. This module is thoroughly tested for correctness. There are also tests for validating data structures and testing database connections. These tests can all be run with command ‘pytest’ in the backend folder. During our CI/CD workflow, pytest is also part of the process. If any test case fails, CI/CD will terminate with error.
- 
- ## Deployment and Github Workflow
- 
- * Codebase management:
-We use Github repository to manage our codebase.
-
- * Avoid conflicts:
-We have set up a Github Project using Kanban style DevOps on our Github repository. At the end of every weekly partner meeting, our group holds a meeting to talk about our goals and features to implement for the next week. Each feature and task is made into a Github Issue marked with proper labels. The issue will appear in the Project page as a card in the To Do section. Whenever one decides to work on the project, he/she will first drag the card representing the feature he/she is implementing into the In Progress column to notice everyone that this feature is under development. We also make lots of active communication on both our Discord server and messenger group to keep everybody up-to-date about the implementation progress. The cards will be automatically moved to completed once the pull request or issue it is associated with is marked closed. We have only had one major conflict, and the group members involved in the conflict realized and acknowledged the conflicts ahead of time and arranged a short meeting to resolve all the conflicts together and did thorough testing afterwards.
-A team member notifies the group in the messenger chat before creating a pull request to the dev branch (our main branch). If the feature does not cross boundaries (i.e. the PR requires no support from other people’s features/code), the member can merge the pull request once the Github Action workflow completed successfully and the test server shows no error in functionalities. If it involves changing existing code of others, the owner of the affected code should be notified about the change. Once that person acknowledges the changes and approves its validity, the PR can then be merged.
-
- * Conventions:
-All team members use the same IDEs (Pycharm for backend flask server and WebStorm for frontend Node.js). The code formatting and code style check tool helps with unified code style. For naming conventions, the frontend Node.js follows the camelcase naming convention and the backend python follows the underscore naming convention, as suggested by the language documents.
-
- * Code to live view:
-As described above in the development requirements section, each team member can run both the frontend and backend on localhost on their own machine to test functionalities locally. PyCharm and WebStorm also provide support for running the applications in debug mode.
-
- * Deployment:
-The team uses Github Action as our CI/CD workflow tool. The github workflow files were created at the beginning during the initial project set up phase. Each workflow tests, builds and deploys the current codebase (frontend deployment and backend deployment are seperated). We currently have 4 different servers, frontend test server, frontend production server, backend test server and backend production server. The production servers are stable versions of the project that only get updated for each major release. The test server is updated every time a pull request is created. With Github’s workflow trigger, as a pull request to the dev branch is created, the workflow will be automatically triggered, executing all the unit tests available and deploying the build version of the current codebase to the test server. Besides, the workflow also triggers when a pull request is successfully merged into the dev branch, deploying the current version of dev to the test server.
-All servers are hosted by Amazon AWS service. The build versions of our codebase are uploaded to amazon S3 storage first with a unique commit-hash, then automatically deployed to the server instance using Elasticbeanstalk service.
-We decided to use this workflow since two of the team members have experiences using it for the Assignment 1, and thus are familiar with how to set it up. It also requires no extra support and is embedded inside Github with clear indication beside each commit and pull request whether the workflow succeeded or failed. The automatic triggering upon PR also makes it easy for testing purposes.
-
- ## Licenses 
- 
-Since our partner wants the code to be private, we made our Github repository private and did not assign a license for it. This hides our repository from the public; only people with access may access our project’s codebase. Once we finish this project, our project partner (Toronto Big Data Innovation Team) will take our codebase and internalize it into the City of Toronto’s private AWS Cloud.
-
 
 # Toronto Transportation Traffic Data Filter Web Application / Team Gabriel
 
