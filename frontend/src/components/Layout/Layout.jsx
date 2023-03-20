@@ -148,38 +148,30 @@ export default class Layout extends React.Component {
         let filename = "geometry_data.json";
         let contentType = "application/json;charset=utf-8;";
 
-        let geoArray = [];
-
-        this.state.linksList.forEach((segment, seg_i) => {
-            let segmentFeatures = [];
-            segment.forEach((link, node_i) => {
-                const linkGeoObject = {
+        let geoJSON = {
+            "type": "FeatureCollection",
+            "features": this.state.linksList.flat().map( (segment,i) => {
+                return {
                     "type": "Feature",
                     "properties": {
-                        "segment_index": seg_i,
-                        "link_index": node_i,
-                        "link_dirs": link.link_dirs,
-                        "link_name": link.path_name,
-                        "source_node_id": link.source,
-                        "target_node_id": link.target
+                        "segment_number": i,
+                        "link_dirs": segment.link_dirs,
+                        "link_name": segment.path_name,
+                        "source_node_id": segment.source,
+                        "target_node_id": segment.target
                     },
-                    "geometry": link.geometry
-                };
-                segmentFeatures.push(linkGeoObject);
-            });
-            geoArray.push({
-                "type": "FeatureCollection",
-                "features": segmentFeatures
-            });
-        });
+                    "geometry": segment.geometry
+                }
+            } )
+        };
 
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            let blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(geoArray, null, "\t")))], {type: contentType});
+            let blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(geoJSON, null, "\t")))], {type: contentType});
             navigator.msSaveOrOpenBlob(blob, filename);
         } else {
             let a = document.createElement('a');
             a.download = filename;
-            a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(geoArray, null, "\t"));
+            a.href = 'data:' + contentType + ',' + encodeURIComponent(JSON.stringify(geoJSON, null, "\t"));
             a.target = '_blank';
             document.body.appendChild(a);
             a.click();
