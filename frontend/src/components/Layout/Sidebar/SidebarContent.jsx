@@ -91,7 +91,7 @@ class SidebarContent extends React.Component {
                                 </div>
                             </Grid>
 
-                            <Grid item>
+                            {false &&<Grid item>
                                 <Tooltip 
                                     placement={'right'}
                                     title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}
@@ -100,27 +100,26 @@ class SidebarContent extends React.Component {
                                         Choose Response Fields
                                     </Button>
                                 </Tooltip>
-                            </Grid>
+                            </Grid>}
 
                             <Grid item>
                                 <Tooltip 
                                     placement={'right'}
                                     title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}
                                 >
-                                    <span><Button
-                                        variant="contained"
-                                        color="primary"
+                                    <Button
+                                        variant="contained" color="primary" className={"download"}
                                         onClick={this.props.onGo}
                                         disabled={this.props.disableGetButton}
-                                        className={"download"}
-                                    >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
-                                    </Button></span>
+                                    >
+                                        {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                    </Button>
                                 </Tooltip>
                             </Grid>
                         </Grid>
                     </Grid>
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
@@ -150,10 +149,10 @@ class SidebarContent extends React.Component {
                                 </Tooltip>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
 
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Tooltip
                             placement={'right'}
                             title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}
@@ -206,10 +205,10 @@ class SidebarContent extends React.Component {
                                 </FormGroup>
                             </FormControl>
                         </Tooltip>
-                    </Grid>
+                    </Grid>}
 
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Check to whether include holidays in the query.</span>}>
                             <FormControlLabel
                                 control={<Checkbox checked={params.includeHolidays}
@@ -218,9 +217,9 @@ class SidebarContent extends React.Component {
                                 label="Include Holidays"
                             />
                         </Tooltip>
-                    </Grid>
+                    </Grid>}
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Click to select time range to edit.</span>}>
                                 <Grid item>
@@ -330,7 +329,7 @@ class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
 
 
                 </Grid>
