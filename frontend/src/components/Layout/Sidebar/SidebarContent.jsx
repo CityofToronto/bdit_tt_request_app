@@ -1,6 +1,6 @@
 import React from "react";
 import Dropdown from "react-dropdown";
-import {Button, Checkbox, Grid, Select} from "@material-ui/core";
+import { Button, Checkbox, Grid, Select } from "@material-ui/core";
 import "react-dropdown/style.css";
 import "./SidebarContent.css";
 import DatePicker from "react-date-picker";
@@ -78,60 +78,48 @@ class SidebarContent extends React.Component {
         return (
             <div id="sidebar-container">
                 <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
-
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
-                                <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>
-                                    Click to select your desired file format. CSV and XLSX for travel data, GeoJSON for geometry data.
-                                </span>}>
-                                    <div
-                                        ref={React.createRef()}>
-                                        File Type: &nbsp; &nbsp;
-                                        <Select
-                                            native
-                                            value={params.fileType}
-                                            onChange={this.fileTypeChange.bind(this)}
-                                        >
-                                            <option value={"csv"}>csv</option>
-                                            <option value={"xlsx"}>xlsx</option>
-                                            <option value={"geojson"}>geojson</option>
-                                        </Select>
-                                    </div>
-                                </Tooltip>
+                                <div ref={React.createRef()}>
+                                    File Type: &nbsp;
+                                    <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
+                                        <option value={"geojson"}>GeoJSON (geometries only)</option>
+                                        <option value={"csv"}>CSV (data tables)</option>
+                                        <option value={"xlsx"}>Excel (data tables)</option>
+                                    </Select>
+                                </div>
                             </Grid>
 
-                            <Grid item>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={this.props.openPopup}
-                                        className={"popup"}
-                                    >
+                            {false &&<Grid item>
+                                <Tooltip 
+                                    placement={'right'}
+                                    title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}
+                                >
+                                    <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
                                         Choose Response Fields
                                     </Button>
                                 </Tooltip>
-                            </Grid>
+                            </Grid>}
 
                             <Grid item>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}>
-                                    <span><Button
-                                        variant="contained"
-                                        color="primary"
+                                <Tooltip 
+                                    placement={'right'}
+                                    title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}
+                                >
+                                    <Button
+                                        variant="contained" color="primary" className={"download"}
                                         onClick={this.props.onGo}
                                         disabled={this.props.disableGetButton}
-                                        className={"download"}
-                                    >{this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
-                                    </Button></span>
+                                    >
+                                        {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                    </Button>
                                 </Tooltip>
                             </Grid>
                         </Grid>
                     </Grid>
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
@@ -161,12 +149,14 @@ class SidebarContent extends React.Component {
                                 </Tooltip>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
 
 
-                    <Grid item>
-                        <Tooltip placement={'right'}
-                                 title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}>
+                    {false && <Grid item>
+                        <Tooltip
+                            placement={'right'}
+                            title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}
+                        >
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Select Days of Week</FormLabel>
                                 <FormGroup row>
@@ -215,10 +205,10 @@ class SidebarContent extends React.Component {
                                 </FormGroup>
                             </FormControl>
                         </Tooltip>
-                    </Grid>
+                    </Grid>}
 
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Check to whether include holidays in the query.</span>}>
                             <FormControlLabel
                                 control={<Checkbox checked={params.includeHolidays}
@@ -227,9 +217,9 @@ class SidebarContent extends React.Component {
                                 label="Include Holidays"
                             />
                         </Tooltip>
-                    </Grid>
+                    </Grid>}
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Click to select time range to edit.</span>}>
                                 <Grid item>
@@ -339,7 +329,7 @@ class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
 
 
                 </Grid>

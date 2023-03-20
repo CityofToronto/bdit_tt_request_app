@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "react-sidebar";
-import {Button} from "@material-ui/core"
+import { Button } from "@material-ui/core"
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -8,14 +8,14 @@ import SidebarContent from "./Sidebar/SidebarContent";
 import Mapbox from "../Map/Mapbox";
 import RangeFactory from "./Datetime/Range";
 import parseTimePeriods from "./Datetime/TimeRangeParser";
-import {getLinksBetweenNodes, getTravelDataFile} from "../../actions/actions";
-import "./Layout.css";
+import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions/actions";
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
 import FileSettingsFactory from "./Settings/FileSettings";
 import Tooltip from '@material-ui/core/Tooltip';
-import {NotificationContainer, NotificationManager} from 'react-notifications';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import "./Layout.css";
 
-class Layout extends React.Component {
+export default class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -210,6 +210,9 @@ class Layout extends React.Component {
             if (fileType === 'geojson') {
                 this.downloadGeoJSON();
             } else {
+                NotificationManager.error('Only GeoJSON filetype is currently supported');
+                return;
+                /*
                 let params = {
                     listOfTimePeriods: list_of_time_periods,
                     listOfLinkDirs: allLinkDirs,
@@ -225,6 +228,7 @@ class Layout extends React.Component {
                 getTravelDataFile(params, () => {
                     this.setState({disableGetButton: false});
                 });
+                */
             }
         } else {
             NotificationManager.error('Please get links first');
@@ -331,5 +335,3 @@ class Layout extends React.Component {
 
     }
 }
-
-export default Layout;
