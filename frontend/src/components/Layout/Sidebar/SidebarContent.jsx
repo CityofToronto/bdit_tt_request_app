@@ -86,13 +86,9 @@ class SidebarContent extends React.Component {
                                 </span>}>
                                     <div ref={React.createRef()}>
                                         File Type: &nbsp;
-                                        <Select
-                                            native
-                                            value={params.fileType}
-                                            onChange={this.fileTypeChange.bind(this)}
-                                        >
-                                            {false &&<option value={"csv"}>csv</option>}
-                                            {false && <option value={"xlsx"}>xlsx</option>}
+                                        <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
+                                            <option value={"csv"}>csv</option>
+                                            <option value={"xlsx"}>xlsx</option>
                                             <option value={"geojson"}>geojson</option>
                                         </Select>
                                     </div>
@@ -100,22 +96,21 @@ class SidebarContent extends React.Component {
                             </Grid>
 
                             <Grid item>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={this.props.openPopup}
-                                        className={"popup"}
-                                    >
+                                <Tooltip 
+                                    placement={'right'}
+                                    title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}
+                                >
+                                    <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
                                         Choose Response Fields
                                     </Button>
                                 </Tooltip>
                             </Grid>
 
                             <Grid item>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}>
+                                <Tooltip 
+                                    placement={'right'}
+                                    title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}
+                                >
                                     <span><Button
                                         variant="contained"
                                         color="primary"
@@ -163,8 +158,10 @@ class SidebarContent extends React.Component {
 
 
                     <Grid item>
-                        <Tooltip placement={'right'}
-                                 title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}>
+                        <Tooltip
+                            placement={'right'}
+                            title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}
+                        >
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Select Days of Week</FormLabel>
                                 <FormGroup row>

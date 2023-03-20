@@ -210,6 +210,9 @@ class Layout extends React.Component {
             if (fileType === 'geojson') {
                 this.downloadGeoJSON();
             } else {
+                NotificationManager.error('Only GeoJSON filetype is currently supported');
+                return;
+                /*
                 let params = {
                     listOfTimePeriods: list_of_time_periods,
                     listOfLinkDirs: allLinkDirs,
@@ -225,6 +228,7 @@ class Layout extends React.Component {
                 getTravelDataFile(params, () => {
                     this.setState({disableGetButton: false});
                 });
+                */
             }
         } else {
             NotificationManager.error('Please get links first');
