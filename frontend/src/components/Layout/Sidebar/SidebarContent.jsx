@@ -1,6 +1,6 @@
 import React from "react";
 import Dropdown from "react-dropdown";
-import {Button, Checkbox, Grid, Select} from "@material-ui/core";
+import { Button, Checkbox, Grid, Select } from "@material-ui/core";
 import "react-dropdown/style.css";
 import "./SidebarContent.css";
 import DatePicker from "react-date-picker";
@@ -78,23 +78,21 @@ class SidebarContent extends React.Component {
         return (
             <div id="sidebar-container">
                 <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
-
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
                                 <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>
                                     Click to select your desired file format. CSV and XLSX for travel data, GeoJSON for geometry data.
                                 </span>}>
-                                    <div
-                                        ref={React.createRef()}>
-                                        File Type: &nbsp; &nbsp;
+                                    <div ref={React.createRef()}>
+                                        File Type: &nbsp;
                                         <Select
                                             native
                                             value={params.fileType}
                                             onChange={this.fileTypeChange.bind(this)}
                                         >
-                                            <option value={"csv"}>csv</option>
-                                            <option value={"xlsx"}>xlsx</option>
+                                            {false &&<option value={"csv"}>csv</option>}
+                                            {false && <option value={"xlsx"}>xlsx</option>}
                                             <option value={"geojson"}>geojson</option>
                                         </Select>
                                     </div>
