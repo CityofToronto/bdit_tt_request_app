@@ -81,18 +81,14 @@ class SidebarContent extends React.Component {
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
-                                <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>
-                                    Click to select your desired file format. CSV and XLSX for travel data, GeoJSON for geometry data.
-                                </span>}>
-                                    <div ref={React.createRef()}>
-                                        File Type: &nbsp;
-                                        <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
-                                            <option value={"csv"}>csv</option>
-                                            <option value={"xlsx"}>xlsx</option>
-                                            <option value={"geojson"}>geojson</option>
-                                        </Select>
-                                    </div>
-                                </Tooltip>
+                                <div ref={React.createRef()}>
+                                    File Type: &nbsp;
+                                    <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
+                                        <option value={"geojson"}>GeoJSON (geometries only)</option>
+                                        <option value={"csv"}>CSV (data tables)</option>
+                                        <option value={"xlsx"}>Excel (data tables)</option>
+                                    </Select>
+                                </div>
                             </Grid>
 
                             <Grid item>
