@@ -34,7 +34,7 @@ and then reload it using :
 sudo nginx -s reload
 ```
 
-## Back-end
+### Back-end
 
 1. From the project root directory, `cd` into folder `backend`.
 
@@ -64,7 +64,7 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 
 8. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
 
-## Front-end
+### Front-end
 
 1. `cd frontend`
 
@@ -78,3 +78,7 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 
 - make it restart if EC2 fails
 - [https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398](https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398)
+
+## Development
+
+TBD
