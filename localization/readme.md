@@ -81,4 +81,13 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 
 ## Development
 
-TBD
+### Frontend
+* `cd frontend`
+* `npm install`
+* `npm run`
+
+### Backend
+* `cd backend`
+* create a `.env` file in `backend/` if you haven't aready. The variables you'll need to set are listed above. 
+* `pip3 install -r requirements.txt`
+* `flask run`
