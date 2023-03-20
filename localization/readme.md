@@ -62,9 +62,7 @@ export KEEP_TEMP_FILE='true'
 export DB_DATA_START_DATE='2019-01-01 00:00'
 ```
 
-8. Modify `[model.py](http://model.py)`  and remove the primary key column for both routing streets and routing notes, add primary key to `node_id` and `link_dir` instead.
-
-9. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
+8. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
 
 ## Front-end
 
@@ -76,24 +74,7 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 
 4. `pm2 serve build 8071 -spa` to deploy the production build, where `8071` is the port number assigned to the frontend application. This will also be the port to access the project application with.
 
-Things to figure out:
+### Things to figure out:
 
-- make it restart if ec2 fails
+- make it restart if EC2 fails
 - [https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398](https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398)
-
-500 Error - Internal servor error
-
-restart the backend gunicorn
-
-```bash
-su tt_traffic_request_app
-```
-
-```bash
--- kill the old process with 
-kill PID 
-```
-
-```bash
-GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070 --timeout 90 --name=data_request_app" /web/bdit_tt_datarequest_app/backend/venv/bin/gunicorn app:app -D
-```
