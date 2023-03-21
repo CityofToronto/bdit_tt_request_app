@@ -91,3 +91,7 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 * create a `.env` file in `backend/` if you haven't aready. The variables you'll need to set are listed above. 
 * `pip3 install -r requirements.txt`
 * `flask run`
+
+ ## Testing
+ 
+> The backend has unit tests powered by pytest for most of the non-database non-API related modules and functions. The tests are located in backend/app/tests. When designing the backend, we followed the single responsibility principle and separated database actions, API interfaces and file actions from logic processing. For example, `parse_util.py` includes all the parsing logic for error checking incoming request and parsing request body, as well as parsing database query results into proper response formats. This module is thoroughly tested for correctness. There are also tests for validating data structures and testing database connections. These tests can all be run with command ‘pytest’ in the backend folder. During our CI/CD workflow, pytest is also part of the process. If any test case fails, CI/CD will terminate with error.
