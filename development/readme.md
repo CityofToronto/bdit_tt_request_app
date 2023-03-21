@@ -11,7 +11,7 @@ You'll need `sudo` privileges to get the production build running.
 1. switch to user `tt_request_app` with `su tt_request_app`; you'll be asked for a password
 2. pull any updates from the `deploy` branch
 
-3) Assign a port for back-end (8070) and one for front-end (8071)
+3) Ports should already be assigned for back-end (8070) and for front-end (8071)
 
 ```bash
 sudo nano /etc/nginx/sites-available/default
@@ -24,7 +24,7 @@ location /tt-request-backend/ {
 
 location /traveltime-request/ {
     proxy_pass http://localhost:8071/;
-	alias /web/bdit_tt_datarequest_app/frontend/build/static;
+    alias /web/bdit_tt_request_app/frontend/build/static;
 }
 ```
 
