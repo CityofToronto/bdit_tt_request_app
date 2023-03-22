@@ -3,7 +3,7 @@ This is a simple web app designed to eventually help City staff self-serve their
 
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City. It is currently deployed inside the City ntwork at [https://10.160.2.198/traveltime-request/](https://10.160.2.198/traveltime-request/).
 
-For information on app development and deployment, see [development](./development/).
+For information on app development and deployment, see [Running the App](./running-the-app.md).
 
 ## How to create segments
 Currently only the segment creation piece is ready to use, segments can be drawn following the steps below:
