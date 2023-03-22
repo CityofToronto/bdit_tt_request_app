@@ -84,7 +84,7 @@ export DB_DATA_START_DATE='2019-01-01 00:00'
 ### Frontend
 * `cd frontend`
 * `npm install`
-* `npm run`
+* `npm start`
 
 ### Backend
 * `cd backend`
