@@ -11,7 +11,7 @@ Utility functions that create excel/csv files containing travel time data select
 Declares the database model (postgres), created using the sqlalchemy package. Includes fields `link_dir`, `link_id`, `st_name`, `source`, `target`, `length`, `geom`
 
 ## `parse_util.py`
-
+Utility functions that parse travel time requests to the app by users
 
 ## `routes.py`
 Contains Also has URL routes for functions in the backend with Flask. 
@@ -45,7 +45,27 @@ Gets the travel data file (csv) of each of the given series of links in the spec
 
 ## Queries
 ### `create_trav_agg.sql`
+CREATE function for `fetch_aggregated_travel_data`
+Aggregates total travel time and other stats across all links selected by the user
+
+Params:
+- time_periods time_period[]
+- segments link_segment[]
+- start_date date
+- end_date date
+- days_of_week int[]
+- include_holidays bool
+
 ### `create_closest_node.sql`
+CREATE function for `get_closest_nodes`
+
+
 ### `create_datetime_bin.sql`
+CREATE function for `public.datetime_bin`
+
 ### `create_get_links.sql`
+CREATE function for `get_links_btwn_nodes`
+
 ### `create_trav_agg_wrapper.sql`
+CREATE function for `fetch_trav_data_wrapper`
+One line of code to SELECT data from `fetch_aggregated_travel_data`.
