@@ -3,6 +3,9 @@ import os
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func
 
+from psycopg2 import connect, sql
+from psycopg2.extras import execute_values
+
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
@@ -47,6 +50,14 @@ def get_closest_node(longitude, latitude):
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
+
+    #temp connection
+    CONFIG=ConfigParser()
+    CONFIG.read('config.cfg') # Change DB Settings in db.cfg
+    dbset=CONFIG['DBSETTINGS']
+    conn=connect(**dbset)
+
+
     try:
         longitude = float(longitude)
         latitude = float(latitude)
@@ -54,7 +65,20 @@ def get_closest_node(longitude, latitude):
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
 
-    nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
+    #nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
+    with conn:
+        with conn.cursor() as cur:
+            select_sql = '''WITH distances AS (SELECT node_id, st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint({}, {}), 4326), 2952) AS distance
+                            FROM here_nodes)
+                            SELECT here_nodes.node_id, intersec_name, st_asgeojson(geom), distance
+                            FROM here_nodes
+                                    JOIN distances ON here_nodes.node_id = distances.node_id
+                                ORDER BY distance
+                                LIMIT 10'''.format(longitude, latitude)
+            cur.execute(select_sql)
+            nodes_ascend_dist_order_query_result = cur.fetchall()
+
+
 
     candidate_nodes = []
     node_count = 0
@@ -69,6 +93,10 @@ def get_closest_node(longitude, latitude):
             break
 
         node_count += 1
+
+    #close cursor and dbconn
+    cur.close()
+    conn.close()
 
     return jsonify(candidate_nodes)
 
