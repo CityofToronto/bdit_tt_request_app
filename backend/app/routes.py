@@ -54,7 +54,7 @@ def get_closest_node(longitude, latitude):
 
     #temp connection
     CONFIG=ConfigParser()
-    CONFIG.read('config.cfg') # Change DB Settings in db.cfg
+    CONFIG.read('config.cfg')
     dbset=CONFIG['DBSETTINGS']
     conn=connect(**dbset)
 
