@@ -5,7 +5,6 @@ from sqlalchemy import func
 
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
-from configparser import ConfigParser
 
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
