@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
+from configparser import ConfigParser
 
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
@@ -66,12 +67,14 @@ def get_closest_node(longitude, latitude):
         return
 
     #nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
+    
+    
     with conn:
         with conn.cursor() as cur:
             select_sql = '''WITH distances AS (SELECT node_id, st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint({}, {}), 4326), 2952) AS distance
-                            FROM here_nodes)
-                            SELECT here_nodes.node_id, intersec_name, st_asgeojson(geom), distance
-                            FROM here_nodes
+                                FROM here.routing_nodes_intersec_name)
+                            SELECT here_nodes.node_id::int, intersec_name, st_asgeojson(geom), distance
+                                FROM here.routing_nodes_intersec_name here_nodes
                                     JOIN distances ON here_nodes.node_id = distances.node_id
                                 ORDER BY distance
                                 LIMIT 10'''.format(longitude, latitude)
@@ -83,7 +86,7 @@ def get_closest_node(longitude, latitude):
     candidate_nodes = []
     node_count = 0
     for node_query_result in nodes_ascend_dist_order_query_result:
-        node_data = parse_node_response(node_query_result[0])
+        node_data = parse_node_response(str(node_query_result))
         node_dist = node_data[0]
         node_json = node_data[1]
 
@@ -128,7 +131,16 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+    #shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+    shortest_link_query_result = db.session.query('''WITH results as (
+        SELECT *
+        FROM pgr_dijkstra('SELECT id, source::int, target::int, length::int as cost from here_links', _node_start,
+                        _node_end)
+    )
+
+    SELECT _node_start, _node_end, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+    from results
+         inner join here_links on edge = id''').first()[0]
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
     return jsonify(shortest_link_data)
 
@@ -158,7 +170,18 @@ def get_links_between_multi_nodes():
         if curr_node_id == next_node_id:
             continue
 
-        shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
+        #shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
+
+        shortest_link_query_result = db.session.query('''WITH results as (
+            SELECT *
+            FROM pgr_dijkstra('SELECT id, source::int, target::int, length::int as cost from here_links', _node_start,
+                            _node_end)
+        )
+
+        SELECT _node_start, _node_end, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+        from results
+         inner join here_links on edge = id''').first()[0]
+
         shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
         optimal_links_data_list.append(shortest_link_data)
     return jsonify(optimal_links_data_list)
