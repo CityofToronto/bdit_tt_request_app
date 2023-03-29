@@ -51,12 +51,12 @@ def get_closest_node(longitude, latitude):
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
-
-    #temp connection
-    CONFIG=ConfigParser()
-    CONFIG.read('config.cfg')
-    dbset=CONFIG['DBSETTINGS']
-    conn=connect(**dbset)
+    connection = connect(
+        host = os.environ['DB_HOST'],
+        dbname = os.environ['DB_NAME'],
+        user = os.environ['DB_USER'],
+        password = os.environ['DB_USER_PASSWORD']
+    )
 
 
     try:
@@ -69,18 +69,26 @@ def get_closest_node(longitude, latitude):
     #nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
     
     
-    with conn:
-        with conn.cursor() as cur:
-            select_sql = '''WITH distances AS (SELECT node_id, st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint({}, {}), 4326), 2952) AS distance
-                                FROM here.routing_nodes_intersec_name)
-                            SELECT here_nodes.node_id::int, intersec_name, st_asgeojson(geom), distance
-                                FROM here.routing_nodes_intersec_name here_nodes
-                                    JOIN distances ON here_nodes.node_id = distances.node_id
-                                ORDER BY distance
-                                LIMIT 10'''.format(longitude, latitude)
-            cur.execute(select_sql)
-            nodes_ascend_dist_order_query_result = cur.fetchall()
-
+    with connection:
+        with connection.cursor() as cursor:
+            select_sql = '''
+                WITH distances AS (
+                    SELECT 
+                        node_id,
+                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint({}, {}), 4326), 2952) AS distance
+                    FROM here.routing_nodes_intersec_name
+                )
+                SELECT 
+                    here_nodes.node_id::int,
+                    intersec_name,
+                    st_asgeojson(geom),
+                    distance
+                FROM here.routing_nodes_intersec_name AS here_nodes
+                JOIN distances ON here_nodes.node_id = distances.node_id
+                ORDER BY distance
+                LIMIT 10'''.format(longitude, latitude)
+            cursor.execute(select_sql)
+            nodes_ascend_dist_order_query_result = cursor.fetchall()
 
 
     candidate_nodes = []
