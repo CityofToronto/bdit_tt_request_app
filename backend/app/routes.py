@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func
@@ -11,7 +12,10 @@ from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
 
+#Global Variables
 
+
+#Functions
 def _need_keep_temp_file():
     """Check environ whether or not to keep the temporary files created."""
     if 'KEEP_TEMP_FILE' not in os.environ:
@@ -54,7 +58,7 @@ def get_closest_node(longitude, latitude):
         host = os.environ['DB_HOST'],
         dbname = os.environ['DB_NAME'],
         user = os.environ['DB_USER'],
-        password = os.environ['DB_USER_PASSWORD']
+        password = os.environ['DB_USER_PASSWORD'],
     )
 
 
@@ -64,9 +68,6 @@ def get_closest_node(longitude, latitude):
     except ValueError or ArithmeticError:
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
-
-    #nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
-    
     
     with connection:
         with connection.cursor() as cursor:
@@ -92,12 +93,15 @@ def get_closest_node(longitude, latitude):
 
     candidate_nodes = []
     node_count = 0
-    for node_query_result in nodes_ascend_dist_order_query_result:
-        node_data = parse_node_response(str(node_query_result))
-        node_dist = node_data[0]
-        node_json = node_data[1]
+    for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
 
-        if node_count == 0 or node_dist < 10:
+        #custom parsing function
+        #node_data = parse_node_response(str((node_id, stname,coord_dict, distance)))
+
+
+        node_json = {'node_id': node_id, 'name': stname, 'geometry': json.loads(coord_dict)}
+
+        if node_count == 0 or distance < 10:
             candidate_nodes.append(node_json)
         else:
             break
@@ -139,6 +143,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         return
 
     #shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+    
+    
+    
     shortest_link_query_result = db.session.query('''WITH results as (
         SELECT *
         FROM pgr_dijkstra('SELECT id, source::int, target::int, length::int as cost from here_links', _node_start,
@@ -148,6 +155,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     SELECT _node_start, _node_end, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
     from results
          inner join here_links on edge = id''').first()[0]
+
+
+
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
     return jsonify(shortest_link_data)
 
@@ -179,6 +189,7 @@ def get_links_between_multi_nodes():
 
         #shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
 
+
         shortest_link_query_result = db.session.query('''WITH results as (
             SELECT *
             FROM pgr_dijkstra('SELECT id, source::int, target::int, length::int as cost from here_links', _node_start,
@@ -188,6 +199,8 @@ def get_links_between_multi_nodes():
         SELECT _node_start, _node_end, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
         from results
          inner join here_links on edge = id''').first()[0]
+
+
 
         shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
         optimal_links_data_list.append(shortest_link_data)
@@ -266,6 +279,8 @@ def _round_up(num: float):
     if num - result > 0:
         result += 1
     return result
+
+
 
 
 def _get_street_info(list_of_link_dirs):
