@@ -105,8 +105,8 @@ def get_closest_node(longitude, latitude):
         node_count += 1
 
     #close cursor and dbconn
-    cur.close()
-    conn.close()
+    cursor.close()
+    connection.close()
 
     return jsonify(candidate_nodes)
 
