@@ -75,7 +75,7 @@ def get_closest_node(longitude, latitude):
                 WITH distances AS (
                     SELECT 
                         node_id,
-                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint({}, {}), 4326), 2952) AS distance
+                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint(%(latitude)s, %(longitude)s), 4326), 2952) AS distance
                     FROM here.routing_nodes_intersec_name
                 )
                 SELECT 
@@ -86,7 +86,7 @@ def get_closest_node(longitude, latitude):
                 FROM here.routing_nodes_intersec_name AS here_nodes
                 JOIN distances ON here_nodes.node_id = distances.node_id
                 ORDER BY distance
-                LIMIT 10'''.format(longitude, latitude)
+                LIMIT 10''', {"latitude": latitude, "longitude": longitude}
             cursor.execute(select_sql)
             nodes_ascend_dist_order_query_result = cursor.fetchall()
 
