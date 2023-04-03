@@ -61,7 +61,6 @@ def get_closest_node(longitude, latitude):
         password = os.environ['DB_USER_PASSWORD'],
     )
 
-
     try:
         longitude = float(longitude)
         latitude = float(latitude)
@@ -90,14 +89,12 @@ def get_closest_node(longitude, latitude):
             cursor.execute(select_sql)
             nodes_ascend_dist_order_query_result = cursor.fetchall()
 
-
     candidate_nodes = []
     node_count = 0
     for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
 
         #custom parsing function
         #node_data = parse_node_response(str((node_id, stname,coord_dict, distance)))
-
 
         node_json = {'node_id': node_id, 'name': stname, 'geometry': json.loads(coord_dict)}
 
@@ -143,7 +140,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         return
 
     shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
-
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
     return jsonify(shortest_link_data)
 
@@ -174,7 +170,6 @@ def get_links_between_multi_nodes():
             continue
 
         shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
-
         shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
         optimal_links_data_list.append(shortest_link_data)
     return jsonify(optimal_links_data_list)
