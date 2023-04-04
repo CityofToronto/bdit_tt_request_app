@@ -43,13 +43,12 @@ def index():
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
 def get_closest_node(longitude, latitude):
     """
-    Get the closest nodes to the given longitude and latitude.
-    This function uses database function get_closest_nodes to fetch series of closest nodes to the given
-    longitude and latitude, sorted by ascending distance order.
+    This function fetches a set of closest nodes to the given
+    point, sorted by ascending distance order.
 
     :param longitude: the longitude of the origin point
     :param latitude: the latitude of the origin point
-    :return: JSON of an array containing the satisfying nodes.
+    :return: JSON of an array containing the closest nodes.
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
@@ -73,7 +72,13 @@ def get_closest_node(longitude, latitude):
                 WITH distances AS (
                     SELECT 
                         node_id,
-                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326), 2952) AS distance
+                        st_distance(
+                            st_transform(geom, 2952),
+                            st_transform(
+                                st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326),
+                                2952
+                            )
+                        ) AS distance
                     FROM here.routing_nodes_intersec_name
                 )
                 SELECT 
@@ -91,19 +96,16 @@ def get_closest_node(longitude, latitude):
     candidate_nodes = []
     node_count = 0
     for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
-
-        node_json = {'node_id': node_id, 'name': stname, 'geometry': json.loads(coord_dict)}
-
         if node_count == 0 or distance < 10:
-            candidate_nodes.append(node_json)
+            candidate_nodes.append( {
+                 'node_id': node_id,
+                 'name': stname,
+                 'geometry': json.loads(coord_dict)
+            } )
         else:
             break
-
         node_count += 1
-
-    #close dbconn
     connection.close()
-
     return jsonify(candidate_nodes)
 
 
