@@ -6,7 +6,7 @@ from flask import abort
 from app import ALLOWED_FILE_TYPES, TIME_FORMAT, DATE_FORMAT, DB_TRAVEL_DATA_QUERY_RESULT_FORMAT
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
-           'parse_get_links_btwn_nodes_response', 'parse_node_response', 'parse_travel_data_query_result',
+           'parse_get_links_btwn_nodes_response', 'parse_travel_data_query_result',
            'parse_get_links_between_multi_nodes_request_body', 'get_path_list_from_link_list']
 
 

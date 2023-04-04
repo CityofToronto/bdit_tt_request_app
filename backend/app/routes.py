@@ -46,7 +46,6 @@ def get_closest_node(longitude, latitude):
     Get the closest nodes to the given longitude and latitude.
     This function uses database function get_closest_nodes to fetch series of closest nodes to the given
     longitude and latitude, sorted by ascending distance order.
-    Only points with distance less than 5 are returned by this function.
 
     :param longitude: the longitude of the origin point
     :param latitude: the latitude of the origin point
@@ -74,7 +73,7 @@ def get_closest_node(longitude, latitude):
                 WITH distances AS (
                     SELECT 
                         node_id,
-                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint(%(latitude)s, %(longitude)s), 4326), 2952) AS distance
+                        st_transform(geom, 2952) <-> st_transform(st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326), 2952) AS distance
                     FROM here.routing_nodes_intersec_name
                 )
                 SELECT 
@@ -85,8 +84,8 @@ def get_closest_node(longitude, latitude):
                 FROM here.routing_nodes_intersec_name AS here_nodes
                 JOIN distances ON here_nodes.node_id = distances.node_id
                 ORDER BY distance
-                LIMIT 10''', {"latitude": latitude, "longitude": longitude}
-            cursor.execute(select_sql)
+                LIMIT 10'''
+            cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
             nodes_ascend_dist_order_query_result = cursor.fetchall()
 
     candidate_nodes = []
@@ -245,8 +244,6 @@ def _round_up(num: float):
     return result
 
 
-
-
 def _get_street_info(list_of_link_dirs):
     street_info = {}
 
@@ -294,3 +291,20 @@ def _get_street_info(list_of_link_dirs):
         street_info[i] = (intersection, from_street, to_street)
 
     return street_info
+
+
+def is_admin(username: str) -> bool:
+    with psycopg2.connect(**postgres_settings) as conn:
+        with conn.cursor() as cursor:
+            # Uses string.
+            cursor.execute("""
+                SELECT
+                    admin
+                FROM
+                    czhu.myusers
+                WHERE
+                    username = '%s'
+            """ % username)
+            result = cursor.fetchone()
+        admin, = result
+    return admin
