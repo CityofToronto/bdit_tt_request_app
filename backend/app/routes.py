@@ -93,9 +93,6 @@ def get_closest_node(longitude, latitude):
     node_count = 0
     for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
 
-        #custom parsing function
-        #node_data = parse_node_response(str((node_id, stname,coord_dict, distance)))
-
         node_json = {'node_id': node_id, 'name': stname, 'geometry': json.loads(coord_dict)}
 
         if node_count == 0 or distance < 10:

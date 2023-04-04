@@ -346,35 +346,6 @@ def parse_get_links_btwn_nodes_response(response: str):
     return {"source": source_target_links_tuple[0], "target": source_target_links_tuple[1],
             "path_name": path_name, "link_dirs": link_dirs, "geometry": geom_json}
 
-
-def parse_node_response(node_data: str):
-    """
-    Parse the given Node query result to a dictionary that can be jsonify-ed.
-
-    :param node_data: the query result from the Node table in the database
-    :return: a tuple with first index the distance of the node and
-            second index a dictionary containing the attributes for the Node query that can be jsonify-ed.
-    """
-    import ast
-    node_data = node_data.replace(',,', ',"nameless road",')
-
-    # sometimes intersec name is not quote surrounded
-    first_comma = node_data.index(',')
-    first_comma_quote = node_data.index(',"')
-    second_comma = node_data.index(',', first_comma + 1)
-
-    if first_comma != first_comma_quote:
-        node_data = node_data[:first_comma + 1] + '"' + node_data[first_comma + 1:second_comma] + '"' + node_data[
-                                                                                                        second_comma:]
-
-    data = ast.literal_eval(node_data)
-    geom_raw = data[2]  # type: str
-
-    geom_raw = geom_raw.replace('type:', '"type":"').replace(',coordinates:', '","coordinates":')
-
-    return data[3], {'node_id': data[0], 'name': data[1], 'geometry': json.loads(geom_raw)}
-
-
 def get_path_list_from_link_list(links):
     """
     Get a list of street names with no adjacent duplication from the list of links.
