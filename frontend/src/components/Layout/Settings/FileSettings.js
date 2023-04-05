@@ -1,4 +1,4 @@
-import {formattedDateString} from "../Datetime/TimeRangeParser";
+import { formattedDateString } from "../Datetime/TimeRangeParser";
 
 class FileSettings{
     constructor() {
@@ -127,7 +127,7 @@ class FileSettingsBuilder{
     }
 }
 
-class FileSettingsFactory{
+export default class FileSettingsFactory{
     static getDefaultFields(){
         let fields = [];
         for(let i = 0; i < 30; i++){
@@ -137,16 +137,13 @@ class FileSettingsFactory{
     }
 
     static newFileSettings(params){
-        let startDate = params.startDate !== undefined ? params.startDate : new Date("2000-01-01 00:00:00");
-        let endDate = params.endDate !== undefined ? params.endDate : new Date();
-        let daysOfWeek = params.daysOfWeek !== undefined ? params.daysOfWeek : [true, true, true, true, true, true, true];
-        let includeHolidays = params.includeHolidays !== undefined ? params.includeHolidays : false;
-        let fileType = params.fileType !== undefined ? params.fileType : "csv";
-        let fields = params.fields !== undefined ? params.fields : FileSettingsFactory.getDefaultFields();
-
-        return new FileSettingsBuilder().setStartDate(startDate).setEndDate(endDate).setDaysOfWeek(daysOfWeek)
-            .setIncludeHolidays(includeHolidays).setFileType(fileType).setFields(fields).getSettings();
+        return new FileSettingsBuilder()
+            .setStartDate( params.startDate ?? new Date("2000-01-01 00:00:00") )
+            .setEndDate( params.endDate ?? new Date() )
+            .setDaysOfWeek( params.daysOfWeek ?? [true, true, true, true, true, true, true] )
+            .setIncludeHolidays( params.includeHolidays ?? false )
+            .setFileType( params.fileType ?? "csv" )
+            .setFields( params.fields ?? FileSettingsFactory.getDefaultFields() )
+            .getSettings()
     }
 }
-
-export default FileSettingsFactory;
