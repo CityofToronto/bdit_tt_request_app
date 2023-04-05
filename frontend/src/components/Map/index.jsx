@@ -5,14 +5,6 @@ import { getClosestNode, updateClosestNode } from '../../actions';
 import { Button, TextField } from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
-import createNodeGif from '../gif/create-node.gif';
-import removeNodeGif from '../gif/remove-node.gif';
-import newSeqGif from '../gif/new-seq.gif';
-import dragNodeGif from '../gif/drag-node.gif';
-import removeLinkGif from '../gif/remove-link.gif';
-import resetMapGif from '../gif/reset-map.gif';
-import reverseSeqGif from '../gif/reverse-seq.gif';
-import updateLinkGif from '../gif/update-link.gif';
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
@@ -20,7 +12,6 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
-import InfoIcon from '@material-ui/icons/Info';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
@@ -57,8 +48,7 @@ export default class Map extends React.Component {
             linksOnMap: false,
             updateNodeIndex: 0,
             openHelp: false,
-            currentHelpIndex: -1,
-            gifArray: [createNodeGif, reverseSeqGif, updateLinkGif, newSeqGif, removeNodeGif, removeLinkGif, resetMapGif, dragNodeGif]
+            currentHelpIndex: -1
         };
     };
 
@@ -678,54 +668,6 @@ export default class Map extends React.Component {
             this.getLink();
         }
     }
-    //handler for tutorial icons
-    handleIconClicks = (inputNum) => {
-        this.setState({openHelp: true})
-
-        if (inputNum === 0) {
-            this.setState({
-                currentHelp: "Click on the map to create a node. Example: ",
-                HelpIcon: this.state.gifArray[0],
-                currentHelpIndex: 0
-            })
-        } else if (inputNum === 1) {
-            this.setState({
-                currentHelp: "To reverse a segment, press the reverse segment button. Example: ",
-                HelpIcon: this.state.gifArray[1],
-                currentHelpIndex: 1
-            })
-        } else if (inputNum === 2) {
-            this.setState({
-                currentHelp: "To update links, press the update & remove link button Example: ",
-                HelpIcon: this.state.gifArray[2],
-                currentHelpIndex: 2
-            })
-        } else if (inputNum === 3) {
-            this.setState({
-                currentHelp: "To start a new segment, press the create new segment button. Example:  ",
-                HelpIcon: this.state.gifArray[3],
-                currentHelpIndex: 3
-            })
-        } else if (inputNum === 4) {
-            this.setState({
-                currentHelp: "To remove the last node, press the remove last node button.  Example: ",
-                HelpIcon: this.state.gifArray[4],
-                currentHelpIndex: 4
-            })
-        } else if (inputNum === 5) {
-            this.setState({
-                currentHelp: "To remove all links, press the remove all links button. Example: ",
-                HelpIcon: this.state.gifArray[5],
-                currentHelpIndex: 5
-            })
-        } else if (inputNum === 6) {
-            this.setState({
-                currentHelp: "To reset the map, press the reset map button. Example: ",
-                HelpIcon: this.state.gifArray[6],
-                currentHelpIndex: 6
-            })
-        }
-    }
     handleClose = () => {
         this.setState({openHelp: false})
     };
@@ -790,49 +732,7 @@ export default class Map extends React.Component {
                     <Button variant="contained" color="primary" size="small" id='link-button'
                             disabled={this.state.disableGetLink}
                             onClick={() => this.getLink()}>Update & Display Links</Button>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="createNodeHelp"
-                              onClick={() => this.handleIconClicks(0)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="reverseSeqGifHelp"
-                              onClick={() => this.handleIconClicks(1)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="updateLinkGifHelp"
-                              onClick={() => this.handleIconClicks(2)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="newSeqGifHelp"
-                              onClick={() => this.handleIconClicks(3)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeNodeGifHelp"
-                              onClick={() => this.handleIconClicks(4)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="removeLinkGifHelp"
-                              onClick={() => this.handleIconClicks(5)}>
-
-                    </InfoIcon>
-                    <InfoIcon color='primary' style={{cursor: "pointer"}} name="details" id="resetMapGifHelp"
-                              onClick={() => this.handleIconClicks(6)}>
-
-                    </InfoIcon>
-
                 </div>
-                {/*Dialog to display the tutorials on the map*/}
-                <Dialog
-                    open={this.state.openHelp}
-                    onClose={this.handleClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">{this.state.currentHelp}</DialogTitle>
-                    <img src={this.state.HelpIcon} alt="loading..."/>
-                    {this.state.currentHelpIndex === 0 ? <div><DialogTitle
-                        id="alert-dialog-title">{"To move an existing node, click and drag it. Example:"}</DialogTitle>
-                        <img src={this.state.gifArray[7]} alt="loading..."/></div> : <div/>}
-                </Dialog>
                 <NotificationContainer/>
             </div>
         );
