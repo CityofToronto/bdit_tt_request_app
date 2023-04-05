@@ -1,24 +1,19 @@
-import React from "react";
-import Sidebar from "react-sidebar";
+import React from "react"
+import Sidebar from "react-sidebar"
 import { Button } from "@material-ui/core"
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import SidebarContent from "./Sidebar";
-import Map from "../Map";
-import RangeFactory from "./Datetime/Range";
-import parseTimePeriods from "./Datetime/TimeRangeParser";
-import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions";
-import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu";
-import FileSettingsFactory from "./Settings/FileSettings";
-import Tooltip from '@material-ui/core/Tooltip';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
-import "./Layout.css";
-
-const dateRange = {
-    maxDate: Date('2021-01-01'), 
-    minDate: new Date('2020-01-01')
-}
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import SidebarContent from "./Sidebar"
+import Map from "../Map"
+import RangeFactory from "./Datetime/Range"
+import parseTimePeriods from "./Datetime/TimeRangeParser"
+import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
+import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
+import FileSettingsFactory from "./Settings/FileSettings"
+import { NotificationContainer, NotificationManager } from 'react-notifications'
+import { getDateBoundaries } from '../../actions'
+import "./Layout.css"
 
 export default class Layout extends React.Component {
     constructor(props) {
@@ -28,17 +23,9 @@ export default class Layout extends React.Component {
             popupOpen: false,
             nodesList: [],
             linksList: [],
-            numRanges: 1,
             activeRange: 0,
-            ranges: [
-                RangeFactory.newRange(
-                    {
-                        startTime: dateRange.minDate,
-                        endTime: dateRange.maxDate
-                    }
-                )
-            ],
-            fileSettings: FileSettingsFactory.newFileSettings({endDate: dateRange.maxDate}),
+            ranges: [],
+            fileSettings: FileSettingsFactory.newFileSettings({}),
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
@@ -52,6 +39,16 @@ export default class Layout extends React.Component {
         this.renameRange = this.renameRange.bind(this)
         this.replaceActiveRange = this.replaceActiveRange.bind(this)
         this.replaceSettings = this.replaceSettings.bind(this)
+    }
+
+    componentDidMount(){
+        getDateBoundaries().then( ({startDate,endDate}) => {
+            let range = RangeFactory.newRange({
+                startTime: startDate,
+                endTime: endDate
+            } )
+            this.setState({ranges:[range]})
+        } )
     }
 
     onSetSidebarOpen(open) {
@@ -87,7 +84,6 @@ export default class Layout extends React.Component {
     }
 
     addRange() {
-        let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         const name = prompt("Name the new range")
         if (!name || name === "") {
@@ -97,19 +93,17 @@ export default class Layout extends React.Component {
         } else {
             ranges.push(RangeFactory.newRange({
                 name: name,
-                startTime: dateRange.minDate,
-                endTime: dateRange.maxDate
+                startTime: null,
+                endTime: null
             }));
             this.setState({
-                numRanges: numRanges + 1,
-                activeRange: numRanges,
+                activeRange: this.state.ranges.length,
                 ranges: ranges
             });
         }
     }
 
     replicateRange() {
-        let numRanges = this.state.numRanges;
         let ranges = [...this.state.ranges];
         let activeRange = ranges[this.state.activeRange];
         let params = activeRange.getParams();
@@ -124,8 +118,7 @@ export default class Layout extends React.Component {
             params.name = name;
             ranges.push(RangeFactory.newRange(params));
             this.setState({
-                numRanges: numRanges + 1,
-                activeRange: numRanges,
+                activeRange: this.state.ranges.length,
                 ranges: ranges
             });
         }
@@ -145,11 +138,10 @@ export default class Layout extends React.Component {
     }
 
     deleteCurrRange() {
-        if (this.state.numRanges <= 1) {
+        if (this.state.ranges.length <= 1) {
             NotificationManager.error('Must have at least one range!');
             return;
         }
-        let numRanges = this.state.numRanges;
         let new_ranges = [...this.state.ranges];
         new_ranges.splice(this.state.activeRange, 1);
 
@@ -160,7 +152,6 @@ export default class Layout extends React.Component {
         }
 
         this.setState({
-            numRanges: numRanges - 1,
             activeRange: newActiveRange,
             ranges: new_ranges
         });
@@ -250,32 +241,25 @@ export default class Layout extends React.Component {
     }
 
     render() {
+        if(this.state.ranges.length === 0) return null;
         const activeRange = this.state.ranges[this.state.activeRange];
-        let rangeNames = [];
-        for (let i = 0; i < this.state.numRanges; i++) {
-            rangeNames.push(`${i + 1} ${this.state.ranges[i].getName()}`);
-        }
-
+        let rangeNames = this.state.ranges.map( r => r.getName() );
         return (
             <div>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
                         openPopup={this.openPopup}
-
                         range={this.state.activeRange}
-
                         onGo={this.downloadData}
                         fileSettings={this.state.fileSettings}
                         replaceSettings={this.replaceSettings}
-
-                        dateTimeRanges={this.state.numRanges}
+                        dateTimeRanges={this.state.ranges.length}
                         addNewRange={this.addRange}
                         replicateCurrRange={this.replicateRange}
                         deleteCurrRange={this.deleteCurrRange}
                         changeDateTimeRange={this.changeDateTimeRange}
                         renameRange={this.renameRange}
-
                         activeRange={activeRange}
                         replaceActiveRange={this.replaceActiveRange}
                         rangeNames={rangeNames}
@@ -286,15 +270,13 @@ export default class Layout extends React.Component {
                     rootClassName={"topbar"}
                     sidebarClassName={"sidebar"}
                 >
-                    <Tooltip title={<span style={{fontSize: "20px"}}>Click to edit query and get file.</span>}>
-                        <Button
-                            variant="contained"
-                            onClick={() => this.onSetSidebarOpen(true)}
-                            style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
-                        >
-                            Edit Query
-                        </Button>
-                    </Tooltip>
+                    <Button
+                        variant="contained"
+                        onClick={() => this.onSetSidebarOpen(true)}
+                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
+                    >
+                        Edit Query
+                    </Button>
                 </Sidebar>
 
                 <Map
