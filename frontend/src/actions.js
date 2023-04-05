@@ -126,8 +126,6 @@ export const getProjectTitle = (page) => {
     }).catch(err => handleResponseError(err));
 };
 
-
-/* GET end date bound */
 export function getDateBoundaries(){
     return axios.get(`${domain}/date-bounds`).then( ({data}) => {
         if(data) {

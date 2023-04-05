@@ -91,37 +91,30 @@ class FileSettingsBuilder{
     constructor() {
         this.settings = new FileSettings();
     }
-
     setStartDate(startDate){
         this.settings.setStartDate(startDate);
         return this;
     }
-
     setEndDate(endDate){
         this.settings.setEndDate(endDate);
         return this;
     }
-
     setIncludeHolidays(includeHolidays){
         this.settings.setIncludeHolidays(includeHolidays);
         return this;
     }
-
     setDaysOfWeek(daysOfWeek){
         this.settings.setDaysOfWeek(daysOfWeek);
         return this;
     }
-
     setFileType(fileType){
         this.settings.setFileType(fileType);
         return this;
     }
-
     setFields(fields){
         this.settings.setFields(fields);
         return this;
     }
-
     getSettings(){
         return this.settings;
     }
@@ -138,7 +131,7 @@ export default class FileSettingsFactory{
 
     static newFileSettings(params){
         return new FileSettingsBuilder()
-            .setStartDate( params.startDate ?? new Date("2000-01-01 00:00:00") )
+            .setStartDate( params.startDate ?? new Date("2000-01-01") )
             .setEndDate( params.endDate ?? new Date() )
             .setDaysOfWeek( params.daysOfWeek ?? [true, true, true, true, true, true, true] )
             .setIncludeHolidays( params.includeHolidays ?? false )
