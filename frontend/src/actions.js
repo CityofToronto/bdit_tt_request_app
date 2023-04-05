@@ -92,22 +92,6 @@ export const updateClosestNode = (page, data) => {
     }).catch(err => handleResponseError(err));
 };
 
-/* GET date time boundary of the data sets */
-export const getDateBoundary = (page) => {
-    axios.get(`${domain}/date-bounds`).then(res => {
-        if (res.data) {
-            page.setState({
-                dateBoundary: {
-                    startTime: res.data.start_time,
-                    endTime: res.data.end_time
-                }
-            });
-        } else {
-            alert("FAILED TO FETCH DATE BOUNDARY");
-        }
-    }).catch(err => handleResponseError(err));
-};
-
 /* GET links given two nodes */
 export const getLinksBetweenNodes = (page, nodes) => {
     let seq = 0
@@ -144,16 +128,18 @@ export const getProjectTitle = (page) => {
 
 
 /* GET end date bound */
-export const getDateBoundaries = (page) => {
-    axios.get(`${domain}/date-bounds`).then(res => {
-        if (res.data) {
-            page.setState({maxDate: new Date(res.data.end_time), minDate: new Date(res.data.start_time)});
+export function getDateBoundaries(){
+    return axios.get(`${domain}/date-bounds`).then( ({data}) => {
+        if(data) {
+            return { 
+                endDate: new Date(data.end_time),
+                startDate: new Date(data.start_time)
+            }
         } else {
-            alert("FAILED TO GET END DATE");
+            alert("FAILED TO GET END DATE")
         }
-    }).catch(err => handleResponseError(err));
-};
-
+    }).catch(err => handleResponseError(err))
+}
 
 /* GET travel data file of link */
 /* sample data input: {

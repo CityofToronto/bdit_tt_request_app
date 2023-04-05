@@ -11,8 +11,22 @@ import FormGroup from "@material-ui/core/FormGroup"
 import FormControlLabel from "@material-ui/core/FormControlLabel"
 import Presets from "../Datetime/Presets"
 import { days } from "../Settings/Days"
+import { getDateBoundaries } from '../../../actions'
 
 export default class SidebarContent extends React.Component {
+    constructor(props){
+    super(props)
+        this.state = {
+            endDate: null,
+            startDate: null
+        }
+    }
+    componentDidMount(){
+        getDateBoundaries().then( ({endDate,startDate}) => {
+            this.setState({endDate,startDate})
+        } )
+    }
+
     updatePreset(event) {
         let choice = event.value;
         let params = this.props.activeRange.getParams();
@@ -107,15 +121,15 @@ export default class SidebarContent extends React.Component {
                         </Grid>
                     </Grid>
 
-                    {false && <Grid item>
+                    {true && <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
                                 <DatePicker 
                                     required={true} 
                                     locale={"en-CA"}
-                                    maxDate={this.props.state.maxDate}
-                                    minDate={this.props.state.minDate}
+                                    maxDate={this.state.endDate}
+                                    minDate={this.state.startDate}
                                     format={"y-MM-dd"}
                                     value={params.startDate}
                                     onChange={this.startDateChange.bind(this)}
@@ -126,8 +140,8 @@ export default class SidebarContent extends React.Component {
                                 <DatePicker 
                                     required={true}
                                     locale={"en-CA"}
-                                    maxDate={this.props.state.maxDate}
-                                    minDate={this.props.state.minDate}
+                                    maxDate={this.state.endDate}
+                                    minDate={this.state.startDate}
                                     format={"y-MM-dd"}
                                     value={params.endDate}
                                     onChange={this.endDateChange.bind(this)}
@@ -169,7 +183,7 @@ export default class SidebarContent extends React.Component {
                         />
                     </Grid>}
 
-                    {true && <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Grid item>
                                 <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
