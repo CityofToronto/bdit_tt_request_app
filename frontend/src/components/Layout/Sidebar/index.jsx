@@ -144,7 +144,7 @@ export default class SidebarContent extends React.Component {
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
                                 {days.map( ({name,number}) => (
-                                    <FormControlLabel
+                                    <FormControlLabel key={number}
                                         control={
                                             <Checkbox 
                                                 checked={params.daysOfWeek[number]}
