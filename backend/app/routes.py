@@ -217,7 +217,7 @@ def get_date_bounds():
 
     :return: JSON containing two fields: start_time and end_time
     """
-    from app import FULL_DATE_TIME_FORMAT, DB_START_DATE, TIMEZONE
+    from app import FULL_DATE_TIME_FORMAT, TIMEZONE
     from datetime import datetime, timedelta
 
     current_time = TIMEZONE.localize(datetime.now())  # type: datetime
@@ -228,8 +228,8 @@ def get_date_bounds():
         end_time = (current_time - timedelta(days=2)).replace(hour=23, minute=59, second=59)
     else:
         end_time = (current_time - timedelta(days=3)).replace(hour=23, minute=59, second=59)
-
-    return {"start_time": DB_START_DATE.strftime(FULL_DATE_TIME_FORMAT),
+    start = datetime.strptime('2019-02-01 00:00', FULL_DATE_TIME_FORMAT)
+    return {"start_time": start.strftime(FULL_DATE_TIME_FORMAT),
             "end_time": end_time.strftime(FULL_DATE_TIME_FORMAT)}
 
 

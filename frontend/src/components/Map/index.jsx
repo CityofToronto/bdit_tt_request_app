@@ -1,8 +1,8 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import {getClosestNode, updateClosestNode} from '../../actions/actions';
-import {Button, TextField} from "@material-ui/core";
+import { getClosestNode, updateClosestNode } from '../../actions';
+import { Button, TextField } from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
 import createNodeGif from '../gif/create-node.gif';
@@ -18,14 +18,14 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import {NotificationContainer, NotificationManager} from 'react-notifications';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 import InfoIcon from '@material-ui/icons/Info';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
 
 // Note: Sequence and Segment are the same
-class Mapbox extends React.Component {
+export default class Map extends React.Component {
 
     constructor(props) {
         super(props);
@@ -839,5 +839,3 @@ class Mapbox extends React.Component {
     };
 
 }
-
-export default Mapbox;
