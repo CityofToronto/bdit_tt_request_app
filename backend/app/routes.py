@@ -1,14 +1,21 @@
 import os
+import json
 
 from flask import abort, jsonify, request, send_file
 from sqlalchemy import func
+
+from psycopg2 import connect, sql
+from psycopg2.extras import execute_values
 
 from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
 
+#Global Variables
 
+
+#Functions
 def _need_keep_temp_file():
     """Check environ whether or not to keep the temporary files created."""
     if 'KEEP_TEMP_FILE' not in os.environ:
@@ -36,40 +43,69 @@ def index():
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
 def get_closest_node(longitude, latitude):
     """
-    Get the closest nodes to the given longitude and latitude.
-    This function uses database function get_closest_nodes to fetch series of closest nodes to the given
-    longitude and latitude, sorted by ascending distance order.
-    Only points with distance less than 5 are returned by this function.
+    This function fetches a set of closest nodes to the given
+    point, sorted by ascending distance order.
 
     :param longitude: the longitude of the origin point
     :param latitude: the latitude of the origin point
-    :return: JSON of an array containing the satisfying nodes.
+    :return: JSON of an array containing the closest nodes.
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
+    connection = connect(
+        host = os.environ['DB_HOST'],
+        dbname = os.environ['DB_NAME'],
+        user = os.environ['DB_USER'],
+        password = os.environ['DB_USER_PASSWORD'],
+    )
+
     try:
         longitude = float(longitude)
         latitude = float(latitude)
     except ValueError or ArithmeticError:
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
-
-    nodes_ascend_dist_order_query_result = db.session.query(func.get_closest_nodes(longitude, latitude))
+    
+    with connection:
+        with connection.cursor() as cursor:
+            select_sql = '''
+                WITH distances AS (
+                    SELECT 
+                        node_id,
+                        st_distance(
+                            st_transform(geom, 2952),
+                            st_transform(
+                                st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326),
+                                2952
+                            )
+                        ) AS distance
+                    FROM here.routing_nodes_intersec_name
+                )
+                SELECT 
+                    here_nodes.node_id::int,
+                    intersec_name,
+                    st_asgeojson(geom),
+                    distance
+                FROM here.routing_nodes_intersec_name AS here_nodes
+                JOIN distances ON here_nodes.node_id = distances.node_id
+                ORDER BY distance
+                LIMIT 10'''
+            cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
+            nodes_ascend_dist_order_query_result = cursor.fetchall()
 
     candidate_nodes = []
     node_count = 0
-    for node_query_result in nodes_ascend_dist_order_query_result:
-        node_data = parse_node_response(node_query_result[0])
-        node_dist = node_data[0]
-        node_json = node_data[1]
-
-        if node_count == 0 or node_dist < 10:
-            candidate_nodes.append(node_json)
+    for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
+        if node_count == 0 or distance < 10:
+            candidate_nodes.append( {
+                 'node_id': node_id,
+                 'name': stname,
+                 'geometry': json.loads(coord_dict)
+            } )
         else:
             break
-
         node_count += 1
-
+    connection.close()
     return jsonify(candidate_nodes)
 
 
