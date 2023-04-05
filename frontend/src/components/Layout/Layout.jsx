@@ -42,6 +42,16 @@ export default class Layout extends React.Component {
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this)
+        this.openPopup = this.openPopup.bind(this)
+        this.replaceSettings = this.replaceSettings.bind(this)
+        this.addRange = this.addRange.bind(this)
+        this.replicateRange = this.replicateRange.bind(this)
+        this.deleteCurrRange = this.deleteCurrRange.bind(this)
+        this.changeDateTimeRange = this.changeDateTimeRange.bind(this)
+        this.renameRange = this.renameRange.bind(this)
+        this.replaceActiveRange = this.replaceActiveRange.bind(this)
+        this.replaceSettings = this.replaceSettings.bind(this)
     }
 
     onSetSidebarOpen(open) {
@@ -216,23 +226,6 @@ export default class Layout extends React.Component {
             } else {
                 NotificationManager.error('Only GeoJSON filetype is currently supported');
                 return;
-                /*
-                let params = {
-                    listOfTimePeriods: list_of_time_periods,
-                    listOfLinkDirs: allLinkDirs,
-                    fileType: fileType,
-                    start_date: fileParams["start_date"],
-                    end_date: fileParams["end_date"],
-                    include_holidays: fileParams["include_holidays"],
-                    days_of_week: fileParams["days_of_week"],
-                    fields: fileParams["fields"]
-                };
-
-                this.setState({disableGetButton: true});
-                getTravelDataFile(params, () => {
-                    this.setState({disableGetButton: false});
-                });
-                */
             }
         } else {
             NotificationManager.error('Please get links first');
@@ -241,13 +234,8 @@ export default class Layout extends React.Component {
 
     }
 
-    openPopup() {
-        this.setState({popupOpen: true})
-    }
-
-    handleClose() {
-        this.setState({popupOpen: false});
-    }
+    openPopup() { this.setState({popupOpen: true}) }
+    handleClose() { this.setState({popupOpen: false}) }
 
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
@@ -256,8 +244,9 @@ export default class Layout extends React.Component {
     }
 
     replaceSettings = (params) => {
-        let newFileSettings = FileSettingsFactory.newFileSettings(params);
-        this.setState({fileSettings: newFileSettings});
+        this.setState(
+            { fileSettings: FileSettingsFactory.newFileSettings(params) }
+        )
     }
 
     render() {
@@ -272,23 +261,23 @@ export default class Layout extends React.Component {
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
-                        openPopup={this.openPopup.bind(this)}
+                        openPopup={this.openPopup}
 
                         range={this.state.activeRange}
 
                         onGo={this.downloadData}
                         fileSettings={this.state.fileSettings}
-                        replaceSettings={this.replaceSettings.bind(this)}
+                        replaceSettings={this.replaceSettings}
 
                         dateTimeRanges={this.state.numRanges}
-                        addNewRange={this.addRange.bind(this)}
-                        replicateCurrRange={this.replicateRange.bind(this)}
-                        deleteCurrRange={this.deleteCurrRange.bind(this)}
-                        changeDateTimeRange={this.changeDateTimeRange.bind(this)}
-                        renameRange={this.renameRange.bind(this)}
+                        addNewRange={this.addRange}
+                        replicateCurrRange={this.replicateRange}
+                        deleteCurrRange={this.deleteCurrRange}
+                        changeDateTimeRange={this.changeDateTimeRange}
+                        renameRange={this.renameRange}
 
                         activeRange={activeRange}
-                        replaceActiveRange={this.replaceActiveRange.bind(this)}
+                        replaceActiveRange={this.replaceActiveRange}
                         rangeNames={rangeNames}
                         state={this.props.state}
                     />}
@@ -318,7 +307,7 @@ export default class Layout extends React.Component {
 
                 <Dialog
                     open={this.state.popupOpen}
-                    onClose={this.handleClose.bind(this)}
+                    onClose={this.handleClose}
                     aria-labelledby="form-dialog-title"
                 >
 
@@ -326,9 +315,10 @@ export default class Layout extends React.Component {
                         requires all)</DialogTitle>
 
                     <DialogActions>
-                        <FieldSelectMenu replaceSettings={this.replaceSettings.bind(this)}
-                                         fileSettings={this.state.fileSettings}
-                                         handleClose={this.handleClose.bind(this)}
+                        <FieldSelectMenu
+                            replaceSettings={this.replaceSettings}
+                            fileSettings={this.state.fileSettings}
+                            handleClose={this.handleClose}
                         />
                     </DialogActions>
 
