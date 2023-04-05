@@ -293,20 +293,3 @@ def _get_street_info(list_of_link_dirs):
         street_info[i] = (intersection, from_street, to_street)
 
     return street_info
-
-
-def is_admin(username: str) -> bool:
-    with psycopg2.connect(**postgres_settings) as conn:
-        with conn.cursor() as cursor:
-            # Uses string.
-            cursor.execute("""
-                SELECT
-                    admin
-                FROM
-                    czhu.myusers
-                WHERE
-                    username = '%s'
-            """ % username)
-            result = cursor.fetchone()
-        admin, = result
-    return admin
