@@ -10,7 +10,7 @@ import FormControl from "@material-ui/core/FormControl";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Presets from "../Datetime/Presets"
-import Days from "../Settings/Days";
+import { days } from "../Settings/Days";
 import Tooltip from '@material-ui/core/Tooltip';
 
 
@@ -91,30 +91,20 @@ export default class SidebarContent extends React.Component {
                                 </div>
                             </Grid>
 
-                            {false &&<Grid item>
-                                <Tooltip 
-                                    placement={'right'}
-                                    title={<span style={{fontSize: "20px"}}>Click to check one or more choices of data columns in the file.</span>}
-                                >
-                                    <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
-                                        Choose Response Fields
-                                    </Button>
-                                </Tooltip>
+                            {false && <Grid item>
+                                <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
+                                    Choose Response Fields
+                                </Button>
                             </Grid>}
 
                             <Grid item>
-                                <Tooltip 
-                                    placement={'right'}
-                                    title={<span style={{fontSize: "20px"}}>After you are all set, click to generate the travel data file.</span>}
+                                <Button
+                                    variant="contained" color="primary" className={"download"}
+                                    onClick={this.props.onGo}
+                                    disabled={this.props.disableGetButton}
                                 >
-                                    <Button
-                                        variant="contained" color="primary" className={"download"}
-                                        onClick={this.props.onGo}
-                                        disabled={this.props.disableGetButton}
-                                    >
-                                        {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
-                                    </Button>
-                                </Tooltip>
+                                    {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                </Button>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -123,100 +113,64 @@ export default class SidebarContent extends React.Component {
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>Set the start date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
-                                    <DatePicker required={true} locale={"en-CA"}
-                                                maxDate={this.props.state.maxDate}
-                                                minDate={this.props.state.minDate}
-                                                format={"y-MM-dd"}
-                                                value={params.startDate}
-                                                onChange={this.startDateChange.bind(this)}
-                                    />
-                                </Tooltip>
+                                <DatePicker 
+                                    required={true} 
+                                    locale={"en-CA"}
+                                    maxDate={this.props.state.maxDate}
+                                    minDate={this.props.state.minDate}
+                                    format={"y-MM-dd"}
+                                    value={params.startDate}
+                                    onChange={this.startDateChange.bind(this)}
+                                />
                             </Grid>
                             <Grid item>
                                 <h5>End Date</h5>
-                                <Tooltip placement={'right'}
-                                         title={<span style={{fontSize: "20px"}}>Set the end date of the query by picking a date from the calendar or in the format of YYYY-MM-DD.</span>}>
-                                    <DatePicker required={true}
-                                                locale={"en-CA"}
-                                                maxDate={this.props.state.maxDate}
-                                                minDate={this.props.state.minDate}
-                                                format={"y-MM-dd"}
-                                                value={params.endDate}
-                                                onChange={this.endDateChange.bind(this)}
-                                    />
-                                </Tooltip>
+                                <DatePicker 
+                                    required={true}
+                                    locale={"en-CA"}
+                                    maxDate={this.props.state.maxDate}
+                                    minDate={this.props.state.minDate}
+                                    format={"y-MM-dd"}
+                                    value={params.endDate}
+                                    onChange={this.endDateChange.bind(this)}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>}
 
 
-                    {false && <Grid item>
-                        <Tooltip
-                            placement={'right'}
-                            title={<span style={{fontSize: "20px"}}>Check to set days of week to be included in the query.</span>}
-                        >
-                            <FormControl component="fieldset">
-                                <FormLabel component="legend">Select Days of Week</FormLabel>
-                                <FormGroup row>
+                    {true && <Grid item>
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend">Select Days of Week</FormLabel>
+                            <FormGroup row>
+                                {days.map( ({name,number}) => (
                                     <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Monday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Monday)}
-                                                           name={Days.getDay(Days.Monday)}/>}
-                                        label="Monday"
+                                        control={
+                                            <Checkbox 
+                                                checked={params.daysOfWeek[number]}
+                                                onChange={this.daysOfWeekChange.bind(this, number)}
+                                                name={name}
+                                            />
+                                        }
+                                        label={name}
                                     />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Tuesday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Tuesday)}
-                                                           name={Days.getDay(Days.Tuesday)}/>}
-                                        label="Tuesday"
-                                    />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Wednesday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Wednesday)}
-                                                           name={Days.getDay(Days.Wednesday)}/>}
-                                        label="Wednesday"
-                                    />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Thursday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Thursday)}
-                                                           name={Days.getDay(Days.Thursday)}/>}
-                                        label="Thursday"
-                                    />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Friday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Friday)}
-                                                           name={Days.getDay(Days.Friday)}/>}
-                                        label="Friday"
-                                    />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Saturday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Saturday)}
-                                                           name={Days.getDay(Days.Saturday)}/>}
-                                        label="Saturday"
-                                    />
-                                    <FormControlLabel
-                                        control={<Checkbox checked={params.daysOfWeek[Days.Sunday]}
-                                                           onChange={this.daysOfWeekChange.bind(this, Days.Sunday)}
-                                                           name={Days.getDay(Days.Sunday)}/>}
-                                        label="Sunday"
-                                    />
-                                </FormGroup>
-                            </FormControl>
-                        </Tooltip>
+                                ) ) }
+                            </FormGroup>
+                        </FormControl>
                     </Grid>}
 
 
                     {false && <Grid item>
-                        <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Check to whether include holidays in the query.</span>}>
-                            <FormControlLabel
-                                control={<Checkbox checked={params.includeHolidays}
-                                                   onChange={this.includeHolidaysChange.bind(this)}
-                                                   name={"holiday"}/>}
-                                label="Include Holidays"
-                            />
-                        </Tooltip>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={params.includeHolidays}
+                                    onChange={this.includeHolidaysChange.bind(this)}
+                                    name={"holiday"}
+                                />
+                            }
+                            label="Include Holidays"
+                        />
                     </Grid>}
 
                     {false && <Grid item>

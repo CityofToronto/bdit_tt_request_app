@@ -1,39 +1,9 @@
-const Days = Object.freeze({
-    Monday: 0,
-    Tuesday: 1,
-    Wednesday: 2,
-    Thursday: 3,
-    Friday: 4,
-    Saturday: 5,
-    Sunday: 6,
-
-    getDay(index){
-        switch(index){
-            case 0:
-                return "Monday";
-
-            case 1:
-                return "Tuesday";
-
-            case 2:
-                return "Wednesday";
-
-            case 3:
-                return "Thursday";
-
-            case 4:
-                return "Friday";
-
-            case 5:
-                return "Saturday";
-
-            case 6:
-                return "Sunday";
-
-            default:
-                return ""
-        }
-    }
-});
-
-export default Days;
+export const days = [
+    { name: 'Monday', number: 0 },
+    { name: 'Tuesday', number: 1 },
+    { name: 'Wednesday', number: 2 },
+    { name: 'Thursday', number: 3 },
+    { name: 'Friday', number: 4 },
+    { name: 'Saturday', number: 5 },
+    { name: 'Sunday', number: 6 }
+]
