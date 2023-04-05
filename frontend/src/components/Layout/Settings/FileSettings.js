@@ -135,7 +135,7 @@ export default class FileSettingsFactory{
             .setEndDate( params.endDate ?? new Date() )
             .setDaysOfWeek( params.daysOfWeek ?? [true, true, true, true, true, true, true] )
             .setIncludeHolidays( params.includeHolidays ?? false )
-            .setFileType( params.fileType ?? "csv" )
+            .setFileType( params.fileType ?? "geojson" )
             .setFields( params.fields ?? FileSettingsFactory.getDefaultFields() )
             .getSettings()
     }

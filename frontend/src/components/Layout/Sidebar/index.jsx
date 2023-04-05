@@ -97,8 +97,8 @@ export default class SidebarContent extends React.Component {
                                     File Type: &nbsp;
                                     <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
                                         <option value={"geojson"}>GeoJSON (geometries only)</option>
-                                        <option value={"csv"}>CSV (data tables)</option>
-                                        <option value={"xlsx"}>Excel (data tables)</option>
+                                        {false && <option value={"csv"}>CSV (data tables)</option>}
+                                        {false && <option value={"xlsx"}>Excel (data tables)</option>}
                                     </Select>
                                 </div>
                             </Grid>
