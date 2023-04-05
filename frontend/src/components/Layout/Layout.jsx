@@ -5,7 +5,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import SidebarContent from "./Sidebar/SidebarContent";
-import Mapbox from "../Map/Mapbox";
+import Map from "../Map";
 import RangeFactory from "./Datetime/Range";
 import parseTimePeriods from "./Datetime/TimeRangeParser";
 import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions/actions";
@@ -308,7 +308,7 @@ export default class Layout extends React.Component {
                     </Tooltip>
                 </Sidebar>
 
-                <Mapbox
+                <Map
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
                     getLinks={this.getLinks}

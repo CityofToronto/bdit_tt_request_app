@@ -1,12 +1,12 @@
 import Layout from './components/Layout/Layout.jsx';
-import Mapbox from "./components/Map/Mapbox";
+import Map from "./components/Map";
 import './App.css';
 
 export default function App(){
     return (
-        <div>
-            <Mapbox/>
+        <>
+            <Map/>
             <Layout/>
-        </div>
+        </>
     )
 }
