@@ -1,7 +1,7 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
-import { getClosestNode, updateClosestNode } from '../../actions/actions';
+import { getClosestNode, updateClosestNode } from '../../actions';
 import { Button, TextField } from "@material-ui/core";
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';

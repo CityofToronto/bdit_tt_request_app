@@ -14,7 +14,7 @@ import Days from "../Settings/Days";
 import Tooltip from '@material-ui/core/Tooltip';
 
 
-class SidebarContent extends React.Component {
+export default class SidebarContent extends React.Component {
     updatePreset(event) {
         let choice = event.value;
         let params = this.props.activeRange.getParams();
@@ -340,5 +340,3 @@ class SidebarContent extends React.Component {
     }
 
 }
-
-export default SidebarContent;

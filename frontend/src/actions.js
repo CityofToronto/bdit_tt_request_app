@@ -1,5 +1,5 @@
 import Axios from "axios";
-import {VALID_COLUMN_NAMES} from "../components/Layout/FieldSelectMenu/FieldSelectMenu";
+import { VALID_COLUMN_NAMES } from "./components/Layout/FieldSelectMenu/FieldSelectMenu";
 
 const axios = require('axios');
 axios.defaults.withCredentials = true;
@@ -40,7 +40,7 @@ const parseClosestNodeResponse = (res) => {
 };
 
 
-/* GET ten closest node given coordinate */
+/* GET up to ten closest nodes given coordinate */
 export const getClosestNode = (page, data) => {
     axios.get(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
         if (res.data) {
