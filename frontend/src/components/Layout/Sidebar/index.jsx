@@ -121,7 +121,7 @@ export default class SidebarContent extends React.Component {
                         </Grid>
                     </Grid>
 
-                    {true && <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
