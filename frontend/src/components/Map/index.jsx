@@ -17,14 +17,10 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5d
 
 // Note: Sequence and Segment are the same
 export default class Map extends React.Component {
-
     constructor(props) {
         super(props)
         this.state = {
-            lng: -79.34299,
-            lat: 43.65720,
-            zoom: 15,
-            map: '',
+            map: null,
             displayedLinkSources: [],
             clickedNodes: [[]],
             displayedMarker: [[]],
@@ -47,8 +43,6 @@ export default class Map extends React.Component {
             linkMouseLeave: [],
             linksOnMap: false,
             updateNodeIndex: 0,
-            openHelp: false,
-            currentHelpIndex: -1
         }
         this.onSubmit = this.onSubmit.bind(this)
         this.newSeq = this.newSeq.bind(this)
@@ -67,60 +61,31 @@ export default class Map extends React.Component {
         const map = new mapboxgl.Map({
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom,
+            center: [-79.34299, 43.65720],
+            zoom: 15,
             attributionControl: false
         });
-        map.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
         map.on('load', () => { // the two arrow images
             map.loadImage(
                 arrowImage,
                 function (error, image) {
-                    if (error) throw error;
-                    map.addImage('arrow-line', image);
-                });
+                    if (error) throw error
+                    map.addImage('arrow-line', image)
+                })
             map.loadImage(
                 doubleArrowImage,
                 function (error, image) {
-                    if (error) throw error;
-                    map.addImage('double-arrow-line', image);
-                });
-        });
-        map.on('move', () => {
-            this.setState({
-                lng: map.getCenter().lng.toFixed(4),
-                lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2),
-            });
-        });
+                    if (error) throw error
+                    map.addImage('double-arrow-line', image)
+                })
+        })
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                this.disableInteractions();
-                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+                this.disableInteractions()
+                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat})
             }
-
-        });
-        this.setState({
-            map: map,
-            clickedNodes: [[]],
-            displayedMarker: [[]],
-            linksData: [],
-            displayedLinkSources: [],
-            linkMouseEnter: [],
-            linkMouseLeave: [],
-            sequenceColours: [this.getRandomColor()],
-            disableAddMarker: false,
-            disableNodeRemove: true,
-            disableGetLink: true,
-            disableLinkRemove: false,
-            disableReset: false,
-            disableDragMarker: false,
-            disableNewSeq: true,
-            currentSequence: 0,
-            selectedSeq: "",
-            linksOnMap: false,
-            openHelp: false
-        });
+        })
+        this.setState({map})
     }
 
     resetMap() {
@@ -675,9 +640,6 @@ export default class Map extends React.Component {
             this.getLink();
         }
     }
-    handleClose = () => {
-        this.setState({openHelp: false})
-    };
 
     render() {
         return (
