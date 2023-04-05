@@ -1,18 +1,16 @@
-import React from "react";
-import Dropdown from "react-dropdown";
-import { Button, Checkbox, Grid, Select } from "@material-ui/core";
-import "react-dropdown/style.css";
-import "./SidebarContent.css";
-import DatePicker from "react-date-picker";
-import TimePicker from 'react-time-picker';
-import FormLabel from "@material-ui/core/FormLabel";
-import FormControl from "@material-ui/core/FormControl";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import React from "react"
+import Dropdown from "react-dropdown"
+import { Button, Checkbox, Grid, Select } from "@material-ui/core"
+import "react-dropdown/style.css"
+import "./SidebarContent.css"
+import DatePicker from "react-date-picker"
+import TimePicker from 'react-time-picker'
+import FormLabel from "@material-ui/core/FormLabel"
+import FormControl from "@material-ui/core/FormControl"
+import FormGroup from "@material-ui/core/FormGroup"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
 import Presets from "../Datetime/Presets"
-import { days } from "../Settings/Days";
-import Tooltip from '@material-ui/core/Tooltip';
-
+import { days } from "../Settings/Days"
 
 export default class SidebarContent extends React.Component {
     updatePreset(event) {
@@ -138,8 +136,7 @@ export default class SidebarContent extends React.Component {
                         </Grid>
                     </Grid>}
 
-
-                    {true && <Grid item>
+                    {false && <Grid item>
                         <FormControl component="fieldset">
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
@@ -159,7 +156,6 @@ export default class SidebarContent extends React.Component {
                         </FormControl>
                     </Grid>}
 
-
                     {false && <Grid item>
                         <FormControlLabel
                             control={
@@ -173,34 +169,29 @@ export default class SidebarContent extends React.Component {
                         />
                     </Grid>}
 
-                    {false && <Grid item>
+                    {true && <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
-                            <Tooltip placement={'right'} title={<span style={{fontSize: "20px"}}>Click to select time range to edit.</span>}>
-                                <Grid item>
-                                    <Grid container direction="row" alignItems="center" alignContent="center"
-                                          spacing={1}>
-                                        <Grid item>
-                                            <h5>Current time range: </h5>
-                                        </Grid>
-                                        <Grid item>
-                                            <Dropdown
-                                                options={this.props.rangeNames}
-                                                value={this.props.rangeNames[this.props.range]}
-                                                onChange={this.props.changeDateTimeRange}
-                                            />
-
-                                        </Grid>
+                            <Grid item>
+                                <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
+                                    <Grid item>
+                                        <h5>Current time range: </h5>
+                                    </Grid>
+                                    <Grid item>
+                                        <Dropdown
+                                            options={this.props.rangeNames}
+                                            value={this.props.rangeNames[this.props.range]}
+                                            onChange={this.props.changeDateTimeRange}
+                                        />
                                     </Grid>
                                 </Grid>
-                            </Tooltip>
+                            </Grid>
 
                             <Grid item>
-                                <Grid container direction="column" alignContent="flex-start" alignItems="flex-start"
-                                      spacing={1}>
-
+                                <Grid container direction="column" alignContent="flex-start" alignItems="flex-start" spacing={1}>
                                     <Grid item>
-                                        <Button variant="outlined" color="primary" size="small"
-                                                onClick={this.props.renameRange}>
+                                        <Button 
+                                            variant="outlined" color="primary" size="small"
+                                            onClick={this.props.renameRange}>
                                             Rename Range
                                         </Button>
                                     </Grid>
@@ -228,68 +219,59 @@ export default class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
 
-                            <Tooltip placement={'right'}
-                                     title={<span style={{fontSize: "20px"}}>Click to select and apply preset time range. There are 2 preset time ranges: AM Peak and PM Peak.</span>}>
-                                <Grid item>
-                                    <Grid container direction={"row"} alignContent="center" alignItems="center"
-                                          spacing={1}>
-                                        <Grid item>
-                                            <h5>Apply Preset:</h5>
-                                        </Grid>
-                                        <Grid item>
-                                            <Dropdown
-                                                options={Presets.getPresets()}
-                                                value={params.preset}
-                                                onChange={this.updatePreset.bind(this)}
-                                                className={"presets"}
-                                            />
-                                        </Grid>
+                            <Grid item>
+                                <Grid container direction={"row"} alignContent="center" alignItems="center"
+                                      spacing={1}>
+                                    <Grid item>
+                                        <h5>Apply Preset:</h5>
+                                    </Grid>
+                                    <Grid item>
+                                        <Dropdown
+                                            options={Presets.getPresets()}
+                                            value={params.preset}
+                                            onChange={this.updatePreset.bind(this)}
+                                            className={"presets"}
+                                        />
                                     </Grid>
                                 </Grid>
-                            </Tooltip>
-
+                            </Grid>
 
                             <Grid item>
                                 <Grid container direction="row" alignContent="center" alignItems="flex-start"
                                       spacing={4}>
                                     <Grid item>
-                                        <h5>Start Time</h5>
-                                        <Tooltip placement={'right'}
-                                                 title={<span style={{fontSize: "20px"}}>Start time of the current time range in the format of HH:MM (Inclusive)</span>}>
-                                            <TimePicker required={true}
-                                                        format={"HH:mm"}
-                                                        locale={"en-CA"}
-                                                        maxDetail={"minute"}
-                                                        disableClock={true}
-                                                        value={!isNaN(params.startTime)?params.startTime:"00:00"}
-                                                        onChange={this.startTimeChange.bind(this)}
-                                            />
-                                        </Tooltip>
+                                        <h5>Start Time (inclusive)</h5>
+                                        <TimePicker 
+                                            required={true}
+                                            format={"HH:mm"}
+                                            locale={"en-CA"}
+                                            maxDetail={"minute"}
+                                            disableClock={true}
+                                            value={!isNaN(params.startTime)?params.startTime:"00:00"}
+                                            onChange={this.startTimeChange.bind(this)}
+                                        />
                                     </Grid>
                                     <Grid item>
-                                        <h5 className={"endTimeLabel"}>End Time</h5>
-                                        <Tooltip placement={'right'}
-                                                 title={<span style={{fontSize: "20px"}}>End time of the current time range in the format of HH:MM (Exclusive)</span>}>
-                                            <TimePicker required={true}
-                                                        format={"HH:mm"}
-                                                        locale={"en-CA"}
-                                                        maxDetail={"minute"}
-                                                        disableClock={true}
-                                                        value={!isNaN(params.endTime)?params.endTime:"00:00"}
-                                                        onChange={this.endTimeChange.bind(this)}
-                                            />
-                                        </Tooltip>
+                                        <h5 className={"endTimeLabel"}>End Time (exclusive)</h5>
+                                        <TimePicker
+                                            required={true}
+                                            format={"HH:mm"}
+                                            locale={"en-CA"}
+                                            maxDetail={"minute"}
+                                            disableClock={true}
+                                            value={!isNaN(params.endTime)?params.endTime:"00:00"}
+                                            onChange={this.endTimeChange.bind(this)}
+                                        />
                                     </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>
                     </Grid>}
 
-
                 </Grid>
             </div>
 
-        );
+        )
 
     }
 
