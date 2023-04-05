@@ -21,8 +21,8 @@ export default class Map extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            lng: -79.3957,
-            lat: 43.6629,
+            lng: -79.34299,
+            lat: 43.65720,
             zoom: 15,
             map: '',
             displayedLinkSources: [],
