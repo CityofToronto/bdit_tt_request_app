@@ -15,6 +15,11 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import "./Layout.css";
 
+const dateRange = {
+    maxDate: Date('2021-01-01'), 
+    minDate: new Date('2020-01-01')
+}
+
 export default class Layout extends React.Component {
     constructor(props) {
         super(props);
@@ -25,8 +30,15 @@ export default class Layout extends React.Component {
             linksList: [],
             numRanges: 1,
             activeRange: 0,
-            ranges: [RangeFactory.newRange({startTime: this.props.state.minDate, endTime: this.props.state.maxDate})],
-            fileSettings: FileSettingsFactory.newFileSettings({endDate: this.props.state.maxDate}),
+            ranges: [
+                RangeFactory.newRange(
+                    {
+                        startTime: dateRange.minDate,
+                        endTime: dateRange.maxDate
+                    }
+                )
+            ],
+            fileSettings: FileSettingsFactory.newFileSettings({endDate: dateRange.maxDate}),
             disableGetButton: false
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
@@ -75,8 +87,8 @@ export default class Layout extends React.Component {
         } else {
             ranges.push(RangeFactory.newRange({
                 name: name,
-                startTime: this.props.state.minDate,
-                endTime: this.props.state.maxDate
+                startTime: dateRange.minDate,
+                endTime: dateRange.maxDate
             }));
             this.setState({
                 numRanges: numRanges + 1,
