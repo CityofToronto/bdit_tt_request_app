@@ -12,10 +12,14 @@ from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
 
-#Global Variables
+def getConnection():
+    return connect(
+        host = os.environ['DB_HOST'],
+        dbname = os.environ['DB_NAME'],
+        user = os.environ['DB_USER'],
+        password = os.environ['DB_USER_PASSWORD'],
+    )
 
-
-#Functions
 def _need_keep_temp_file():
     """Check environ whether or not to keep the temporary files created."""
     if 'KEEP_TEMP_FILE' not in os.environ:
@@ -52,12 +56,6 @@ def get_closest_node(longitude, latitude):
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
-    connection = connect(
-        host = os.environ['DB_HOST'],
-        dbname = os.environ['DB_NAME'],
-        user = os.environ['DB_USER'],
-        password = os.environ['DB_USER_PASSWORD'],
-    )
 
     try:
         longitude = float(longitude)
@@ -66,6 +64,8 @@ def get_closest_node(longitude, latitude):
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
     
+    connection = getConnection()
+
     with connection:
         with connection.cursor() as cursor:
             select_sql = '''
@@ -222,12 +222,7 @@ def get_date_bounds():
 
     current_time = TIMEZONE.localize(datetime.now())  # type: datetime
 
-    connection = connect(
-        host = os.environ['DB_HOST'],
-        dbname = os.environ['DB_NAME'],
-        user = os.environ['DB_USER'],
-        password = os.environ['DB_USER_PASSWORD'],
-    )
+    connection = getConnection()
     
     with connection:
         with connection.cursor() as cursor:
