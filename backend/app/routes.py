@@ -217,20 +217,27 @@ def get_date_bounds():
 
     :return: JSON containing two fields: start_time and end_time
     """
-    from app import FULL_DATE_TIME_FORMAT, TIMEZONE
-    from datetime import datetime, timedelta
+    from app import TIMEZONE
+    from datetime import datetime
 
     current_time = TIMEZONE.localize(datetime.now())  # type: datetime
 
-    today_update_time = current_time.replace(hour=17, minute=30, second=00)
+    connection = connect(
+        host = os.environ['DB_HOST'],
+        dbname = os.environ['DB_NAME'],
+        user = os.environ['DB_USER'],
+        password = os.environ['DB_USER_PASSWORD'],
+    )
+    
+    with connection:
+        with connection.cursor() as cursor:
+            select_sql = '''SELECT MAX(dt), MIN(dt) FROM here.ta;'''
+            cursor.execute(select_sql, {'dt': current_time})
+            date_query = cursor.fetchall()[0]
+    connection.close()
 
-    if current_time >= today_update_time:
-        end_time = (current_time - timedelta(days=2)).replace(hour=23, minute=59, second=59)
-    else:
-        end_time = (current_time - timedelta(days=3)).replace(hour=23, minute=59, second=59)
-    start = datetime.strptime('2019-02-01 00:00', FULL_DATE_TIME_FORMAT)
-    return {"start_time": start.strftime(FULL_DATE_TIME_FORMAT),
-            "end_time": end_time.strftime(FULL_DATE_TIME_FORMAT)}
+    return {"start_time": date_query[0].strftime('%Y-%m-%d'),
+            "end_time": date_query[1].strftime('%Y-%m-%d')}
 
 
 def _calc_list_avg(lst: list) -> float:
