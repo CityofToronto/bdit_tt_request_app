@@ -187,7 +187,7 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
-    return request.json
+    return jsonify(request.json)
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
     street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked

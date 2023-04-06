@@ -8,7 +8,7 @@ import SidebarContent from "./Sidebar"
 import Map from "../Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
+import { getLinksBetweenNodes, getTravelDataFile } from "../../actions"
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
@@ -193,36 +193,42 @@ export default class Layout extends React.Component {
     }
 
     downloadData = () => {
-        if (this.state.linksList.length !== 0) {
-            let allLinkDirs = [];
-            this.state.linksList.forEach((seq) => {
-                let tmpLinkDirs = [];
-                seq.forEach((link) => {
-                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
-                });
-                allLinkDirs.push(tmpLinkDirs);
-            });
+        if (this.state.linksList.length === 0) {
+            NotificationManager.error('Please get links first')
+            return this.setState({disableGetButton: false})
+        }
+        let allLinkDirs = this.state.linksList.map( seq => {
+            return seq.map( link => link.link_dirs )
+        });
+        console.log(allLinkDirs)
 
-            const list_of_time_periods = parseTimePeriods(this.state.ranges);
-            if (!list_of_time_periods) {
-                NotificationManager.error('Must complete all of start time and end time!');
-                return;
-            }
-
-            const fileParams = this.state.fileSettings.parseSettings();
-            const fileType = fileParams['file_type'];
-
-            if (fileType === 'geojson') {
-                this.downloadGeoJSON();
-            } else {
-                NotificationManager.error('Only GeoJSON filetype is currently supported');
-                return;
-            }
-        } else {
-            NotificationManager.error('Please get links first');
-            this.setState({disableGetButton: false});
+       const list_of_time_periods = parseTimePeriods(this.state.ranges)
+        if (!list_of_time_periods) {
+            NotificationManager.error('Must complete all of start time and end time!');
+            return
         }
 
+        const fileParams = this.state.fileSettings.parseSettings()
+        const fileType = fileParams['file_type']
+
+        if (fileType === 'geojson') {
+            this.downloadGeoJSON()
+        }else if(fileType==='csv'){
+            let params = {
+                listOfTimePeriods: list_of_time_periods,
+                listOfLinkDirs: allLinkDirs,
+                fileType: fileType,
+                start_date: fileParams["start_date"],
+                end_date: fileParams["end_date"],
+                include_holidays: fileParams["include_holidays"],
+                days_of_week: fileParams["days_of_week"],
+                fields: fileParams["fields"]
+            };
+            this.setState({disableGetButton: true})
+            getTravelDataFile(params, () => {
+                this.setState({disableGetButton: false})
+            })
+        }
     }
 
     openPopup() { this.setState({popupOpen: true}) }
@@ -251,7 +257,7 @@ export default class Layout extends React.Component {
                         disableGetButton={this.state.disableGetButton}
                         openPopup={this.openPopup}
                         range={this.state.activeRange}
-                        onGo={this.downloadData}
+                        onGo={this.downloadData} // on clicking get data button
                         fileSettings={this.state.fileSettings}
                         replaceSettings={this.replaceSettings}
                         dateTimeRanges={this.state.ranges.length}

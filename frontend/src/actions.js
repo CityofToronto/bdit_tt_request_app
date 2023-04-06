@@ -176,6 +176,7 @@ export const getTravelDataFile = (data, enableGetButton) => {
             columns
         }
     }
+    console.log(req_body)
 
     Axios({
         url: `${domain}/travel-data-file`,
