@@ -213,7 +213,7 @@ def get_links_travel_data_file():
 def get_date_bounds():
     """
     Get the earliest timestamp and latest timestamp in the travel database.
-    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d %H:%M").
+    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d).
 
     :return: JSON containing two fields: start_time and end_time
     """
