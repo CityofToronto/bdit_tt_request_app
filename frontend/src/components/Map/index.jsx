@@ -17,14 +17,10 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5d
 
 // Note: Sequence and Segment are the same
 export default class Map extends React.Component {
-
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
-            lng: -79.34299,
-            lat: 43.65720,
-            zoom: 15,
-            map: '',
+            map: null,
             displayedLinkSources: [],
             clickedNodes: [[]],
             displayedMarker: [[]],
@@ -47,9 +43,14 @@ export default class Map extends React.Component {
             linkMouseLeave: [],
             linksOnMap: false,
             updateNodeIndex: 0,
-            openHelp: false,
-            currentHelpIndex: -1
-        };
+        }
+        this.onSubmit = this.onSubmit.bind(this)
+        this.newSeq = this.newSeq.bind(this)
+        this.removeNodes = this.removeNodes.bind(this)
+        this.resetMap = this.resetMap.bind(this)
+        this.removeAllLinkSources = this.removeAllLinkSources.bind(this)
+        this.getLink = this.getLink.bind(this)
+        this.onChangeSelectSeq = this.onChangeSelectSeq.bind(this)
     };
 
     componentDidMount() {
@@ -60,60 +61,31 @@ export default class Map extends React.Component {
         const map = new mapboxgl.Map({
             container: this.mapContainer,
             style: 'mapbox://styles/mapbox/streets-v11',
-            center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom,
+            center: [-79.34299, 43.65720],
+            zoom: 15,
             attributionControl: false
         });
-        map.addControl(new mapboxgl.AttributionControl(), 'bottom-left');
         map.on('load', () => { // the two arrow images
             map.loadImage(
                 arrowImage,
                 function (error, image) {
-                    if (error) throw error;
-                    map.addImage('arrow-line', image);
-                });
+                    if (error) throw error
+                    map.addImage('arrow-line', image)
+                })
             map.loadImage(
                 doubleArrowImage,
                 function (error, image) {
-                    if (error) throw error;
-                    map.addImage('double-arrow-line', image);
-                });
-        });
-        map.on('move', () => {
-            this.setState({
-                lng: map.getCenter().lng.toFixed(4),
-                lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2),
-            });
-        });
+                    if (error) throw error
+                    map.addImage('double-arrow-line', image)
+                })
+        })
         map.on('click', (e) => {
             if (!this.state.disableAddMarker) {
-                this.disableInteractions();
-                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat});
+                this.disableInteractions()
+                getClosestNode(this, {longitude: e.lngLat.lng, latitude: e.lngLat.lat})
             }
-
-        });
-        this.setState({
-            map: map,
-            clickedNodes: [[]],
-            displayedMarker: [[]],
-            linksData: [],
-            displayedLinkSources: [],
-            linkMouseEnter: [],
-            linkMouseLeave: [],
-            sequenceColours: [this.getRandomColor()],
-            disableAddMarker: false,
-            disableNodeRemove: true,
-            disableGetLink: true,
-            disableLinkRemove: false,
-            disableReset: false,
-            disableDragMarker: false,
-            disableNewSeq: true,
-            currentSequence: 0,
-            selectedSeq: "",
-            linksOnMap: false,
-            openHelp: false
-        });
+        })
+        this.setState({map})
     }
 
     resetMap() {
@@ -668,9 +640,6 @@ export default class Map extends React.Component {
             this.getLink();
         }
     }
-    handleClose = () => {
-        this.setState({openHelp: false})
-    };
 
     render() {
         return (
@@ -706,36 +675,94 @@ export default class Map extends React.Component {
                         ))}
                     </List>
                 </Dialog>
-                {/*Div containing the buttons on the bottom right of the map*/}
-                <div className="map-options">
-                    <form className="reverse-seq-input" noValidate autoComplete="off">
-                        <TextField label="Current Segment" InputProps={{readOnly: true,}}
-                                   value={"Current Segment #" + this.state.currentSequence}/>
-                        <TextField label="Reverse Seg #" value={this.state.selectedSeq}
-                                   onChange={this.onChangeSelectSeq} variant="filled"/>
-                    </form>
-                    <Button variant="contained" color="primary" size="small" id='reverseSeq-button'
-                            disabled={this.state.disableNewSeq}
-                            onClick={this.onSubmit}>Reverse</Button>
-                    <Button variant="contained" color="primary" size="small" id='newSeq-button'
-                            disabled={this.state.disableNewSeq}
-                            onClick={() => this.newSeq()}>New Segment</Button>
-                    <Button variant="contained" color="primary" size="small" id='reset-button'
-                            disabled={this.state.disableReset}
-                            onClick={() => this.resetMap()}>Reset Map</Button>
-                    <Button variant="contained" color="primary" size="small" id='remove-node-button'
-                            disabled={this.state.disableNodeRemove}
-                            onClick={() => this.removeNodes()}>Remove Last Node</Button>
-                    <Button variant="contained" color="primary" size="small" id='remove-links-button'
-                            disabled={this.state.disableLinkRemove}
-                            onClick={() => this.removeAllLinkSources()}>Remove All Links</Button>
-                    <Button variant="contained" color="primary" size="small" id='link-button'
-                            disabled={this.state.disableGetLink}
-                            onClick={() => this.getLink()}>Update & Display Links</Button>
-                </div>
+                <ActionsBox 
+                    currentSequence={this.state.currentSequence}
+                    seletedSeq={this.state.selectedSeq}
+                    disableNewSeq={this.state.disableNewSeq}
+                    disableReset={this.state.disableReset}
+                    disableNodeRemove={this.state.disableNodeRemove}
+                    disableLinkRemove={this.state.disableLinkRemove}
+                    disableGetLink={this.state.disableGetLink}
+                    reverseSeqeunceAction={this.onSubmit}
+                    newSequenceAction={this.newSeq}
+                    removeNodesAction={this.removeNodes}
+                    resetMapAction={this.resetMap}
+                    removeLinksAction={this.removeAllLinkSources}
+                    updateLinksAction={this.getLink}
+                    selectSequenceAction={this.onChangeSelectSeq}
+                />
                 <NotificationContainer/>
             </div>
         );
     };
 
+}
+
+function ActionsBox({
+    currentSequence,
+    selectedSeq,
+    disableNewSeq,
+    disableReset,
+    disableNodeRemove,
+    disableLinkRemove,
+    disableGetLink,
+    reverseSequenceAction,
+    newSequenceAction,
+    removeNodesAction,
+    resetMapAction,
+    removeLinksAction,
+    updateLinksAction,
+    selectSequenceAction
+}){
+    const buttonProps = { variant: 'contained', color: 'primary', size: 'small' }
+    return (
+        <div className="map-options">
+            <form className="reverse-seq-input" noValidate autoComplete="off">
+                <TextField
+                    label="Current Segment" InputProps={{readOnly: true,}}
+                    value={"Current Segment #" + currentSequence}
+                />
+                <TextField
+                    label="Reverse Seg #" value={selectedSeq}
+                    onChange={selectSequenceAction} variant="filled"
+                />
+            </form>
+            <Button id='reverseSeq-button' {...buttonProps}
+                disabled={disableNewSeq}
+                onClick={reverseSequenceAction}
+            >
+                Reverse
+            </Button>
+            <Button id='newSeq-button' {...buttonProps}
+                disabled={disableNewSeq}
+                onClick={newSequenceAction}
+            >
+                New Segment
+            </Button>
+            <Button id='reset-button' {...buttonProps}
+                disabled={disableReset}
+                onClick={resetMapAction}
+            >
+                Reset Map
+            </Button>
+            <Button id='remove-node-button' {...buttonProps}
+                disabled={disableNodeRemove}
+                onClick={removeNodesAction}
+            >
+                Remove Last Node
+            </Button>
+            <Button id='remove-links-button' {...buttonProps}
+                disabled={disableLinkRemove}
+                onClick={removeLinksAction}
+            >
+                Remove All Links
+            </Button>
+            <Button id='link-button' {...buttonProps}
+                disabled={disableGetLink}
+                onClick={updateLinksAction}
+            >
+                Update & Display Links
+            </Button>
+        </div>
+    )
 }
