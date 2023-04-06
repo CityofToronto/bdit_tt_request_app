@@ -12,10 +12,14 @@ from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
 
-#Global Variables
+def getConnection():
+    return connect(
+        host = os.environ['DB_HOST'],
+        dbname = os.environ['DB_NAME'],
+        user = os.environ['DB_USER'],
+        password = os.environ['DB_USER_PASSWORD'],
+    )
 
-
-#Functions
 def _need_keep_temp_file():
     """Check environ whether or not to keep the temporary files created."""
     if 'KEEP_TEMP_FILE' not in os.environ:
@@ -52,12 +56,6 @@ def get_closest_node(longitude, latitude):
             The array is sorted in ascending distance order. node object keys: node_id(int),
             geometry(geom{type(str), coordinates(list[int])}), name(str)
     """
-    connection = connect(
-        host = os.environ['DB_HOST'],
-        dbname = os.environ['DB_NAME'],
-        user = os.environ['DB_USER'],
-        password = os.environ['DB_USER_PASSWORD'],
-    )
 
     try:
         longitude = float(longitude)
@@ -66,6 +64,8 @@ def get_closest_node(longitude, latitude):
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
     
+    connection = getConnection()
+
     with connection:
         with connection.cursor() as cursor:
             select_sql = '''
@@ -218,24 +218,20 @@ def get_links_travel_data_file():
 def get_date_bounds():
     """
     Get the earliest timestamp and latest timestamp in the travel database.
-    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d %H:%M").
+    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d).
 
     :return: JSON containing two fields: start_time and end_time
     """
-    from app import FULL_DATE_TIME_FORMAT, TIMEZONE
-    from datetime import datetime, timedelta
-
-    current_time = TIMEZONE.localize(datetime.now())  # type: datetime
-
-    today_update_time = current_time.replace(hour=17, minute=30, second=00)
-
-    if current_time >= today_update_time:
-        end_time = (current_time - timedelta(days=2)).replace(hour=23, minute=59, second=59)
-    else:
-        end_time = (current_time - timedelta(days=3)).replace(hour=23, minute=59, second=59)
-    start = datetime.strptime('2019-02-01 00:00', FULL_DATE_TIME_FORMAT)
-    return {"start_time": start.strftime(FULL_DATE_TIME_FORMAT),
-            "end_time": end_time.strftime(FULL_DATE_TIME_FORMAT)}
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT MIN(dt), MAX(dt) FROM here.ta;')
+            ( min_date, max_date ) = cursor.fetchone()
+    connection.close()
+    return {
+        "start_time": min_date.strftime('%Y-%m-%d'),
+        "end_time": max_date.strftime('%Y-%m-%d')
+    }
 
 
 def _calc_list_avg(lst: list) -> float:
