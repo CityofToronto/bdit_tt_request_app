@@ -136,7 +136,29 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+
+    # shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
+
+    connection = getConnection()
+
+    with connection:
+        with connection.cursor() as cursor:
+            #Uses pg_routing to route between the start node and end node on the HERE
+            #links network. Returns inputs and an array of link_dirs and a unioned line
+            select_sql = '''
+                WITH results as (
+                    SELECT *
+                    FROM pgr_dijkstra(
+                        'SELECT id, source::int, target::int, length::int as cost from here_links', %(node_start)s,
+                            %(node_end)s)
+                )
+
+                SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+                FROM results
+                inner join here_links on edge = id'''
+            cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
+            shortest_link_query_result = cursor.fetchall()
+
     shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
     return jsonify(shortest_link_data)
 
@@ -166,7 +188,28 @@ def get_links_between_multi_nodes():
         if curr_node_id == next_node_id:
             continue
 
-        shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
+        # shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
+        connection = getConnection()
+
+        with connection:
+            with connection.cursor() as cursor:
+                #Uses pg_routing to route between the start node and end node on the HERE
+                #links network. Returns inputs and an array of link_dirs and a unioned line
+                select_sql = '''
+                    WITH results as (
+                        SELECT *
+                        FROM pgr_dijkstra(
+                            'SELECT id, source::int, target::int, length::int as cost from here_links', %(node_start)s,
+                                %(node_end)s)
+                    )
+
+                    SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+                    FROM results
+                    inner join here_links on edge = id'''
+                cursor.execute(select_sql, {"node_start": curr_node_id, "node_end": next_node_id})
+                shortest_link_query_result = cursor.fetchall()
+
+
         shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
         optimal_links_data_list.append(shortest_link_data)
     return jsonify(optimal_links_data_list)
