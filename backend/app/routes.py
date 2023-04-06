@@ -220,8 +220,7 @@ def get_date_bounds():
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            select_sql = '''SELECT MIN(dt), MAX(dt) FROM here.ta;'''
-            cursor.execute(select_sql)
+            cursor.execute('SELECT MIN(dt), MAX(dt) FROM here.ta;')
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
