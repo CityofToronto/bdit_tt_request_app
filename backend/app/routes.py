@@ -187,26 +187,29 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
+    return request.json
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
     street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked
-    trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
-    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
+    
 
-    if file_type == 'csv':
-        data_file_path = make_travel_data_csv(travel_data_list, columns)
-        mime_type = "text/csv"
-    elif file_type == 'xlsx':
-        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
-        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    else:
-        abort(501, description="Currently only support csv and xlsx files.")
-        return
+    #trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
+    #travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
 
-    file_response = send_file(data_file_path, mimetype=mime_type)
-    if not _need_keep_temp_file():
-        os.remove(data_file_path)
-    return file_response
+    #if file_type == 'csv':
+    #    data_file_path = make_travel_data_csv(travel_data_list, columns)
+    #    mime_type = "text/csv"
+    #elif file_type == 'xlsx':
+    #    data_file_path = make_travel_data_xlsx(travel_data_list, columns)
+    #    mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    #else:
+    #    abort(501, description="Currently only support csv and xlsx files.")
+    #    return
+
+    #file_response = send_file(data_file_path, mimetype=mime_type)
+    #if not _need_keep_temp_file():
+    #    os.remove(data_file_path)
+    #return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
