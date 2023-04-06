@@ -220,19 +220,18 @@ def get_date_bounds():
     from app import TIMEZONE
     from datetime import datetime
 
-    current_time = TIMEZONE.localize(datetime.now())  # type: datetime
-
     connection = getConnection()
-    
     with connection:
         with connection.cursor() as cursor:
             select_sql = '''SELECT MAX(dt), MIN(dt) FROM here.ta;'''
-            cursor.execute(select_sql, {'dt': current_time})
+            cursor.execute(select_sql)
             date_query = cursor.fetchall()[0]
     connection.close()
 
-    return {"start_time": date_query[0].strftime('%Y-%m-%d'),
-            "end_time": date_query[1].strftime('%Y-%m-%d')}
+    return {
+        "start_time": date_query[0].strftime('%Y-%m-%d'),
+        "end_time": date_query[1].strftime('%Y-%m-%d')
+    }
 
 
 def _calc_list_avg(lst: list) -> float:
