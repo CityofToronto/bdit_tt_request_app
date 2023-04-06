@@ -217,20 +217,16 @@ def get_date_bounds():
 
     :return: JSON containing two fields: start_time and end_time
     """
-    from app import TIMEZONE
-    from datetime import datetime
-
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            select_sql = '''SELECT MAX(dt), MIN(dt) FROM here.ta;'''
+            select_sql = '''SELECT MIN(dt), MAX(dt) FROM here.ta;'''
             cursor.execute(select_sql)
-            date_query = cursor.fetchall()[0]
+            ( min_date, max_date ) = cursor.fetchone()
     connection.close()
-
     return {
-        "start_time": date_query[0].strftime('%Y-%m-%d'),
-        "end_time": date_query[1].strftime('%Y-%m-%d')
+        "start_time": min_date.strftime('%Y-%m-%d'),
+        "end_time": max_date.strftime('%Y-%m-%d')
     }
 
 
