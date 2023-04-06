@@ -187,6 +187,8 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
+    from parse.file_type_request_body import parse_file_type_request_body
+
     return jsonify(request.json)
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)

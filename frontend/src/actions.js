@@ -1,23 +1,23 @@
-import Axios from "axios";
-import { fields } from "./components/Layout/FieldSelectMenu/FieldSelectMenu";
+import Axios from "axios"
+import { fields as allFields } from "./components/Layout/FieldSelectMenu/FieldSelectMenu"
 
-const axios = require('axios');
-axios.defaults.withCredentials = true;
+const axios = require('axios')
+axios.defaults.withCredentials = true
 /* remote domain and local test domain */
 const domain = process.env.NODE_ENV === 'development' ? 
-    'http://127.0.0.1:5000' : 'https://10.160.2.198/tt-request-backend';
-const fileDownload = require('js-file-download');
+    'http://127.0.0.1:5000' : 'https://10.160.2.198/tt-request-backend'
+const fileDownload = require('js-file-download')
 
 const handleResponseError = (err) => {
     console.error(err)
 
     if (!err || !err.response || !err.response.status) {
-        alert("Error in React Actions! Check console for error.");
+        alert("Error in React Actions! Check console for error.")
     } else {
         if (err.response.status === 500) {
-            alert("Internal Server Error");
+            alert("Internal Server Error")
         } else {
-            alert(err.response.data.error);
+            alert(err.response.data.error)
         }
     }
 };
@@ -149,61 +149,45 @@ export function getDateBoundaries(){
 */
 export const getTravelDataFile = (data, enableGetButton) => {
     if (!data.fileType) {
-        data.fileType = 'csv';
+        data.fileType = 'csv'
     }
 
-    let req_body;
-    if (!data.fields.includes(true)){
-        req_body = {
-            list_of_time_periods: data.listOfTimePeriods,
-            list_of_links: data.listOfLinkDirs,
-            file_type: data.fileType,
-            start_date: data.start_date,
-            end_date: data.end_date,
-            include_holidays: data.include_holidays,
-            days_of_week: data.days_of_week,
-        }
-    } else {
-        let columns = fields.map(f=>f.column);
-        req_body = {
-            list_of_time_periods: data.listOfTimePeriods,
-            list_of_links: data.listOfLinkDirs,
-            file_type: data.fileType,
-            start_date: data.start_date,
-            end_date: data.end_date,
-            include_holidays: data.include_holidays,
-            days_of_week: data.days_of_week,
-            columns
-        }
+    const req_body = {
+        list_of_time_periods: data.listOfTimePeriods,
+        list_of_links: data.listOfLinkDirs,
+        file_type: data.fileType,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        include_holidays: data.include_holidays,
+        days_of_week: data.days_of_week,
+        columns: allFields.map(f=>f.column) // will always get all columns for now
     }
-    console.log(req_body)
-
     Axios({
         url: `${domain}/travel-data-file`,
         method: 'POST',
         responseType: 'blob',
         data: req_body
-    }).then(res => {
+    }).then( res => {
         if (res.data) {
-            fileDownload(res.data, `report.${data.fileType}`);
+            fileDownload(res.data, `report.${data.fileType}`)
         } else {
-            alert("FAILED TO GET TRAVEL DATA FILE");
+            alert("FAILED TO GET TRAVEL DATA FILE")
         }
         enableGetButton();
     }).catch(err => {
         if (!err || !err.response.status) {
-            console.error(err);
-            alert("Error in React Actions! Check console for error.");
+            console.error(err)
+            alert("Error in React Actions! Check console for error.")
         } else {
             if (err.response.status === 500) {
-                alert("Internal Server Error");
+                alert("Internal Server Error")
             } else {
-                const blob = err.response.data;
-                const reader = new FileReader();
+                const blob = err.response.data
+                const reader = new FileReader()
                 reader.onload = function () {
-                    alert(JSON.parse(this.result).error);
-                };
-                reader.readAsText(blob);
+                    alert(JSON.parse(this.result).error)
+                }
+                reader.readAsText(blob)
             }
         }
         enableGetButton();

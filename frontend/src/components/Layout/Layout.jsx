@@ -200,7 +200,6 @@ export default class Layout extends React.Component {
         let allLinkDirs = this.state.linksList.map( seq => {
             return seq.map( link => link.link_dirs )
         });
-        console.log(allLinkDirs)
 
        const list_of_time_periods = parseTimePeriods(this.state.ranges)
         if (!list_of_time_periods) {

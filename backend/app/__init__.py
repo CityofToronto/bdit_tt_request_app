@@ -19,7 +19,6 @@ FULL_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M"
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
 POSTGIS_GEOM_SRID = int(environ["POSTGIS_GEOM_SRID"])
-ALLOWED_FILE_TYPES = ['csv', 'xlsx']
 DB_TRAVEL_DATA_QUERY_RESULT_FORMAT = {
     'id': (int, 0),
     'period': (str, 1),

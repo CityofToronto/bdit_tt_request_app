@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import abort
 
-from app import ALLOWED_FILE_TYPES, TIME_FORMAT, DATE_FORMAT, DB_TRAVEL_DATA_QUERY_RESULT_FORMAT
+from app import TIME_FORMAT, DATE_FORMAT, DB_TRAVEL_DATA_QUERY_RESULT_FORMAT
 
 __all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
            'parse_get_links_btwn_nodes_response', 'parse_travel_data_query_result',
@@ -33,11 +33,11 @@ def parse_file_type_request_body(file_request_data):
     if 'file_type' in file_request_data:
         file_type = file_request_data['file_type']
 
-        if file_type not in ALLOWED_FILE_TYPES:
-            abort(400, description="Invalid file type %s! Allowed types: %s" % (file_type, ALLOWED_FILE_TYPES))
+        if file_type not in ['csv', 'xlsx']:
+            abort(400, description="Invalid file type %s! Allowed types: %s" % (file_type, ['csv', 'xlsx']))
             return
     else:
-        file_type = ALLOWED_FILE_TYPES[0]
+        file_type ='csv'
 
     if 'columns' in file_request_data and type(file_request_data['columns']) == list:
         columns = file_request_data['columns']  # type: list
