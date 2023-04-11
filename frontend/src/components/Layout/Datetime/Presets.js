@@ -14,10 +14,8 @@ const Presets = Object.freeze({
         switch (preset){
             case 'AM Peak':
                 return this["AM Peak"]
-
             case 'PM Peak':
                 return this["PM Peak"]
-
             default:
                 return {}
         }
