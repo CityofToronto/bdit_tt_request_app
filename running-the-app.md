@@ -38,7 +38,7 @@ sudo nginx -s reload
 
 1. From the project root directory, `cd` into folder `backend`.
 
-2. Execute command `python3 -m venv venv/` to create a python virtual environment for the backend.
+2. ~~Execute command `python3 -m venv venv/` to create a python virtual environment for the backend.~~
 
 3. Execute command `source venv/bin/activate` to use the virtual environment as the python interpreter for the backend.
 
