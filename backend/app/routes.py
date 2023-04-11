@@ -11,6 +11,7 @@ from app import app, db
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
+from app.parse_util import parse_file_type_request_body
 
 def getConnection():
     return connect(
@@ -187,13 +188,14 @@ def get_links_travel_data_file():
 
     :return: a file containing requested travel data
     """
-    from parse.file_type_request_body import parse_file_type_request_body
 
-    return jsonify(request.json)
+    
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
-    street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked
-    
+
+    street_info = _get_street_info(request.json['list_of_links'])
+
+    return jsonify(request.json)
 
     #trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
     #travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
@@ -248,6 +250,7 @@ def _round_up(num: float):
 
 
 def _get_street_info(list_of_link_dirs):
+    print(list_of_link_dirs[0][0])
     street_info = {}
 
     for i in range(len(list_of_link_dirs)):
