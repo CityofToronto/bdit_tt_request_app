@@ -46,19 +46,7 @@ sudo nginx -s reload
 
 6. ~~Create a pgadmin bot (`tt_request_bot`) to handle here travel time requests and give usage access to this bot for the schemas `here` and `here_gis`, also change the path of this user to schema `here`, and `public`.~~
 
-7. Edit environment variables in `.env` file but that didnt work so export all environment with e.g.
-
-```bash
-export SECRET_KEY='redacted'
-export DATABASE_URL='redacted'
-export LINK_TABLE_NAME=routing_streets_name
-export NODE_TABLE_NAME=routing_nodes_intersec_name
-export TRAVEL_DATA_TABLE_NAME=ta
-export POSTGIS_GEOM_SRID=4326
-export TEMP_FILE_LOCATION='tmp'
-export KEEP_TEMP_FILE='true'
-export DB_DATA_START_DATE='2019-01-01 00:00'
-```
+7. If necessary, edit the environment variables in `backend/.env`
 
 8. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
 
