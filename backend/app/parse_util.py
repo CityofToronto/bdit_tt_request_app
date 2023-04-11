@@ -5,8 +5,7 @@ from flask import abort
 
 from app import ALLOWED_FILE_TYPES, TIME_FORMAT, DATE_FORMAT, DB_TRAVEL_DATA_QUERY_RESULT_FORMAT
 
-__all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response',
-           'parse_get_links_btwn_nodes_response', 'parse_travel_data_query_result',
+__all__ = ['parse_file_type_request_body', 'parse_travel_request_body', 'parse_link_response', 'parse_travel_data_query_result',
            'parse_get_links_between_multi_nodes_request_body', 'get_path_list_from_link_list']
 
 
@@ -285,66 +284,6 @@ def parse_link_response(link_data):
     return {"link_dir": link_data[0], "link_id": link_data[1], "st_name": link_data[2],
             "source": link_data[3], "target": link_data[4], "length": link_data[5],
             "geometry": json.loads(link_data[6])}
-
-
-def parse_get_links_btwn_nodes_response(response: str):
-    """
-    Converts the string result from database function get_links_btwn_nodes to a dictionary that can be jsonify-ed.
-    This function will call abort with response code 400 if the geometry in the response is empty, i.e. no link exists
-    between the given two nodes.
-
-    :param response: the string response from database function get_links_btwn_nodes
-    :return: a dictionary that can be jsonify-ed. It contains the following fields:
-            source(int), target(int), path_name(str), link_dirs(list[str]), geometry(geom{type(str), coordinates(list)})
-    """
-    # split the response string by the last comma, which splits source, target, link_dirs from geometry
-    try:
-        wkb_str_split = response.rindex(',"{"')
-    except ValueError:
-        abort(400, description="There is no valid link between the two nodes provided!")
-        return
-
-    wkb_str = response[wkb_str_split + 1:-1].replace('""', '"').rstrip('"').lstrip('"')
-    geom_json = json.loads(wkb_str)
-
-    source_target_links_str = response[:wkb_str_split] + ')'
-    # if there is only one link between nodes, need to add double quotes to enforce same formatting as multi-link
-    if source_target_links_str[-2] != '"' and source_target_links_str[-2] != "'":
-        source_target_links_str = source_target_links_str.replace(',{', ',"{')
-        source_target_links_str = source_target_links_str.replace('})', '}")')
-        source_target_links_str = source_target_links_str.replace('},', '}",')
-
-    # cast the curly bracket surrounded raw link_dir list to a square bracket surrounds quoted link_dir list
-    # so that the link_dirs can be casted to a string list
-    source_target_links_tuple = eval(source_target_links_str)
-
-    path_name_str = source_target_links_tuple[2]  # type: str
-    path_name_str = path_name_str.replace('NULL,', '')
-    path_name_str = path_name_str.replace(',NULL', '')
-    path_name_str = path_name_str.replace('NULL', 'nameless road')
-    path_name_str = path_name_str.replace('{', '["')
-    path_name_str = path_name_str.replace('}', '"]')
-    path_name_str = path_name_str.replace(',', '","')
-    path_name_list = eval(path_name_str)  # type: list
-    unique_path_name_list = []
-
-    for p_name in path_name_list:
-        if p_name not in unique_path_name_list:
-            if len(unique_path_name_list) >= 3:
-                unique_path_name_list.append("...")
-                unique_path_name_list.append(path_name_list[-1])
-                break
-            unique_path_name_list.append(p_name)
-    path_name = ' -> '.join(unique_path_name_list)
-
-    link_dirs_str = source_target_links_tuple[3]  # type: str
-    link_dirs_str = link_dirs_str.replace('{', '["')
-    link_dirs_str = link_dirs_str.replace('}', '"]')
-    link_dirs_str = link_dirs_str.replace(',', '","')
-    link_dirs = eval(link_dirs_str)
-
-    return {"source": source_target_links_tuple[0], "target": source_target_links_tuple[1],
-            "path_name": path_name, "link_dirs": link_dirs, "geometry": geom_json}
 
 def get_path_list_from_link_list(links):
     """

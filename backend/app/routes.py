@@ -136,9 +136,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-
-    # shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
-
     connection = getConnection()
 
     with connection:
@@ -159,10 +156,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
             source, target, path, link_dirs, geometry = cursor.fetchall()[0]
             print(type(geometry))
-
-        # parsing query result
-        # shortest_link_data = parse_get_links_btwn_nodes_response(str(shortest_link_query_result))
-
 
     shortest_link_data = {"source": source, "target": target,
         "path_name": str(path), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
@@ -199,8 +192,6 @@ def get_links_between_multi_nodes():
         if curr_node_id == next_node_id:
             continue
 
-        # shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
-
 
         with connection:
             with connection.cursor() as cursor:
@@ -219,9 +210,6 @@ def get_links_between_multi_nodes():
                     inner join here.routing_streets_name on edge = id'''
                 cursor.execute(select_sql, {"node_start": curr_node_id, "node_end": next_node_id})
                 source, target, path, link_dirs, geometry = cursor.fetchall()[0] 
-
-        # parsing query result
-        # shortest_link_data = parse_get_links_btwn_nodes_response(str(shortest_link_query_result))
 
 
         shortest_link_data = {"source": source, "target": target,
