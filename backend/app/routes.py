@@ -158,13 +158,14 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 inner join here.routing_streets_name on edge = id'''
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
             source, target, path, link_dirs, geometry = cursor.fetchall()[0]
+            print(type(geometry))
 
         # parsing query result
         # shortest_link_data = parse_get_links_btwn_nodes_response(str(shortest_link_query_result))
 
 
     shortest_link_data = {"source": source, "target": target,
-        "path_name": path, "link_dirs": link_dirs, "geometry": geometry}
+        "path_name": str(path), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
 
     connection.close()
     
@@ -224,7 +225,7 @@ def get_links_between_multi_nodes():
 
 
         shortest_link_data = {"source": source, "target": target,
-            "path_name": path, "link_dirs": link_dirs, "geometry": geometry}
+            "path_name": str(path), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
         optimal_links_data_list.append(shortest_link_data)
 
     connection.close()
