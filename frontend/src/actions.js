@@ -140,18 +140,15 @@ export function getDateBoundaries(){
 }
 
 
-export const getTravelDataFile = ({fileType,listOfTimePeriods,listOfLinkDirs,start_date,end_date,include_holidays,days_of_week}, enableGetButton) => {
+export const getTravelDataFile = ({fileType,timePeriods,listOfLinkDirs,start_date,end_date,include_holidays,days_of_week}, enableGetButton) => {
     if (!fileType) {
         fileType = 'csv'
     }
     const request_body = {
-        time_periods: listOfTimePeriods,
+        time_periods: timePeriods,
         links: listOfLinkDirs,
         file_type: fileType,
-        date_range: {
-            start: start_date,
-            end: end_date
-        },
+        date_range: `[${start_date}, ${end_date}]`,
         holidays: include_holidays,
         days_of_week: days_of_week,
         columns: allFields.map(f=>f.column) // will always get all columns for now

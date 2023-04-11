@@ -179,6 +179,7 @@ from uuid import uuid4 as uuid
 def aggregate_travel_times():
     # results will be written to file here (random, non-conflicting filenames)
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
+    print(request.json)
 
     connection = getConnection()
     with connection:
@@ -188,11 +189,23 @@ def aggregate_travel_times():
 
     if request.json['file_type'] == 'csv':
         with open(filePath, 'w', newline='') as csvFile:
-            csv_writer = csv.DictWriter(csvFile, fieldnames=request.json['columns'])
+            extraFields = ['segment','holidays','time_range','date_range']
+            csv_writer = csv.DictWriter(
+                csvFile,
+                fieldnames = extraFields + request.json['columns']
+            )
             csv_writer.writeheader()
             for (length,mean,confidence) in records:
-                
-                csv_writer.writerow({'mean_tt':length,'min_tt':mean,'max_tt':confidence})
+                csv_writer.writerow({
+                    'segment':'',
+                    'holidays':request.json['holidays'],
+                    'date_range': request.json['date_range'],
+                    'time_range': request.json['time_periods'][0], # like [{'start_time': '19:00', 'end_time': '20:00', 'name': 'new range'}]
+
+                    'mean_tt':length,
+                    'min_tt':mean,
+                    'max_tt':confidence
+                })
             csvFile.flush()
         mime_type = "text/csv"
     #elif file_type == 'xlsx':
