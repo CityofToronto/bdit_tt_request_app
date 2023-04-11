@@ -149,17 +149,25 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 WITH results as (
                     SELECT *
                     FROM pgr_dijkstra(
-                        'SELECT id, source::int, target::int, length::int as cost from here_links', %(node_start)s,
+                        'SELECT id, source::int, target::int, length::int as cost from here.routing_streets_name', %(node_start)s,
                             %(node_end)s)
                 )
 
                 SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
                 FROM results
-                inner join here_links on edge = id'''
+                inner join here.routing_streets_name on edge = id'''
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
-            shortest_link_query_result = cursor.fetchall()
+            source, target, path, link_dirs, geometry = cursor.fetchall()[0]
 
-    shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
+        # parsing query result
+        # shortest_link_data = parse_get_links_btwn_nodes_response(str(shortest_link_query_result))
+
+
+    shortest_link_data = {"source": source, "target": target,
+        "path_name": path, "link_dirs": link_dirs, "geometry": geometry}
+
+    connection.close()
+    
     return jsonify(shortest_link_data)
 
 
@@ -181,6 +189,8 @@ def get_links_between_multi_nodes():
     node_ids = parse_get_links_between_multi_nodes_request_body(request.json)
     optimal_links_data_list = []
 
+    connection = getConnection()
+
     for i in range(len(node_ids) - 1):
         curr_node_id = node_ids[i]
         next_node_id = node_ids[i + 1]
@@ -189,7 +199,7 @@ def get_links_between_multi_nodes():
             continue
 
         # shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
-        connection = getConnection()
+
 
         with connection:
             with connection.cursor() as cursor:
@@ -199,19 +209,25 @@ def get_links_between_multi_nodes():
                     WITH results as (
                         SELECT *
                         FROM pgr_dijkstra(
-                            'SELECT id, source::int, target::int, length::int as cost from here_links', %(node_start)s,
+                            'SELECT id, source::int, target::int, length::int as cost from here.routing_streets_name', %(node_start)s,
                                 %(node_end)s)
                     )
 
                     SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
                     FROM results
-                    inner join here_links on edge = id'''
+                    inner join here.routing_streets_name on edge = id'''
                 cursor.execute(select_sql, {"node_start": curr_node_id, "node_end": next_node_id})
-                shortest_link_query_result = cursor.fetchall()
+                source, target, path, link_dirs, geometry = cursor.fetchall()[0] 
+
+        # parsing query result
+        # shortest_link_data = parse_get_links_btwn_nodes_response(str(shortest_link_query_result))
 
 
-        shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
+        shortest_link_data = {"source": source, "target": target,
+            "path_name": path, "link_dirs": link_dirs, "geometry": geometry}
         optimal_links_data_list.append(shortest_link_data)
+
+    connection.close()
     return jsonify(optimal_links_data_list)
 
 
