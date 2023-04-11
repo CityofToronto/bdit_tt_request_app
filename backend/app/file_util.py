@@ -65,26 +65,3 @@ def make_travel_data_xlsx(travel_data_list, columns):
 
     travel_data_workbook.close()
     return file_path
-
-
-def make_travel_data_csv(travel_data_list, columns):
-    """
-    Make a csv file containing all the travel data in order.
-
-    :param travel_data_list: the list of travel data
-    :param columns the column header of the data file
-    :return: the file path of the csv file
-    """
-    filename = "%s.csv" % TEMP_FILE_NAME
-    file_path = make_temp_file_path(filename)
-
-    with open(file_path, 'w', newline='') as csvfile:
-        csv_writer = csv.DictWriter(csvfile, fieldnames=columns)
-
-        csv_writer.writeheader()
-        for data in travel_data_list:
-            csv_writer.writerow(data)
-
-        csvfile.flush()
-
-    return file_path

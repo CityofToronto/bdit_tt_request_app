@@ -5,7 +5,7 @@ const axios = require('axios')
 axios.defaults.withCredentials = true
 /* remote domain and local test domain */
 const domain = process.env.NODE_ENV === 'development' ? 
-    'http://127.0.0.1:5001' : 'https://10.160.2.198/tt-request-backend'
+    'http://127.0.0.1:5000' : 'https://10.160.2.198/tt-request-backend'
 const fileDownload = require('js-file-download')
 
 const handleResponseError = (err) => {
@@ -139,41 +139,33 @@ export function getDateBoundaries(){
     }).catch(err => handleResponseError(err))
 }
 
-/* GET travel data file of link */
-/* sample data input: {
-        "startTime": "2018-09-01 12:00:00",
-        "endTime": "2018-09-01 23:00:00",
-        "linkDirs": ["29492871T"],
-        "fileType": "csv"
-	}
-*/
-export const getTravelDataFile = (data, enableGetButton) => {
-    if (!data.fileType) {
-        data.fileType = 'csv'
-    }
 
-    const req_body = {
-        time_periods: data.listOfTimePeriods,
-        links: data.listOfLinkDirs,
-        file_type: data.fileType,
+export const getTravelDataFile = ({fileType,listOfTimePeriods,listOfLinkDirs,start_date,end_date,include_holidays,days_of_week}, enableGetButton) => {
+    if (!fileType) {
+        fileType = 'csv'
+    }
+    const request_body = {
+        time_periods: listOfTimePeriods,
+        links: listOfLinkDirs,
+        file_type: fileType,
         date_range: {
-            start: data.start_date,
-            end: data.end_date
+            start: start_date,
+            end: end_date
         },
-        holidays: data.include_holidays,
-        days_of_week: data.days_of_week,
+        holidays: include_holidays,
+        days_of_week: days_of_week,
         columns: allFields.map(f=>f.column) // will always get all columns for now
     }
     Axios({
-        url: `${domain}/travel-data-file`,
+        url: `${domain}/aggregate-travel-times`,
         method: 'POST',
         responseType: 'blob',
-        data: req_body
-    }).then( res => {
-        if (res.data) {
-            fileDownload(res.data, `report.${data.fileType}`)
+        data: request_body
+    }).then( ({data}) => {
+        if (data) {
+            fileDownload(data, `report.${fileType}`)
         } else {
-            alert("FAILED TO GET TRAVEL DATA FILE")
+            alert("Failed to do travel time aggregation")
         }
         enableGetButton();
     }).catch(err => {

@@ -212,17 +212,17 @@ export default class Layout extends React.Component {
 
         if (fileType === 'geojson') {
             this.downloadGeoJSON()
-        }else if(fileType==='csv'){
+        } else if(fileType==='csv') {
             let params = {
-                listOfTimePeriods: list_of_time_periods,
-                listOfLinkDirs: allLinkDirs,
+                timePeriods: list_of_time_periods,
+                linkDirs: allLinkDirs,
                 fileType: fileType,
                 start_date: fileParams["start_date"],
                 end_date: fileParams["end_date"],
                 include_holidays: fileParams["include_holidays"],
                 days_of_week: fileParams["days_of_week"],
                 fields: fileParams["fields"]
-            };
+            }
             this.setState({disableGetButton: true})
             getTravelDataFile(params, () => {
                 this.setState({disableGetButton: false})

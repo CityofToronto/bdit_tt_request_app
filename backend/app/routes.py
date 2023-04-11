@@ -8,7 +8,7 @@ from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
 
 from app import app, db
-from app.file_util import make_travel_data_csv, make_travel_data_xlsx
+from app.file_util import make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
 from app.parse_util import parse_file_type_request_body
@@ -173,27 +173,35 @@ def get_links_between_multi_nodes():
     return jsonify(optimal_links_data_list)
 
 
-@app.route('/travel-data-file', methods=['POST'])
-def get_links_travel_data_file():
-    return jsonify(request.json)
+import csv
+from uuid import uuid4 as uuid
+@app.route('/aggregate-travel-times', methods=['POST'])
+def aggregate_travel_times():
+    filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT length, mean, confidence FROM here.ta LIMIT 100')
+            records = cursor.fetchall()
 
-    #trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
-    #travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
-
-    #if file_type == 'csv':
-    #    data_file_path = make_travel_data_csv(travel_data_list, columns)
-    #    mime_type = "text/csv"
+    if request.json['file_type'] == 'csv':
+        with open(filePath, 'w', newline='') as csvFile:
+            csv_writer = csv.DictWriter(csvFile, fieldnames=request.json['columns'])
+            csv_writer.writeheader()
+            for (length,mean,confidence) in records:
+                
+                csv_writer.writerow({'mean_tt':length,'min_tt':mean,'max_tt':confidence})
+            csvFile.flush()
+        mime_type = "text/csv"
     #elif file_type == 'xlsx':
     #    data_file_path = make_travel_data_xlsx(travel_data_list, columns)
     #    mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    #else:
-    #    abort(501, description="Currently only support csv and xlsx files.")
-    #    return
+    else:
+        abort(501, description="Currently only support csv files.")
+        return
 
-    #file_response = send_file(data_file_path, mimetype=mime_type)
-    #if not _need_keep_temp_file():
-    #    os.remove(data_file_path)
-    #return file_response
+    file_response = send_file(filePath, mimetype=mime_type)
+    return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
