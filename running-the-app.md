@@ -44,8 +44,6 @@ sudo nginx -s reload
 
 4. Execute command `pip3 install -r requirements.txt` to install the project dependencies listed in requirements.txt.
 
-5. Execute command `pip3 install gunicorn`. Gunicorn is the service to be used to deploy a production version of the API server.
-
 6. ~~Create a pgadmin bot (`tt_request_bot`) to handle here travel time requests and give usage access to this bot for the schemas `here` and `here_gis`, also change the path of this user to schema `here`, and `public`.~~
 
 7. Edit environment variables in `.env` file but that didnt work so export all environment with e.g.
@@ -62,7 +60,7 @@ export KEEP_TEMP_FILE='true'
 export DB_DATA_START_DATE='2019-01-01 00:00'
 ```
 
-8. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
+8. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
 
 ### Front-end
 
