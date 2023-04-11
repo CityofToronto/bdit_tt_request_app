@@ -177,7 +177,9 @@ import csv
 from uuid import uuid4 as uuid
 @app.route('/aggregate-travel-times', methods=['POST'])
 def aggregate_travel_times():
+    # results will be written to file here (random, non-conflicting filenames)
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
+
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
