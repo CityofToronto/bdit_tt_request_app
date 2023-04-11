@@ -2,6 +2,24 @@
 
 The steps to set up the app will depend on whether you're (re)starting our production build or working on your own development environment. 
 
+In either case though you'll need to create/modify `/backend/.env` to look something like
+
+```bash
+DB_HOST='10.160.8.132'
+DB_NAME='bigdata'
+DB_USER='tt_request_bot'
+DB_USER_PASSWORD='wouldntyouliketoknow'
+
+SECRET_KEY='yaddayaddayadda'
+DATABASE_URL="postgresql+pg8000://${DB_USER}:${DB_USER_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
+LINK_TABLE_NAME='routing_streets_name'
+NODE_TABLE_NAME='routing_nodes_intersec_name'
+TRAVEL_DATA_TABLE_NAME='ta'
+TEMP_FILE_LOCATION='tmp'
+KEEP_TEMP_FILE='true'
+POSTGIS_GEOM_SRID=4326
+```
+
 ## Production
 The app is available to users inside the City network at [https://10.160.2.198/traveltime-request/](https://10.160.2.198/traveltime-request/) 
 
