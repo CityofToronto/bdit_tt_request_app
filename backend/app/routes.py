@@ -175,26 +175,6 @@ def get_links_between_multi_nodes():
 
 @app.route('/travel-data-file', methods=['POST'])
 def get_links_travel_data_file():
-    """
-    Get the travel data file from start_time to end_time for all links in link_dirs.
-
-    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-            too many links. (1~2min)
-
-    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
-    This function will be aborted if any of the assumption is not met.
-
-    :return: a file containing requested travel data
-    """
-
-    
-    file_type, columns = parse_file_type_request_body(request.json)
-    trav_data_query_params = parse_travel_request_body(request.json)
-
-    street_info = _get_street_info(request.json['list_of_links'])
-
     return jsonify(request.json)
 
     #trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()

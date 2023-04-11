@@ -5,7 +5,7 @@ const axios = require('axios')
 axios.defaults.withCredentials = true
 /* remote domain and local test domain */
 const domain = process.env.NODE_ENV === 'development' ? 
-    'http://127.0.0.1:5000' : 'https://10.160.2.198/tt-request-backend'
+    'http://127.0.0.1:5001' : 'https://10.160.2.198/tt-request-backend'
 const fileDownload = require('js-file-download')
 
 const handleResponseError = (err) => {
@@ -153,12 +153,14 @@ export const getTravelDataFile = (data, enableGetButton) => {
     }
 
     const req_body = {
-        list_of_time_periods: data.listOfTimePeriods,
-        list_of_links: data.listOfLinkDirs,
+        time_periods: data.listOfTimePeriods,
+        links: data.listOfLinkDirs,
         file_type: data.fileType,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        include_holidays: data.include_holidays,
+        date_range: {
+            start: data.start_date,
+            end: data.end_date
+        },
+        holidays: data.include_holidays,
         days_of_week: data.days_of_week,
         columns: allFields.map(f=>f.column) // will always get all columns for now
     }
