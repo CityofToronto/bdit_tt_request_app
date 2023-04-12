@@ -128,18 +128,17 @@ export default class Map extends React.Component {
     };
 
     /* this function is called only by action.js after full link data is fetch */
-    displayLinks(linkDataArr, sequence, finished) {
-        this.drawLinks(linkDataArr, sequence);
+    displayLinks(linkDataArr, sequence) {
+        this.drawLinks(linkDataArr, sequence)
         // This is where links are set
-        this.setState({
-            linksData: this.state.linksData.concat([linkDataArr]),
-            linksOnMap: true
-        }, function () {
-            if (finished) {
-                this.enableInteractions();
-            }
-        });
-        this.props.onLinkUpdate(linkDataArr);
+        this.setState(
+            {
+                linksData: this.state.linksData.concat([linkDataArr]),
+                linksOnMap: true
+            },
+            () => this.enableInteractions() // re-enables buttons
+        )
+        this.props.onLinkUpdate(linkDataArr)
     };
     // check if there is already a link drawn in the reverse direction
     checkIfLinkDirDrawn(checkCoor, bidirection, other) {
