@@ -146,15 +146,22 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 WITH results as (
                     SELECT *
                     FROM pgr_dijkstra(
-                        'SELECT id, source::int, target::int, length::int as cost from here.routing_streets_name', %(node_start)s,
-                            %(node_end)s)
+                        'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
+                        %(node_start)s,
+                        %(node_end)s
+                    )
                 )
 
-                SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+                SELECT 
+                    %(node_start)s,
+                    %(node_end)s,
+                    array_agg(st_name),
+                    array_agg(link_dir),
+                    ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
                 FROM results
-                inner join here.routing_streets_name on edge = id'''
+                INNER JOIN here.routing_streets_name on edge = id'''
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
-            source, target, path, link_dirs, geometry = cursor.fetchall()[0]
+            ( source, target, path, link_dirs, geometry ) = cursor.fetchall()[0]
             print(type(geometry))
 
     shortest_link_data = {"source": source, "target": target,
@@ -201,13 +208,20 @@ def get_links_between_multi_nodes():
                     WITH results as (
                         SELECT *
                         FROM pgr_dijkstra(
-                            'SELECT id, source::int, target::int, length::int as cost from here.routing_streets_name', %(node_start)s,
-                                %(node_end)s)
+                            'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
+                            %(node_start)s,
+                            %(node_end)s
+                        )
                     )
 
-                    SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
+                    SELECT
+                        %(node_start)s,
+                        %(node_end)s,
+                        array_agg(st_name),
+                        array_agg(link_dir),
+                        ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
                     FROM results
-                    inner join here.routing_streets_name on edge = id'''
+                    INNER JOIN here.routing_streets_name ON edge = id'''
                 cursor.execute(select_sql, {"node_start": curr_node_id, "node_end": next_node_id})
                 source, target, path, link_dirs, geometry = cursor.fetchall()[0] 
 
