@@ -99,7 +99,7 @@ export function getLinksBetweenNodes(map, sequences){
         } ).filter(v=>v)
         Promise.all( nodePairs.map( pair => (
             axios.get(`${domain}/link-nodes/${pair.from}/${pair.to}`)
-        ) ) ).then( data => {
+        ) ) ).then( responses => {
             console.log(data)
             if (data) {
                 map.displayLinks( data, seqIndex )
