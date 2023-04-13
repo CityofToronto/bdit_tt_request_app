@@ -164,8 +164,15 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             source, target, path, link_dirs, geometry = cursor.fetchone()
             print(type(geometry))
 
+
+    #parse path
+    unique = []
+    for stname in path:
+        if stname not in unique:
+            unique.append(stname)
+
     shortest_link_data = {"source": source, "target": target,
-        "path_name": str(path), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
+        "path_name": str(unique), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
 
     connection.close()
     
