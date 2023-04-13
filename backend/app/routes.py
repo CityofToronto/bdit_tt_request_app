@@ -172,61 +172,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 
-# @app.route('/link-nodes', methods=['POST'])
-# def get_links_between_multi_nodes():
-#     """
-#     Get the shortest length link connecting the given nodes in order.
-#     This function filters links using ST_Intersects and sort them using the
-#     length attribute of the link object.
-#     If any two consecutive nodes in the list are the same, they are skipped.
-#     This function will call abort with response code 400 when the given node_ids can not be cast to an integer
-#     or no link exists between the two nodes.
-
-#     :return: JSON representing an array of link objects, which are the shortest links connecting given points.
-#             Link object keys: link_dir(str), link_id(int), st_name(str),
-#             source(int), target(int), length(float),
-#             geometry(geom{type(str), coordinates(list[int])})
-#     """
-#     node_ids = parse_get_links_between_multi_nodes_request_body(request.json)
-#     optimal_links_data_list = []
-
-#     connection = getConnection()
-
-#     for i in range(len(node_ids) - 1):
-#         curr_node_id = node_ids[i]
-#         next_node_id = node_ids[i + 1]
-
-#         if curr_node_id == next_node_id:
-#             continue
-
-
-#         with connection:
-#             with connection.cursor() as cursor:
-#                 #Uses pg_routing to route between the start node and end node on the HERE
-#                 #links network. Returns inputs and an array of link_dirs and a unioned line
-#                 select_sql = '''
-#                     WITH results as (
-#                         SELECT *
-#                         FROM pgr_dijkstra(
-#                             'SELECT id, source::int, target::int, length::int as cost from here.routing_streets_name', %(node_start)s,
-#                                 %(node_end)s)
-#                     )
-
-#                     SELECT %(node_start)s, %(node_end)s, array_agg(st_name),array_agg(link_dir), ST_AsGeoJSON(ST_union(ST_linemerge(geom))) as geometry
-#                     FROM results
-#                     inner join here.routing_streets_name on edge = id'''
-#                 cursor.execute(select_sql, {"node_start": curr_node_id, "node_end": next_node_id})
-#                 source, target, path, link_dirs, geometry = cursor.fetchone()
-
-
-#         shortest_link_data = {"source": source, "target": target,
-#             "path_name": str(path), "link_dirs": link_dirs, "geometry": json.loads(geometry)}
-#         optimal_links_data_list.append(shortest_link_data)
-
-#     connection.close()
-#     return jsonify(optimal_links_data_list)
-
-
 @app.route('/travel-data-file', methods=['POST'])
 def get_links_travel_data_file():
     """
