@@ -111,20 +111,7 @@ def get_closest_node(longitude, latitude):
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
-    """
-    Get the shortest length link between the two given nodes.
-    This function filters links using ST_Intersects and sort them using the
-    length attribute of the link object.
-    This function will call abort with response code 400 when the given node_ids
-    can not be cast to an integer, the two nodes given are the same or no link exists between the two nodes.
-
-    :param from_node_id: source node id
-    :param to_node_id: target node id
-    :return: JSON representing a link object, which is the shortest link between
-            the two points. Link object keys: link_dir(str), link_id(int), st_name(str),
-            source(int), target(int), length(float),
-            geometry(geom{type(str), coordinates(list[int])})
-    """
+    """Returns the shortest path between two nodes."""
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
@@ -136,40 +123,48 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
-    shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
+    connection = getConnection()
+
+    with connection:
+        with connection.cursor() as cursor:
+            #Uses pg_routing to route between the start node and end node on the HERE
+            #links network. Returns inputs and an array of link_dirs and a unioned line
+            select_sql = '''
+                WITH results as (
+                    SELECT *
+                    FROM pgr_dijkstra(
+                        'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
+                        %(node_start)s,
+                        %(node_end)s
+                    )
+                )
+
+                SELECT 
+                    %(node_start)s,
+                    %(node_end)s,
+                    array_agg(st_name),
+                    array_agg(link_dir),
+                    ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
+                FROM results
+                INNER JOIN here.routing_streets_name on edge = id'''
+            cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
+            source, target, path, link_dirs, geometry = cursor.fetchone()
+
+    # Set of street names used in path
+    uniqueNames = []
+    for stname in path:
+        if stname not in uniqueNames:
+            uniqueNames.append(stname)
+
+    shortest_link_data = {
+        "source": source, 
+        "target": target,
+        "path_name": ', '.join(uniqueNames), 
+        "link_dirs": link_dirs, 
+        "geometry": json.loads(geometry) # parse json to object here; it will be dumped back to text in a second
+    }
+    connection.close()
     return jsonify(shortest_link_data)
-
-
-@app.route('/link-nodes', methods=['POST'])
-def get_links_between_multi_nodes():
-    """
-    Get the shortest length link connecting the given nodes in order.
-    This function filters links using ST_Intersects and sort them using the
-    length attribute of the link object.
-    If any two consecutive nodes in the list are the same, they are skipped.
-    This function will call abort with response code 400 when the given node_ids can not be cast to an integer
-    or no link exists between the two nodes.
-
-    :return: JSON representing an array of link objects, which are the shortest links connecting given points.
-            Link object keys: link_dir(str), link_id(int), st_name(str),
-            source(int), target(int), length(float),
-            geometry(geom{type(str), coordinates(list[int])})
-    """
-    node_ids = parse_get_links_between_multi_nodes_request_body(request.json)
-    optimal_links_data_list = []
-
-    for i in range(len(node_ids) - 1):
-        curr_node_id = node_ids[i]
-        next_node_id = node_ids[i + 1]
-
-        if curr_node_id == next_node_id:
-            continue
-
-        shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
-        shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
-        optimal_links_data_list.append(shortest_link_data)
-    return jsonify(optimal_links_data_list)
 
 
 @app.route('/travel-data-file', methods=['POST'])
