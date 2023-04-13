@@ -111,20 +111,7 @@ def get_closest_node(longitude, latitude):
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
-    """
-    Get the shortest length link between the two given nodes.
-    This function filters links using ST_Intersects and sort them using the
-    length attribute of the link object.
-    This function will call abort with response code 400 when the given node_ids
-    can not be cast to an integer, the two nodes given are the same or no link exists between the two nodes.
-
-    :param from_node_id: source node id
-    :param to_node_id: target node id
-    :return: JSON representing a link object, which is the shortest link between
-            the two points. Link object keys: link_dir(str), link_id(int), st_name(str),
-            source(int), target(int), length(float),
-            geometry(geom{type(str), coordinates(list[int])})
-    """
+    """Returns the shortest path between two nodes."""
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
