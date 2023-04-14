@@ -79,17 +79,27 @@ def get_closest_node(longitude, latitude):
                                 2952
                             )
                         ) AS distance
-                    FROM here.routing_nodes_intersec_name
+                    FROM congestion.network_nodes
+                ),
+                nodes_sel AS (
+                    SELECT 
+                        congestion_nodes.node_id::int,
+                        st_asgeojson(geom),
+                        distance
+                    FROM congestion.network_nodes AS congestion_nodes
+                    JOIN distances ON congestion_nodes.node_id = distances.node_id
+                    ORDER BY distance
+                    LIMIT 10
                 )
-                SELECT 
-                    here_nodes.node_id::int,
-                    intersec_name,
-                    st_asgeojson(geom),
+                SELECT
+                    nodes_sel.node_id
+                    here.routing_nodes_intersec_name.intersec_name
+                    nodes_sel.geom
                     distance
-                FROM here.routing_nodes_intersec_name AS here_nodes
-                JOIN distances ON here_nodes.node_id = distances.node_id
-                ORDER BY distance
-                LIMIT 10'''
+                FROM nodes_sel
+                JOIN here.routing_nodes_intersec_name ON congestion_nodes.node_id = here.routing_nodes_intersec_name.node_id
+                
+                '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
             nodes_ascend_dist_order_query_result = cursor.fetchall()
 
