@@ -69,36 +69,23 @@ def get_closest_node(longitude, latitude):
     with connection:
         with connection.cursor() as cursor:
             select_sql = '''
-                WITH distances AS (
+                WITH distances AS (	
                     SELECT 
-                        node_id,
-                        st_distance(
-                            st_transform(geom, 2952),
-                            st_transform(
-                                st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326),
-                                2952
-                            )
-                        ) AS distance
+                        congestion.network_nodes.node_id,
+                        here.routing_nodes_intersec_name.intersec_name,
+                        congestion.network_nodes.geom::geography <-> st_makepoint(-79.37, 43.7)::geography AS distance
                     FROM congestion.network_nodes
+                    JOIN here.routing_nodes_intersec_name ON congestion.network_nodes.node_id = here.routing_nodes_intersec_name.node_id
+                    WHERE congestion.network_nodes.geom::geography <-> st_makepoint(-79.37, 43.7)::geography < 5000
                     LIMIT 10
-                ),
-                nodes_sel AS (
-                    SELECT 
-                        congestion_nodes.node_id::int,
-                        st_asgeojson(geom),
-                        distance
-                    FROM congestion.network_nodes AS congestion_nodes
-                    JOIN distances ON congestion_nodes.node_id = distances.node_id
-                    ORDER BY distance
                 )
-                SELECT
-                    nodes_sel.node_id
-                    here.routing_nodes_intersec_name.intersec_name
-                    nodes_sel.geom
+                SELECT 
+                    congestion_nodes.node_id::int,
+                    st_asgeojson(geom),
                     distance
-                FROM nodes_sel
-                JOIN here.routing_nodes_intersec_name ON congestion_nodes.node_id = here.routing_nodes_intersec_name.node_id
-                
+                FROM congestion.network_nodes AS congestion_nodes
+                JOIN distances ON congestion_nodes.node_id = distances.node_id
+                ORDER BY distance
                 '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
             nodes_ascend_dist_order_query_result = cursor.fetchall()
