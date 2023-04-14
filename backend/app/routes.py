@@ -80,6 +80,7 @@ def get_closest_node(longitude, latitude):
                             )
                         ) AS distance
                     FROM congestion.network_nodes
+                    LIMIT 10
                 ),
                 nodes_sel AS (
                     SELECT 
@@ -89,7 +90,6 @@ def get_closest_node(longitude, latitude):
                     FROM congestion.network_nodes AS congestion_nodes
                     JOIN distances ON congestion_nodes.node_id = distances.node_id
                     ORDER BY distance
-                    LIMIT 10
                 )
                 SELECT
                     nodes_sel.node_id
