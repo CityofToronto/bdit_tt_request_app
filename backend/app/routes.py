@@ -72,15 +72,17 @@ def get_closest_node(longitude, latitude):
                 WITH distances AS (	
                     SELECT 
                         congestion.network_nodes.node_id,
-                        here.routing_nodes_intersec_name.intersec_name,
-                        congestion.network_nodes.geom::geography <-> st_makepoint(-79.37, 43.7)::geography AS distance
+                        here.routing_nodes_intersec_name.intersec_name AS stname,
+                        congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography AS distance
                     FROM congestion.network_nodes
                     JOIN here.routing_nodes_intersec_name ON congestion.network_nodes.node_id = here.routing_nodes_intersec_name.node_id
-                    WHERE congestion.network_nodes.geom::geography <-> st_makepoint(-79.37, 43.7)::geography < 5000
+                    WHERE congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography < 1000
+                    ORDER BY distance
                     LIMIT 10
                 )
                 SELECT 
                     congestion_nodes.node_id::int,
+                    stname,
                     st_asgeojson(geom),
                     distance
                 FROM congestion.network_nodes AS congestion_nodes
@@ -89,6 +91,7 @@ def get_closest_node(longitude, latitude):
                 '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
             nodes_ascend_dist_order_query_result = cursor.fetchall()
+            print(nodes_ascend_dist_order_query_result)
 
     candidate_nodes = []
     node_count = 0
