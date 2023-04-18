@@ -1,11 +1,8 @@
 import os
 import json
-
 from flask import abort, jsonify, request, send_file
-
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
-
 from app import app
 
 def getConnection():
