@@ -47,35 +47,3 @@ Corresponds to the API function `getTravelDataFile`.
 Gets the travel data file (csv) of each of the given series of links in the specified series of time range.
     :return: a file containing requested travel data
 Linked URL: `/travel-data-file`
-
-
-## Queries
-### `create_trav_agg.sql`
-CREATE function for `fetch_aggregated_travel_data`
-Aggregates total travel time and other stats across all HERE links selected by the user
-    Params:
-    - time_periods time_period[]
-    - segments link_segment[]
-    - start_date date
-    - end_date date
-    - days_of_week int[]
-    - include_holidays bool
-
-### `create_closest_node.sql`
-CREATE function for `get_closest_nodes`
-Produces the 10 closest nodes by distance from the given node.
-    Params:
-    - longitude double precision
-    - latitude double precision
-
-### `create_datetime_bin.sql`
-CREATE function for `public.datetime_bin`
-Creates time period bins of specified length 
-
-### `create_get_links.sql`
-CREATE function for `get_links_btwn_nodes`
-Uses pg_routing to generate routing via nodes on the HERE network.
-
-### `create_trav_agg_wrapper.sql`
-CREATE function for `fetch_trav_data_wrapper`
-One line of code to SELECT data from `fetch_aggregated_travel_data`.
