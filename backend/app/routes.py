@@ -8,7 +8,6 @@ from psycopg2.extras import execute_values
 
 from app import app
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.models import Link, Node
 from app.parse_util import *
 
 def getConnection():
