@@ -1,16 +1,9 @@
 import os
 import json
-
 from flask import abort, jsonify, request, send_file
-from sqlalchemy import func
-
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
-
-from app import app, db
-from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.models import Link, Node
-from app.parse_util import *
+from app import app
 
 def getConnection():
     return connect(
@@ -41,7 +34,7 @@ def not_implemented_error(e):
 
 @app.route('/')
 def index():
-    return "Data Filter Web Application"
+    return "Travel Time webapp backend"
 
 
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
@@ -164,41 +157,39 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 
-@app.route('/travel-data-file', methods=['POST'])
-def get_links_travel_data_file():
-    """
-    Get the travel data file from start_time to end_time for all links in link_dirs.
+#@app.route('/travel-data-file', methods=['POST'])
+#def get_links_travel_data_file():
+#    """
+#    Get the travel data file from start_time to end_time for all links in link_dirs.
+#
+#    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+#            too many links. (1~2min)
+#
+#    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+#                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+#                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
+#    This function will be aborted if any of the assumption is not met.
+#
+#    :return: a file containing requested travel data
+#    """
+#    file_type, columns = parse_file_type_request_body(request.json)
+#    trav_data_query_params = parse_travel_request_body(request.json)
+#    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
 
-    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-            too many links. (1~2min)
-
-    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
-    This function will be aborted if any of the assumption is not met.
-
-    :return: a file containing requested travel data
-    """
-    file_type, columns = parse_file_type_request_body(request.json)
-    trav_data_query_params = parse_travel_request_body(request.json)
-    street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked
-    trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
-    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
-
-    if file_type == 'csv':
-        data_file_path = make_travel_data_csv(travel_data_list, columns)
-        mime_type = "text/csv"
-    elif file_type == 'xlsx':
-        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
-        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    else:
-        abort(501, description="Currently only support csv and xlsx files.")
-        return
-
-    file_response = send_file(data_file_path, mimetype=mime_type)
-    if not _need_keep_temp_file():
-        os.remove(data_file_path)
-    return file_response
+#    if file_type == 'csv':
+#        data_file_path = make_travel_data_csv(travel_data_list, columns)
+#        mime_type = "text/csv"
+#    elif file_type == 'xlsx':
+#        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
+#        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+#    else:
+#        abort(501, description="Currently only support csv and xlsx files.")
+#        return
+#
+#    file_response = send_file(data_file_path, mimetype=mime_type)
+#    if not _need_keep_temp_file():
+#        os.remove(data_file_path)
+#    return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
@@ -219,65 +210,3 @@ def get_date_bounds():
         "start_time": min_date.strftime('%Y-%m-%d'),
         "end_time": max_date.strftime('%Y-%m-%d')
     }
-
-
-def _calc_list_avg(lst: list) -> float:
-    if len(lst) == 0:
-        return 0.0
-    return sum(lst) / len(lst)
-
-
-def _round_up(num: float):
-    result = int(num)
-    if num - result > 0:
-        result += 1
-    return result
-
-
-def _get_street_info(list_of_link_dirs):
-    street_info = {}
-
-    for i in range(len(list_of_link_dirs)):
-        link_dirs = list_of_link_dirs[i]
-
-        start_link = Link.query.filter_by(link_dir=link_dirs[0]).first()
-        end_link = Link.query.filter_by(link_dir=link_dirs[-1]).first()
-
-        start_node = Node.query.filter_by(node_id=int(start_link.source)).first()
-        end_node = Node.query.filter_by(node_id=int(end_link.target)).first()
-
-        start_node_name = str(start_node.intersec_name)
-        end_node_name = str(end_node.intersec_name)
-
-        start_names = start_node_name.split(" & ")
-        end_names = end_node_name.split(" & ")
-
-        intersections = []
-        for s_name in start_names:
-            if s_name in end_names:
-                intersections.append(s_name)
-
-        if len(intersections) > 0:
-            for intersec in intersections:
-                start_names.remove(intersec)
-                end_names.remove(intersec)
-
-            intersection = " & ".join(intersections)
-
-            if len(start_names) > 0:
-                from_street = " & ".join(start_names)
-            else:
-                from_street = " & ".join(intersections)
-
-            if len(end_names) > 0:
-                to_street = " & ".join(end_names)
-            else:
-                to_street = " & ".join(intersections)
-        else:
-            intersection = "<multiple streets>"
-            from_street = start_node_name
-            to_street = end_node_name
-
-        street_info[i] = (intersection, from_street, to_street)
-
-    return street_info
