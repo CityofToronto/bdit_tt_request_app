@@ -8,7 +8,6 @@ from psycopg2.extras import execute_values
 
 from app import app
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
-from app.parse_util import *
 
 def getConnection():
     return connect(
@@ -165,39 +164,39 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 
-@app.route('/travel-data-file', methods=['POST'])
-def get_links_travel_data_file():
-    """
-    Get the travel data file from start_time to end_time for all links in link_dirs.
+#@app.route('/travel-data-file', methods=['POST'])
+#def get_links_travel_data_file():
+#    """
+#    Get the travel data file from start_time to end_time for all links in link_dirs.
+#
+#    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+#            too many links. (1~2min)
+#
+#    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+#                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+#                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
+#    This function will be aborted if any of the assumption is not met.
+#
+#    :return: a file containing requested travel data
+#    """
+#    file_type, columns = parse_file_type_request_body(request.json)
+#    trav_data_query_params = parse_travel_request_body(request.json)
+#    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
 
-    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-            too many links. (1~2min)
-
-    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
-    This function will be aborted if any of the assumption is not met.
-
-    :return: a file containing requested travel data
-    """
-    file_type, columns = parse_file_type_request_body(request.json)
-    trav_data_query_params = parse_travel_request_body(request.json)
-    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
-
-    if file_type == 'csv':
-        data_file_path = make_travel_data_csv(travel_data_list, columns)
-        mime_type = "text/csv"
-    elif file_type == 'xlsx':
-        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
-        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    else:
-        abort(501, description="Currently only support csv and xlsx files.")
-        return
-
-    file_response = send_file(data_file_path, mimetype=mime_type)
-    if not _need_keep_temp_file():
-        os.remove(data_file_path)
-    return file_response
+#    if file_type == 'csv':
+#        data_file_path = make_travel_data_csv(travel_data_list, columns)
+#        mime_type = "text/csv"
+#    elif file_type == 'xlsx':
+#        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
+#        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+#    else:
+#        abort(501, description="Currently only support csv and xlsx files.")
+#        return
+#
+#    file_response = send_file(data_file_path, mimetype=mime_type)
+#    if not _need_keep_temp_file():
+#        os.remove(data_file_path)
+#    return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
