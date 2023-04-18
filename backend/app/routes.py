@@ -2,12 +2,11 @@ import os
 import json
 
 from flask import abort, jsonify, request, send_file
-from sqlalchemy import func
 
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
 
-from app import app, db
+from app import app
 from app.file_util import make_travel_data_csv, make_travel_data_xlsx
 from app.models import Link, Node
 from app.parse_util import *
@@ -41,7 +40,7 @@ def not_implemented_error(e):
 
 @app.route('/')
 def index():
-    return "Data Filter Web Application"
+    return "Travel Time webapp backend"
 
 
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
@@ -184,9 +183,7 @@ def get_links_travel_data_file():
     """
     file_type, columns = parse_file_type_request_body(request.json)
     trav_data_query_params = parse_travel_request_body(request.json)
-    street_info = _get_street_info(request.json['list_of_links'])  # this won't fail since last parse already checked
-    trav_data_query_result = db.session.query(func.fetch_trav_data_wrapper(*trav_data_query_params)).all()
-    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns, street_info)
+    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
 
     if file_type == 'csv':
         data_file_path = make_travel_data_csv(travel_data_list, columns)
@@ -222,65 +219,3 @@ def get_date_bounds():
         "start_time": min_date.strftime('%Y-%m-%d'),
         "end_time": max_date.strftime('%Y-%m-%d')
     }
-
-
-def _calc_list_avg(lst: list) -> float:
-    if len(lst) == 0:
-        return 0.0
-    return sum(lst) / len(lst)
-
-
-def _round_up(num: float):
-    result = int(num)
-    if num - result > 0:
-        result += 1
-    return result
-
-
-def _get_street_info(list_of_link_dirs):
-    street_info = {}
-
-    for i in range(len(list_of_link_dirs)):
-        link_dirs = list_of_link_dirs[i]
-
-        start_link = Link.query.filter_by(link_dir=link_dirs[0]).first()
-        end_link = Link.query.filter_by(link_dir=link_dirs[-1]).first()
-
-        start_node = Node.query.filter_by(node_id=int(start_link.source)).first()
-        end_node = Node.query.filter_by(node_id=int(end_link.target)).first()
-
-        start_node_name = str(start_node.intersec_name)
-        end_node_name = str(end_node.intersec_name)
-
-        start_names = start_node_name.split(" & ")
-        end_names = end_node_name.split(" & ")
-
-        intersections = []
-        for s_name in start_names:
-            if s_name in end_names:
-                intersections.append(s_name)
-
-        if len(intersections) > 0:
-            for intersec in intersections:
-                start_names.remove(intersec)
-                end_names.remove(intersec)
-
-            intersection = " & ".join(intersections)
-
-            if len(start_names) > 0:
-                from_street = " & ".join(start_names)
-            else:
-                from_street = " & ".join(intersections)
-
-            if len(end_names) > 0:
-                to_street = " & ".join(end_names)
-            else:
-                to_street = " & ".join(intersections)
-        else:
-            intersection = "<multiple streets>"
-            from_street = start_node_name
-            to_street = end_node_name
-
-        street_info[i] = (intersection, from_street, to_street)
-
-    return street_info
