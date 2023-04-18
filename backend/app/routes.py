@@ -1,17 +1,9 @@
 import os
 import json
-
 from flask import abort, jsonify, request, send_file
-from sqlalchemy import func
-
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
-
-from app import app, db
-from app.file_util import make_travel_data_xlsx
-from app.models import Link, Node
-from app.parse_util import *
-from app.parse_util import parse_file_type_request_body
+from app import app
 
 def getConnection():
     return connect(
@@ -42,7 +34,7 @@ def not_implemented_error(e):
 
 @app.route('/')
 def index():
-    return "Data Filter Web Application"
+    return "Travel Time webapp backend"
 
 
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
@@ -112,20 +104,7 @@ def get_closest_node(longitude, latitude):
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
-    """
-    Get the shortest length link between the two given nodes.
-    This function filters links using ST_Intersects and sort them using the
-    length attribute of the link object.
-    This function will call abort with response code 400 when the given node_ids
-    can not be cast to an integer, the two nodes given are the same or no link exists between the two nodes.
-
-    :param from_node_id: source node id
-    :param to_node_id: target node id
-    :return: JSON representing a link object, which is the shortest link between
-            the two points. Link object keys: link_dir(str), link_id(int), st_name(str),
-            source(int), target(int), length(float),
-            geometry(geom{type(str), coordinates(list[int])})
-    """
+    """Returns the shortest path between two nodes."""
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
@@ -137,20 +116,68 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(from_node_id, to_node_id)).first()[0]
-    shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
+    connection = getConnection()
+
+    with connection:
+        with connection.cursor() as cursor:
+            #Uses pg_routing to route between the start node and end node on the HERE
+            #links network. Returns inputs and an array of link_dirs and a unioned line
+            select_sql = '''
+                WITH results as (
+                    SELECT *
+                    FROM pgr_dijkstra(
+                        'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
+                        %(node_start)s,
+                        %(node_end)s
+                    )
+                )
+
+                SELECT 
+                    %(node_start)s,
+                    %(node_end)s,
+                    array_agg(st_name),
+                    array_agg(link_dir),
+                    ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
+                FROM results
+                INNER JOIN here.routing_streets_name on edge = id'''
+            cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
+            source, target, path, link_dirs, geometry = cursor.fetchone()
+
+    # Set of street names used in path
+    uniqueNames = []
+    for stname in path:
+        if stname not in uniqueNames:
+            uniqueNames.append(stname)
+
+    shortest_link_data = {
+        "source": source, 
+        "target": target,
+        "path_name": ', '.join(uniqueNames), 
+        "link_dirs": link_dirs, 
+        "geometry": json.loads(geometry) # parse json to object here; it will be dumped back to text in a second
+    }
+    connection.close()
     return jsonify(shortest_link_data)
 
 
-@app.route('/link-nodes', methods=['POST'])
-def get_links_between_multi_nodes():
-    """
-    Get the shortest length link connecting the given nodes in order.
-    This function filters links using ST_Intersects and sort them using the
-    length attribute of the link object.
-    If any two consecutive nodes in the list are the same, they are skipped.
-    This function will call abort with response code 400 when the given node_ids can not be cast to an integer
-    or no link exists between the two nodes.
+#@app.route('/travel-data-file', methods=['POST'])
+#def get_links_travel_data_file():
+#    """
+#    Get the travel data file from start_time to end_time for all links in link_dirs.
+#
+#    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
+#            too many links. (1~2min)
+#
+#    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
+#                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
+#                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
+#    This function will be aborted if any of the assumption is not met.
+#
+#    :return: a file containing requested travel data
+#    """
+#    file_type, columns = parse_file_type_request_body(request.json)
+#    trav_data_query_params = parse_travel_request_body(request.json)
+#    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
 
     :return: JSON representing an array of link objects, which are the shortest links connecting given points.
             Link object keys: link_dir(str), link_id(int), st_name(str),
@@ -237,66 +264,3 @@ def get_date_bounds():
         "start_time": min_date.strftime('%Y-%m-%d'),
         "end_time": max_date.strftime('%Y-%m-%d')
     }
-
-
-def _calc_list_avg(lst: list) -> float:
-    if len(lst) == 0:
-        return 0.0
-    return sum(lst) / len(lst)
-
-
-def _round_up(num: float):
-    result = int(num)
-    if num - result > 0:
-        result += 1
-    return result
-
-
-def _get_street_info(list_of_link_dirs):
-    print(list_of_link_dirs[0][0])
-    street_info = {}
-
-    for i in range(len(list_of_link_dirs)):
-        link_dirs = list_of_link_dirs[i]
-
-        start_link = Link.query.filter_by(link_dir=link_dirs[0]).first()
-        end_link = Link.query.filter_by(link_dir=link_dirs[-1]).first()
-
-        start_node = Node.query.filter_by(node_id=int(start_link.source)).first()
-        end_node = Node.query.filter_by(node_id=int(end_link.target)).first()
-
-        start_node_name = str(start_node.intersec_name)
-        end_node_name = str(end_node.intersec_name)
-
-        start_names = start_node_name.split(" & ")
-        end_names = end_node_name.split(" & ")
-
-        intersections = []
-        for s_name in start_names:
-            if s_name in end_names:
-                intersections.append(s_name)
-
-        if len(intersections) > 0:
-            for intersec in intersections:
-                start_names.remove(intersec)
-                end_names.remove(intersec)
-
-            intersection = " & ".join(intersections)
-
-            if len(start_names) > 0:
-                from_street = " & ".join(start_names)
-            else:
-                from_street = " & ".join(intersections)
-
-            if len(end_names) > 0:
-                to_street = " & ".join(end_names)
-            else:
-                to_street = " & ".join(intersections)
-        else:
-            intersection = "<multiple streets>"
-            from_street = start_node_name
-            to_street = end_node_name
-
-        street_info[i] = (intersection, from_street, to_street)
-
-    return street_info

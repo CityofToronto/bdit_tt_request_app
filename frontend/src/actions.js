@@ -92,24 +92,26 @@ export const updateClosestNode = (page, data) => {
     }).catch(err => handleResponseError(err));
 };
 
-/* GET links given two nodes */
-export const getLinksBetweenNodes = (page, nodes) => {
-    let seq = 0
-    nodes.forEach((sequence) => {
-        const nodeIds = [];
-        sequence.forEach((node) => {
-            nodeIds.push(node.nodeId);
-        });
-        axios.post(`${domain}/link-nodes`, {"node_ids": nodeIds}).then(res => {
-            if (res.data) {
-                page.displayLinks(res.data, nodes.indexOf(sequence), (seq === nodes.length - 1));
-                seq++;
+export function getLinksBetweenNodes(map, sequences){
+    sequences.forEach((nodes,seqIndex) => {
+        const nodePairs = nodes.map( (node,i) => {
+            if ( i > 0 ) return { from: nodes[i-1].nodeId, to: node.nodeId }
+            return undefined
+        } ).filter(v=>v)
+        Promise.all( nodePairs.map( pair => (
+            axios.get(`${domain}/link-nodes/${pair.from}/${pair.to}`)
+        ) ) ).then( responses => {
+            if ( responses.every( response => response.status === 200 ) ) {
+                map.displayLinks(
+                    responses.map( response => response.data ),
+                    seqIndex
+                )
             } else {
-                alert("FAILED TO FETCH LINKS BETWEEN NODES");
+                alert("Failed to fetch links between nodes")
             }
         }).catch(err => {
-            handleResponseError(err);
-            page.enableInteractions()
+            handleResponseError(err)
+            map.enableInteractions()
         });
     });
 };
