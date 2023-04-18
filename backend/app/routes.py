@@ -63,10 +63,8 @@ def get_closest_node(longitude, latitude):
     except ValueError or ArithmeticError:
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
-    
-    connection = getConnection()
 
-    with connection:
+    with getConnection() as connection:
         with connection.cursor() as cursor:
             select_sql = '''
                 WITH distances AS (	
@@ -75,7 +73,7 @@ def get_closest_node(longitude, latitude):
                         here.routing_nodes_intersec_name.intersec_name AS stname,
                         congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography AS distance
                     FROM congestion.network_nodes
-                    JOIN here.routing_nodes_intersec_name ON congestion.network_nodes.node_id = here.routing_nodes_intersec_name.node_id
+                    JOIN USING (node_id)
                     WHERE congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography < 1000
                     ORDER BY distance
                     LIMIT 10
@@ -91,7 +89,6 @@ def get_closest_node(longitude, latitude):
                 '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
             nodes_ascend_dist_order_query_result = cursor.fetchall()
-            print(nodes_ascend_dist_order_query_result)
 
     candidate_nodes = []
     node_count = 0
