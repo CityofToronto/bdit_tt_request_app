@@ -88,11 +88,10 @@ def get_closest_node(longitude, latitude):
                 ORDER BY distance
                 '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
-            nodes_ascend_dist_order_query_result = cursor.fetchall()
 
     candidate_nodes = []
     node_count = 0
-    for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
+    for node_id, stname, coord_dict, distance in cursor.fetchall():
         if node_count == 0 or distance < 10:
             candidate_nodes.append( {
                  'node_id': node_id,
@@ -126,6 +125,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         with connection.cursor() as cursor:
             #Uses pg_routing to route between the start node and end node on the HERE
             #links network. Returns inputs and an array of link_dirs and a unioned line
+            #TODO: convert to here_gis.get_links_between_nodes
             select_sql = '''
                 WITH results as (
                     SELECT *
