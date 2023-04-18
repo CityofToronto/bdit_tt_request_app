@@ -2,16 +2,10 @@
 Below is a list of backend processes that can be accessed . 
 
 ## `__init__.py`
-Initializes and declares the Flask App object, with a ton of unnecessary fields. Needs some cleanup
+Initializes
 
 ## `file_util.py`
 Utility functions that create excel/csv files containing travel time data selected by the user.
-
-## `models.py`
-Declares the database model (postgres), created using the sqlalchemy package. Includes fields `link_dir`, `link_id`, `st_name`, `source`, `target`, `length`, `geom`
-
-## `parse_util.py`
-Utility functions that parse travel time requests to the app by users
 
 ## `routes.py`
 Contains Also has URL routes for functions in the backend with Flask. 
@@ -47,7 +41,6 @@ Corresponds to the API function `getTravelDataFile`.
 Gets the travel data file (csv) of each of the given series of links in the specified series of time range.
     :return: a file containing requested travel data
 Linked URL: `/travel-data-file`
-
 
 ## Queries
 ### `create_trav_agg.sql`
