@@ -1,5 +1,7 @@
 import os
 import json
+import csv
+from uuid import uuid4 as uuid
 from flask import abort, jsonify, request, send_file
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
@@ -160,48 +162,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 
-#@app.route('/travel-data-file', methods=['POST'])
-#def get_links_travel_data_file():
-#    """
-#    Get the travel data file from start_time to end_time for all links in link_dirs.
-#
-#    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-#            too many links. (1~2min)
-#
-#    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-#                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-#                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
-#    This function will be aborted if any of the assumption is not met.
-#
-#    :return: a file containing requested travel data
-#    """
-#    file_type, columns = parse_file_type_request_body(request.json)
-#    trav_data_query_params = parse_travel_request_body(request.json)
-#    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
-
-    :return: JSON representing an array of link objects, which are the shortest links connecting given points.
-            Link object keys: link_dir(str), link_id(int), st_name(str),
-            source(int), target(int), length(float),
-            geometry(geom{type(str), coordinates(list[int])})
-    """
-    node_ids = parse_get_links_between_multi_nodes_request_body(request.json)
-    optimal_links_data_list = []
-
-    for i in range(len(node_ids) - 1):
-        curr_node_id = node_ids[i]
-        next_node_id = node_ids[i + 1]
-
-        if curr_node_id == next_node_id:
-            continue
-
-        shortest_link_query_result = db.session.query(func.get_links_btwn_nodes(curr_node_id, next_node_id)).first()[0]
-        shortest_link_data = parse_get_links_btwn_nodes_response(shortest_link_query_result)
-        optimal_links_data_list.append(shortest_link_data)
-    return jsonify(optimal_links_data_list)
-
-
-import csv
-from uuid import uuid4 as uuid
 @app.route('/aggregate-travel-times', methods=['POST'])
 def aggregate_travel_times():
     # results will be written to file here (random, non-conflicting filenames)
