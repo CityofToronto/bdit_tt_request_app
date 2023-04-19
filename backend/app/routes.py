@@ -57,6 +57,7 @@ def get_closest_node(longitude, latitude):
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
 
+
     with getConnection() as connection:
         with connection.cursor() as cursor:
             select_sql = '''
@@ -82,18 +83,18 @@ def get_closest_node(longitude, latitude):
                 '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
 
-    candidate_nodes = []
-    node_count = 0
-    for node_id, stname, coord_dict, distance in cursor.fetchall():
-        if node_count == 0 or distance < 10:
-            candidate_nodes.append( {
-                 'node_id': node_id,
-                 'name': stname,
-                 'geometry': json.loads(coord_dict)
-            } )
-        else:
-            break
-        node_count += 1
+            candidate_nodes = []
+            node_count = 0
+            for node_id, stname, coord_dict, distance in cursor.fetchall():
+                if node_count == 0 or distance < 10:
+                    candidate_nodes.append( {
+                        'node_id': node_id,
+                        'name': stname,
+                        'geometry': json.loads(coord_dict)
+                    } )
+                else:
+                    break
+                node_count += 1
     connection.close()
     return jsonify(candidate_nodes)
 
