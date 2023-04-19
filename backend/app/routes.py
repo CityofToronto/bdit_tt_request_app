@@ -56,48 +56,45 @@ def get_closest_node(longitude, latitude):
     except ValueError or ArithmeticError:
         abort(400, description="Longitude and latitude must be decimal numbers!")
         return
-    
-    connection = getConnection()
 
-    with connection:
+
+    with getConnection() as connection:
         with connection.cursor() as cursor:
             select_sql = '''
-                WITH distances AS (
+                WITH distances AS (	
                     SELECT 
-                        node_id,
-                        st_distance(
-                            st_transform(geom, 2952),
-                            st_transform(
-                                st_setsrid(st_makepoint(%(longitude)s, %(latitude)s), 4326),
-                                2952
-                            )
-                        ) AS distance
-                    FROM here.routing_nodes_intersec_name
+                        congestion.network_nodes.node_id,
+                        here.routing_nodes_intersec_name.intersec_name AS stname,
+                        congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography AS distance
+                    FROM congestion.network_nodes
+                    JOIN here.routing_nodes_intersec_name USING (node_id)
+                    WHERE congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography < 1000
+                    ORDER BY distance
+                    LIMIT 10
                 )
                 SELECT 
-                    here_nodes.node_id::int,
-                    intersec_name,
+                    congestion_nodes.node_id::int,
+                    stname,
                     st_asgeojson(geom),
                     distance
-                FROM here.routing_nodes_intersec_name AS here_nodes
-                JOIN distances ON here_nodes.node_id = distances.node_id
+                FROM congestion.network_nodes AS congestion_nodes
+                JOIN distances ON congestion_nodes.node_id = distances.node_id
                 ORDER BY distance
-                LIMIT 10'''
+                '''
             cursor.execute(select_sql, {"latitude": latitude, "longitude": longitude})
-            nodes_ascend_dist_order_query_result = cursor.fetchall()
 
-    candidate_nodes = []
-    node_count = 0
-    for node_id, stname, coord_dict, distance in nodes_ascend_dist_order_query_result:
-        if node_count == 0 or distance < 10:
-            candidate_nodes.append( {
-                 'node_id': node_id,
-                 'name': stname,
-                 'geometry': json.loads(coord_dict)
-            } )
-        else:
-            break
-        node_count += 1
+            candidate_nodes = []
+            node_count = 0
+            for node_id, stname, coord_dict, distance in cursor.fetchall():
+                if node_count == 0 or distance < 10:
+                    candidate_nodes.append( {
+                        'node_id': node_id,
+                        'name': stname,
+                        'geometry': json.loads(coord_dict)
+                    } )
+                else:
+                    break
+                node_count += 1
     connection.close()
     return jsonify(candidate_nodes)
 
@@ -122,6 +119,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         with connection.cursor() as cursor:
             #Uses pg_routing to route between the start node and end node on the HERE
             #links network. Returns inputs and an array of link_dirs and a unioned line
+            #TODO: convert to here_gis.get_links_between_nodes
             select_sql = '''
                 WITH results as (
                     SELECT *
