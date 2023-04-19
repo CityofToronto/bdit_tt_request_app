@@ -66,7 +66,7 @@ def get_closest_node(longitude, latitude):
                         here.routing_nodes_intersec_name.intersec_name AS stname,
                         congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography AS distance
                     FROM congestion.network_nodes
-                    JOIN USING (node_id)
+                    JOIN here.routing_nodes_intersec_name USING (node_id)
                     WHERE congestion.network_nodes.geom::geography <-> st_makepoint(%(longitude)s, %(latitude)s)::geography < 1000
                     ORDER BY distance
                     LIMIT 10
