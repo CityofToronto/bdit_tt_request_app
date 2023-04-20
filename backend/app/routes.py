@@ -123,6 +123,14 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             select_sql = '''
                 WITH results as (
                     SELECT *
+
+                    FROM here_gis.get_links_btwn_nodes_22_2(
+                        '%(node_start)s',
+                        '%(node_end)s'
+                    ),
+                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
+
+
                     FROM pgr_dijkstra(
                         'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
                         %(node_start)s,
@@ -131,13 +139,25 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 )
 
                 SELECT 
-                    %(node_start)s,
-                    %(node_end)s,
-                    array_agg(st_name),
-                    array_agg(link_dir),
-                    ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
-                FROM results
-                INNER JOIN here.routing_streets_name on edge = id'''
+                    link_dir,
+                    seq,
+                    segment_id,
+                    ST_Transform(streets.geom, 3857) AS geom,
+                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
+                FROM links_plain
+                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+                ORDER BY seq;
+                '''
+
+                # SELECT 
+                #     %(node_start)s,
+                #     %(node_end)s,
+                #     array_agg(st_name),
+                #     array_agg(link_dir),
+                #     ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
+                # FROM results
+                # INNER JOIN here.routing_streets_name on edge = id
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
             source, target, path, link_dirs, geometry = cursor.fetchone()
 
@@ -150,7 +170,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     shortest_link_data = {
         "source": source, 
         "target": target,
-        "path_name": ', '.join(uniqueNames), 
+        #"path_name": ', '.join(uniqueNames), 
         "link_dirs": link_dirs, 
         "geometry": json.loads(geometry) # parse json to object here; it will be dumped back to text in a second
     }
