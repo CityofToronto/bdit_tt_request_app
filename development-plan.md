@@ -26,3 +26,20 @@ Get the app to return the results of a very simple travel time aggregation using
     * holidays (t/f)
     * dow (list of days of week in analysis)
     * mean_travel_time
+
+## Medium Term Goals
+* Improve / validate the aggregation methods
+    * be able to directly compare results in output
+    * gain extra stats beyond mean travel time (percentiles, sample size, etc)
+    * speed up
+* Improve the interface
+    * store intermediate data (e.g. route, time, date selections)
+    * better display routes, esp. where overlapping
+* Improve the code
+    * clean up / refactor big chunks into smaller bits
+
+## Long Term Goals
+* Precisely estimate future travel times
+    * account for the fact that foreknowledge of events will interfere with the timeline
+    * avoid paradoxes
+* World domination
