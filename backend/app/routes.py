@@ -169,27 +169,28 @@ def aggregate_travel_times():
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute('SELECT length, mean, confidence FROM here.ta LIMIT 100')
+            cursor.execute('SELECT random();')
             records = cursor.fetchall()
 
     if request.json['file_type'] == 'csv':
         with open(filePath, 'w', newline='') as csvFile:
-            extraFields = ['segment','holidays','time_range','date_range']
-            csv_writer = csv.DictWriter(
-                csvFile,
-                fieldnames = extraFields + request.json['columns']
-            )
+            fields = [
+                'from_street','to_street','via_street', # geom
+                'time_range','date_range','dow','holidays', # temporal
+                'mean_travel_time' # data!
+            ]
+            csv_writer = csv.DictWriter( csvFile, fieldnames = fields )
             csv_writer.writeheader()
-            for (length,mean,confidence) in records:
+            for rand, in records:
                 csv_writer.writerow({
-                    'segment':'',
-                    'holidays':request.json['holidays'],
-                    'date_range': request.json['date_range'],
+                    'from_street': '',
+                    'to_street': '',
+                    'via_street': '',
                     'time_range': request.json['time_periods'][0], # like [{'start_time': '19:00', 'end_time': '20:00', 'name': 'new range'}]
-
-                    'mean_tt':length,
-                    'min_tt':mean,
-                    'max_tt':confidence
+                    'date_range': request.json['date_range'], # like '[1999-12-31, 2023-04-24]'
+                    'dow': ','.join([ str(v) for v in request.json['days_of_week'] ]),
+                    'holidays': request.json['holidays'],
+                    'mean_travel_time': rand
                 })
             csvFile.flush()
         mime_type = "text/csv"
