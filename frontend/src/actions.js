@@ -1,5 +1,4 @@
 import Axios from "axios"
-import { fields as allFields } from "./components/Layout/FieldSelectMenu/FieldSelectMenu"
 
 const axios = require('axios')
 axios.defaults.withCredentials = true
@@ -152,8 +151,7 @@ export const getTravelDataFile = ({fileType,timePeriods,listOfLinkDirs,start_dat
         file_type: fileType,
         date_range: `[${start_date}, ${end_date}]`,
         holidays: include_holidays,
-        days_of_week: days_of_week,
-        columns: allFields.map(f=>f.column) // will always get all columns for now
+        days_of_week: days_of_week
     }
     Axios({
         url: `${domain}/aggregate-travel-times`,

@@ -102,18 +102,12 @@ export default class SidebarContent extends React.Component {
                             </Grid>
 
                             <Grid item>
-                                <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
-                                    Choose Response Fields
-                                </Button>
-                            </Grid>
-
-                            <Grid item>
                                 <Button
                                     variant="contained" color="primary" className={"download"}
                                     onClick={this.props.onGo}
                                     disabled={this.props.disableGetButton}
                                 >
-                                    {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                    {this.props.disableGetButton ? `Please Wait` : `Download Travel Time Data`}
                                 </Button>
                             </Grid>
                         </Grid>

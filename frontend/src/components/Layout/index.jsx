@@ -1,19 +1,15 @@
 import React from "react"
 import Sidebar from "react-sidebar"
 import { Button } from "@material-ui/core"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import SidebarContent from "./Sidebar"
 import Map from "../Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
 import { getLinksBetweenNodes, getTravelDataFile } from "../../actions"
-import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { getDateBoundaries } from '../../actions'
-import "./Layout.css"
+import "./layout.css"
 
 export default class Layout extends React.Component {
     constructor(props) {
@@ -30,7 +26,6 @@ export default class Layout extends React.Component {
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
         this.handleClose = this.handleClose.bind(this)
-        this.openPopup = this.openPopup.bind(this)
         this.replaceSettings = this.replaceSettings.bind(this)
         this.addRange = this.addRange.bind(this)
         this.replicateRange = this.replicateRange.bind(this)
@@ -230,7 +225,6 @@ export default class Layout extends React.Component {
         }
     }
 
-    openPopup() { this.setState({popupOpen: true}) }
     handleClose() { this.setState({popupOpen: false}) }
 
     replaceActiveRange = (params) => {
@@ -254,7 +248,6 @@ export default class Layout extends React.Component {
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
-                        openPopup={this.openPopup}
                         range={this.state.activeRange}
                         onGo={this.downloadData} // on clicking get data button
                         fileSettings={this.state.fileSettings}
@@ -291,25 +284,6 @@ export default class Layout extends React.Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
-
-                <Dialog
-                    open={this.state.popupOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-
-                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if
-                        requires all)</DialogTitle>
-
-                    <DialogActions>
-                        <FieldSelectMenu
-                            replaceSettings={this.replaceSettings}
-                            fileSettings={this.state.fileSettings}
-                            handleClose={this.handleClose}
-                        />
-                    </DialogActions>
-
-                </Dialog>
                 <NotificationContainer/>
             </div>
         );

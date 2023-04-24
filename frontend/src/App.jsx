@@ -1,4 +1,4 @@
-import Layout from './components/Layout/Layout.jsx';
+import Layout from './components/Layout';
 import Map from "./components/Map";
 import './App.css';
 
