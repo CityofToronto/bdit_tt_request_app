@@ -1,14 +1,13 @@
 import React from "react"
 import Dropdown from "react-dropdown"
-import { Button, Checkbox, Grid, Select } from "@mui/material"
+import { 
+    Button, Checkbox, Grid, Select, 
+    FormLabel, FormControl, FormGroup, FormControlLabel
+} from "@mui/material"
 import "react-dropdown/style.css"
 import "./SidebarContent.css"
 import DatePicker from "react-date-picker"
 import TimePicker from 'react-time-picker'
-import FormLabel from "@mui/material/FormLabel"
-import FormControl from "@mui/material/FormControl"
-import FormGroup from "@mui/material/FormGroup"
-import FormControlLabel from "@mui/material/FormControlLabel"
 import Presets from "../Datetime/Presets"
 import { days } from "../Settings/Days"
 import { getDateBoundaries } from '../../../actions'
