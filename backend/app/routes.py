@@ -134,7 +134,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                     link_dir,
                     seq,
                     segment_id,
-                    ST_Transform(streets.geom, 3857) AS geom,
+                    streets.geom AS geom,
                     ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
                         FROM results
                         JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
