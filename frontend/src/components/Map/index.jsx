@@ -2,14 +2,13 @@ import React from 'react';
 import mapboxgl from 'mapbox-gl';
 import './Mapbox.css';
 import { getClosestNode, updateClosestNode } from '../../actions';
-import { Button, TextField } from "@mui/material"
+import {
+    Button, TextField, 
+    Dialog, DialogTitle,
+    List, ListItem, ListItemText
+} from "@mui/material"
 import arrowImage from '../Images/arrow.png';
 import doubleArrowImage from '../Images/doublearrow.png';
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 
