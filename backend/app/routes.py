@@ -131,16 +131,26 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 )
 
                 SELECT 
-                    link_dir,
-                    seq,
-                    segment_id,
-                    streets.geom AS geom,
-                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
-                        FROM results
-                        JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-                        JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
-                ORDER BY seq;
+					link_dir,
+					seq,
+					segment_id,
+					streets.geom AS geom,
+					ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
+				FROM results
+				JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+				JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+				ORDER BY seq;
                 '''
+
+                # SELECT 
+                #     link_dir,
+                #     seq,
+                #     segment_id,
+                #     seg_lookup.geom AS geom
+                #         FROM results
+                #         JOIN congestion.network_segments AS seg_lookup USING ( link_dir )
+                # ORDER BY seq;
+
 
                 # SELECT 
                 #     %(node_start)s,
@@ -148,10 +158,11 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 #     array_agg(st_name),
                 #     array_agg(link_dir),
                 #     ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
+                #     ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
                 # FROM results
                 # INNER JOIN here.routing_streets_name on edge = id
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
-            link_dir, seq, segment_id, geom, length = cursor.fetchone()
+            link_dir, seq, segment_id, geometry = cursor.fetchone()
 
 
     # Set of street names used in path
