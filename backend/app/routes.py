@@ -134,7 +134,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 					link_dir,
 					seq,
 					segment_id,
-					streets.geom AS geom,
+					ST_AsGeoJSON(streets.geom) AS geom,
 					ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
 				FROM results
 				JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
@@ -162,21 +162,24 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 # FROM results
                 # INNER JOIN here.routing_streets_name on edge = id
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
-            link_dir, seq, segment_id, geometry = cursor.fetchone()
+
+            links = []
+            for link_dir, seq, segment_id, geom, length in cursor.fetchall(): 
+                links.append({'link_dir': link_dir, 'seq': seq, 'segment_id': segment_id, 'geom': geom, 'length': length})
+
 
 
     # Set of street names used in path
-    uniqueNames = []
-    for stname in path:
-        if stname not in uniqueNames:
-            uniqueNames.append(stname)
+    # uniqueNames = []
+    # for stname in path:
+    #     if stname not in uniqueNames:
+    #         uniqueNames.append(stname)
 
     shortest_link_data = {
         "source": from_node_id, 
         "target": to_node_id,
         #"path_name": ', '.join(uniqueNames), 
-        "link_dirs": link_dirs, 
-        "geometry": json.loads(geometry) # parse json to object here; it will be dumped back to text in a second
+        "links": links
     }
     connection.close()
     return jsonify(shortest_link_data)
