@@ -119,7 +119,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         with connection.cursor() as cursor:
             #Uses here_gis.get_links_btwn_nodes_22_2 to route between the start node and end node on the HERE
             #links network. Returns an array of link objects.
-            #TODO: convert to here_gis.get_links_between_nodes
+            #TODO: create unique pathnames
             select_sql = '''
                 WITH results as (
                     SELECT *
@@ -146,12 +146,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             links = []
             for link_dir, seq, segment_id, geom, length in cursor.fetchall(): 
                 links.append({'link_dir': link_dir, 'seq': seq, 'segment_id': segment_id, 'geom': geom, 'length': length})
-
-    # Set of street names used in path
-    # uniqueNames = []
-    # for stname in path:
-    #     if stname not in uniqueNames:
-    #         uniqueNames.append(stname)
 
     shortest_link_data = {
         "source": from_node_id, 
