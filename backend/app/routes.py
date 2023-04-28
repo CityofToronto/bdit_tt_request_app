@@ -131,9 +131,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 )
 
                 SELECT 
-					link_dir,
-					seq,
-					segment_id,
+					results.link_dir,
+					results.seq,
+					seg_lookup.segment_id,
 					ST_AsGeoJSON(streets.geom) AS geom,
 					ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
 				FROM results
