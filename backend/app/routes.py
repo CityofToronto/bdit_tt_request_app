@@ -117,8 +117,8 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
     with connection:
         with connection.cursor() as cursor:
-            #Uses pg_routing to route between the start node and end node on the HERE
-            #links network. Returns inputs and an array of link_dirs and a unioned line
+            #Uses here_gis.get_links_btwn_nodes_22_2 to route between the start node and end node on the HERE
+            #links network. Returns an array of link objects.
             #TODO: convert to here_gis.get_links_between_nodes
             select_sql = '''
                 WITH results as (
