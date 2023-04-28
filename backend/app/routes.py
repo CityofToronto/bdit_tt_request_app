@@ -141,44 +141,27 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 				JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
 				ORDER BY seq;
                 '''
-
-                # SELECT 
-                #     link_dir,
-                #     seq,
-                #     segment_id,
-                #     seg_lookup.geom AS geom
-                #         FROM results
-                #         JOIN congestion.network_segments AS seg_lookup USING ( link_dir )
-                # ORDER BY seq;
-
-
-                # SELECT 
-                #     %(node_start)s,
-                #     %(node_end)s,
-                #     array_agg(st_name),
-                #     array_agg(link_dir),
-                #     ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
-                #     ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
-                # FROM results
-                # INNER JOIN here.routing_streets_name on edge = id
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
 
             links = []
             for link_dir, seq, segment_id, geom, length in cursor.fetchall(): 
-                links.append({
-                    'link_dir': link_dir,
-                    'sequence': seq,
-                    'segment_id': segment_id,
-                    'geometry': json.loads(geom), 
-                    'length_km': length
-                })
+                links.append({'link_dir': link_dir, 'seq': seq, 'segment_id': segment_id, 'geom': geom, 'length': length})
 
-    connection.close()
-    return jsonify({
-        "source": from_node_id,
+    # Set of street names used in path
+    # uniqueNames = []
+    # for stname in path:
+    #     if stname not in uniqueNames:
+    #         uniqueNames.append(stname)
+
+    shortest_link_data = {
+        "source": from_node_id, 
         "target": to_node_id,
+        #"path_name": ', '.join(uniqueNames), 
         "links": links
-    })
+    }
+    connection.close()
+    return jsonify(shortest_link_data)
+
 
 #@app.route('/travel-data-file', methods=['POST'])
 #def get_links_travel_data_file():
