@@ -165,25 +165,20 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
             links = []
             for link_dir, seq, segment_id, geom, length in cursor.fetchall(): 
-                links.append({'link_dir': link_dir, 'seq': seq, 'segment_id': segment_id, 'geom': geom, 'length': length})
+                links.append({
+                    'link_dir': link_dir,
+                    'sequence': seq,
+                    'segment_id': segment_id,
+                    'geometry': geom, 
+                    'length_km': length
+                })
 
-
-
-    # Set of street names used in path
-    # uniqueNames = []
-    # for stname in path:
-    #     if stname not in uniqueNames:
-    #         uniqueNames.append(stname)
-
-    shortest_link_data = {
-        "source": from_node_id, 
-        "target": to_node_id,
-        #"path_name": ', '.join(uniqueNames), 
-        "links": links
-    }
     connection.close()
-    return jsonify(shortest_link_data)
-
+    return jsonify({
+        "source": from_node_id,
+        "target": to_node_id,
+        "links": links
+    })
 
 #@app.route('/travel-data-file', methods=['POST'])
 #def get_links_travel_data_file():
