@@ -169,7 +169,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                     'link_dir': link_dir,
                     'sequence': seq,
                     'segment_id': segment_id,
-                    'geometry': geom, 
+                    'geometry': json.loads(geom), 
                     'length_km': length
                 })
 
