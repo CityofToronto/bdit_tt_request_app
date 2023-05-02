@@ -131,15 +131,15 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 )
 
                 SELECT 
-					results.link_dir,
-					results.seq,
-					seg_lookup.segment_id,
-					ST_AsGeoJSON(streets.geom) AS geom,
-					ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
-				FROM results
-				JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-				JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
-				ORDER BY seq;
+                    results.link_dir,
+                    results.seq,
+                    seg_lookup.segment_id,
+                    ST_AsGeoJSON(streets.geom) AS geom,
+                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
+                FROM results
+                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+                ORDER BY seq;
                 '''
             cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
 
