@@ -172,7 +172,7 @@ def aggregate_travel_times(from_node_id, to_node_id):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            segments = ''' WITH node_lookup(uid, corridor, from_street, to_street, direction, %(node_start)s, %(node_end)s) AS (
+            agg_tt = ''' WITH node_lookup(uid, corridor, from_street, to_street, direction, %(node_start)s, %(node_end)s) AS (
                             VALUES
                             -- Danforth from Broadview Ave to Coxwell Ave 30420787
                             (1, 'Danforth Ave', 'Broadview Ave', 'Coxwell Ave', 'EB', %(node_start)s, 30423234),
@@ -224,41 +224,37 @@ def aggregate_travel_times(from_node_id, to_node_id):
                                 rgs.corridor_length,
                                 unnest(rgs.segment_list) AS segment_id
                             FROM routing AS rgs
-                        )
+                        ),
 
-                        SELECT
-                            uc.uid,
-                            uc.corridor,
-                            uc.from_street,
-                            uc.to_street,
-                            uc.direction,
-                            uc.start_node,
-                            uc.end_node,
-                            uc.num_seg,
-                            uc.segment_id,
-                            uc.corridor_length,
-                            cns.total_length AS seg_length, 
-                            cns.geom
-                        FROM unnest_cte AS uc
-                        INNER JOIN congestion.network_segments AS cns
-                            ON cns.segment_id = uc.segment_id'''
-
-
-            agg_tt = '''WITH period_def(period_name, time_range, dow) AS (
+                        routed AS (
+                            SELECT
+                                uc.uid,
+                                uc.corridor,
+                                uc.from_street,
+                                uc.to_street,
+                                uc.direction,
+                                uc.start_node,
+                                uc.end_node,
+                                uc.num_seg,
+                                uc.segment_id,
+                                uc.corridor_length,
+                                cns.total_length AS seg_length, 
+                                cns.geom
+                            FROM unnest_cte AS uc
+                            INNER JOIN congestion.network_segments AS cns
+                                ON cns.segment_id = uc.segment_id
+                        ),
+                        
+                        
+                        period_def(period_name, time_range, dow) AS (
                             VALUES 
-                            ('AM Peak Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range), 
-                            ('PM Peak Period'::text, '[16, 19)'::numrange, '[1, 6)'::int4range),
-                            ('Weekend Midday'::text, '[12, 19)'::numrange, '[6, 8)'::int4range)
+                            ('AM Peak Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range)
                         ),
 
                         -- Date range definition
                         date_def(range_name, date_range) AS (
                             VALUES
-                            ('May 1 to July 31, 2020'::text, '[2020-05-01, 2020-07-31)'::daterange),
-                            ('August 1 to September 6, 2021'::text, '[2021-08-01, 2021-09-06)'::daterange),
-                            ('September 6 to December 31, 2021'::text, '[2021-09-06, 2021-12-31)'::daterange),
-                            ('January 1 to June 30, 2022'::text, '[2022-01-01, 2022-06-30)'::daterange),
-                            ('July 1 to December 31, 2022'::text, '[2022-07-01, 2022-12-31)'::daterange)
+                            ('May 1 to July 31, 2020'::text, '[2020-05-01, 2020-07-31)'::daterange)
                         ),
 
                         -- Aggregate segments to corridor on a daily, hourly basis
@@ -277,7 +273,7 @@ def aggregate_travel_times(from_node_id, to_node_id):
                                 routed.corridor_length,
                                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
 
-                            FROM data_requests.i0412_danforth_tt_geom AS routed 
+                            FROM routed 
                             JOIN congestion.network_segments_daily AS cn USING (segment_id)
                             CROSS JOIN period_def
                             CROSS JOIN date_def
