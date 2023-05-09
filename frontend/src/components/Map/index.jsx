@@ -1,22 +1,17 @@
-import React from 'react';
-import mapboxgl from 'mapbox-gl';
-import './Mapbox.css';
-import { getClosestNode, updateClosestNode } from '../../actions';
-import { Button, TextField } from "@material-ui/core";
-import arrowImage from '../Images/arrow.png';
-import doubleArrowImage from '../Images/doublearrow.png';
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import { NotificationContainer, NotificationManager } from 'react-notifications';
-import 'react-notifications/lib/notifications.css';
+import { Component } from 'react'
+import mapboxgl from 'mapbox-gl'
+import './Mapbox.css'
+import { getClosestNode, updateClosestNode } from '../../actions'
+import arrowImage from '../Images/arrow.png'
+import doubleArrowImage from '../Images/doublearrow.png'
+import { NotificationContainer, NotificationManager } from 'react-notifications'
+import ActionsBox from './ActionsBox'
+import 'react-notifications/lib/notifications.css'
 
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ';
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ'
 
 // Note: Sequence and Segment are the same
-export default class Map extends React.Component {
+export default class Map extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -51,11 +46,11 @@ export default class Map extends React.Component {
         this.removeAllLinkSources = this.removeAllLinkSources.bind(this)
         this.getLink = this.getLink.bind(this)
         this.onChangeSelectSeq = this.onChangeSelectSeq.bind(this)
-    };
+    }
 
     componentDidMount() {
-        this.createMap();
-    };
+        this.createMap()
+    }
 
     createMap() {
         const map = new mapboxgl.Map({
@@ -643,37 +638,7 @@ export default class Map extends React.Component {
     render() {
         return (
             <div>
-                {/*Container for the map*/}
                 <div ref={element => this.mapContainer = element} className='mapContainer'/>
-                {/*Dialog prompting the user to select a node in the case that they are overlapping*/}
-                <Dialog onClose={this.nodeCandidateClose} open={this.state.nodeCandidateSelect}
-                        disableBackdropClick={true}>
-                    <DialogTitle>Select a Closest Node</DialogTitle>
-                    <List>
-                        {this.state.nodeCandidates.map((nodeCandidate) => (
-                            <ListItem button
-                                      onClick={() => this.addNodeToMapDisplay(nodeCandidate, this.nodeCandidateClose)}
-                                      key={nodeCandidate.nodeId}>
-                                <ListItemText
-                                    primary={"Name: " + nodeCandidate.name.toString() + ", ID: " + nodeCandidate.nodeId.toString()}/>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Dialog>
-                <Dialog onClose={this.updateNodeCandidateClose} open={this.state.updateNodeCandidateSelect}
-                        disableBackdropClick={true}>
-                    <DialogTitle>Select a Closest Node</DialogTitle>
-                    <List>
-                        {this.state.updateNodeCandidates.map((nodeCandidate) => (
-                            <ListItem button
-                                      onClick={() => this.updateMarker(this.state.updateNodeIndex, nodeCandidate, this.updateNodeCandidateClose)}
-                                      key={nodeCandidate.nodeId}>
-                                <ListItemText
-                                    primary={"Name: " + nodeCandidate.name.toString() + ", ID: " + nodeCandidate.nodeId.toString()}/>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Dialog>
                 <ActionsBox 
                     currentSequence={this.state.currentSequence}
                     seletedSeq={this.state.selectedSeq}
@@ -695,73 +660,4 @@ export default class Map extends React.Component {
         );
     };
 
-}
-
-function ActionsBox({
-    currentSequence,
-    selectedSeq,
-    disableNewSeq,
-    disableReset,
-    disableNodeRemove,
-    disableLinkRemove,
-    disableGetLink,
-    reverseSequenceAction,
-    newSequenceAction,
-    removeNodesAction,
-    resetMapAction,
-    removeLinksAction,
-    updateLinksAction,
-    selectSequenceAction
-}){
-    const buttonProps = { variant: 'contained', color: 'primary', size: 'small' }
-    return (
-        <div className="map-options">
-            <form className="reverse-seq-input" noValidate autoComplete="off">
-                <TextField
-                    label="Current Segment" InputProps={{readOnly: true,}}
-                    value={"Current Segment #" + currentSequence}
-                />
-                <TextField
-                    label="Reverse Seg #" value={selectedSeq}
-                    onChange={selectSequenceAction} variant="filled"
-                />
-            </form>
-            <Button id='reverseSeq-button' {...buttonProps}
-                disabled={disableNewSeq}
-                onClick={reverseSequenceAction}
-            >
-                Reverse
-            </Button>
-            <Button id='newSeq-button' {...buttonProps}
-                disabled={disableNewSeq}
-                onClick={newSequenceAction}
-            >
-                New Segment
-            </Button>
-            <Button id='reset-button' {...buttonProps}
-                disabled={disableReset}
-                onClick={resetMapAction}
-            >
-                Reset Map
-            </Button>
-            <Button id='remove-node-button' {...buttonProps}
-                disabled={disableNodeRemove}
-                onClick={removeNodesAction}
-            >
-                Remove Last Node
-            </Button>
-            <Button id='remove-links-button' {...buttonProps}
-                disabled={disableLinkRemove}
-                onClick={removeLinksAction}
-            >
-                Remove All Links
-            </Button>
-            <Button id='link-button' {...buttonProps}
-                disabled={disableGetLink}
-                onClick={updateLinksAction}
-            >
-                Update & Display Links
-            </Button>
-        </div>
-    )
 }
