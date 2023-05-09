@@ -101,12 +101,12 @@ def get_closest_node(longitude, latitude):
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
-    """Returns the shortest path between two nodes."""
+    """Returns links of the shortest path between two nodes on the HERE network"""
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
     except ValueError or ArithmeticError:
-        abort(400, description="The node_ids should be integers!")
+        abort(400, description="The node_ids should be integers")
         return
 
     if from_node_id == to_node_id:
@@ -117,10 +117,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
     with connection:
         with connection.cursor() as cursor:
-            #Uses here_gis.get_links_btwn_nodes_22_2 to route between the start node and end node on the HERE
-            #links network. Returns an array of link objects.
-            #TODO: create unique pathnames
-            select_sql = '''
+            cursor.execute('''
                 WITH results as (
                     SELECT *
                     FROM here_gis.get_links_btwn_nodes_22_2(
@@ -143,8 +140,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                     ON attr.link_id::int = substring(link_dir,'\d+')::int
                 JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
                 ORDER BY seq;
-                '''
-            cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
+                ''',
+                {"node_start": from_node_id, "node_end": to_node_id}
+            )
 
             links = []
             for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
@@ -160,7 +158,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     shortest_link_data = {
         "source": from_node_id, 
         "target": to_node_id,
-        #"path_name": ', '.join(uniqueNames), 
         "links": links
     }
     connection.close()
