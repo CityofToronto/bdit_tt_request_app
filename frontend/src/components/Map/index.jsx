@@ -7,6 +7,7 @@ import doubleArrowImage from '../Images/doublearrow.png'
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import ActionsBox from './ActionsBox'
 import 'react-notifications/lib/notifications.css'
+import { getRandomColor } from '../../colors'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vuc2IiLCJhIjoiY2tnb2E5ODZvMDlwMjJzcWhyamt5dWYwbCJ9.2uVkSjgGczylf1cmXdY9xQ'
 
@@ -20,7 +21,7 @@ export default class Map extends Component {
             clickedNodes: [[]],
             displayedMarker: [[]],
             currentSequence: 0,
-            sequenceColours: [this.getRandomColor()],
+            sequenceColours: [getRandomColor()],
             disableNodeRemove: true,
             disableGetLink: true,
             disableReset: true,
@@ -491,16 +492,6 @@ export default class Map extends Component {
         }
     };
 
-    //helper function to get a random color
-    getRandomColor() {
-        let letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
-
     //removes the last node placed on the map
     removeNodes() {
         let tempCurrentSeq = this.state.currentSequence;
@@ -553,7 +544,7 @@ export default class Map extends Component {
         NotificationManager.success('New Segment Created, Please Place a Node');
         let newColor = this.state.sequenceColours[0];
         while (this.state.sequenceColours.includes(newColor)) {
-            newColor = this.getRandomColor();
+            newColor = getRandomColor();
         }
         this.setState({
             displayedMarker: this.state.displayedMarker.concat([[]]),
@@ -593,7 +584,7 @@ export default class Map extends Component {
             return;
         }
         let tempCurrSequence = this.state.currentSequence + 1;
-        let newColor = this.getRandomColor();
+        let newColor = getRandomColor();
         let tempHoldSeq = this.state.clickedNodes[this.state.selectedSeq];
 
         let newClickedNodes = [];
