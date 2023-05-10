@@ -1,18 +1,14 @@
 import { Component } from "react"
 
 import Map from "../Map"
-import RangeFactory from "./Datetime/Range"
+import TimeRange from "./Datetime/TimeRange"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
-import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
+import { getLinksBetweenNodes } from "../../actions"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { getDateBoundaries } from '../../actions'
 
 import Sidebar from "react-sidebar"
 import { Button } from "@material-ui/core"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import SidebarContent from "./Sidebar"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 
@@ -46,7 +42,7 @@ export default class Layout extends Component {
 
     componentDidMount(){
         getDateBoundaries().then( ({startDate,endDate}) => {
-            let range = RangeFactory.newRange({
+            let range = new TimeRange({
                 startTime: startDate,
                 endTime: endDate
             } )
@@ -94,11 +90,11 @@ export default class Layout extends Component {
                 NotificationManager.error('You must enter a name');
             }
         } else {
-            ranges.push(RangeFactory.newRange({
+            ranges.push( new TimeRange({
                 name: name,
                 startTime: null,
                 endTime: null
-            }));
+            }) )
             this.setState({
                 activeRange: this.state.ranges.length,
                 ranges: ranges
@@ -109,7 +105,7 @@ export default class Layout extends Component {
     replicateRange() {
         let ranges = [...this.state.ranges];
         let activeRange = ranges[this.state.activeRange];
-        let params = activeRange.getParams();
+        let params = activeRange.params
 
         const name = prompt("Name the new Range");
 
@@ -119,11 +115,11 @@ export default class Layout extends Component {
             }
         } else {
             params.name = name;
-            ranges.push(RangeFactory.newRange(params));
+            ranges.push(new TimeRange(params));
             this.setState({
                 activeRange: this.state.ranges.length,
                 ranges: ranges
-            });
+            })
         }
     }
 
@@ -134,7 +130,7 @@ export default class Layout extends Component {
                 NotificationManager.error('You must enter a name');
             }
         } else {
-            let params = this.state.ranges[this.state.activeRange].getParams();
+            let params = this.state.ranges[this.state.activeRange].params
             params.name = name;
             this.replaceActiveRange(params);
         }
@@ -233,7 +229,7 @@ export default class Layout extends Component {
 
     replaceActiveRange = (params) => {
         let ranges = [...this.state.ranges];
-        ranges[this.state.activeRange] = RangeFactory.newRange(params);
+        ranges[this.state.activeRange] = new TimeRange(params)
         this.setState({ranges: ranges});
     }
 
@@ -246,10 +242,9 @@ export default class Layout extends Component {
     render() {
         if(this.state.ranges.length === 0) return null;
         const activeRange = this.state.ranges[this.state.activeRange];
-        let rangeNames = this.state.ranges.map( r => r.getName() );
+        let rangeNames = this.state.ranges.map( r => r.name );
         return (
-            <div>
-                
+            <>
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
@@ -277,31 +272,11 @@ export default class Layout extends Component {
                     <Button
                         variant="contained"
                         onClick={() => this.onSetSidebarOpen(true)}
-                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
+                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px",zIndex:10}}
                     >
                         Edit Query
                     </Button>
                 </Sidebar>
-
-                <Dialog
-                    open={this.state.popupOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-
-                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if
-                        requires all)</DialogTitle>
-
-                    <DialogActions>
-                        <FieldSelectMenu
-                            replaceSettings={this.replaceSettings}
-                            fileSettings={this.state.fileSettings}
-                            handleClose={this.handleClose}
-                        />
-                    </DialogActions>
-
-                </Dialog>
-                <NotificationContainer/>
                 <Map
                     onLinkUpdate={this.updateLinks}
                     onNodeUpdate={this.updateNodes}
@@ -309,7 +284,8 @@ export default class Layout extends Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
-            </div>
+                <NotificationContainer/>
+            </>
         )
     }
 }

@@ -1,5 +1,4 @@
 import Axios from "axios";
-import { VALID_COLUMN_NAMES } from "./components/Layout/FieldSelectMenu/FieldSelectMenu";
 
 const axios = require('axios');
 axios.defaults.withCredentials = true;
@@ -169,7 +168,7 @@ export const getTravelDataFile = (data, enableGetButton) => {
         let columns = [];
         data.fields.forEach((value, index) => {
             if (value){
-                columns.push(VALID_COLUMN_NAMES[index]);
+                //columns.push(VALID_COLUMN_NAMES[index]);
             }
         });
         req_body = {

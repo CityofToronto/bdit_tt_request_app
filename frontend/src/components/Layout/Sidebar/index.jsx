@@ -29,7 +29,7 @@ export default class SidebarContent extends React.Component {
 
     updatePreset(event) {
         let choice = event.value;
-        let params = this.props.activeRange.getParams();
+        let params = this.props.activeRange.params
         let newParams = Presets.getParams(choice);
         Object.assign(params, newParams);
         this.props.replaceActiveRange(params);
@@ -48,14 +48,14 @@ export default class SidebarContent extends React.Component {
     }
 
     startTimeChange(value) {
-        let params = this.props.activeRange.getParams();
+        let params = this.props.activeRange.params
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
         params.startTime = new Date(dateStr);
         this.props.replaceActiveRange(params);
     }
 
     endTimeChange(value) {
-        let params = this.props.activeRange.getParams();
+        let params = this.props.activeRange.params
         let dateStr = '2020-01-01 '.concat(value).concat(':00');
         params.endTime = new Date(dateStr);
         this.props.replaceActiveRange(params);
@@ -82,7 +82,7 @@ export default class SidebarContent extends React.Component {
     }
 
     render() {
-        const rangeParams = this.props.activeRange.getParams();
+        const rangeParams = this.props.activeRange.params
         const fileParams = this.props.fileSettings.getParams();
         let params = {};
         Object.assign(params, rangeParams);
