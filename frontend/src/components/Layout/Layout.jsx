@@ -1,21 +1,24 @@
-import React from "react"
-import Sidebar from "react-sidebar"
-import { Button } from "@material-ui/core"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogTitle from "@material-ui/core/DialogTitle"
-import SidebarContent from "./Sidebar"
+import { Component } from "react"
+
 import Map from "../Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
 import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
 import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
 import FileSettingsFactory from "./Settings/FileSettings"
-import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { getDateBoundaries } from '../../actions'
+
+import Sidebar from "react-sidebar"
+import { Button } from "@material-ui/core"
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import SidebarContent from "./Sidebar"
+import { NotificationContainer, NotificationManager } from 'react-notifications'
+
 import "./Layout.css"
 
-export default class Layout extends React.Component {
+export default class Layout extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -246,6 +249,7 @@ export default class Layout extends React.Component {
         let rangeNames = this.state.ranges.map( r => r.getName() );
         return (
             <div>
+                
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
@@ -279,14 +283,6 @@ export default class Layout extends React.Component {
                     </Button>
                 </Sidebar>
 
-                <Map
-                    onLinkUpdate={this.updateLinks}
-                    onNodeUpdate={this.updateNodes}
-                    getLinks={this.getLinks}
-                    resetMapVars={this.resetMapVars}
-                    removeAllLinks={this.removeAllLinks}
-                />
-
                 <Dialog
                     open={this.state.popupOpen}
                     onClose={this.handleClose}
@@ -306,8 +302,14 @@ export default class Layout extends React.Component {
 
                 </Dialog>
                 <NotificationContainer/>
+                <Map
+                    onLinkUpdate={this.updateLinks}
+                    onNodeUpdate={this.updateNodes}
+                    getLinks={this.getLinks}
+                    resetMapVars={this.resetMapVars}
+                    removeAllLinks={this.removeAllLinks}
+                />
             </div>
-        );
-
+        )
     }
 }
