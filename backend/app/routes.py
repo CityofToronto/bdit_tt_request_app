@@ -162,8 +162,13 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 #@app.route('/aggregate-travel-times', methods=['POST'])
 #def aggregate_travel_times():
-@app.route('/aggregate-travel-times/<from_node_id>/<to_node_id>', methods=['GET'])
-def aggregate_travel_times(from_node_id, to_node_id):
+#
+#
+# aggregate_travel_times(segment_list, time_range, date_range)
+#
+#
+@app.route('/aggregate-travel-times/<segment_list>/<time_range>/<date_range>', methods=['GET'])
+def aggregate_travel_times(segment_list, time_range, date_range):
     # results will be written to file here (random, non-conflicting filenames)
     # here_22_2 -> linkdir -> segment_links -> network_segments
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
@@ -172,53 +177,20 @@ def aggregate_travel_times(from_node_id, to_node_id):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            agg_tt = ''' WITH node_lookup(uid, corridor, from_street, to_street, direction, %(node_start)s, %(node_end)s) AS (
-                            VALUES
-                            -- Danforth from Broadview Ave to Coxwell Ave 30420787
-                            (1, 'Danforth Ave', 'Broadview Ave', 'Coxwell Ave', 'EB', %(node_start)s, 30423234),
-                            (2, 'Danforth Ave', 'Coxwell Ave', 'Broadview Ave', 'WB', 30423234, %(node_start)s),
-                            -- Danforth from Coxwell Ave to Victoria Park Ave
-                            (3, 'Danforth Ave', 'Coxwell Ave', 'Victoria Park Ave', 'EB', 30423234, 30440490),
-                            (4, 'Danforth Ave', 'Victoria Park Ave', 'Coxwell Ave', 'WB', 30440490, 30423234),
-                            -- Gerrard from Broadview Ave to Coxwell Ave
-                            (5, 'Gerrard St E', 'Broadview Ave', 'Coxwell Ave', 'EB', 30420729, 30438577),
-                            (6, 'Gerrard St E', 'Coxwell Ave', 'Broadview Ave', 'WB', 30438577, 30420729),
-                            -- Gerrard from Coxwell Ave to Victoria Park Ave
-                            (7, 'Gerrard St E', 'Coxwell Ave', 'Victoria Park Ave', 'EB', 30421768, 30440480),
-                            (8, 'Gerrard St E', 'Victoria Park Ave', 'Coxwell Ave', 'WB', 30440480, 30421768),
-                            -- Mortimer from Broadview Ave to Coxwell Ave
-                            (9, 'Mortimer Ave', 'Broadview Ave', 'Coxwell Ave', 'EB', 30421832, 30423224),
-                            (10, 'Mortimer Ave', 'Coxwell Ave', 'Broadview Ave', 'WB', 30423224, 30421832),
-                            -- Mortimer from Coxwell Ave to Main St 30439771
-                            (11, 'Mortimer Ave', 'Coxwell Ave', 'Main St', 'EB', 30423224, %(node_end)s),
-                            (12, 'Mortimer Ave', 'Main St', 'Coxwell Ave', 'WB', %(node_end)s, 30423224)
+            agg_tt = ''' WITH node_lookup(uid, corridor, from_street, to_street, direction) AS (
+                            WHERE user_id IN (SELECT value FROM STRING_SPLIT( @user_id_list, ',')
                         ),
 
                         routing AS (
                             SELECT
-                                nl.uid,
-                                nl.corridor,
-                                nl.from_street,
-                                nl.to_street,
-                                nl.direction,
-                                nl.start_node,
-                                nl.end_node,
                                 segs.segment_list,
                                 segs.length AS corridor_length,
                                 array_length(segs.segment_list, 1) AS num_seg
                             FROM node_lookup AS nl,
-                                LATERAL(SELECT * FROM congestion.get_segments_btwn_nodes(nl.start_node::int, nl.end_node::int)) AS segs
                         ),
 
                         unnest_cte AS (
                             SELECT
-                                rgs.uid,
-                                rgs.corridor,
-                                rgs.from_street,
-                                rgs.to_street,
-                                rgs.direction,
-                                rgs.start_node,
-                                rgs.end_node,
                                 rgs.segment_list,
                                 rgs.num_seg,
                                 rgs.corridor_length,
@@ -228,13 +200,6 @@ def aggregate_travel_times(from_node_id, to_node_id):
 
                         routed AS (
                             SELECT
-                                uc.uid,
-                                uc.corridor,
-                                uc.from_street,
-                                uc.to_street,
-                                uc.direction,
-                                uc.start_node,
-                                uc.end_node,
                                 uc.num_seg,
                                 uc.segment_id,
                                 uc.corridor_length,
@@ -303,26 +268,26 @@ def aggregate_travel_times(from_node_id, to_node_id):
                         corridor_period_daily_avg_tt AS ( 
 
                             SELECT
-                                corridor_hourly_daily_agg.uid, 
-                                corridor_hourly_daily_agg.dt, 
-                                corridor_hourly_daily_agg.corridor, 
-                                corridor_hourly_daily_agg.from_street, 
-                                corridor_hourly_daily_agg.to_street, 
-                                corridor_hourly_daily_agg.range_name, 
-                                corridor_hourly_daily_agg.period_name, 
-                                corridor_hourly_daily_agg.direction,
-                                AVG(corridor_hourly_daily_agg.corr_hourly_daily_tt) AS avg_corr_period_daily_tt
+                                uid, 
+                                dt, 
+                                corridor, 
+                                from_street, 
+                                to_street, 
+                                range_name, 
+                                period_name, 
+                                direction,
+                                AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
 
                             FROM corridor_hourly_daily_agg 
                             GROUP BY 
-                                corridor_hourly_daily_agg.dt, 
-                                corridor_hourly_daily_agg.uid, 
-                                corridor_hourly_daily_agg.corridor, 
-                                corridor_hourly_daily_agg.from_street, 
-                                corridor_hourly_daily_agg.to_street, 
-                                corridor_hourly_daily_agg.range_name, 
-                                corridor_hourly_daily_agg.period_name, 
-                                corridor_hourly_daily_agg.direction
+                                dt, 
+                                uid, 
+                                corridor, 
+                                from_street, 
+                                to_street, 
+                                range_name, 
+                                period_name, 
+                                direction
                         )
 
                         -- Average all the days with data to get period level data for each date range
@@ -355,9 +320,6 @@ def aggregate_travel_times(from_node_id, to_node_id):
 
             cursor.execute(agg_tt, {"node_start": from_node_id, "node_end": to_node_id})
             records = cursor.fetchall()
-
-
-
 
 
     if request.json['file_type'] == 'csv':
