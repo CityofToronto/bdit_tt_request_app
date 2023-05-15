@@ -1,61 +1,60 @@
 {
-  "name": "tt_request_app",
-  "version": "1.0.0",
-  "description": "Front-end UI for requesting historic travel times",
-  "main": "src/index.jsx",
-  "scripts": {
-    "start": "node server.js",
-    "test": "cypress run",
-    "lint": "npx eslint \"src/**/*.{js,jsx}\" ",
-    "build": "npx webpack --config webpack/prod.js",
-    "build-stats": "npm i && npx webpack --config webpack/prod.js --profile --json > stats.json",
-    "build-dev": "npm i && npx webpack --config webpack/dev.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CityofToronto/bdit_tt_request_app.git"
-  },
-  "license": "none",
-  "bugs": {
-    "url": "https://github.com/CityofToronto/bdit_tt_request_app/issues"
-  },
-  "homepage": "http://10.160.2.198/traveltime-request",
-  "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@babel/plugin-transform-runtime": "^7.14.5",
-    "@babel/preset-env": "^7.14.5",
-    "@babel/preset-react": "7.x",
-    "babel-loader": "^8.2.2",
-    "clean-webpack-plugin": "4.x",
-    "css-loader": "6.x",
-    "dotenv": "^16.x",
-    "eslint": "^8.18.0",
-    "eslint-plugin-css-modules": "^2.11.0",
-    "eslint-plugin-react": "^7.30.0",
-    "html-webpack-plugin": "5.x",
-    "less": "4.x",
-    "less-loader": "11.x",
-    "style-loader": "3.x",
-    "webpack": "5.x",
-    "webpack-cli": "4.x",
-    "webpack-deadcode-plugin": "^0.1.x",
-    "webpack-merge": "5.x"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.10.6",
-    "@emotion/styled": "^11.10.6",
-    "@mui/material": "5.x",
-    "axios": "^0.21.4",
-    "express": "^4.18.2",
-    "js-file-download": "^0.4.12",
-    "mapbox-gl": "^1.13.3",
-    "react": "18.x",
-    "react-date-picker": "^8.4.0",
-    "react-dom": "18.x",
-    "react-dropdown": "^1.11.0",
-    "react-notifications": "^1.7.4",
-    "react-refresh": "^0.11.0",
-    "react-sidebar": "^3.0.2",
-    "react-time-picker": "^4.0.1"
-  }
+    "name": "tt_request_app",
+    "version": "1.0.0",
+    "description": "Front-end UI for requesting historic travel times",
+    "main": "src/index.jsx",
+    "scripts": {
+        "start": "node server.js",
+        "lint": "npx eslint \"src/**/*.{js,jsx}\" ",
+        "build": "npx webpack --config webpack/prod.js",
+        "build-stats": "npm i && npx webpack --config webpack/prod.js --profile --json > stats.json",
+        "build-dev": "npm i && npx webpack --config webpack/dev.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/CityofToronto/bdit_tt_request_app.git"
+    },
+    "license": "none",
+    "bugs": {
+        "url": "https://github.com/CityofToronto/bdit_tt_request_app/issues"
+    },
+    "homepage": "http://10.160.2.198/traveltime-request",
+    "devDependencies": {
+        "@babel/core": "^7.14.6",
+        "@babel/plugin-transform-runtime": "^7.14.5",
+        "@babel/preset-env": "^7.14.5",
+        "@babel/preset-react": "7.x",
+        "babel-loader": "^8.2.2",
+        "clean-webpack-plugin": "4.x",
+        "css-loader": "6.x",
+        "dotenv": "^16.x",
+        "eslint": "^8.18.0",
+        "eslint-plugin-css-modules": "^2.11.0",
+        "eslint-plugin-react": "^7.30.0",
+        "html-webpack-plugin": "5.x",
+        "less": "4.x",
+        "less-loader": "11.x",
+        "style-loader": "3.x",
+        "webpack": "5.x",
+        "webpack-cli": "4.x",
+        "webpack-deadcode-plugin": "^0.1.x",
+        "webpack-merge": "5.x"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.10.6",
+        "@emotion/styled": "^11.10.6",
+        "@mui/material": "5.x",
+        "axios": "^0.21.4",
+        "express": "^4.18.2",
+        "js-file-download": "^0.4.12",
+        "mapbox-gl": "^1.13.3",
+        "react": "18.x",
+        "react-date-picker": "^8.4.0",
+        "react-dom": "18.x",
+        "react-dropdown": "^1.11.0",
+        "react-notifications": "^1.7.4",
+        "react-refresh": "^0.11.0",
+        "react-sidebar": "^3.0.2",
+        "react-time-picker": "^4.0.1"
+    }
 }
