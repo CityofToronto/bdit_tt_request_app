@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet'
+import SpatialData from '../../SpatialData.js'
 import 'leaflet/dist/leaflet.css'
 
 const init_center = [43.65720,-79.34299]
