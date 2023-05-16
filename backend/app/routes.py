@@ -187,6 +187,7 @@ def aggregate_travel_times(segment_list, time_range, date_range):
                                 segs.length AS corridor_length,
                                 array_length(segs.segment_list, 1) AS num_seg
                             FROM node_lookup AS nl,
+                                LATERAL(SELECT * FROM congestion.get_segments_btwn_nodes(nl.start_node::int, nl.end_node::int)) AS segs
                         ),
 
                         unnest_cte AS (
@@ -209,8 +210,8 @@ def aggregate_travel_times(segment_list, time_range, date_range):
                             INNER JOIN congestion.network_segments AS cns
                                 ON cns.segment_id = uc.segment_id
                         ),
-                        
-                        
+
+
                         period_def(period_name, time_range, dow) AS (
                             VALUES 
                             ('AM Peak Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range)
@@ -226,11 +227,6 @@ def aggregate_travel_times(segment_list, time_range, date_range):
                         corridor_hourly_daily_agg AS (
 
                             SELECT
-                                routed.uid,
-                                routed.corridor,
-                                routed.from_street,
-                                routed.to_street, 
-                                routed.direction,
                                 cn.dt,
                                 cn.hr,
                                 date_def.range_name, 
@@ -250,15 +246,10 @@ def aggregate_travel_times(segment_list, time_range, date_range):
                                 AND cn.dt <@ date_def.date_range
 
                             GROUP BY
-                                routed.uid, 
-                                routed.corridor, 
-                                routed.from_street, 
-                                routed.to_street, 
                                 cn.dt, 
                                 cn.hr,
                                 period_def.period_name, 
                                 date_def.range_name, 
-                                routed.direction, 
                                 routed.corridor_length
 
                             HAVING SUM(cn.length_w_data) >= routed.corridor_length*0.8 -- where corridor has at least 80% of links with data
@@ -268,53 +259,32 @@ def aggregate_travel_times(segment_list, time_range, date_range):
                         corridor_period_daily_avg_tt AS ( 
 
                             SELECT
-                                uid, 
                                 dt, 
-                                corridor, 
-                                from_street, 
-                                to_street, 
                                 range_name, 
                                 period_name, 
-                                direction,
                                 AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
 
                             FROM corridor_hourly_daily_agg 
                             GROUP BY 
                                 dt, 
-                                uid, 
-                                corridor, 
-                                from_street, 
-                                to_street, 
                                 range_name, 
-                                period_name, 
-                                direction
+                                period_name
                         )
 
                         -- Average all the days with data to get period level data for each date range
                         SELECT 
-                            corridor_period_daily_avg_tt.uid, 
-                            corridor_period_daily_avg_tt.corridor, 
-                            corridor_period_daily_avg_tt.from_street, 
-                            corridor_period_daily_avg_tt.to_street, 
-                            corridor_period_daily_avg_tt.range_name, 
-                            corridor_period_daily_avg_tt.period_name, 
-                            corridor_period_daily_avg_tt.direction,
+                            range_name, 
+                            period_name,
                             COUNT(*) AS days_with_data,
-                            ROUND(AVG(corridor_period_daily_avg_tt.avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
+                            ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
 
                         FROM corridor_period_daily_avg_tt 
                         GROUP BY 
-                            corridor_period_daily_avg_tt.uid, 
-                            corridor_period_daily_avg_tt.corridor, 
-                            corridor_period_daily_avg_tt.from_street, 
-                            corridor_period_daily_avg_tt.to_street, 
-                            corridor_period_daily_avg_tt.range_name, 
-                            corridor_period_daily_avg_tt.period_name, 
-                            corridor_period_daily_avg_tt.direction
+                            range_name, 
+                            period_name
                         ORDER BY 
-                            corridor_period_daily_avg_tt.uid, 
-                            corridor_period_daily_avg_tt.range_name, 
-                            corridor_period_daily_avg_tt.period_name; '''
+                            range_name,
+                            period_name; '''
 
 
 
