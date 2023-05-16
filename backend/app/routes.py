@@ -288,7 +288,7 @@ def aggregate_travel_times(segment_list, time_range, date_range):
 
 
 
-            cursor.execute(agg_tt, {"node_start": from_node_id, "node_end": to_node_id})
+            cursor.execute(agg_tt, {"segment_list": segment_list, "time_range": time_range, "date_range": date_range})
             records = cursor.fetchall()
 
 
