@@ -177,24 +177,20 @@ def aggregate_travel_times(segment_list, time_range, date_range):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            agg_tt = ''' WITH node_lookup(uid, corridor, from_street, to_street, direction) AS (
-                            WHERE user_id IN (SELECT value FROM STRING_SPLIT( @user_id_list, ',')
-                        ),
+            corridor_length_here = '''SELECT SUM(length)
+                                    FROM here.routing_streets_22_2
+                                    WHERE link_id IN %(segment_list)s 
+                            '''
 
-                        routing AS (
-                            SELECT
-                                segs.segment_list,
-                                segs.length AS corridor_length,
-                                array_length(segs.segment_list, 1) AS num_seg
-                            FROM node_lookup AS nl,
-                                LATERAL(SELECT * FROM congestion.get_segments_btwn_nodes(nl.start_node::int, nl.end_node::int)) AS segs
-                        ),
-
+            corridor_length_cns = '''SELECT SUM(length)
+                                    FROM congestion.network_segments
+                                    WHERE segment_id IN %(segment_list)s 
+                            '''
+            
+            agg_tt = '''
                         unnest_cte AS (
                             SELECT
-                                rgs.segment_list,
-                                rgs.num_seg,
-                                rgs.corridor_length,
+                                array_length(segs.segment_list, 1) AS num_seg,
                                 unnest(rgs.segment_list) AS segment_id
                             FROM routing AS rgs
                         ),
@@ -290,39 +286,36 @@ def aggregate_travel_times(segment_list, time_range, date_range):
 
             cursor.execute(agg_tt, {"segment_list": segment_list, "time_range": time_range, "date_range": date_range})
             records = cursor.fetchall()
+            return records
 
 
-    if request.json['file_type'] == 'csv':
-        with open(filePath, 'w', newline='') as csvFile:
-            fields = [
-                'from_street','to_street','via_street', # geom
-                'time_range','date_range','dow','holidays', # temporal
-                'mean_travel_time' # data!
-            ]
-            csv_writer = csv.DictWriter( csvFile, fieldnames = fields )
-            csv_writer.writeheader()
-            for rand, in records:
-                csv_writer.writerow({
-                    'from_street': '',
-                    'to_street': '',
-                    'via_street': '',
-                    'time_range': request.json['time_periods'][0], # like [{'start_time': '19:00', 'end_time': '20:00', 'name': 'new range'}]
-                    'date_range': request.json['date_range'], # like '[1999-12-31, 2023-04-24]'
-                    'dow': ','.join([ str(v) for v in request.json['days_of_week'] ]),
-                    'holidays': request.json['holidays'],
-                    'mean_travel_time': rand
-                })
-            csvFile.flush()
-        mime_type = "text/csv"
-    #elif file_type == 'xlsx':
-    #    data_file_path = make_travel_data_xlsx(travel_data_list, columns)
-    #    mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    else:
-        abort(501, description="Currently only support csv files.")
-        return
-
-    file_response = send_file(filePath, mimetype=mime_type)
-    return file_response
+    # if request.json['file_type'] == 'csv':
+    #     with open(filePath, 'w', newline='') as csvFile:
+    #         fields = [
+    #             'from_street','to_street','via_street', # geom
+    #             'time_range','date_range','dow','holidays', # temporal
+    #             'mean_travel_time' # data!
+    #         ]
+    #         csv_writer = csv.DictWriter( csvFile, fieldnames = fields )
+    #         csv_writer.writeheader()
+    #         for rand, in records:
+    #             csv_writer.writerow({
+    #                 'time_range': request.json['time_periods'][0], # like [{'start_time': '19:00', 'end_time': '20:00', 'name': 'new range'}]
+    #                 'date_range': request.json['date_range'], # like '[1999-12-31, 2023-04-24]'
+    #                 'dow': ','.join([ str(v) for v in request.json['days_of_week'] ]),
+    #                 'holidays': request.json['holidays'],
+    #                 'mean_travel_time': rand
+    #             })
+    #         csvFile.flush()
+    #     mime_type = "text/csv"
+    # #elif file_type == 'xlsx':
+    # #    data_file_path = make_travel_data_xlsx(travel_data_list, columns)
+    # #    mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    # else:
+    #     abort(501, description="Currently only support csv files.")
+    #     return
+    # file_response = send_file(filePath, mimetype=mime_type)
+    # return file_response
 
 
 @app.route('/date-bounds', methods=['GET'])
