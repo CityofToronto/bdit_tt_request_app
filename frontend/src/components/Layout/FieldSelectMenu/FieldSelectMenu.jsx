@@ -1,11 +1,9 @@
-import FormControl from "@material-ui/core/FormControl";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import {Button, Checkbox} from "@material-ui/core";
-import React from "react";
+import React from "react"
+import { 
+	FormControl, FormGroup, Grid, Tooltip,
+	FormControlLabel, Button, Checkbox 
+} from "@mui/material"
 import "./FieldSelectMenu.css"
-import Grid from "@material-ui/core/Grid";
-import Tooltip from "@material-ui/core/Tooltip";
 
 export const VALID_COLUMN_NAMES = ['mean_tt', 'min_tt',
     'max_tt', 'pct_5_tt', 'pct_10_tt', 'pct_15_tt', 'pct_20_tt', 'pct_25_tt', 'pct_30_tt', 'pct_35_tt', 'pct_40_tt',
