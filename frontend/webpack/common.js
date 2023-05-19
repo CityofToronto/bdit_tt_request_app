@@ -54,7 +54,7 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template:'./src/index_template.html',
-            publicPath:'/public',
+            publicPath:'/traveltime-request',
             chunks: ['app']
         })
     ],
