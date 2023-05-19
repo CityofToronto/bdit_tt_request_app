@@ -1,5 +1,4 @@
 # frontend ignore
-node_modules/
 /.pnp
 .pnp.js
 prod-build/
