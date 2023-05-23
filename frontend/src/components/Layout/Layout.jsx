@@ -1,5 +1,4 @@
 import { Component } from "react"
-
 import Map from "../Map"
 import TimeRange from "./Datetime/TimeRange"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
