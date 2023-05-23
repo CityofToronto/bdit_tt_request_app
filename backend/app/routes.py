@@ -151,14 +151,21 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                     'name': st_name,
                     'sequence': seq,
                     'segment_id': segment_id,
-                    'geom': json.loads(geom),
+                    'geometry': json.loads(geom),
                     'length_km': length_km
                 })
 
     shortest_link_data = {
         "source": from_node_id, 
         "target": to_node_id,
-        "links": links
+        "links": links,
+        # the following three fields are for compatibility and should eventually be removed
+        "path_name": "",
+        "link_dirs": [ link['link_dir'] for link in links ],
+        "geometry": {
+            "type": "MultiLineString",
+            "coordinates": [ link['geometry']['coordinates'] for link in links ]
+        }
     }
     connection.close()
     return jsonify(shortest_link_data)
