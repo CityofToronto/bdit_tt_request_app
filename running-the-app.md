@@ -76,7 +76,7 @@ sudo nginx -s reload
 
 3. `npm run build` to create an optimized production build
 
-4. `pm2 serve build 8071 -spa` to deploy the production build, where `8071` is the port number assigned to the frontend application. This will also be the port to access the project application with.
+4. `pm2 serve dist 8071 -spa` to deploy the production build, where `8071` is the port number assigned to the frontend application. This will also be the port to access the project application with.
 
 ### Things to figure out:
 
@@ -88,7 +88,9 @@ sudo nginx -s reload
 ### Frontend
 * `cd frontend`
 * `npm install`
-* `npm start`
+* then concurrently:
+    * `npm start`; this will start a little server for the frontend
+    * `npm run build-dev`; this will build the source code and watch files for changes
 
 ### Backend
 * `cd backend`
