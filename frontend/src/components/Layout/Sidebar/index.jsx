@@ -90,7 +90,7 @@ export default class SidebarContent extends React.Component {
                     <Grid item>
                         <Grid container direction="column" alignItems="center" alignContent="center" spacing={2}>
                             <Grid item>
-                                <div ref={React.createRef()}>
+                                <div>
                                     File Type: &nbsp;
                                     <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
                                         <option value={"geojson"}>GeoJSON (geometries only)</option>

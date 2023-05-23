@@ -4,7 +4,7 @@ const axios = require('axios')
 axios.defaults.withCredentials = true
 /* remote domain and local test domain */
 const domain = process.env.NODE_ENV === 'development' ? 
-    'http://127.0.0.1:5006' : 'https://10.160.2.198/tt-request-backend'
+    'http://127.0.0.1:5000' : 'https://10.160.2.198/tt-request-backend'
 const fileDownload = require('js-file-download')
 
 const handleResponseError = (err) => {
@@ -139,7 +139,6 @@ export function getDateBoundaries(){
         }
     }).catch(err => handleResponseError(err))
 }
-
 
 export const getTravelDataFile = ({fileType,timePeriods,listOfLinkDirs,start_date,end_date,include_holidays,days_of_week}, enableGetButton) => {
     if (!fileType) {

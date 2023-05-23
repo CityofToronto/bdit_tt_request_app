@@ -1,11 +1,11 @@
 import React from "react"
 import Sidebar from "react-sidebar"
-import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material"
+import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
 import Map from "../Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes, getTravelDataFile } from "../../actions"
+import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { getDateBoundaries } from '../../actions'
