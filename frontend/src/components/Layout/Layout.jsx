@@ -7,7 +7,7 @@ import FileSettingsFactory from "./Settings/FileSettings"
 import { getDateBoundaries } from '../../actions'
 
 import Sidebar from "react-sidebar"
-import { Button } from "@material-ui/core"
+import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 

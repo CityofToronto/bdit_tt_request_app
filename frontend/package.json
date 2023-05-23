@@ -52,6 +52,7 @@
         "react-date-picker": "^8.4.0",
         "react-dom": "18.x",
         "react-dropdown": "^1.11.0",
+        "react-leaflet": "^4.2.1",
         "react-notifications": "^1.7.4",
         "react-refresh": "^0.11.0",
         "react-sidebar": "^3.0.2",
