@@ -190,20 +190,16 @@ def aggregate_travel_times(segment_list, time_range, date_range):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            corridor_length_here = '''SELECT SUM(length)
-                                    FROM here.routing_streets_22_2
-                                    WHERE link_id IN %(segment_list)s 
-                            '''
-
-            corridor_length_cns = '''SELECT SUM(length)
-                                    FROM congestion.network_segments
-                                    WHERE segment_id IN %(segment_list)s 
-                            '''
+            # corridor_length = '''SELECT SUM(length)
+            #                         FROM here.routing_streets_22_2
+            #                         WHERE link_id IN %(segment_list)s 
+            #                 '''
             
             agg_tt = '''
                         unnest_cte AS (
                             SELECT
                                 array_length(segs.segment_list, 1) AS num_seg,
+                                rgs.corridor_length,
                                 unnest(rgs.segment_list) AS segment_id
                             FROM routing AS rgs
                         ),
@@ -327,6 +323,7 @@ def aggregate_travel_times(segment_list, time_range, date_range):
     # else:
     #     abort(501, description="Currently only support csv files.")
     #     return
+
     # file_response = send_file(filePath, mimetype=mime_type)
     # return file_response
 
