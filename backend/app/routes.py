@@ -101,12 +101,12 @@ def get_closest_node(longitude, latitude):
 
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
-    """Returns the shortest path between two nodes."""
+    """Returns links of the shortest path between two nodes on the HERE network"""
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
     except ValueError or ArithmeticError:
-        abort(400, description="The node_ids should be integers!")
+        abort(400, description="The node_ids should be integers")
         return
 
     if from_node_id == to_node_id:
@@ -117,42 +117,55 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
     with connection:
         with connection.cursor() as cursor:
-            #Uses pg_routing to route between the start node and end node on the HERE
-            #links network. Returns inputs and an array of link_dirs and a unioned line
-            #TODO: convert to here_gis.get_links_between_nodes
-            select_sql = '''
+            cursor.execute('''
                 WITH results as (
                     SELECT *
-                    FROM pgr_dijkstra(
-                        'SELECT id, source::int, target::int, length::int AS cost FROM here.routing_streets_name',
-                        %(node_start)s,
-                        %(node_end)s
-                    )
+                    FROM here_gis.get_links_btwn_nodes_22_2(
+                        '%(node_start)s',
+                        '%(node_end)s'
+                    ),
+                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
                 )
 
                 SELECT 
-                    %(node_start)s,
-                    %(node_end)s,
-                    array_agg(st_name),
-                    array_agg(link_dir),
-                    ST_AsGeoJSON(ST_union(ST_linemerge(geom))) AS geometry
+                    results.link_dir,
+                    attr.st_name,
+                    results.seq,
+                    seg_lookup.segment_id,
+                    ST_AsGeoJSON(streets.geom) AS geom,
+                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
                 FROM results
-                INNER JOIN here.routing_streets_name on edge = id'''
-            cursor.execute(select_sql, {"node_start": from_node_id, "node_end": to_node_id})
-            source, target, path, link_dirs, geometry = cursor.fetchone()
+                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+                JOIN here_gis.streets_att_22_2 AS attr 
+                    ON attr.link_id::int = substring(link_dir,'\d+')::int
+                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+                ORDER BY seq;
+                ''',
+                {"node_start": from_node_id, "node_end": to_node_id}
+            )
 
-    # Set of street names used in path
-    uniqueNames = []
-    for stname in path:
-        if stname not in uniqueNames:
-            uniqueNames.append(stname)
+            links = []
+            for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
+                links.append({
+                    'link_dir': link_dir,
+                    'name': st_name,
+                    'sequence': seq,
+                    'segment_id': segment_id,
+                    'geometry': json.loads(geom),
+                    'length_km': length_km
+                })
 
     shortest_link_data = {
-        "source": source, 
-        "target": target,
-        "path_name": ', '.join(uniqueNames), 
-        "link_dirs": link_dirs, 
-        "geometry": json.loads(geometry) # parse json to object here; it will be dumped back to text in a second
+        "source": from_node_id, 
+        "target": to_node_id,
+        "links": links,
+        # the following three fields are for compatibility and should eventually be removed
+        "path_name": "",
+        "link_dirs": [ link['link_dir'] for link in links ],
+        "geometry": {
+            "type": "MultiLineString",
+            "coordinates": [ link['geometry']['coordinates'] for link in links ]
+        }
     }
     connection.close()
     return jsonify(shortest_link_data)
