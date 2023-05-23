@@ -1,12 +1,11 @@
 import React from "react"
 import Sidebar from "react-sidebar"
-import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material"
+import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
 import Map from "../Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
 import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
-import FieldSelectMenu from "./FieldSelectMenu/FieldSelectMenu"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { getDateBoundaries } from '../../actions'
@@ -283,25 +282,6 @@ export default class Layout extends React.Component {
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
                 />
-
-                <Dialog
-                    open={this.state.popupOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-
-                    <DialogTitle id="form-dialog-title">Choose columns to include in the response <br/>(leave empty if
-                        requires all)</DialogTitle>
-
-                    <DialogActions>
-                        <FieldSelectMenu
-                            replaceSettings={this.replaceSettings}
-                            fileSettings={this.state.fileSettings}
-                            handleClose={this.handleClose}
-                        />
-                    </DialogActions>
-
-                </Dialog>
                 <NotificationContainer/>
             </div>
         );

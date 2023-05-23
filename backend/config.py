@@ -3,8 +3,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 REQUIRED_SYSTEM_ENVIRONMENT_VARIABLES = ['SECRET_KEY', 'DATABASE_URL', 'LINK_TABLE_NAME', 'NODE_TABLE_NAME',
-                                         'TRAVEL_DATA_TABLE_NAME', 'TEMP_FILE_LOCATION',
-                                         'KEEP_TEMP_FILE', 'POSTGIS_GEOM_SRID']
+                                         'TRAVEL_DATA_TABLE_NAME', 'POSTGIS_GEOM_SRID']
 
 
 if False in [var in os.environ for var in REQUIRED_SYSTEM_ENVIRONMENT_VARIABLES]:

@@ -81,11 +81,9 @@ export default class SidebarContent extends React.Component {
     }
 
     render() {
-        const rangeParams = this.props.activeRange.getParams();
-        const fileParams = this.props.fileSettings.getParams();
-        let params = {};
-        Object.assign(params, rangeParams);
-        Object.assign(params, fileParams);
+        const rangeParams = this.props.activeRange.getParams()
+        const fileParams = this.props.fileSettings.getParams()
+        let params = {...rangeParams, ...fileParams}
         return (
             <div id="sidebar-container">
                 <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={3}>
@@ -96,17 +94,11 @@ export default class SidebarContent extends React.Component {
                                     File Type: &nbsp;
                                     <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
                                         <option value={"geojson"}>GeoJSON (geometries only)</option>
-                                        {false && <option value={"csv"}>CSV (data tables)</option>}
+                                        <option value={"csv"}>CSV (data tables)</option>
                                         {false && <option value={"xlsx"}>Excel (data tables)</option>}
                                     </Select>
                                 </div>
                             </Grid>
-
-                            {false && <Grid item>
-                                <Button variant="contained" color="primary" onClick={this.props.openPopup} className={"popup"}>
-                                    Choose Response Fields
-                                </Button>
-                            </Grid>}
 
                             <Grid item>
                                 <Button
@@ -114,13 +106,13 @@ export default class SidebarContent extends React.Component {
                                     onClick={this.props.onGo}
                                     disabled={this.props.disableGetButton}
                                 >
-                                    {this.props.disableGetButton ? `Please Wait` : `Get Displayed Links' Data`}
+                                    {this.props.disableGetButton ? `Please Wait` : `Download Travel Time Data`}
                                 </Button>
                             </Grid>
                         </Grid>
                     </Grid>
 
-                    {false && <Grid item>
+                    <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
@@ -147,9 +139,9 @@ export default class SidebarContent extends React.Component {
                                 />
                             </Grid>
                         </Grid>
-                    </Grid>}
+                    </Grid>
 
-                    {false && <Grid item>
+                    <Grid item>
                         <FormControl component="fieldset">
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
@@ -167,9 +159,9 @@ export default class SidebarContent extends React.Component {
                                 ) ) }
                             </FormGroup>
                         </FormControl>
-                    </Grid>}
+                    </Grid>
 
-                    {false && <Grid item>
+                    <Grid item>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -180,9 +172,9 @@ export default class SidebarContent extends React.Component {
                             }
                             label="Include Holidays"
                         />
-                    </Grid>}
+                    </Grid>
 
-                    {false && <Grid item>
+                    <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Grid item>
                                 <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
@@ -279,8 +271,7 @@ export default class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>}
-
+                    </Grid>
                 </Grid>
             </div>
 

@@ -1,5 +1,4 @@
 import Axios from "axios";
-import { VALID_COLUMN_NAMES } from "./components/Layout/FieldSelectMenu/FieldSelectMenu";
 
 const axios = require('axios');
 axios.defaults.withCredentials = true;
@@ -166,12 +165,6 @@ export const getTravelDataFile = (data, enableGetButton) => {
             days_of_week: data.days_of_week,
         }
     } else {
-        let columns = [];
-        data.fields.forEach((value, index) => {
-            if (value){
-                columns.push(VALID_COLUMN_NAMES[index]);
-            }
-        });
         req_body = {
             list_of_time_periods: data.listOfTimePeriods,
             list_of_links: data.listOfLinkDirs,
@@ -179,8 +172,7 @@ export const getTravelDataFile = (data, enableGetButton) => {
             start_date: data.start_date,
             end_date: data.end_date,
             include_holidays: data.include_holidays,
-            days_of_week: data.days_of_week,
-            columns: columns
+            days_of_week: data.days_of_week
         }
     }
 
