@@ -223,13 +223,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
                         period_def(period_name, time_range, dow) AS (
                             VALUES 
-                            ('Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range)
+                            ('Period'::text, '['%(time_start)s','%(time_end)s')'::numrange, '[1, 6)'::int4range)
                         ),
 
                         -- Date range definition
                         date_def(range_name, date_range) AS (
                             VALUES
-                            ('Range'::text, '[2020-05-01, 2020-07-31)'::daterange)
+                            ('Range'::text, '['%(date_start)s','%(date_end)s')'::daterange)
                         ),
 
                         -- Aggregate segments to corridor on a daily, hourly basis
