@@ -180,8 +180,8 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # aggregate_travel_times(segment_list, time_range, date_range)
 #
 #
-@app.route('/aggregate-travel-times/<segment_list>/<time_range>/<date_range>', methods=['GET'])
-def aggregate_travel_times(segment_list, time_range, date_range):
+@app.route('/aggregate-travel-times/<start_node>/<end_node>/<time_range>/<date_range>', methods=['GET'])
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
     # results will be written to file here (random, non-conflicting filenames)
     # here_22_2 -> linkdir -> segment_links -> network_segments
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
@@ -196,10 +196,14 @@ def aggregate_travel_times(segment_list, time_range, date_range):
             #                 '''
             
             agg_tt = '''
+                        WITH routing AS (
+                            SELECT * FROM congestion.get_segments_btwn_nodes('%(node_start)s','%(node_end)s')
+                        ),
+                        
                         unnest_cte AS (
                             SELECT
-                                array_length(segs.segment_list, 1) AS num_seg,
-                                rgs.corridor_length,
+                                array_length(rgs.segment_list, 1) AS num_seg,
+                                rgs.length AS corridor_length,
                                 unnest(rgs.segment_list) AS segment_id
                             FROM routing AS rgs
                         ),
@@ -219,13 +223,13 @@ def aggregate_travel_times(segment_list, time_range, date_range):
 
                         period_def(period_name, time_range, dow) AS (
                             VALUES 
-                            ('AM Peak Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range)
+                            ('Period'::text, '[7, 10)'::numrange, '[1, 6)'::int4range)
                         ),
 
                         -- Date range definition
                         date_def(range_name, date_range) AS (
                             VALUES
-                            ('May 1 to July 31, 2020'::text, '[2020-05-01, 2020-07-31)'::daterange)
+                            ('Range'::text, '[2020-05-01, 2020-07-31)'::daterange)
                         ),
 
                         -- Aggregate segments to corridor on a daily, hourly basis
@@ -293,7 +297,7 @@ def aggregate_travel_times(segment_list, time_range, date_range):
 
 
 
-            cursor.execute(agg_tt, {"segment_list": segment_list, "time_range": time_range, "date_range": date_range})
+            cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_start": start_time, "time_end": end_time, "date_start": start_date, "date_end": end_date})
             records = cursor.fetchall()
             return records
 
