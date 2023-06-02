@@ -185,7 +185,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     # results will be written to file here (random, non-conflicting filenames)
     # here_22_2 -> linkdir -> segment_links -> network_segments
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
-    print(request.json)
 
     timerange = "["+ start_time + "," + end_time + ")"
     daterange = "["+ start_date + "," + end_date + ")"
@@ -193,11 +192,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            # corridor_length = '''SELECT SUM(length)
-            #                         FROM here.routing_streets_22_2
-            #                         WHERE link_id IN %(segment_list)s 
-            #                 '''
-            
             agg_tt = '''
                 WITH routing AS (
                     SELECT * FROM congestion.get_segments_btwn_nodes('%(node_start)s','%(node_end)s')
@@ -245,7 +239,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                         period_def.period_name,
                         routed.corridor_length,
                         SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
-
                     FROM routed 
                     JOIN congestion.network_segments_daily AS cn USING (segment_id)
                     CROSS JOIN period_def
@@ -256,26 +249,22 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                         AND date_part('isodow'::text, cn.dt)::integer <@ period_def.dow  
                         AND holiday.dt IS NULL 
                         AND cn.dt <@ date_def.date_range
-
                     GROUP BY
                         cn.dt, 
                         cn.hr,
                         period_def.period_name, 
                         date_def.range_name, 
                         routed.corridor_length
-
                     HAVING SUM(cn.length_w_data) >= routed.corridor_length*0.8 -- where corridor has at least 80pct of links with data
                 ), 
 
                 -- Average the hours selected into daily period level data
                 corridor_period_daily_avg_tt AS ( 
-
                     SELECT
                         dt, 
                         range_name, 
                         period_name, 
                         AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
-
                     FROM corridor_hourly_daily_agg 
                     GROUP BY 
                         dt, 
@@ -289,7 +278,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     period_name,
                     COUNT(*) AS days_with_data,
                     ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
-
                 FROM corridor_period_daily_avg_tt 
                 GROUP BY 
                     range_name, 
@@ -299,9 +287,17 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     period_name; 
             '''
             #cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_range": timerange, "date_range": daterange})
-            cursor.execute(agg_tt, {"node_start":30310940,"node_end":30310942,"time_range": '[7,10)',"date_range":'[2020-05-01,2020-07-31)'})
+            cursor.execute(
+                agg_tt,
+                {
+                    "node_start": 30310940,
+                    "node_end": 30310942,
+                    "time_range": '[7,10)',
+                    "date_range": '[2020-05-01,2020-07-31)'
+                }
+            )
             rangetext, periodtext, numdays, travel_time = cursor.fetchone()
-            return {'travel_time': str(travel_time)}
+            return jsonify({'travel_time': float(travel_time)})
 
 
     # if request.json['file_type'] == 'csv':
