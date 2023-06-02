@@ -225,13 +225,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
                 period_def(period_name, time_range, dow) AS (
                     VALUES 
-                    ('Period'::text, '%(time_range)s'::numrange, '[1, 6)'::int4range)
+                    ('Period'::text, %(time_range)s::numrange, '[1, 6)'::int4range)
                 ),
 
                 -- Date range definition
                 date_def(range_name, date_range) AS (
                     VALUES
-                    ('Range'::text, '%(date_range)s'::daterange)
+                    ('Range'::text, %(date_range)s::daterange)
                 ),
 
                 -- Aggregate segments to corridor on a daily, hourly basis
@@ -263,7 +263,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                         date_def.range_name, 
                         routed.corridor_length
 
-                    HAVING SUM(cn.length_w_data) >= routed.corridor_length*0.8 -- where corridor has at least 80% of links with data
+                    HAVING SUM(cn.length_w_data) >= routed.corridor_length*0.8 -- where corridor has at least 80pct of links with data
                 ), 
 
                 -- Average the hours selected into daily period level data
@@ -301,9 +301,9 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
 
             #cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_range": timerange, "date_range": daterange})
-            cursor.execute(agg_tt, {"node_start":'30310940',"node_end":'30310942',"time_range": '[7,10)',"date_range":'[2020-05-01,2020-07-31)'})
-            records = cursor.fetchall()
-            return records
+            cursor.execute(agg_tt, {"node_start":30310940,"node_end":30310942,"time_range": '[7,10)',"date_range":'[2020-05-01,2020-07-31)'})
+            rangetext, periodtext, numdays, travel_time = cursor.fetchone()
+            return {'travel_time': str(travel_time)}
 
 
     # if request.json['file_type'] == 'csv':
