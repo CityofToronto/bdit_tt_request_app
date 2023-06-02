@@ -94,7 +94,7 @@ export default class SidebarContent extends React.Component {
                                     File Type: &nbsp;
                                     <Select native value={params.fileType} onChange={this.fileTypeChange.bind(this)}>
                                         <option value={"geojson"}>GeoJSON (geometries only)</option>
-                                        <option value={"csv"}>CSV (data tables)</option>
+                                        {false && <option value={"csv"}>CSV (data tables)</option>}
                                         {false && <option value={"xlsx"}>Excel (data tables)</option>}
                                     </Select>
                                 </div>
@@ -106,13 +106,13 @@ export default class SidebarContent extends React.Component {
                                     onClick={this.props.onGo}
                                     disabled={this.props.disableGetButton}
                                 >
-                                    {this.props.disableGetButton ? `Please Wait` : `Download Travel Time Data`}
+                                    {this.props.disableGetButton ? `Please Wait` : `Get displayed links data`}
                                 </Button>
                             </Grid>
                         </Grid>
                     </Grid>
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="row" alignContent="center" alignItems="flex-start" spacing={5}>
                             <Grid item>
                                 <h5>Start Date</h5>
@@ -139,9 +139,9 @@ export default class SidebarContent extends React.Component {
                                 />
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
 
-                    <Grid item>
+                    {false && <Grid item>
                         <FormControl component="fieldset">
                             <FormLabel component="legend">Select Days of Week</FormLabel>
                             <FormGroup row>
@@ -159,9 +159,9 @@ export default class SidebarContent extends React.Component {
                                 ) ) }
                             </FormGroup>
                         </FormControl>
-                    </Grid>
+                    </Grid>}
 
-                    <Grid item>
+                    {false && <Grid item>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -172,9 +172,9 @@ export default class SidebarContent extends React.Component {
                             }
                             label="Include Holidays"
                         />
-                    </Grid>
+                    </Grid>}
 
-                    <Grid item>
+                    {false && <Grid item>
                         <Grid container direction="column" alignItems="flex-start" alignContent="center" spacing={1}>
                             <Grid item>
                                 <Grid container direction="row" alignItems="center" alignContent="center" spacing={1}>
@@ -271,7 +271,7 @@ export default class SidebarContent extends React.Component {
                                 </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid>}
                 </Grid>
             </div>
 

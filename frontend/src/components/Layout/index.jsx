@@ -9,7 +9,7 @@ import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { getDateBoundaries } from '../../actions'
-import "./layout.css"
+import "./Layout.css"
 
 export default class Layout extends React.Component {
     constructor(props) {
@@ -26,6 +26,7 @@ export default class Layout extends React.Component {
         };
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
         this.handleClose = this.handleClose.bind(this)
+        this.openPopup = this.openPopup.bind(this)
         this.replaceSettings = this.replaceSettings.bind(this)
         this.addRange = this.addRange.bind(this)
         this.replicateRange = this.replicateRange.bind(this)
@@ -188,43 +189,39 @@ export default class Layout extends React.Component {
     }
 
     downloadData = () => {
-        if (this.state.linksList.length === 0) {
-            NotificationManager.error('Please get links first')
-            return this.setState({disableGetButton: false})
-        }
-        let allLinkDirs = this.state.linksList.map( seq => {
-            return seq.map( link => link.link_dirs )
-        });
+        if (this.state.linksList.length !== 0) {
+            let allLinkDirs = [];
+            this.state.linksList.forEach((seq) => {
+                let tmpLinkDirs = [];
+                seq.forEach((link) => {
+                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
+                });
+                allLinkDirs.push(tmpLinkDirs);
+            });
 
-       const list_of_time_periods = parseTimePeriods(this.state.ranges)
-        if (!list_of_time_periods) {
-            NotificationManager.error('Must complete all of start time and end time!');
-            return
-        }
-
-        const fileParams = this.state.fileSettings.parseSettings()
-        const fileType = fileParams['file_type']
-
-        if (fileType === 'geojson') {
-            this.downloadGeoJSON()
-        } else if(fileType==='csv') {
-            let params = {
-                timePeriods: list_of_time_periods,
-                linkDirs: allLinkDirs,
-                fileType: fileType,
-                start_date: fileParams["start_date"],
-                end_date: fileParams["end_date"],
-                include_holidays: fileParams["include_holidays"],
-                days_of_week: fileParams["days_of_week"],
-                fields: fileParams["fields"]
+            const list_of_time_periods = parseTimePeriods(this.state.ranges);
+            if (!list_of_time_periods) {
+                NotificationManager.error('Must complete all of start time and end time!');
+                return;
             }
-            this.setState({disableGetButton: true})
-            getTravelDataFile(params, () => {
-                this.setState({disableGetButton: false})
-            })
+
+            const fileParams = this.state.fileSettings.parseSettings();
+            const fileType = fileParams['file_type'];
+
+            if (fileType === 'geojson') {
+                this.downloadGeoJSON();
+            } else {
+                NotificationManager.error('Only GeoJSON filetype is currently supported');
+                return;
+            }
+        } else {
+            NotificationManager.error('Please get links first');
+            this.setState({disableGetButton: false});
         }
+
     }
 
+    openPopup() { this.setState({popupOpen: true}) }
     handleClose() { this.setState({popupOpen: false}) }
 
     replaceActiveRange = (params) => {
@@ -248,8 +245,9 @@ export default class Layout extends React.Component {
                 <Sidebar
                     sidebar={<SidebarContent
                         disableGetButton={this.state.disableGetButton}
+                        openPopup={this.openPopup}
                         range={this.state.activeRange}
-                        onGo={this.downloadData} // on clicking get data button
+                        onGo={this.downloadData}
                         fileSettings={this.state.fileSettings}
                         replaceSettings={this.replaceSettings}
                         dateTimeRanges={this.state.ranges.length}
