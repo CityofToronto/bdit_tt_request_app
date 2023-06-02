@@ -1,5 +1,7 @@
 import os
 import json
+import csv
+from uuid import uuid4 as uuid
 from flask import abort, jsonify, request, send_file
 from psycopg2 import connect, sql
 from psycopg2.extras import execute_values
@@ -170,40 +172,123 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     connection.close()
     return jsonify(shortest_link_data)
 
+@app.route(
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>',
+    methods=['GET']
+)
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
 
-#@app.route('/travel-data-file', methods=['POST'])
-#def get_links_travel_data_file():
-#    """
-#    Get the travel data file from start_time to end_time for all links in link_dirs.
-#
-#    Caution: This function may take a long time if start_time - end_time is a long period of time, or link_dirs contains
-#            too many links. (1~2min)
-#
-#    Assumptions: start_time, end_time are in res.json, and are formatted using DATE_TIME_FORMAT (%Y-%m-%d %H:%M:%S).
-#                link_dirs is in res.json, and is a list containing valid link_dir entries (string).
-#                file_type is in res.json, and is 'csv', 'xlsx' or 'shapefile'
-#    This function will be aborted if any of the assumption is not met.
-#
-#    :return: a file containing requested travel data
-#    """
-#    file_type, columns = parse_file_type_request_body(request.json)
-#    trav_data_query_params = parse_travel_request_body(request.json)
-#    travel_data_list = parse_travel_data_query_result(trav_data_query_result, columns)
+    timerange = f"[{start_time},{end_time})" # ints
+    daterange = f"[{start_date},{end_date})" # 'YYYY-MM-DD'
 
-#    if file_type == 'csv':
-#        data_file_path = make_travel_data_csv(travel_data_list, columns)
-#        mime_type = "text/csv"
-#    elif file_type == 'xlsx':
-#        data_file_path = make_travel_data_xlsx(travel_data_list, columns)
-#        mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-#    else:
-#        abort(501, description="Currently only support csv and xlsx files.")
-#        return
-#
-#    file_response = send_file(data_file_path, mimetype=mime_type)
-#    if not _need_keep_temp_file():
-#        os.remove(data_file_path)
-#    return file_response
+    agg_tt_query = agg_tt = '''
+        WITH routing AS (
+            SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
+        ),
+        
+        unnest_cte AS (
+            SELECT
+                array_length(rgs.segment_list, 1) AS num_seg,
+                rgs.length AS corridor_length,
+                unnest(rgs.segment_list) AS segment_id
+            FROM routing AS rgs
+        ),
+
+        routed AS (
+            SELECT
+                uc.num_seg,
+                uc.segment_id,
+                uc.corridor_length,
+                cns.total_length AS seg_length, 
+                cns.geom
+            FROM unnest_cte AS uc
+            INNER JOIN congestion.network_segments AS cns
+                ON cns.segment_id = uc.segment_id
+        ),
+
+        period_def(period_name, time_range, dow) AS (
+            VALUES 
+            ('Period'::text, %(time_range)s::numrange, '[1, 6)'::int4range)
+        ),
+
+        -- Date range definition
+        date_def(range_name, date_range) AS (
+            VALUES
+            ('Range'::text, %(date_range)s::daterange)
+        ),
+
+        -- Aggregate segments to corridor on a daily, hourly basis
+        corridor_hourly_daily_agg AS (
+            SELECT
+                cn.dt,
+                cn.hr,
+                date_def.range_name, 
+                period_def.period_name,
+                routed.corridor_length,
+                SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
+            FROM routed 
+            JOIN congestion.network_segments_daily AS cn USING (segment_id)
+            CROSS JOIN period_def
+            CROSS JOIN date_def
+            LEFT JOIN ref.holiday AS holiday ON cn.dt = holiday.dt -- excluding holiday
+            WHERE   
+                cn.hr <@ period_def.time_range 
+                AND date_part('isodow'::text, cn.dt)::integer <@ period_def.dow  
+                AND holiday.dt IS NULL 
+                AND cn.dt <@ date_def.date_range
+            GROUP BY
+                cn.dt, 
+                cn.hr,
+                period_def.period_name, 
+                date_def.range_name, 
+                routed.corridor_length
+            -- where corridor has at least 80pct of links with data
+            HAVING SUM(cn.length_w_data) >= routed.corridor_length * 0.8 
+        ), 
+
+        -- Average the hours selected into daily period level data
+        corridor_period_daily_avg_tt AS ( 
+            SELECT
+                dt, 
+                range_name, 
+                period_name, 
+                AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
+            FROM corridor_hourly_daily_agg 
+            GROUP BY 
+                dt, 
+                range_name, 
+                period_name
+        )
+
+        -- Average all the days with data to get period level data for each date range
+        SELECT 
+            range_name, 
+            period_name,
+            COUNT(*) AS days_with_data,
+            ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
+        FROM corridor_period_daily_avg_tt 
+        GROUP BY 
+            range_name, 
+            period_name
+        ORDER BY 
+            range_name,
+            period_name; 
+    '''
+
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                agg_tt_query, 
+                {
+                    "node_start": start_node,
+                    "node_end": end_node,
+                    "time_range": timerange,
+                    "date_range": daterange
+                }
+            )
+            rangetext, periodtext, numdays, travel_time = cursor.fetchone()
+    return jsonify({'travel_time': float(travel_time)})
 
 
 @app.route('/date-bounds', methods=['GET'])
