@@ -180,12 +180,15 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # aggregate_travel_times(segment_list, time_range, date_range)
 #
 #
-@app.route('/aggregate-travel-times/<start_node>/<end_node>/<time_range>/<date_range>', methods=['GET'])
+@app.route('/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>', methods=['GET'])
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
     # results will be written to file here (random, non-conflicting filenames)
     # here_22_2 -> linkdir -> segment_links -> network_segments
     filePath = f"{os.getcwd()}/tmp/{uuid()}.csv"
     print(request.json)
+
+    timerange = "["+ start_time + "," + end_time + ")"
+    daterange = "["+ start_date + "," + end_date + ")"
 
     connection = getConnection()
     with connection:
@@ -223,13 +226,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
                         period_def(period_name, time_range, dow) AS (
                             VALUES 
-                            ('Period'::text, '['%(time_start)s','%(time_end)s')'::numrange, '[1, 6)'::int4range)
+                            ('Period'::text, '%(time_range)s'::numrange, '[1, 6)'::int4range)
                         ),
 
                         -- Date range definition
                         date_def(range_name, date_range) AS (
                             VALUES
-                            ('Range'::text, '['%(date_start)s','%(date_end)s')'::daterange)
+                            ('Range'::text, '%(date_range)s'::daterange)
                         ),
 
                         -- Aggregate segments to corridor on a daily, hourly basis
@@ -297,7 +300,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
 
 
-            cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_start": start_time, "time_end": end_time, "date_start": start_date, "date_end": end_date})
+            #cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_range": timerange, "date_range": daterange})
+            cursor.execute(agg_tt, {"node_start":'30310940',"node_end":'30310942',"time_range": '[7,10)',"date_range":'[2020-05-01,2020-07-31)'})
             records = cursor.fetchall()
             return records
 
