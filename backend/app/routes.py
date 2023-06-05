@@ -196,21 +196,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         routed AS (
             SELECT
                 uc.segment_id,
-                uc.corridor_length,
+                uc.corridor_length
             FROM unnest_cte AS uc
             INNER JOIN congestion.network_segments AS cns
                 ON cns.segment_id = uc.segment_id
-        ),
-
-        period_def(time_range, dow) AS (
-            VALUES 
-            (%(time_range)s::numrange, '[1, 6)'::int4range)
-        ),
-
-        -- Date range definition
-        date_def(date_range) AS (
-            VALUES
-            (%(date_range)s::daterange)
         ),
 
         -- Aggregate segments to corridor on a daily, hourly basis
@@ -222,14 +211,12 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
             FROM routed 
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
-            CROSS JOIN period_def
-            CROSS JOIN date_def
             LEFT JOIN ref.holiday AS holiday ON cn.dt = holiday.dt -- excluding holiday
             WHERE   
-                cn.hr <@ period_def.time_range 
-                AND date_part('isodow'::text, cn.dt)::integer <@ period_def.dow  
+                cn.hr <@ %(time_range)s::numrange
+                AND date_part('isodow'::text, cn.dt)::integer <@ '[1, 6)'::int4range --DAY OF WEEK PARAM
                 AND holiday.dt IS NULL 
-                AND cn.dt <@ date_def.date_range
+                AND cn.dt <@ %(date_range)s::daterange
             GROUP BY
                 cn.dt, 
                 cn.hr,
