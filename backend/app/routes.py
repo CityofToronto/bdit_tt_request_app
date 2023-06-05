@@ -263,7 +263,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 FROM corridor_period_daily_avg_tt 
             '''
             cursor.execute(agg_tt, {"node_start": start_node, "node_end": end_node, "time_range": timerange, "date_range": daterange})
-            travel_time = cursor.fetchall()
+            travel_time, = cursor.fetchone()
             print(travel_time)
             return jsonify({'travel_time': float(travel_time)})
 
