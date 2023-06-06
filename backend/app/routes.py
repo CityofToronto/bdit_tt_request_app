@@ -177,10 +177,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     methods=['GET']
 )
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
-
-    timerange = f"[{start_time},{end_time})" # ints
-    daterange = f"[{start_date},{end_date})" # 'YYYY-MM-DD'
-
     agg_tt_query = agg_tt = '''
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -188,7 +184,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         
         unnest_cte AS (
             SELECT
-                array_length(rgs.segment_list, 1) AS num_seg,
                 rgs.length AS corridor_length,
                 unnest(rgs.segment_list) AS segment_id
             FROM routing AS rgs
@@ -196,25 +191,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
         routed AS (
             SELECT
-                uc.num_seg,
                 uc.segment_id,
-                uc.corridor_length,
-                cns.total_length AS seg_length, 
-                cns.geom
+                uc.corridor_length
             FROM unnest_cte AS uc
             INNER JOIN congestion.network_segments AS cns
                 ON cns.segment_id = uc.segment_id
-        ),
-
-        period_def(period_name, time_range, dow) AS (
-            VALUES 
-            ('Period'::text, %(time_range)s::numrange, '[1, 6)'::int4range)
-        ),
-
-        -- Date range definition
-        date_def(range_name, date_range) AS (
-            VALUES
-            ('Range'::text, %(date_range)s::daterange)
         ),
 
         -- Aggregate segments to corridor on a daily, hourly basis
@@ -222,25 +203,20 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             SELECT
                 cn.dt,
                 cn.hr,
-                date_def.range_name, 
-                period_def.period_name,
                 routed.corridor_length,
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
             FROM routed 
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
-            CROSS JOIN period_def
-            CROSS JOIN date_def
-            LEFT JOIN ref.holiday AS holiday ON cn.dt = holiday.dt -- excluding holiday
             WHERE   
-                cn.hr <@ period_def.time_range 
-                AND date_part('isodow'::text, cn.dt)::integer <@ period_def.dow  
-                AND holiday.dt IS NULL 
-                AND cn.dt <@ date_def.date_range
+                cn.hr <@ %(time_range)s::numrange
+                AND date_part('isodow', cn.dt)::integer <@ '[1, 5]'::int4range
+                AND cn.dt <@ %(date_range)s::daterange
+                AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                )
             GROUP BY
-                cn.dt, 
+                cn.dt,
                 cn.hr,
-                period_def.period_name, 
-                date_def.range_name, 
                 routed.corridor_length
             -- where corridor has at least 80pct of links with data
             HAVING SUM(cn.length_w_data) >= routed.corridor_length * 0.8 
@@ -249,30 +225,17 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         -- Average the hours selected into daily period level data
         corridor_period_daily_avg_tt AS ( 
             SELECT
-                dt, 
-                range_name, 
-                period_name, 
+                dt,
                 AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
             FROM corridor_hourly_daily_agg 
             GROUP BY 
-                dt, 
-                range_name, 
-                period_name
+                dt
         )
 
         -- Average all the days with data to get period level data for each date range
         SELECT 
-            range_name, 
-            period_name,
-            COUNT(*) AS days_with_data,
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
-        GROUP BY 
-            range_name, 
-            period_name
-        ORDER BY 
-            range_name,
-            period_name; 
     '''
 
     connection = getConnection()
@@ -283,11 +246,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 {
                     "node_start": start_node,
                     "node_end": end_node,
-                    "time_range": timerange,
-                    "date_range": daterange
+                    "time_range": f"[{start_time},{end_time})", # ints
+                    "date_range": f"[{start_date},{end_date})" # 'YYYY-MM-DD'
                 }
             )
-            rangetext, periodtext, numdays, travel_time = cursor.fetchone()
+            travel_time, = cursor.fetchone()
     return jsonify({'travel_time': float(travel_time)})
 
 
