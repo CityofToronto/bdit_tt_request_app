@@ -214,11 +214,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             LEFT JOIN ref.holiday AS holiday ON cn.dt = holiday.dt -- excluding holiday
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow'::text, cn.dt)::integer <@ '[1, 6)'::int4range --DAY OF WEEK PARAM
-                AND holiday.dt IS NULL 
+                AND date_part('isodow', cn.dt)::integer <@ '[1, 5]'::int4range
+                AND holiday.dt IS NULL
                 AND cn.dt <@ %(date_range)s::daterange
             GROUP BY
-                cn.dt, 
+                cn.dt,
                 cn.hr,
                 routed.corridor_length
             -- where corridor has at least 80pct of links with data
