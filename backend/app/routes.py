@@ -177,10 +177,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     methods=['GET']
 )
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
-
-    timerange = f"[{start_time},{end_time})" # ints
-    daterange = f"[{start_date},{end_date})" # 'YYYY-MM-DD'
-
     agg_tt_query = agg_tt = '''
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -249,8 +245,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 {
                     "node_start": start_node,
                     "node_end": end_node,
-                    "time_range": timerange,
-                    "date_range": daterange
+                    "time_range": f"[{start_time},{end_time})", # ints
+                    "date_range": f"[{start_date},{end_date})" # 'YYYY-MM-DD'
                 }
             )
             travel_time, = cursor.fetchone()
