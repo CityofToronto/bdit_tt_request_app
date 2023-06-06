@@ -207,12 +207,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
             FROM routed 
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
-            LEFT JOIN ref.holiday AS holiday ON cn.dt = holiday.dt -- excluding holiday
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer <@ '[1, 5]'::int4range
-                AND holiday.dt IS NULL
                 AND cn.dt <@ %(date_range)s::daterange
+                AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                )
             GROUP BY
                 cn.dt,
                 cn.hr,
