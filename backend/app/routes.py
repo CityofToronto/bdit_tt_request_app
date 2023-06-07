@@ -173,10 +173,10 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<incl_holiday>/<dow_list>',
     methods=['GET']
 )
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, incl_holiday: bool, dow_list):
     agg_tt_query = agg_tt = '''
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -238,6 +238,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
+    if incl_holiday:
+        holiday = '0,1'
+    else: 
+        holiday = '1'
+
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
@@ -247,11 +252,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_start": start_node,
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
-                    "date_range": f"[{start_date},{end_date})" # 'YYYY-MM-DD'
+                    "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
+                    "incl_holiday": holiday
                 }
             )
             travel_time, = cursor.fetchone()
     return jsonify({'travel_time': float(travel_time)})
+
 
 
 @app.route('/date-bounds', methods=['GET'])
