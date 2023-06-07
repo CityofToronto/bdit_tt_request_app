@@ -177,7 +177,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     methods=['GET']
 )
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, incl_holiday: bool, dow_list):
-    agg_tt_query = agg_tt = '''
+    agg_tt_query = agg_tt = ''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
         ),
@@ -209,10 +209,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow', cn.dt)::integer <@ '[1, 5]'::int4range
+                AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange
                 AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                    SELECT %(incl_holiday)s FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
                 )
             GROUP BY
                 cn.dt,
@@ -243,6 +243,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     else: 
         holiday = '1'
 
+    print(tuple(dow_list))
+
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
@@ -253,7 +255,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "incl_holiday": holiday
+                    "incl_holiday": holiday,
+                    "dow_list": tuple(dow_list)
                 }
             )
             travel_time, = cursor.fetchone()
