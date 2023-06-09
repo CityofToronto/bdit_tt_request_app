@@ -172,10 +172,23 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     connection.close()
     return jsonify(shortest_link_data)
 
+
 @app.route(
     '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<incl_holiday>/<dow_list>',
     methods=['GET']
 )
+# aggregate_travel_times()
+#
+# Params:
+# - start_node(int): the node_id of the starting node
+# - end_node(int): the node_id of the end node
+# - start_time(int): starting hour of aggregation
+# - end_time(int): end hour of aggregation
+# - start_date(datetime): start date of aggregation
+# - end_date(datetime): end date of aggregation
+# - incl_holiday(bool): inputs [0(false),1(true)], whether to include days marked as holidays in aggregation (schema ref.holidays)
+# - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
+#
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, incl_holiday: bool, dow_list):
     agg_tt_query = agg_tt = ''' 
         WITH routing AS (
