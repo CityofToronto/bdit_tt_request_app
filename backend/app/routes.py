@@ -269,7 +269,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
                     "incl_holiday": str(holiday),
-                    "dow_list": tuple(dow_list)
+                    "dow_list": [ int(x) for x in tuple(dow_list) ]
                 }
             )
             travel_time, = cursor.fetchone()
