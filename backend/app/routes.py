@@ -186,9 +186,10 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
+# - is_holiday(bool): 
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_list):
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, is_holiday::bool dow_list):
     agg_tt_query = agg_tt = ''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -247,6 +248,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
+    
+    if holiday:
+        holiday_query = '''                AND NOT EXISTS (
+                    SELECT %(incl_holiday)s FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays '''
 
     print(tuple(dow_list))
 
