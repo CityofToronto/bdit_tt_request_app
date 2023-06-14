@@ -174,7 +174,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<incl_holiday>/<dow_list>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_list>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -186,10 +186,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
-# - incl_holiday(bool): inputs [0(false),1(true)], whether to include days marked as holidays in aggregation (schema ref.holidays)
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, incl_holiday: bool, dow_list):
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_list):
     agg_tt_query = agg_tt = ''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -224,8 +223,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange
-                AND NOT EXISTS (
-                    SELECT %(incl_holiday)s FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
                 )
             GROUP BY
                 cn.dt,
@@ -251,10 +248,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-    if incl_holiday:
-        holiday = '0,1'
-    else: 
-        holiday = '1'
 
     print(tuple(dow_list))
 
@@ -268,7 +261,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "incl_holiday": str(holiday),
                     "dow_list": tuple(dow_list)
                 }
             )
