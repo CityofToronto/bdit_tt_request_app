@@ -248,7 +248,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-
     print(tuple(dow_list))
 
     connection = getConnection()
