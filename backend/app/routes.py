@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import re
 from uuid import uuid4 as uuid
 from flask import abort, jsonify, request, send_file
 from psycopg2 import connect, sql
@@ -221,9 +222,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
+                AND date_part('isodow', cn.dt)::integer = ANY(%(dow_list)s)
                 AND cn.dt <@ %(date_range)s::daterange
-                )
             GROUP BY
                 cn.dt,
                 cn.hr,
@@ -249,6 +249,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     '''
 
     print(tuple(dow_list))
+    if not re.match(r"[1-7]*", dow_list):
+        raise Exception("invalid characters in dow list!")
 
     connection = getConnection()
     with connection:
@@ -260,7 +262,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": tuple(dow_list)
+                    "dow_list": [ int(x) for x in tuple(dow_list) ]
                 }
             )
             travel_time, = cursor.fetchone()
