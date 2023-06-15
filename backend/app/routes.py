@@ -174,7 +174,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_list>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<is_holiday>/<dow_list>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -265,7 +265,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": tuple(dow_list)
+                    "dow_list": [ int(x) for x in tuple(dow_list) ]
                 }
             )
             travel_time, = cursor.fetchone()
