@@ -248,9 +248,9 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-    print(tuple(dow_list))
     if not re.match(r"[1-7]*", dow_list):
-        raise Exception("invalid characters in dow list!")
+        #Raise error and return without executing query: dow list contains invalid characters
+        return jsonify({'error': "invalid characters in dow list"})
 
     connection = getConnection()
     with connection:
