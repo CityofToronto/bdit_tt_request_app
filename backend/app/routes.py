@@ -175,7 +175,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_list>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_str>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -189,7 +189,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_date(datetime): end date of aggregation
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_list):
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_str):
     agg_tt_query = agg_tt = ''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
@@ -222,7 +222,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow', cn.dt)::integer = ANY(%(dow_list)s)
+                AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange
             GROUP BY
                 cn.dt,
@@ -247,13 +247,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
-    print(tuple(dow_list))
 
-    dow_str = re.findall(r"[1-7]*", dow_list)[0]
-    print(dow_str)
-    if dow_str == "":
+    dow_list = [str(x) for x in re.findall(r"[1-7]", dow_str)]
+    if dow_list == []:
         #Raise error and return without executing query: dow list does not contain valid characters
-        return jsonify({'error': "invalid characters in dow list"})
+        return jsonify({'error': "dow list does not contain valid characters"})
 
     connection = getConnection()
     with connection:
@@ -265,7 +263,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": [ int(x) for x in tuple(dow_str) ]
+                    "dow_list": tuple(dow_list)
                 }
             )
             travel_time, = cursor.fetchone()
