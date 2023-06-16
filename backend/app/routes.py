@@ -248,7 +248,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-    dow_list = [str(x) for x in re.findall(r"[1-7]", dow_str)]
+    dow_list = re.findall(r"[1-7]", dow_str)
     if dow_list == []:
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters"})
