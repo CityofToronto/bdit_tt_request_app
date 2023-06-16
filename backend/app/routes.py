@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import re
 from uuid import uuid4 as uuid
 from flask import abort, jsonify, request, send_file
 from psycopg2 import connect, sql
@@ -172,12 +173,24 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     connection.close()
     return jsonify(shortest_link_data)
 
+
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_str>',
     methods=['GET']
 )
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date):
-    agg_tt_query = agg_tt = '''
+# aggregate_travel_times()
+#
+# Params:
+# - start_node(int): the node_id of the starting node
+# - end_node(int): the node_id of the end node
+# - start_time(int): starting hour of aggregation
+# - end_time(int): end hour of aggregation
+# - start_date(datetime): start date of aggregation
+# - end_date(datetime): end date of aggregation
+# - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
+#
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_str):
+    agg_tt_query = agg_tt = ''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
         ),
@@ -209,11 +222,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             JOIN congestion.network_segments_daily AS cn USING (segment_id)
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow', cn.dt)::integer <@ '[1, 5]'::int4range
+                AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange
-                AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
-                )
             GROUP BY
                 cn.dt,
                 cn.hr,
@@ -238,6 +248,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
+    dow_list = re.findall(r"[1-7]", dow_str)
+    if len(dow_list) == 0:
+        #Raise error and return without executing query: dow list does not contain valid characters
+        return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
+
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
@@ -247,11 +262,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_start": start_node,
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
-                    "date_range": f"[{start_date},{end_date})" # 'YYYY-MM-DD'
+                    "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
+                    "dow_list": tuple(dow_list)
                 }
             )
             travel_time, = cursor.fetchone()
     return jsonify({'travel_time': float(travel_time)})
+
 
 
 @app.route('/date-bounds', methods=['GET'])
