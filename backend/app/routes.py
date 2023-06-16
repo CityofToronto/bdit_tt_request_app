@@ -247,9 +247,12 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
+    print(tuple(dow_list))
 
-    if not re.match(r"[1-7]*", dow_list):
-        #Raise error and return without executing query: dow list contains invalid characters
+    dow_str = re.findall(r"[1-7]*", dow_list)[0]
+    print(dow_str)
+    if dow_str == "":
+        #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "invalid characters in dow list"})
 
     connection = getConnection()
@@ -262,7 +265,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": [ int(x) for x in tuple(dow_list) ]
+                    "dow_list": [ int(x) for x in tuple(dow_str) ]
                 }
             )
             travel_time, = cursor.fetchone()
