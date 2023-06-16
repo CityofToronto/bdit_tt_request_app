@@ -249,9 +249,9 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     '''
 
     dow_list = re.findall(r"[1-7]", dow_str)
-    if dow_list == []:
+    if len(dow_list) == 0:
         #Raise error and return without executing query: dow list does not contain valid characters
-        return jsonify({'error': "dow list does not contain valid characters"})
+        return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
     connection = getConnection()
     with connection:
