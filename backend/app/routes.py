@@ -250,7 +250,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
     holiday_query = ""
-    if holiday:
+    if not holiday:
         holiday_query = '''AND NOT EXISTS (
                     SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays '''
 
