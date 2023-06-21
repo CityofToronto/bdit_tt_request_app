@@ -9,15 +9,6 @@ DB_HOST='10.160.8.132'
 DB_NAME='bigdata'
 DB_USER='tt_request_bot'
 DB_USER_PASSWORD='wouldntyouliketoknow'
-
-SECRET_KEY='yaddayaddayadda'
-DATABASE_URL="postgresql+pg8000://${DB_USER}:${DB_USER_PASSWORD}@${DB_HOST}:5432/${DB_NAME}"
-LINK_TABLE_NAME='routing_streets_name'
-NODE_TABLE_NAME='routing_nodes_intersec_name'
-TRAVEL_DATA_TABLE_NAME='ta'
-TEMP_FILE_LOCATION='tmp'
-KEEP_TEMP_FILE='true'
-POSTGIS_GEOM_SRID=4326
 ```
 
 ## Production

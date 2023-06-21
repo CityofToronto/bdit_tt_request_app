@@ -16,13 +16,6 @@ def getConnection():
         password = os.environ['DB_USER_PASSWORD'],
     )
 
-def _need_keep_temp_file():
-    """Check environ whether or not to keep the temporary files created."""
-    if 'KEEP_TEMP_FILE' not in os.environ:
-        return False
-    return os.environ['KEEP_TEMP_FILE'] == 'true'
-
-
 @app.errorhandler(400)
 def request_error(e):
     """parse flask's default abort HTML into a JSON object containing the error message"""
