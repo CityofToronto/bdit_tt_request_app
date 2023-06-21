@@ -250,14 +250,14 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
-    print(is_holiday)
-    if not is_holiday:
-        holiday_query = '''AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays '''
-        agg_tt_query = agg_tt_1 + holiday_query + agg_tt_2
-    else:
-        agg_tt_query = agg_tt_1 + agg_tt_2
 
+    if is_holiday == 1:
+        agg_tt_query = agg_tt_1 + agg_tt_2
+    else:
+        holiday_query = '''AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                    ) '''
+        agg_tt_query = agg_tt_1 + holiday_query + agg_tt_2
 
     connection = getConnection()
     with connection:
