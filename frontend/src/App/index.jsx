@@ -2,14 +2,13 @@ import React from "react"
 import Sidebar from "react-sidebar"
 import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
-import Map from "../Map"
+import Map from "./Map"
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
+import { getLinksBetweenNodes, getDateBoundaries /*getTravelDataFile*/ } from "../actions.js"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
-import { getDateBoundaries } from '../../actions'
-import "./Layout.css"
+import './app.css'
 
 export default class Layout extends React.Component {
     constructor(props) {
