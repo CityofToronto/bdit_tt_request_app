@@ -10,7 +10,7 @@ import DatePicker from "react-date-picker"
 import TimePicker from 'react-time-picker'
 import Presets from "../Datetime/Presets"
 import { days } from "../Settings/Days"
-import { getDateBoundaries } from '../../../actions'
+import { getDateBoundaries } from '../../actions'
 
 export default class SidebarContent extends React.Component {
     constructor(props){
