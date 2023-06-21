@@ -224,6 +224,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange
+                %(incl_holiday)s
                 )
             GROUP BY
                 cn.dt,
@@ -248,12 +249,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
-    
+    holiday_query = ""
     if holiday:
-        holiday_query = '''                AND NOT EXISTS (
-                    SELECT %(incl_holiday)s FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays '''
-
-    print(tuple(dow_list))
+        holiday_query = '''AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays '''
 
     connection = getConnection()
     with connection:
@@ -266,6 +265,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
                     "dow_list": [ int(x) for x in tuple(dow_list) ]
+                    "incl_holiday": holiday_query
                 }
             )
             travel_time, = cursor.fetchone()
