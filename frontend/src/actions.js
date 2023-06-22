@@ -3,16 +3,7 @@ const domain = process.env.NODE_ENV === 'development' ?
     'http://127.0.0.1:5001' : 'https://10.160.2.198/tt-request-backend'
 
 function parseClosestNodeResponse(nodes){ // just renames some fields
-    return nodes.map((node) => {
-        return {
-            nodeId: node.node_id,
-            name: node.name,
-            geometry: {
-                coordinate: node.geometry.coordinates, // plural / singular?
-                type: node.geometry.type
-            }
-        }
-    })
+    return nodes
 };
 
 /* GET up to ten closest nodes given coordinate */
@@ -21,14 +12,7 @@ export const getClosestNode = (page, data) => {
         .then( res => res.json() )
         .then( nodes => {
             if ( nodes.length === 1 ) {
-                page.addNodeToMapDisplay( {
-                    nodeId: nodes[0].node_id,
-                    name: nodes[0].name,
-                    geometry: {
-                        coordinate: nodes[0].geometry.coordinates,
-                        type: nodes[0].geometry.type
-                    }
-                } )
+                page.addNodeToMapDisplay( nodes[0] )
             } else {
                 const closestNodes = parseClosestNodeResponse(nodes)
                 page.setState({nodeCandidates: closestNodes, nodeCandidateSelect: true})
@@ -38,31 +22,22 @@ export const getClosestNode = (page, data) => {
 
 /* update closest node given coordinate */
 export const updateClosestNode = (page, data) => {
-    fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`).then(res => {
-        if (res.data) {
-            if (res.data.length === 1) {
-                const newNode = {
-                    nodeId: res.data[0].node_id,
-                    name: res.data[0].name,
-                    geometry: {
-                        coordinate: res.data[0].geometry.coordinates,
-                        type: res.data[0].geometry.type
-                    }
-                }
+    fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`)
+        .then( r => r.json() )
+        .then( data => {
+            if (data.length === 1) {
+                const newNode = data[0];
                 page.updateMarker(data.nodeIndex, newNode)
             } else {
-                const closestNodes = parseClosestNodeResponse(res);
-                page.setState({
+                const closestNodes = parseClosestNodeResponse(data);
+                page.setState( {
                     updateNodeCandidates: closestNodes,
                     updateNodeCandidateSelect: true,
                     updateNodeIndex: data.nodeIndex
-                })
+                } )
             }
-        } else {
-            alert("FAILED TO FETCH CLOSEST NODE");
-        }
-    }).catch(console.error);
-};
+        } )
+}
 
 export function getLinksBetweenNodes(map, sequences){
     sequences.forEach( nodes => {
