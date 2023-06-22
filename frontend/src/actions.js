@@ -2,10 +2,6 @@
 const domain = process.env.NODE_ENV === 'development' ? 
     'http://127.0.0.1:5001' : 'https://10.160.2.198/tt-request-backend'
 
-function parseClosestNodeResponse(nodes){ // just renames some fields
-    return nodes
-};
-
 /* GET up to ten closest nodes given coordinate */
 export const getClosestNode = (page, data) => {
     fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`)
@@ -14,7 +10,7 @@ export const getClosestNode = (page, data) => {
             if ( nodes.length === 1 ) {
                 page.addNodeToMapDisplay( nodes[0] )
             } else {
-                const closestNodes = parseClosestNodeResponse(nodes)
+                const closestNodes = nodes
                 page.setState({nodeCandidates: closestNodes, nodeCandidateSelect: true})
             }
     } )
@@ -29,7 +25,7 @@ export const updateClosestNode = (page, data) => {
                 const newNode = data[0];
                 page.updateMarker(data.nodeIndex, newNode)
             } else {
-                const closestNodes = parseClosestNodeResponse(data);
+                const closestNodes = data
                 page.setState( {
                     updateNodeCandidates: closestNodes,
                     updateNodeCandidateSelect: true,
@@ -42,7 +38,7 @@ export const updateClosestNode = (page, data) => {
 export function getLinksBetweenNodes(map, sequences){
     sequences.forEach( nodes => {
         const nodePairs = nodes.map( (node,i) => {
-            if ( i > 0 ) return { from: nodes[i-1].nodeId, to: node.nodeId }
+            if ( i > 0 ) return { from: nodes[i-1].node_id, to: node.node_id }
             return undefined
         } ).filter(v=>v)
 

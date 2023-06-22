@@ -125,7 +125,6 @@ export default class Map extends Component {
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
-        console.log(linkDataArr)
         this.drawLinks(linkDataArr, sequence)
         // This is where links are set
         this.setState(
@@ -458,7 +457,6 @@ export default class Map extends Component {
             });
 
         } else {
-            console.log(newNode)
             // create a new marker after the map is clicked
             const newMarker = new mapboxgl.Marker({
                 draggable: true,
