@@ -175,7 +175,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holiday>/<dow_str>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -187,13 +187,13 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
-# - include_holiday(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
+# - include_holidays(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
     
     holiday_query = ''
-    if include_holiday == 'false':
+    if include_holidays == 'false':
         holiday_query = '''AND NOT EXISTS (
                     SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
                     ) '''
