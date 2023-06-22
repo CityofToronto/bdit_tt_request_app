@@ -1,5 +1,5 @@
 // instantiated once, this is the data store for all spatial data
-class SpatialData {
+export class SpatialData {
     #corridors
     constructor(){
         this.#corridors = []
@@ -10,6 +10,8 @@ class SpatialData {
             this.#corridors.push(corridor)
         }
     }
+    get segments(){ return this.corridors.flatMap( c => c.segments ) }
+    get nodes(){ return this.segments.flatMap( s => [ s.fromNode, s.toNode ] ) }
 }
 
 // a sequence of segments forming a coherent corridor
@@ -23,6 +25,7 @@ class Corridor {
             this.#segments.push(segment)
         }
     }
+    get segments(){ return this.#segments }
 }
 
 // a node-to-node directed segment
@@ -50,7 +53,7 @@ class Segment {
     }
 }
 
-class Node {
+export class Node {
     #id
     #lat
     #lon
@@ -71,5 +74,3 @@ class Node {
         }
     }
 }
-
-export default new SpatialData()

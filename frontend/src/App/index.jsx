@@ -3,9 +3,12 @@ import Sidebar from "react-sidebar"
 import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
 import Map from "./Map"
+
+import { SpatialData } from '../spatialData.js'
+
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes, getDateBoundaries /*getTravelDataFile*/ } from "../actions.js"
+import { getLinksBetweenNodes, getDateBoundaries } from "../actions.js"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import './app.css'
@@ -14,6 +17,7 @@ export default class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            spatialData: new SpatialData(),
             sidebarOpen: false,
             popupOpen: false,
             nodesList: [],
