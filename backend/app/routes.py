@@ -258,8 +258,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-    print(agg_tt_query)
-
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
         #Raise error and return without executing query: dow list does not contain valid characters
