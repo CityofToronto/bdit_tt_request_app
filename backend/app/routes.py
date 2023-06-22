@@ -175,7 +175,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<is_holiday>/<dow_list>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<is_holiday>/<dow_str>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -187,11 +187,19 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
-# - is_holiday(bool): Set to true to include holidays in aggregation, otherwise false to exclude holidays.
+# - is_holiday(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, is_holiday, dow_str):
-    agg_tt_1 = ''' 
+    
+    holiday_query = ''
+    if is_holiday == 'false':
+        print('FALSE')
+        holiday_query = '''AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                    ) '''
+    
+    agg_tt_query = f''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
         ),
@@ -225,9 +233,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
-    '''
-
-    agg_tt_2 ='''
+            {holiday_query}
             GROUP BY
                 cn.dt,
                 cn.hr,
@@ -252,13 +258,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-    if is_holiday == 1:
-        agg_tt_query = agg_tt_1 + agg_tt_2
-    else:
-        holiday_query = '''AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
-                    ) '''
-        agg_tt_query = agg_tt_1 + holiday_query + agg_tt_2
+    print(agg_tt_query)
 
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
