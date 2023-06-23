@@ -1,11 +1,8 @@
 import os
 import json
-import csv
 import re
-from uuid import uuid4 as uuid
-from flask import abort, jsonify, request, send_file
-from psycopg2 import connect, sql
-from psycopg2.extras import execute_values
+from flask import abort, jsonify
+from psycopg2 import connect
 from app import app
 
 def getConnection():
