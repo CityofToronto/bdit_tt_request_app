@@ -16,13 +16,6 @@ def getConnection():
         password = os.environ['DB_USER_PASSWORD'],
     )
 
-def _need_keep_temp_file():
-    """Check environ whether or not to keep the temporary files created."""
-    if 'KEEP_TEMP_FILE' not in os.environ:
-        return False
-    return os.environ['KEEP_TEMP_FILE'] == 'true'
-
-
 @app.errorhandler(400)
 def request_error(e):
     """parse flask's default abort HTML into a JSON object containing the error message"""
@@ -39,18 +32,13 @@ def not_implemented_error(e):
 def index():
     return "Travel Time webapp backend"
 
-
+# test URL /closest-node/-79.3400/43.6610
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
 def get_closest_node(longitude, latitude):
     """
     This function fetches a set of closest nodes to the given
-    point, sorted by ascending distance order.
-
-    :param longitude: the longitude of the origin point
-    :param latitude: the latitude of the origin point
-    :return: JSON of an array containing the closest nodes.
-            The array is sorted in ascending distance order. node object keys: node_id(int),
-            geometry(geom{type(str), coordinates(list[int])}), name(str)
+    point, sorted by ascending order of distance.
+    returns a GeoJSON feature for each node
     """
 
     try:
@@ -101,7 +89,7 @@ def get_closest_node(longitude, latitude):
     connection.close()
     return jsonify(candidate_nodes)
 
-
+# test URL /link-nodes/30421154/30421153
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
     """Returns links of the shortest path between two nodes on the HERE network"""
@@ -173,7 +161,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     connection.close()
     return jsonify(shortest_link_data)
 
-
+# test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
 @app.route(
     '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
     methods=['GET']
@@ -279,14 +267,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     return jsonify({'travel_time': float(travel_time)})
 
 
-
+# test URL /date-bounds
 @app.route('/date-bounds', methods=['GET'])
 def get_date_bounds():
     """
-    Get the earliest timestamp and latest timestamp in the travel database.
-    The timestamps are formatted by DATE_TIME_FORMAT ("%Y-%m-%d).
-
-    :return: JSON containing two fields: start_time and end_time
+    Get the earliest date and latest data in the travel database.
     """
     connection = getConnection()
     with connection:
