@@ -19,8 +19,6 @@ jobs:
           node-version: 14.x
           cache: 'npm'
       - name: install packages
-        working-directory: ./frontend
         run: npm install
       - name: lint
-        working-directory: ./frontend
         run:  npm run lint
