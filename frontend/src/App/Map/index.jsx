@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { icon } from 'leaflet'
-import standardIcon from 'leaflet/dist/images/marker-icon.png';
-import standardIconShadow from 'leaflet/dist/images/marker-shadow.png';
+import standardIcon from 'leaflet/dist/images/marker-icon.png'
+import standardIconShadow from 'leaflet/dist/images/marker-shadow.png'
 import 'leaflet/dist/leaflet.css'
 
 const defaultIcon = icon({
@@ -11,7 +11,6 @@ const defaultIcon = icon({
 
 const center = { lat: 43.65720, lng: -79.34299 }
 
-// Note: Sequence and Segment are the same
 export default function Map() {
     return (
         <MapContainer center={center} zoom={15} style={{height: '100vh'}}>

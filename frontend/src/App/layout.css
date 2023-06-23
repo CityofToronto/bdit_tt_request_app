@@ -4,17 +4,17 @@ body {
 
 .layoutContainer {
     display: flex;
-    height: 100vh;
+    height: 99vh;
 }
 
 .layoutSidebar {
-    flex: 1 32%;
+    flex: 1 30%;
     background-color: white;
     border-right: 2px solid lightgrey;
 }
 
 .layoutMap {
-    flex: 1 67%;
+    flex: 1 66%;
 }
 
 .layoutMapControls {
@@ -26,4 +26,5 @@ body {
     border: 1px solid black;
     border-radius: 10px 0 0 0;
     background-color: white;
+    z-index: 10;
 }
