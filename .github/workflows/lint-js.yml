@@ -4,7 +4,8 @@
 name: JS linting
 
 on:
-  pull_request
+  pull_request:
+    branches: [ deploy ]
 
 jobs:
   linting:
