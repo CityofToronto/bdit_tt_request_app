@@ -2,19 +2,22 @@ import React from "react"
 import Sidebar from "react-sidebar"
 import { Button } from "@mui/material"
 import SidebarContent from "./Sidebar"
-import Map from "../Map"
+import Map from "./Map"
+
+import { SpatialData } from '../spatialData.js'
+
 import RangeFactory from "./Datetime/Range"
 import parseTimePeriods from "./Datetime/TimeRangeParser"
-import { getLinksBetweenNodes /*getTravelDataFile*/ } from "../../actions"
+import { getLinksBetweenNodes, getDateBoundaries } from "../actions.js"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
-import { getDateBoundaries } from '../../actions'
-import "./Layout.css"
+import './app.css'
 
 export default class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            spatialData: new SpatialData(),
             sidebarOpen: false,
             popupOpen: false,
             nodesList: [],
@@ -56,9 +59,7 @@ export default class Layout extends React.Component {
     }
 
     updateLinks = (newLinks) => {
-        let tempLinksList = this.state.linksList;
-        tempLinksList.push(newLinks);
-        this.setState({linksList: tempLinksList});
+        this.setState({linksList: [ ...newLinks, ...this.state.linksList ]});
     }
 
     getLinks = (doc, enableInteractions) => {
@@ -188,39 +189,6 @@ export default class Layout extends React.Component {
         }
     }
 
-    downloadData = () => {
-        if (this.state.linksList.length !== 0) {
-            let allLinkDirs = [];
-            this.state.linksList.forEach((seq) => {
-                let tmpLinkDirs = [];
-                seq.forEach((link) => {
-                    tmpLinkDirs = tmpLinkDirs.concat(link.link_dirs);
-                });
-                allLinkDirs.push(tmpLinkDirs);
-            });
-
-            const list_of_time_periods = parseTimePeriods(this.state.ranges);
-            if (!list_of_time_periods) {
-                NotificationManager.error('Must complete all of start time and end time!');
-                return;
-            }
-
-            const fileParams = this.state.fileSettings.parseSettings();
-            const fileType = fileParams['file_type'];
-
-            if (fileType === 'geojson') {
-                this.downloadGeoJSON();
-            } else {
-                NotificationManager.error('Only GeoJSON filetype is currently supported');
-                return;
-            }
-        } else {
-            NotificationManager.error('Please get links first');
-            this.setState({disableGetButton: false});
-        }
-
-    }
-
     openPopup() { this.setState({popupOpen: true}) }
     handleClose() { this.setState({popupOpen: false}) }
 
@@ -247,7 +215,6 @@ export default class Layout extends React.Component {
                         disableGetButton={this.state.disableGetButton}
                         openPopup={this.openPopup}
                         range={this.state.activeRange}
-                        onGo={this.downloadData}
                         fileSettings={this.state.fileSettings}
                         replaceSettings={this.replaceSettings}
                         dateTimeRanges={this.state.ranges.length}
@@ -281,6 +248,7 @@ export default class Layout extends React.Component {
                     getLinks={this.getLinks}
                     resetMapVars={this.resetMapVars}
                     removeAllLinks={this.removeAllLinks}
+                    spatialData={this.state.spatialData}
                 />
                 <NotificationContainer/>
             </div>

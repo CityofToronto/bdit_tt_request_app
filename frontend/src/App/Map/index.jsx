@@ -1,9 +1,9 @@
 import { Component } from 'react'
 import mapboxgl from 'mapbox-gl'
 import './Mapbox.css'
-import { getClosestNode, updateClosestNode } from '../../actions'
-import arrowImage from '../Images/arrow.png'
-import doubleArrowImage from '../Images/doublearrow.png'
+import { getClosestNode, updateClosestNode } from '../../actions.js'
+import arrowImage from './images/arrow.png'
+import doubleArrowImage from './images/doublearrow.png'
 import { NotificationContainer, NotificationManager } from 'react-notifications'
 import ActionsBox from './ActionsBox'
 import 'react-notifications/lib/notifications.css'
@@ -125,7 +125,6 @@ export default class Map extends Component {
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
-        console.log(linkDataArr)
         this.drawLinks(linkDataArr, sequence)
         // This is where links are set
         this.setState(
@@ -341,8 +340,11 @@ export default class Map extends Component {
             let currMarker = restoreMarkers[i];
             let currNode = this.state.clickedNodes[this.state.currentSequence][i];
 
-            const restoreCoordinate = {lat: currNode.geometry.coordinate[1], lng: currNode.geometry.coordinate[0]};
-            currMarker.setLngLat(restoreCoordinate);
+            const restoreCoordinates = {
+                lat: currNode.geometry.coordinates[1],
+                lng: currNode.geometry.coordinates[0]
+            }
+            currMarker.setLngLat(restoreCoordinates)
         }
         const newArray = [...this.state.displayedMarker];
         newArray[this.state.currentSequence] = restoreMarkers;
@@ -391,9 +393,12 @@ export default class Map extends Component {
             draggedMarker.setPopup(new mapboxgl.Popup()
                 .setHTML("<h3><ul><li>Segment Number: " + nodeSequence.toString()+ "</li><li>Node Number: "
                 + nodeSequenceIndex.toString() + "</li><li>Node Name: "
-                + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
+                + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.node_id.toString() + "</li></ul></h3>")
                )
-            const newCoordinate = {lat: newNode.geometry.coordinate[1], lng: newNode.geometry.coordinate[0]};
+            const newCoordinate = {
+                lat: newNode.geometry.coordinates[1],
+                lng: newNode.geometry.coordinates[0]
+            }
             draggedMarker.setLngLat(newCoordinate);
 
             const newNodes = [...this.state.clickedNodes[nodeSequence]];
@@ -426,19 +431,19 @@ export default class Map extends Component {
     isDuplicateMarker(newNode, orgIndex) {
         const prevNode = orgIndex.split(",")[1] > 0 && this.state.clickedNodes[this.state.currentSequence][orgIndex.split(",")[1] - 1];
         const nextNode = orgIndex.split(",")[1] < this.state.clickedNodes[this.state.currentSequence].length - 1 && this.state.clickedNodes[this.state.currentSequence][orgIndex.split(",")[1] + 1];
-        return (prevNode && prevNode.nodeId === newNode.nodeId) || (nextNode && nextNode.nodeId === newNode.nodeId);
+        return (prevNode && prevNode.node_id === newNode.node_id) || (nextNode && nextNode.node_id === newNode.node_id);
     }
 
     isDuplicateEndNode(newNode) {
         const lastNode = this.state.clickedNodes[this.state.currentSequence].length > 0 &&
             this.state.clickedNodes[this.state.currentSequence][this.state.clickedNodes[this.state.currentSequence].length - 1];
 
-        return lastNode && lastNode.nodeId === newNode.nodeId;
+        return lastNode && lastNode.node_id === newNode.node_id;
     }
 
     /* this function is called only by action.js after adding a new marker */
     addNodeToMapDisplay(nodeCandidate, nodeCandidateClose) {
-        const newNode = nodeCandidate;
+        const newNode = nodeCandidate
 
         if (this.isDuplicateEndNode(newNode)) {
             NotificationManager.error('Can not select the same node as the last node!');
@@ -456,12 +461,12 @@ export default class Map extends Component {
             const newMarker = new mapboxgl.Marker({
                 draggable: true,
                 "color": this.state.sequenceColours[this.state.currentSequence]
-            }).setLngLat(newNode.geometry.coordinate).setPopup(new mapboxgl.Popup()
-                .setHTML("<h3><ul><li>Segment Number: " + this.state.currentSequence.toString()+ "</li><li>Node Number: "
-                + this.state.clickedNodes[this.state.currentSequence].length.toString() + "</li><li>Node Name: "
-                + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.nodeId.toString() + "</li></ul></h3>")
-                )
-                .addTo(this.state.map);
+            }).setLngLat(newNode.geometry.coordinates).setPopup(
+                new mapboxgl.Popup()
+                    .setHTML("<h3><ul><li>Segment Number: " + this.state.currentSequence.toString()+ "</li><li>Node Number: "
+                    + this.state.clickedNodes[this.state.currentSequence].length.toString() + "</li><li>Node Name: "
+                    + newNode.name.toString() + "</li><li>Node_ID: "+ newNode.node_id.toString() + "</li></ul></h3>")
+            ).addTo(this.state.map);
             newMarker._element.id = this.state.currentSequence.toString() + "," +
                 this.state.clickedNodes[this.state.currentSequence].length.toString();
             newMarker.on('dragend', this.onDragEnd.bind(this, newMarker));
@@ -594,11 +599,11 @@ export default class Map extends Component {
         for (let i = 0; i < tempHoldSeq.length; i++) {
             let currNode = tempHoldSeq[tempHoldSeq.length - i - 1];
             const newMarker = new mapboxgl.Marker({draggable: true, "color": newColor})
-                .setLngLat(currNode.geometry.coordinate)
+                .setLngLat(currNode.geometry.coordinates)
                 .setPopup(new mapboxgl.Popup()
                 .setHTML("<h3><ul><li>Segment Number: " + tempCurrSequence.toString()+ "</li><li>Node Number: "
                 + i.toString() + "</li><li>Node Name: "
-                + currNode.name.toString() + "</li><li>Node_ID: "+ currNode.nodeId.toString() + "</li></ul></h3>")
+                + currNode.name.toString() + "</li><li>Node_ID: "+ currNode.node_id.toString() + "</li></ul></h3>")
                 )
                 .addTo(this.state.map);
             newMarker._element.id = tempCurrSequence.toString() + "," + i.toString();

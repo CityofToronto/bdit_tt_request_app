@@ -168,7 +168,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 @app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<dow_str>',
+    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
     methods=['GET']
 )
 # aggregate_travel_times()
@@ -180,10 +180,18 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
+# - include_holidays(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, dow_str):
-    agg_tt_query = agg_tt = ''' 
+def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
+    
+    holiday_query = ''
+    if include_holidays == 'false':
+        holiday_query = '''AND NOT EXISTS (
+                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+                    ) '''
+    
+    agg_tt_query = f''' 
         WITH routing AS (
             SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
         ),
@@ -216,7 +224,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             WHERE   
                 cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
-                AND cn.dt <@ %(date_range)s::daterange
+                AND cn.dt <@ %(date_range)s::daterange 
+            {holiday_query}
             GROUP BY
                 cn.dt,
                 cn.hr,

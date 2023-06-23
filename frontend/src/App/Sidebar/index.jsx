@@ -10,7 +10,7 @@ import DatePicker from "react-date-picker"
 import TimePicker from 'react-time-picker'
 import Presets from "../Datetime/Presets"
 import { days } from "../Settings/Days"
-import { getDateBoundaries } from '../../../actions'
+import { getDateBoundaries } from '../../actions'
 
 export default class SidebarContent extends React.Component {
     constructor(props){
@@ -98,16 +98,6 @@ export default class SidebarContent extends React.Component {
                                         {false && <option value={"xlsx"}>Excel (data tables)</option>}
                                     </Select>
                                 </div>
-                            </Grid>
-
-                            <Grid item>
-                                <Button
-                                    variant="contained" color="primary" className={"download"}
-                                    onClick={this.props.onGo}
-                                    disabled={this.props.disableGetButton}
-                                >
-                                    {this.props.disableGetButton ? `Please Wait` : `Get displayed links data`}
-                                </Button>
                             </Grid>
                         </Grid>
                     </Grid>
