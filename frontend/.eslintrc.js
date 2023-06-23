@@ -20,15 +20,11 @@ module.exports = {
     plugins: ["react",'css-modules'],
     rules: {
         "react/prop-types": 'off',
-        "react/display-name": 'off',
-        "react/no-unescaped-entities": 'warn',
-        "css-modules/no-unused-class": 'off'
-
+        "dot-notation": 'warn'
     },
     settings: {
         react: { 
-            version: "detect",
-            //"pragma": "React",
+            version: "detect"
         }
     }
 }

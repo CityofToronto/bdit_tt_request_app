@@ -121,7 +121,7 @@ export default class Map extends Component {
         this.disableInteractions();
         this.removeAllLinkSources();
         this.props.getLinks(this);
-    };
+    }
 
     /* this function is called only by action.js after full link data is fetch */
     displayLinks(linkDataArr, sequence) {
@@ -135,7 +135,8 @@ export default class Map extends Component {
             () => this.enableInteractions() // re-enables buttons
         )
         this.props.onLinkUpdate(linkDataArr)
-    };
+    }
+
     // check if there is already a link drawn in the reverse direction
     checkIfLinkDirDrawn(checkCoor, bidirection, other) {
         let holdCoorArr = [];
@@ -175,6 +176,7 @@ export default class Map extends Component {
         }
         return false;
     }
+
     // draw the links on the map
     drawLinks(linkDataArr, sequence) {
         let linkSources = [];
@@ -317,7 +319,7 @@ export default class Map extends Component {
             linkMouseEnter: tempLinkMouseEnter,
             linkMouseLeave: tempLinkMouseLeave
         });
-    };
+    }
     //remove all the drawn links on the map
     removeAllLinkSources() {
         this.props.removeAllLinks();
@@ -496,7 +498,7 @@ export default class Map extends Component {
         if (nodeCandidateClose) {
             nodeCandidateClose();
         }
-    };
+    }
 
     //removes the last node placed on the map
     removeNodes() {
@@ -655,5 +657,5 @@ export default class Map extends Component {
                 <NotificationContainer/>
             </div>
         );
-    };
+    }
 }
