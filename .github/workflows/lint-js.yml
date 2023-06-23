@@ -1,19 +1,15 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Integration tests
+name: JS linting
 
-on:
-  pull_request:
-    branches: [ deploy ]
+on: pull_request
 
 jobs:
   linting:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
+      - run:
       - uses: actions/checkout@v3
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -21,6 +17,8 @@ jobs:
           node-version: 14.x
           cache: 'npm'
       - name: install packages
+        working-directory: ./frontend
         run: npm install
       - name: lint
+        working-directory: ./frontend
         run:  npm run lint
