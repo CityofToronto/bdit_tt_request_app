@@ -8,8 +8,11 @@ on:
     branches: [ deploy ]
 
 jobs:
-  integration:
+  linting:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
 
     strategy:
       matrix:
@@ -22,6 +25,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: install packages
-        run: cd frontend && npm install
-      - name: Lint
+        run: npm install
+      - name: lint
         run:  npm run lint
