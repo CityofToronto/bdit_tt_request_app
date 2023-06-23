@@ -7,7 +7,6 @@ import Map from "./Map"
 import { SpatialData } from '../spatialData.js'
 
 import RangeFactory from "./Datetime/Range"
-import parseTimePeriods from "./Datetime/TimeRangeParser"
 import { getLinksBetweenNodes, getDateBoundaries } from "../actions.js"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
