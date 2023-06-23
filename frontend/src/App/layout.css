@@ -8,7 +8,9 @@ body {
 }
 
 .layoutSidebar {
-    flex: 1 33%;
+    flex: 1 32%;
+    background-color: white;
+    border-right: 2px solid lightgrey;
 }
 
 .layoutMap {
@@ -20,7 +22,7 @@ body {
     right: -1px;
     bottom: -1px;
     height: 350px;
-    width: 250px;
+    width: 270px;
     border: 1px solid black;
     border-radius: 10px 0 0 0;
     background-color: white;
