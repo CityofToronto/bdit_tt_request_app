@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+}
+
+.layoutContainer {
+    display: flex;
+    height: 100vh;
+}
+
+.layoutSidebar {
+    flex: 1 33%;
+}
+
+.layoutMap {
+    flex: 1 67%;
+}
+
+.layoutMapControls {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    height: 350px;
+    width: 250px;
+    border: 1px solid black;
+    border-radius: 10px 0 0 0;
+    background-color: white;
+}

@@ -1,6 +1,4 @@
-import React from "react"
-import Sidebar from "react-sidebar"
-import { Button } from "@mui/material"
+import { Component } from 'react'
 import SidebarContent from "./Sidebar"
 import Map from "./Map"
 
@@ -10,14 +8,13 @@ import RangeFactory from "./Datetime/Range"
 import { getLinksBetweenNodes, getDateBoundaries } from "../actions.js"
 import FileSettingsFactory from "./Settings/FileSettings"
 import { NotificationContainer, NotificationManager } from 'react-notifications'
-import './app.css'
+import './layout.css'
 
-export default class Layout extends React.Component {
+export default class Layout extends Component {
     constructor(props) {
         super(props);
         this.state = {
             spatialData: new SpatialData(),
-            sidebarOpen: false,
             popupOpen: false,
             nodesList: [],
             linksList: [],
@@ -26,7 +23,6 @@ export default class Layout extends React.Component {
             fileSettings: FileSettingsFactory.newFileSettings({}),
             disableGetButton: false
         };
-        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
         this.handleClose = this.handleClose.bind(this)
         this.openPopup = this.openPopup.bind(this)
         this.replaceSettings = this.replaceSettings.bind(this)
@@ -47,10 +43,6 @@ export default class Layout extends React.Component {
             } )
             this.setState({ranges:[range]})
         } )
-    }
-
-    onSetSidebarOpen(open) {
-        this.setState({sidebarOpen: open});
     }
 
     updateNodes = (newNodes) => {
@@ -208,9 +200,9 @@ export default class Layout extends React.Component {
         const activeRange = this.state.ranges[this.state.activeRange];
         let rangeNames = this.state.ranges.map( r => r.getName() );
         return (
-            <div>
-                <Sidebar
-                    sidebar={<SidebarContent
+            <div className='layoutContainer'>
+                <div className='layoutSidebar'>
+                    <SidebarContent
                         disableGetButton={this.state.disableGetButton}
                         openPopup={this.openPopup}
                         range={this.state.activeRange}
@@ -226,29 +218,23 @@ export default class Layout extends React.Component {
                         replaceActiveRange={this.replaceActiveRange}
                         rangeNames={rangeNames}
                         state={this.props.state}
-                    />}
-                    open={this.state.sidebarOpen}
-                    onSetOpen={this.onSetSidebarOpen}
-                    rootClassName={"topbar"}
-                    sidebarClassName={"sidebar"}
-                >
-                    <Button
-                        variant="contained"
-                        onClick={() => this.onSetSidebarOpen(true)}
-                        style={{position: "absolute", right: "22%", height: "40px", width: "10%", top: "5px"}}
-                    >
-                        Edit Query
-                    </Button>
-                </Sidebar>
+                    />
+                </div>
 
-                <Map
-                    onLinkUpdate={this.updateLinks}
-                    onNodeUpdate={this.updateNodes}
-                    getLinks={this.getLinks}
-                    resetMapVars={this.resetMapVars}
-                    removeAllLinks={this.removeAllLinks}
-                    spatialData={this.state.spatialData}
-                />
+                <div className='layoutMap'>
+                    <Map
+                        onLinkUpdate={this.updateLinks}
+                        onNodeUpdate={this.updateNodes}
+                        getLinks={this.getLinks}
+                        resetMapVars={this.resetMapVars}
+                        removeAllLinks={this.removeAllLinks}
+                        spatialData={this.state.spatialData}
+                    />
+                </div>
+
+                {false && <div className='layoutMapControls'>
+                    {/*will hold this component eventually*/}
+                </div>}
                 <NotificationContainer/>
             </div>
         );

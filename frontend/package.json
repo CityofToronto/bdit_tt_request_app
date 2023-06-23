@@ -52,7 +52,6 @@
         "react-dropdown": "^1.11.0",
         "react-notifications": "^1.7.4",
         "react-refresh": "^0.11.0",
-        "react-sidebar": "^3.0.2",
         "react-time-picker": "^4.0.1"
     }
 }

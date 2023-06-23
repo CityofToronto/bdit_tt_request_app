@@ -630,14 +630,17 @@ export default class Map extends Component {
 
     checkLink() {
         if (this.state.linksOnMap) {
-            this.getLink();
+            this.getLink()
         }
     }
 
     render() {
         return (
-            <div>
-                <div ref={element => this.mapContainer = element} className='mapContainer'/>
+            <>
+                <div
+                    ref={ element => this.mapContainer = element }
+                    style={{height:'100%'}}
+                />
                 <ActionsBox 
                     currentSequence={this.state.currentSequence}
                     seletedSeq={this.state.selectedSeq}
@@ -655,7 +658,7 @@ export default class Map extends Component {
                     selectSequenceAction={this.onChangeSelectSeq}
                 />
                 <NotificationContainer/>
-            </div>
+            </>
         );
     }
 }

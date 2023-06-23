@@ -108,36 +108,3 @@
     cursor: pointer;
     padding: 0.25rem 0.85rem;
 }
-
-#removeNodeGifHelp{
-    position: absolute;
-    left: 0px;
-    bottom: 85px;
-}
-
-#newSeqGifHelp {
-    position: absolute;
-    left: 0px;
-    bottom: 120px;
-}
-
-#removeLinkGifHelp {
-    position: absolute;
-    left: 0px;
-    bottom: 50px;
-}
-#resetMapGifHelp {
-    position: absolute;
-    left: 0px;
-    bottom: 15px;
-}
-#updateLinkGifHelp{
-    position: absolute;
-    left: 0px;
-    bottom: 155px;
-}
-#reverseSeqGifHelp {
-    position: absolute;
-    left: 0px;
-    bottom: 200px;
-}
