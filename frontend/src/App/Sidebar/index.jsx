@@ -96,7 +96,7 @@ export default class SidebarContent extends React.Component {
                                         <option value={"geojson"}>GeoJSON (geometries only)</option>
                                         {false && <option value={"csv"}>CSV (data tables)</option>}
                                         {false && <option value={"xlsx"}>Excel (data tables)</option>}
-
+                                    </Select>
                                 </div>
                             </Grid>
                         </Grid>
