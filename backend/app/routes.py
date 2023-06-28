@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from datetime import datetime
 from flask import abort, jsonify
 from psycopg2 import connect
 from app import app
@@ -186,11 +187,14 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         start_time = int(start_time)
         end_time = int(end_time)
     except:
-        return jsonify({'error': "time is not in a valid format, i.e.(H or HH)"})
+        return jsonify({'error': "time is not in a valid format, i.e.(H or HH)"}), 400
 
     #date checker
-    if not re.match(r"\d{4}-(0|1)\d-\d{2}", start_date) or not re.match(r"\d{4}-(0|1)\d-\d{2}", end_date):
-        return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"})
+    try:
+        datetime.strptime(start_date,"%Y-%m-%d")
+        datetime.strptime(end_date,"%Y-%m-%d")
+    except:
+        return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"}), 400
 
     #dow_list checker
     dow_list = re.findall(r"[1-7]", dow_str)
