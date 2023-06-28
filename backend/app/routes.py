@@ -182,11 +182,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         return jsonify({'error': "The node_ids should be integers"}), 400
 
     #time checker
-    if not re.match(r"([0-9]{1,2}|\d{1,2}:\d\d)", start_time) or not re.match(r"", end_time):
+    if not re.match(r"(\d{2}|\d{2}:\d{2})", start_time) or not re.match(r"", end_time):
         return jsonify({'error': "time is not in a valid format, i.e.(HH or HH:MM)"})
 
     #date checker
-    if not re.match(r"[0-9]{4}-[0-1][0-9]-[0-9]{2}", start_date) or not re.match(r"[0-9]{4}-[0-1][0-9]-[0-9]{2}", end_date):
+    if not re.match(r"\d{4}-(0|1)\d-\d{2}", start_date) or not re.match(r"\d{4}-(0|1)\d-\d{2}", end_date):
         return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"})
 
     #dow_list checker
