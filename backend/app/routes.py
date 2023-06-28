@@ -98,7 +98,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-
     connection = getConnection()
 
     with connection:
@@ -184,7 +183,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
     #time checker
     if not re.match(r"([0-9]{1,2}|\d{1,2}:\d\d)", start_time) or not re.match(r"", end_time):
-            return jsonify({'error': "time is not in a valid format, i.e.(HH or HH:MM)"})
+        return jsonify({'error': "time is not in a valid format, i.e.(HH or HH:MM)"})
 
     #date checker
     if not re.match(r"[0-9]{4}-[0-1][0-9]-[0-9]{2}", start_date) or not re.match(r"[0-9]{4}-[0-1][0-9]-[0-9]{2}", end_date):
@@ -196,13 +195,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-
-
     holiday_query = ''
     if include_holidays == 'false':
         holiday_query = '''AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
-                    ) '''
+            SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+        ) '''
     
     agg_tt_query = f''' 
         WITH routing AS (
@@ -262,8 +259,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
-
-
 
     connection = getConnection()
     with connection:
