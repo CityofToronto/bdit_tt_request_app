@@ -174,7 +174,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
-    
+    print(include_holidays)
     #node_id checker
     try:
         start_node = int(start_node)
@@ -197,7 +197,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"}), 400
 
     #include_holidays checker
-    if include_holidays != 'true' or include_holidays != 'false':
+    if include_holidays != 'true' and include_holidays != 'false':
         return jsonify({'error': "include_holidays not in valid format, i.e. ('true', 'false')"}), 400
 
     #dow_list checker
