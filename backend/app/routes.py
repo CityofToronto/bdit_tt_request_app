@@ -196,6 +196,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     except:
         return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"}), 400
 
+    #include_holidays checker
+    if include_holidays != 'true' or include_holidays != 'false':
+        return jsonify({'error': "include_holidays not in valid format, i.e. ('true', 'false')"}), 400
+
     #dow_list checker
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
