@@ -170,7 +170,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
-# - include_holidays(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
+# - include_holidays(str): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
