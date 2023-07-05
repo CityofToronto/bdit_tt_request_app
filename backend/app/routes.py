@@ -103,6 +103,29 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
+    
+
+
+
+    shortest_link_data = {
+        "source": from_node_id, 
+        "target": to_node_id,
+        "links": links,
+        # the following three fields are for compatibility and should eventually be removed
+        "path_name": "",
+        "link_dirs": [ link['link_dir'] for link in links ],
+        "geometry": {
+            "type": "MultiLineString",
+            "coordinates": [ link['geometry']['coordinates'] for link in links ]
+        }
+    }
+    connection.close()
+    return jsonify(shortest_link_data)
+
+
+#agg function
+def get_links(from_node_id, to_node_id):
+
     connection = getConnection()
 
     with connection:
@@ -134,36 +157,17 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
-            links = []
-            for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
-                links.append({
-                    'link_dir': link_dir,
-                    'name': st_name,
-                    'sequence': seq,
-                    'segment_id': segment_id,
-                    'geometry': json.loads(geom),
-                    'length_km': length_km
-                })
-
-    shortest_link_data = {
-        "source": from_node_id, 
-        "target": to_node_id,
-        "links": links,
-        # the following three fields are for compatibility and should eventually be removed
-        "path_name": "",
-        "link_dirs": [ link['link_dir'] for link in links ],
-        "geometry": {
-            "type": "MultiLineString",
-            "coordinates": [ link['geometry']['coordinates'] for link in links ]
-        }
-    }
-    connection.close()
-    return jsonify(shortest_link_data)
-
-
-#agg function
-def get_links(from_node_id, to_node_id):
-    return
+        links = []
+        for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
+            links.append({
+                'link_dir': link_dir,
+                'name': st_name,
+                'sequence': seq,
+                'segment_id': segment_id,
+                'geometry': json.loads(geom),
+                'length_km': length_km
+            })
+    return links
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
