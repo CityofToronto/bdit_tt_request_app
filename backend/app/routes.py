@@ -86,7 +86,9 @@ def get_closest_node(longitude, latitude):
     connection.close()
     return jsonify(candidate_nodes)
 
+
 # test URL /link-nodes/30421154/30421153
+#shell function - outputs json for use on frontend
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
     """Returns links of the shortest path between two nodes on the HERE network"""
@@ -157,6 +159,12 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     }
     connection.close()
     return jsonify(shortest_link_data)
+
+
+#agg function
+def get_links(from_node_id, to_node_id):
+    return
+
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
 @app.route(
