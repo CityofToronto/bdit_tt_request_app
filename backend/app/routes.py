@@ -104,7 +104,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         return
 
     
-
+    links = get_links(from_node_id, to_node_id)
 
 
     shortest_link_data = {
