@@ -119,17 +119,14 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             "coordinates": [ link['geometry']['coordinates'] for link in links ]
         }
     }
-    connection.close()
     return jsonify(shortest_link_data)
 
 
 #Function that returns a json with geometries of links between two nodes
-@app.route('/get_link_geom/<from_node_id>/<to_node_id>', methods=['GET'])
+@app.route('/get-link-geom/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_link_geom(from_node_id, to_node_id):
 
-    connection = getConnection()
-
-    with connection:
+    with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute('''
                 WITH results as (
@@ -158,16 +155,18 @@ def get_link_geom(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
-        links = []
-        for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
-            links.append({
-                'link_dir': link_dir,
-                'name': st_name,
-                'sequence': seq,
-                'segment_id': segment_id,
-                'geometry': json.loads(geom),
-                'length_km': length_km
-            })
+            links = []
+            for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
+                links.append({
+                    'link_dir': link_dir,
+                    'name': st_name,
+                    'sequence': seq,
+                    'segment_id': segment_id,
+                    'geometry': json.loads(geom),
+                    'length_km': length_km
+                })
+
+    connection.close()
     return links
 
 
