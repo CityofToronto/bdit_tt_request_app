@@ -104,7 +104,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         return
 
     
-    links = get_links(from_node_id, to_node_id)
+    links = get_link_geom(from_node_id, to_node_id)
 
 
     shortest_link_data = {
@@ -123,8 +123,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     return jsonify(shortest_link_data)
 
 
-#agg function
-def get_links(from_node_id, to_node_id):
+#Function that returns a json with geometries of links between two nodes
+@app.route('/get_link_geom/<from_node_id>/<to_node_id>', methods=['GET'])
+def get_link_geom(from_node_id, to_node_id):
 
     connection = getConnection()
 
