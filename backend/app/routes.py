@@ -103,8 +103,32 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    
-    links = get_link_geom(from_node_id, to_node_id)
+    result = get_link_geom(from_node_id, to_node_id)
+
+    links = []
+    for link_dir, st_name, seq, segment_id, geojson, length_km in result:
+        links.append({
+            'link_dir': link_dir,
+            'name': st_name,
+            'sequence': seq,
+            'segment_id': segment_id,
+            'geometry': json.loads(geojson),
+            'length_km': length_km
+        })
+
+    shortest_link_data = {
+        "source": from_node_id, 
+        "target": to_node_id,
+        "links": links,
+        # the following three fields are for compatibility and should eventually be removed
+        "path_name": "",
+        "link_dirs": [ link['link_dir'] for link in links ],
+        "geometry": {
+            "type": "MultiLineString",
+            "coordinates": [ link['geometry']['coordinates'] for link in links ]
+        }
+    }
+
     return jsonify(shortest_link_data)
 
 
@@ -128,7 +152,8 @@ def get_link_geom(from_node_id, to_node_id):
                     attr.st_name,
                     results.seq,
                     seg_lookup.segment_id,
-                    ST_AsGeoJSON(streets.geom) AS geom,
+                    streets.geom,
+                    ST_AsGeoJSON(streets.geom) AS geojson,
                     ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
                 FROM results
                 JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
@@ -140,32 +165,8 @@ def get_link_geom(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
-            links = []
-            for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
-                links.append({
-                    'link_dir': link_dir,
-                    'name': st_name,
-                    'sequence': seq,
-                    'segment_id': segment_id,
-                    'geometry': json.loads(geom),
-                    'length_km': length_km
-                })
-
-            shortest_link_data = {
-                "source": from_node_id, 
-                "target": to_node_id,
-                "links": links,
-                # the following three fields are for compatibility and should eventually be removed
-                "path_name": "",
-                "link_dirs": [ link['link_dir'] for link in links ],
-                "geometry": {
-                    "type": "MultiLineString",
-                    "coordinates": [ link['geometry']['coordinates'] for link in links ]
-                }
-            }
-
     connection.close()
-    return shortest_link_data
+    return cursor.fetchall()
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
@@ -193,11 +194,13 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
                     ) '''
     
+    # WITH routing AS (
+    #     SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
+    # ),
+
     agg_tt_query = f''' 
-        WITH routing AS (
-            SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
-        ),
         
+
         unnest_cte AS (
             SELECT
                 rgs.length AS corridor_length,
