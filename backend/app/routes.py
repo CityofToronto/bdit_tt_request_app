@@ -105,25 +105,10 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
     
     links = get_link_geom(from_node_id, to_node_id)
-
-
-    shortest_link_data = {
-        "source": from_node_id, 
-        "target": to_node_id,
-        "links": links,
-        # the following three fields are for compatibility and should eventually be removed
-        "path_name": "",
-        "link_dirs": [ link['link_dir'] for link in links ],
-        "geometry": {
-            "type": "MultiLineString",
-            "coordinates": [ link['geometry']['coordinates'] for link in links ]
-        }
-    }
     return jsonify(shortest_link_data)
 
 
 #Function that returns a json with geometries of links between two nodes
-@app.route('/get-link-geom/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_link_geom(from_node_id, to_node_id):
 
     with getConnection() as connection:
@@ -166,8 +151,21 @@ def get_link_geom(from_node_id, to_node_id):
                     'length_km': length_km
                 })
 
+            shortest_link_data = {
+                "source": from_node_id, 
+                "target": to_node_id,
+                "links": links,
+                # the following three fields are for compatibility and should eventually be removed
+                "path_name": "",
+                "link_dirs": [ link['link_dir'] for link in links ],
+                "geometry": {
+                    "type": "MultiLineString",
+                    "coordinates": [ link['geometry']['coordinates'] for link in links ]
+                }
+            }
+
     connection.close()
-    return links
+    return shortest_link_data
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
