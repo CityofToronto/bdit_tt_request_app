@@ -215,14 +215,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     # ),
 
     agg_tt_query = f''' 
-        WITH routed as (
-            SELECT 
-                segment_id,
-                corridor_length
+        WITH routed(segment_id, corridor_length) AS (
             VALUES
+                (%(seglist)s::integer[], %(length)s::numeric)
         ),
-
-
 
         -- Aggregate segments to corridor on a daily, hourly basis
         corridor_hourly_daily_agg AS (
@@ -268,11 +264,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
     links = get_link_geom(start_node, end_node)
-    linklist=[]
+    seglist=[]
     length = 0
     for link in links:
         length += link["length_km"]
-        linklist.append(link["segment_id"])
+        seglist.append(link["segment_id"])
 
     connectio n = getConnection()
     with connection:
@@ -280,6 +276,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             cursor.execute(
                 agg_tt_query, 
                 {
+                    "length": length,
+                    "seglist": seglist,
                     "node_start": start_node,
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
