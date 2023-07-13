@@ -197,25 +197,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                     SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
                     ) '''
     
-    # WITH routing AS (
-    #     SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
-    # ),
-    #     unnest_cte AS (
-    #     SELECT
-    #         rgs.length AS corridor_length,
-    #         unnest(rgs.segment_list) AS segment_id
-    #     FROM routing AS rgs
-    # ),
-
-    # routed AS (
-    #     SELECT
-    #         uc.segment_id,
-    #         uc.corridor_length
-    #     FROM unnest_cte AS uc
-    #     INNER JOIN congestion.network_segments AS cns
-    #         ON cns.segment_id = uc.segment_id
-    # ),
-
     agg_tt_query = f''' 
         -- Aggregate segments to corridor on a daily, hourly basis
         WITH corridor_hourly_daily_agg AS (
