@@ -1,6 +1,6 @@
-setuptools=59.6.0
+setuptools==59.6.0
 flask==1.1.2
-flask_cors=3.1.01
+flask_cors==3.0.10
 gunicorn==20.1.0
 packaging==20.7
 psycopg2==2.9.6

@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from datetime import datetime
 from flask import abort, jsonify
 from psycopg2 import connect
 from app import app
@@ -41,9 +42,8 @@ def get_closest_node(longitude, latitude):
     try:
         longitude = float(longitude)
         latitude = float(latitude)
-    except ValueError or ArithmeticError:
-        abort(400, description="Longitude and latitude must be decimal numbers!")
-        return
+    except:
+        return jsonify({'error': "Longitude and latitude must be decimal numbers!"})
 
 
     with getConnection() as connection:
@@ -95,13 +95,11 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
-    except ValueError or ArithmeticError:
-        abort(400, description="The node_ids should be integers")
-        return
+    except:
+        return jsonify({'error': "The node_ids should be integers"}), 400
 
     if from_node_id == to_node_id:
-        abort(400, description="Source node can not be the same as target node.")
-        return
+        return jsonify({'error': "Source node can not be the same as target node."}), 400
 
     result = get_links(from_node_id, to_node_id)
 
@@ -186,16 +184,47 @@ def get_links(from_node_id, to_node_id):
 # - end_time(int): end hour of aggregation
 # - start_date(datetime): start date of aggregation
 # - end_date(datetime): end date of aggregation
-# - include_holidays(bool): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
+# - include_holidays(str): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
-    
+    print(include_holidays)
+    #node_id checker
+    try:
+        start_node = int(start_node)
+        end_node = int(end_node)
+    except ValueError or ArithmeticError:
+        return jsonify({'error': "The node_ids should be integers"}), 400
+
+    #time checker
+    try:
+        start_time = int(start_time)
+        end_time = int(end_time)
+    except:
+        return jsonify({'error': "time is not in a valid format, i.e.(H or HH)"}), 400
+
+    #date checker
+    try:
+        datetime.strptime(start_date,"%Y-%m-%d")
+        datetime.strptime(end_date,"%Y-%m-%d")
+    except:
+        return jsonify({'error': "dates are not in a valid format, i.e.(YYYY-MM-DD)"}), 400
+
+    #include_holidays checker
+    if include_holidays != 'true' and include_holidays != 'false':
+        return jsonify({'error': "include_holidays not in valid format, i.e. ('true', 'false')"}), 400
+
+    #dow_list checker
+    dow_list = re.findall(r"[1-7]", dow_str)
+    if len(dow_list) == 0:
+        #Raise error and return without executing query: dow list does not contain valid characters
+        return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
+
     holiday_query = ''
     if include_holidays == 'false':
         holiday_query = '''AND NOT EXISTS (
-                    SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
-                    ) '''
+            SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt -- excluding holidays
+        ) '''
     
     agg_tt_query = f''' 
         -- Aggregate segments to corridor on a daily, hourly basis
@@ -233,6 +262,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
         FROM corridor_period_daily_avg_tt 
     '''
+
 
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
