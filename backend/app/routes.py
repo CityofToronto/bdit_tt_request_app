@@ -105,16 +105,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
     result = get_link_geom(from_node_id, to_node_id)
 
-    links = []
-    for link_dir, st_name, seq, segment_id, geojson, length_km in result:
-        links.append({
-            'link_dir': link_dir,
-            'name': st_name,
-            'sequence': seq,
-            'segment_id': segment_id,
-            'geometry': json.loads(geojson),
-            'length_km': length_km
-        })
 
     shortest_link_data = {
         "source": from_node_id, 
@@ -165,6 +155,17 @@ def get_link_geom(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
+    links = []
+    for link_dir, st_name, seq, segment_id, geojson, length_km in result:
+        links.append({
+            'link_dir': link_dir,
+            'name': st_name,
+            'sequence': seq,
+            'segment_id': segment_id,
+            'geometry': json.loads(geojson),
+            'length_km': length_km
+        })
+
     connection.close()
     return cursor.fetchall()
 
@@ -197,25 +198,31 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     # WITH routing AS (
     #     SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
     # ),
+    #     unnest_cte AS (
+    #     SELECT
+    #         rgs.length AS corridor_length,
+    #         unnest(rgs.segment_list) AS segment_id
+    #     FROM routing AS rgs
+    # ),
+
+    # routed AS (
+    #     SELECT
+    #         uc.segment_id,
+    #         uc.corridor_length
+    #     FROM unnest_cte AS uc
+    #     INNER JOIN congestion.network_segments AS cns
+    #         ON cns.segment_id = uc.segment_id
+    # ),
 
     agg_tt_query = f''' 
-        
-
-        unnest_cte AS (
-            SELECT
-                rgs.length AS corridor_length,
-                unnest(rgs.segment_list) AS segment_id
-            FROM routing AS rgs
+        WITH routed as (
+            SELECT 
+                segment_id,
+                corridor_length
+            VALUES
         ),
 
-        routed AS (
-            SELECT
-                uc.segment_id,
-                uc.corridor_length
-            FROM unnest_cte AS uc
-            INNER JOIN congestion.network_segments AS cns
-                ON cns.segment_id = uc.segment_id
-        ),
+
 
         -- Aggregate segments to corridor on a daily, hourly basis
         corridor_hourly_daily_agg AS (
@@ -260,7 +267,14 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    connection = getConnection()
+    links = get_link_geom(start_node, end_node)
+    linklist=[]
+    length = 0
+    for link in links:
+        length += link["length_km"]
+        linklist.append(link["segment_id"])
+
+    connectio n = getConnection()
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
