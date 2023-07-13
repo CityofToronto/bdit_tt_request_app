@@ -161,7 +161,6 @@ def get_links(from_node_id, to_node_id):
                     'name': st_name,
                     'sequence': seq,
                     'segment_id': segment_id,
-                    'geometry': geom,
                     'geojson': json.loads(geojson),
                     'length_m': length_m
                 })
@@ -292,7 +291,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 }
             )
             travel_time, = cursor.fetchone()
-    return jsonify({'travel_time': float(travel_time)})
+    return jsonify({
+        'travel_time': float(travel_time),
+        'links': links
+    })
 
 
 # test URL /date-bounds
