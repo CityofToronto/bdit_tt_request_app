@@ -140,7 +140,6 @@ def get_links(from_node_id, to_node_id):
                     attr.st_name,
                     results.seq,
                     seg_lookup.segment_id,
-                    streets.geom,
                     ST_AsGeoJSON(streets.geom) AS geojson,
                     ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
                 FROM results
@@ -155,7 +154,7 @@ def get_links(from_node_id, to_node_id):
 
             result = cursor.fetchall()
             links = []
-            for link_dir, st_name, seq, segment_id, geom, geojson, length_m in result:
+            for link_dir, st_name, seq, segment_id, geojson, length_m in result:
                 links.append({
                     'link_dir': link_dir,
                     'name': st_name,
@@ -187,7 +186,6 @@ def get_links(from_node_id, to_node_id):
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
-    print(include_holidays)
     #node_id checker
     try:
         start_node = int(start_node)
