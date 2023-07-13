@@ -86,7 +86,9 @@ def get_closest_node(longitude, latitude):
     connection.close()
     return jsonify(candidate_nodes)
 
+
 # test URL /link-nodes/30421154/30421153
+#shell function - outputs json for use on frontend
 @app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
 def get_links_between_two_nodes(from_node_id, to_node_id):
     """Returns links of the shortest path between two nodes on the HERE network"""
@@ -99,47 +101,8 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    connection = getConnection()
+    result = get_links(from_node_id, to_node_id)
 
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute('''
-                WITH results as (
-                    SELECT *
-                    FROM here_gis.get_links_btwn_nodes_22_2(
-                        '%(node_start)s',
-                        '%(node_end)s'
-                    ),
-                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
-                )
-
-                SELECT 
-                    results.link_dir,
-                    attr.st_name,
-                    results.seq,
-                    seg_lookup.segment_id,
-                    ST_AsGeoJSON(streets.geom) AS geom,
-                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
-                FROM results
-                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-                JOIN here_gis.streets_att_22_2 AS attr 
-                    ON attr.link_id::int = substring(link_dir,'\d+')::int
-                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
-                ORDER BY seq;
-                ''',
-                {"node_start": from_node_id, "node_end": to_node_id}
-            )
-
-            links = []
-            for link_dir, st_name, seq, segment_id, geom, length_km in cursor.fetchall(): 
-                links.append({
-                    'link_dir': link_dir,
-                    'name': st_name,
-                    'sequence': seq,
-                    'segment_id': segment_id,
-                    'geometry': json.loads(geom),
-                    'length_km': length_km
-                })
 
     shortest_link_data = {
         "source": from_node_id, 
@@ -153,8 +116,57 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             "coordinates": [ link['geometry']['coordinates'] for link in links ]
         }
     }
-    connection.close()
+
     return jsonify(shortest_link_data)
+
+
+#Function that returns a json with geometries of links between two nodes
+def get_links(from_node_id, to_node_id):
+
+    with getConnection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('''
+                WITH results as (
+                    SELECT *
+                    FROM here_gis.get_links_btwn_nodes_22_2(
+                        %(node_start)s,
+                        %(node_end)s
+                    ),
+                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
+                )
+
+                SELECT 
+                    results.link_dir,
+                    attr.st_name,
+                    results.seq,
+                    seg_lookup.segment_id,
+                    ST_AsGeoJSON(streets.geom) AS geojson,
+                    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
+                FROM results
+                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+                JOIN here_gis.streets_att_22_2 AS attr 
+                    ON attr.link_id::int = substring(link_dir,'\d+')::int
+                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+                ORDER BY seq;
+                ''',
+                {"node_start": from_node_id, "node_end": to_node_id}
+            )
+
+            result = cursor.fetchall()
+            links = []
+            for link_dir, st_name, seq, segment_id, geojson, length_m in result:
+                links.append({
+                    'link_dir': link_dir,
+                    'name': st_name,
+                    'sequence': seq,
+                    'segment_id': segment_id,
+                    'geojson': json.loads(geojson),
+                    'length_m': length_m
+                })
+
+    connection.close()
+    return links
+
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
 @app.route(
@@ -174,7 +186,6 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 # - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
 #
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
-    print(include_holidays)
     #node_id checker
     try:
         start_node = int(start_node)
@@ -213,46 +224,24 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         ) '''
     
     agg_tt_query = f''' 
-        WITH routing AS (
-            SELECT * FROM congestion.get_segments_btwn_nodes(%(node_start)s,%(node_end)s)
-        ),
-        
-        unnest_cte AS (
-            SELECT
-                rgs.length AS corridor_length,
-                unnest(rgs.segment_list) AS segment_id
-            FROM routing AS rgs
-        ),
-
-        routed AS (
-            SELECT
-                uc.segment_id,
-                uc.corridor_length
-            FROM unnest_cte AS uc
-            INNER JOIN congestion.network_segments AS cns
-                ON cns.segment_id = uc.segment_id
-        ),
-
         -- Aggregate segments to corridor on a daily, hourly basis
-        corridor_hourly_daily_agg AS (
+        WITH corridor_hourly_daily_agg AS (
             SELECT
                 cn.dt,
                 cn.hr,
-                routed.corridor_length,
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
-            FROM routed 
-            JOIN congestion.network_segments_daily AS cn USING (segment_id)
+            FROM congestion.network_segments_daily AS cn
             WHERE   
-                cn.hr <@ %(time_range)s::numrange
+                cn.segment_id::integer IN %(seglist)s
+                AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
             {holiday_query}
             GROUP BY
                 cn.dt,
-                cn.hr,
-                routed.corridor_length
+                cn.hr
             -- where corridor has at least 80pct of links with data
-            HAVING SUM(cn.length_w_data) >= routed.corridor_length * 0.8 
+            HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8 
         ), 
 
         -- Average the hours selected into daily period level data
@@ -271,12 +260,27 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
+
+    dow_list = re.findall(r"[1-7]", dow_str)
+    if len(dow_list) == 0:
+        #Raise error and return without executing query: dow list does not contain valid characters
+        return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
+
+    links = get_links(start_node, end_node)
+    seglist=[]
+    length_m = 0
+    for link in links:
+        length_m += link["length_m"]
+        seglist.append(link["segment_id"])
+
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 agg_tt_query, 
                 {
+                    "length_m": length_m,
+                    "seglist": tuple(seglist),
                     "node_start": start_node,
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
@@ -285,7 +289,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 }
             )
             travel_time, = cursor.fetchone()
-    return jsonify({'travel_time': float(travel_time)})
+    return jsonify({
+        'travel_time': float(travel_time),
+        'links': links
+    })
 
 
 # test URL /date-bounds
