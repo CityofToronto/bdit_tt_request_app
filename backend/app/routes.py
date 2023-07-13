@@ -131,8 +131,8 @@ def get_link_geom(from_node_id, to_node_id):
                 WITH results as (
                     SELECT *
                     FROM here_gis.get_links_btwn_nodes_22_2(
-                        '%(node_start)s',
-                        '%(node_end)s'
+                        %(node_start)s,
+                        %(node_end)s
                     ),
                     UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
                 )
@@ -155,19 +155,23 @@ def get_link_geom(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
-    links = []
-    for link_dir, st_name, seq, segment_id, geojson, length_km in result:
-        links.append({
-            'link_dir': link_dir,
-            'name': st_name,
-            'sequence': seq,
-            'segment_id': segment_id,
-            'geometry': json.loads(geojson),
-            'length_km': length_km
-        })
+            result = cursor.fetchall()
+            print(result)
+
+            links = []
+            for link_dir, st_name, seq, segment_id, geom, geojson, length_km in result:
+                links.append({
+                    'link_dir': link_dir,
+                    'name': st_name,
+                    'sequence': seq,
+                    'segment_id': segment_id,
+                    'geometry': geom,
+                    'geojson': json.loads(geojson),
+                    'length_km': length_km
+                })
 
     connection.close()
-    return cursor.fetchall()
+    return links
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
