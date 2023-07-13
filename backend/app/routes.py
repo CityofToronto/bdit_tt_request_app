@@ -156,8 +156,6 @@ def get_link_geom(from_node_id, to_node_id):
             )
 
             result = cursor.fetchall()
-            print(result)
-
             links = []
             for link_dir, st_name, seq, segment_id, geom, geojson, length_km in result:
                 links.append({
@@ -219,31 +217,24 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     # ),
 
     agg_tt_query = f''' 
-        WITH routed(segment_id, corridor_length) AS (
-            VALUES
-                (%(seglist)s::integer[], %(length)s::numeric)
-        ),
-
         -- Aggregate segments to corridor on a daily, hourly basis
-        corridor_hourly_daily_agg AS (
+        WITH corridor_hourly_daily_agg AS (
             SELECT
                 cn.dt,
                 cn.hr,
-                routed.corridor_length,
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
-            FROM routed 
-            JOIN congestion.network_segments_daily AS cn USING (segment_id)
+            FROM congestion.network_segments_daily AS cn
             WHERE   
-                cn.hr <@ %(time_range)s::numrange
+                cn.segment_id::integer IN %(seglist)s
+                AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
             {holiday_query}
             GROUP BY
                 cn.dt,
-                cn.hr,
-                routed.corridor_length
+                cn.hr
             -- where corridor has at least 80pct of links with data
-            HAVING SUM(cn.length_w_data) >= routed.corridor_length * 0.8 
+            HAVING SUM(cn.length_w_data) >= %(length)s::numeric * 0.8 
         ), 
 
         -- Average the hours selected into daily period level data
@@ -281,7 +272,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 agg_tt_query, 
                 {
                     "length": length,
-                    "seglist": seglist,
+                    "seglist": tuple(seglist),
                     "node_start": start_node,
                     "node_end": end_node,
                     "time_range": f"[{start_time},{end_time})", # ints
