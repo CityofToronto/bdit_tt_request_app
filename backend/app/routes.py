@@ -142,7 +142,7 @@ def get_links(from_node_id, to_node_id):
                     seg_lookup.segment_id,
                     streets.geom,
                     ST_AsGeoJSON(streets.geom) AS geojson,
-                    ST_Length( ST_Transform(streets.geom,2952) ) / 1000 AS length_km
+                    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
                 FROM results
                 JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
                 JOIN here_gis.streets_att_22_2 AS attr 
@@ -155,7 +155,7 @@ def get_links(from_node_id, to_node_id):
 
             result = cursor.fetchall()
             links = []
-            for link_dir, st_name, seq, segment_id, geom, geojson, length_km in result:
+            for link_dir, st_name, seq, segment_id, geom, geojson, length_m in result:
                 links.append({
                     'link_dir': link_dir,
                     'name': st_name,
@@ -163,7 +163,7 @@ def get_links(from_node_id, to_node_id):
                     'segment_id': segment_id,
                     'geometry': geom,
                     'geojson': json.loads(geojson),
-                    'length_km': length_km
+                    'length_m': length_m
                 })
 
     connection.close()
@@ -244,7 +244,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 cn.dt,
                 cn.hr
             -- where corridor has at least 80pct of links with data
-            HAVING SUM(cn.length_w_data) >= %(length)s::numeric * 0.8 
+            HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8 
         ), 
 
         -- Average the hours selected into daily period level data
@@ -271,12 +271,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
     links = get_links(start_node, end_node)
     seglist=[]
-    length = 0
+    length_m = 0
     for link in links:
-        length += link["length_km"]
+        length_m += link["length_m"]
         seglist.append(link["segment_id"])
-    length = length * 1000
-    
 
     connection = getConnection()
     with connection:
@@ -284,7 +282,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             cursor.execute(
                 agg_tt_query, 
                 {
-                    "length": length,
+                    "length_m": length_m,
                     "seglist": tuple(seglist),
                     "node_start": start_node,
                     "node_end": end_node,
