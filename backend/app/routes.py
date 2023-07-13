@@ -103,7 +103,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         abort(400, description="Source node can not be the same as target node.")
         return
 
-    result = get_link_geom(from_node_id, to_node_id)
+    result = get_links(from_node_id, to_node_id)
 
 
     shortest_link_data = {
@@ -123,7 +123,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 
 
 #Function that returns a json with geometries of links between two nodes
-def get_link_geom(from_node_id, to_node_id):
+def get_links(from_node_id, to_node_id):
 
     with getConnection() as connection:
         with connection.cursor() as cursor:
@@ -239,7 +239,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    links = get_link_geom(start_node, end_node)
+    links = get_links(start_node, end_node)
     seglist=[]
     length = 0
     for link in links:
