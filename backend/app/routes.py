@@ -275,6 +275,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     for link in links:
         length += link["length_km"]
         seglist.append(link["segment_id"])
+    length = length * 1000
+    
 
     connection = getConnection()
     with connection:
