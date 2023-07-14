@@ -101,10 +101,9 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    result = get_links(from_node_id, to_node_id)
+    links = get_links(from_node_id, to_node_id)
 
-
-    shortest_link_data = {
+    return jsonify({
         "source": from_node_id, 
         "target": to_node_id,
         "links": links,
@@ -115,10 +114,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
             "type": "MultiLineString",
             "coordinates": [ link['geometry']['coordinates'] for link in links ]
         }
-    }
-
-    return jsonify(shortest_link_data)
-
+    })
 
 #Function that returns a json with geometries of links between two nodes
 def get_links(from_node_id, to_node_id):
@@ -152,17 +148,16 @@ def get_links(from_node_id, to_node_id):
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
-            result = cursor.fetchall()
-            links = []
-            for link_dir, st_name, seq, segment_id, geojson, length_m in result:
-                links.append({
+            links = [
+                {
                     'link_dir': link_dir,
                     'name': st_name,
                     'sequence': seq,
                     'segment_id': segment_id,
-                    'geojson': json.loads(geojson),
+                    'geometry': json.loads(geojson),
                     'length_m': length_m
-                })
+                } for link_dir, st_name, seq, segment_id, geojson, length_m in cursor.fetchall()
+            ]
 
     connection.close()
     return links
