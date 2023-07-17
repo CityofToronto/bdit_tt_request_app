@@ -162,6 +162,35 @@ def get_links(from_node_id, to_node_id):
     connection.close()
     return links
 
+    
+def get_stname(start_node, end_node):
+
+    stname_query = '''
+        SELECT DISTINCT st_name
+        FROM here.routing_streets_22_2 AS routing
+        INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
+        WHERE
+            routing.source = 30422862
+            OR routing.target = 30422862
+            '''
+
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                stname_query, 
+                {
+                    "length_m": length_m,
+                    "seglist": tuple(seglist),
+                    "node_start": start_node,
+                    "node_end": end_node,
+                    "time_range": f"[{start_time},{end_time})", # ints
+                    "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
+                    "dow_list": tuple(dow_list)
+                }
+            )
+    return
+
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
 @app.route(
@@ -255,7 +284,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
         #Raise error and return without executing query: dow list does not contain valid characters
@@ -284,6 +312,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 }
             )
             travel_time, = cursor.fetchone()
+
+    connection.close()
     return jsonify({
         'travel_time': float(travel_time),
         'links': links
