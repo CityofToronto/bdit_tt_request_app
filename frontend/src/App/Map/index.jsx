@@ -1,23 +1,12 @@
-import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import { icon } from 'leaflet'
-import standardIcon from 'leaflet/dist/images/marker-icon.png'
-import standardIconShadow from 'leaflet/dist/images/marker-shadow.png'
-import circleIcon from './icon.svg'
+import { MapContainer, TileLayer, CircleMarker } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const defaultIcon = icon({ // this is not actually centered on the given point
-    iconUrl: circleIcon,
-    iconAnchor: [15, 15],
-    iconSize:[30,30]
-})
-
-const center = { lat: 43.65720, lng: -79.34299 }
+const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
 export default function Map() {
     return (
-        <MapContainer center={center} zoom={15} style={{height: '100vh'}}>
+        <MapContainer center={initialMapCenter} zoom={15} style={{height:'100vh'}}>
             <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
-            <Marker position={center} icon={defaultIcon}/>
             <DataLayer/>
         </MapContainer>
     )
@@ -37,5 +26,11 @@ function DataLayer(){
                 setPoints( points => [ ...points, { lat, lng } ] )
             } )
     } )
-    return points.map( (point,i) => <Marker key={i} position={point} icon={defaultIcon}/> )
+    return points.map( (point,i) => (
+        <CircleMarker key={i}
+            center={point}
+            radius={10}
+            color='red'
+        />
+    ) )
 }
