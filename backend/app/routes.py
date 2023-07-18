@@ -184,7 +184,15 @@ def get_stname(start_node, end_node):
                     "node_end": end_node
                 }
             )
-    return
+
+    stlist = []
+    next = cursor.fetchone()
+    if (next is not NULL):
+        stlist.append(next)
+        next = cursor.fetchone()
+
+    connection.close()
+    return stlist
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
