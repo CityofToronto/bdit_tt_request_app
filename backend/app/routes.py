@@ -170,8 +170,8 @@ def get_stname(start_node, end_node):
         FROM here.routing_streets_22_2 AS routing
         INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
         WHERE
-            routing.source = 30422862
-            OR routing.target = 30422862
+            routing.source = %(node_start)s
+            OR routing.target = %(node_end)s
             '''
 
     connection = getConnection()
@@ -180,13 +180,8 @@ def get_stname(start_node, end_node):
             cursor.execute(
                 stname_query, 
                 {
-                    "length_m": length_m,
-                    "seglist": tuple(seglist),
                     "node_start": start_node,
-                    "node_end": end_node,
-                    "time_range": f"[{start_time},{end_time})", # ints
-                    "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": tuple(dow_list)
+                    "node_end": end_node
                 }
             )
     return
