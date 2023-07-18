@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, CircleMarker } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
 const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
@@ -14,23 +14,33 @@ export default function Map() {
 
 import { useState } from 'react'
 import { useMapEvent } from 'react-leaflet/hooks'
-import { domain } from '../../actions.js' 
+import { domain } from '../../actions.js'
+import { Intersection } from '../../spatialData.js'
 
 function DataLayer(){
-    const [ points, setPoints ] = useState([])
+    const [ intersections, setIntersections ] = useState([])
     const map = useMapEvent('click', (event) => {
         fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
             .then( resp => resp.json() )
             .then( node => {
-                const [ lng, lat ] = node[0].geometry.coordinates
-                setPoints( points => [ ...points, { lat, lng } ] )
+                const data = node[0]
+                const intersection = new Intersection( {
+                    id: data.node_id,
+                    lat: data.geometry.coordinates[1],
+                    lng: data.geometry.coordinates[0],
+                    textDescription: data.name
+                } )
+                setIntersections( intersections => [ ...intersections, intersection ] )
             } )
     } )
-    return points.map( (point,i) => (
-        <CircleMarker key={i}
-            center={point}
+    console.log(intersections)
+    return intersections.map( intersection => (
+        <CircleMarker key={intersection.id}
+            center={intersection.latlng}
             radius={10}
             color='red'
-        />
+        >
+            <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
+        </CircleMarker>
     ) )
 }

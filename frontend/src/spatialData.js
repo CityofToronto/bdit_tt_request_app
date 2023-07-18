@@ -1,8 +1,8 @@
 // instantiated once, this is the data store for all spatial data
-export class SpatialData {
+class SpatialData {
     #corridors
     constructor(){
-        this.#corridors = []
+        this.#corridors = [ new Corridor() ]
     }
     get corridors(){ return this.#corridors }
     addCorridor(corridor){
@@ -30,17 +30,17 @@ class Corridor {
 
 // a node-to-node directed segment
 class Segment {
-    #fromNode
-    #toNode
+    #fromIntersection
+    #toIntersection
     #links
-    constructor({fromNode,toNode}){
-        console.assert(fromNode instanceof Node)
-        console.assert(toNode instanceof Node)
-        this.#fromNode = fromNode
-        this.#toNode = toNode
+    constructor({fromIntersection,toIntersection}){
+        console.assert(fromNode instanceof Intersection)
+        console.assert(toNode instanceof Intersection)
+        this.#fromIntersection = fromIntersection
+        this.#toIntersection = toIntersection
     }
-    get fromNode(){ return this.#fromNode }
-    get toNode(){ return this.#toNode }
+    get fromIntersection(){ return this.#fromIntersection }
+    get toIntersection(){ return this.#toIntersection }
     defineLinks(links){
         // TODO 
         this.#links = links
@@ -53,24 +53,32 @@ class Segment {
     }
 }
 
-export class Node {
+export class Intersection {
     #id
     #lat
-    #lon
-    constructor({id,lat,lon}){
+    #lng
+    #textDescription
+    constructor({id,lat,lng,textDescription}){
         this.#id = id
         this.#lat = lat
-        this.#lon = lon
+        this.#lng = lng
+        this.#textDescription = textDescription
     }
     get id(){ return this.#id }
+    get latlng(){ return { lat: this.#lat, lng: this.#lng } }
+    get description(){ return this.#textDescription }
     get geojson(){
         return {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-                coordinates: [this.#lon, this.#lat]
+                coordinates: [ this.#lng, this.#lat ]
             },
-            properties: { id: this.#id }
+            properties: {
+                id: this.#id
+            }
         }
     }
 }
+
+export const spatialDataInstance = new SpatialData()

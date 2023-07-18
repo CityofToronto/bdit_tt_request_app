@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import SidebarContent from "./Sidebar"
 import Map from "./Map"
 
-import { SpatialData } from '../spatialData.js'
 import './layout.css'
 
 export default function Layout(){
-    const [ spatialData, setSpatialData ] = useState( new SpatialData() )
     return (
         <div className='layoutContainer'>
             <div className='layoutSidebar'>
@@ -15,9 +12,7 @@ export default function Layout(){
             </div>
 
             <div className='layoutMap'>
-                <Map
-                    spatialData={spatialData}
-                />
+                <Map/>
             </div>
 
             <div className='layoutMapControls'>

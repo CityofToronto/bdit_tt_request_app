@@ -2,39 +2,6 @@
 export const domain = process.env.NODE_ENV === 'development' ? 
     'http://localhost:5000' : 'https://10.160.2.198/tt-request-backend'
 
-/* GET up to ten closest nodes given coordinate */
-export const getClosestNode = (page, data) => {
-    fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`)
-        .then( res => res.json() )
-        .then( nodes => {
-            if ( nodes.length === 1 ) {
-                page.addNodeToMapDisplay( nodes[0] )
-            } else {
-                const closestNodes = nodes
-                page.setState({nodeCandidates: closestNodes, nodeCandidateSelect: true})
-            }
-    } )
-}
-
-/* update closest node given coordinate */
-export const updateClosestNode = (page, data) => {
-    fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`)
-        .then( r => r.json() )
-        .then( data => {
-            if (data.length === 1) {
-                const newNode = data[0];
-                page.updateMarker(data.nodeIndex, newNode)
-            } else {
-                const closestNodes = data
-                page.setState( {
-                    updateNodeCandidates: closestNodes,
-                    updateNodeCandidateSelect: true,
-                    updateNodeIndex: data.nodeIndex
-                } )
-            }
-        } )
-}
-
 export function getLinksBetweenNodes(map, sequences){
     sequences.forEach( nodes => {
         const nodePairs = nodes.map( (node,i) => {
