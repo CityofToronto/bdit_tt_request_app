@@ -2,11 +2,13 @@ import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import { icon } from 'leaflet'
 import standardIcon from 'leaflet/dist/images/marker-icon.png'
 import standardIconShadow from 'leaflet/dist/images/marker-shadow.png'
+import circleIcon from './icon.svg'
 import 'leaflet/dist/leaflet.css'
 
-const defaultIcon = icon({
-    iconUrl: standardIcon,
-    shadowUrl: standardIconShadow
+const defaultIcon = icon({ // this is not actually centered on the given point
+    iconUrl: circleIcon,
+    iconAnchor: [15, 15],
+    iconSize:[30,30]
 })
 
 const center = { lat: 43.65720, lng: -79.34299 }
@@ -21,11 +23,19 @@ export default function Map() {
     )
 }
 
+import { useState } from 'react'
 import { useMapEvent } from 'react-leaflet/hooks'
+import { domain } from '../../actions.js' 
 
 function DataLayer(){
-    // I bet with a ref, I can compare to the event target to see what was clicked
+    const [ points, setPoints ] = useState([])
     const map = useMapEvent('click', (event) => {
-        console.log(event)
+        fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+            .then( resp => resp.json() )
+            .then( node => {
+                const [ lng, lat ] = node[0].geometry.coordinates
+                setPoints( points => [ ...points, { lat, lng } ] )
+            } )
     } )
+    return points.map( (point,i) => <Marker key={i} position={point} icon={defaultIcon}/> )
 }

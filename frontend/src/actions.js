@@ -1,5 +1,5 @@
 /* test or production servers */
-const domain = process.env.NODE_ENV === 'development' ? 
+export const domain = process.env.NODE_ENV === 'development' ? 
     'http://localhost:5000' : 'https://10.160.2.198/tt-request-backend'
 
 /* GET up to ten closest nodes given coordinate */
