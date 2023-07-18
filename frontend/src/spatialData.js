@@ -15,11 +15,26 @@ class SpatialData {
 }
 
 // a sequence of segments forming a coherent corridor
-class Corridor {
-    #segments
-    constructor(){
-        this.#segments = []
+export class Corridor {
+    #intersections = []
+    #segments = []
+    constructor(){}
+    addIntersection(intersection){
+        console.assert(intersection instanceof Intersection)
+        this.#intersections = [ ...this.#intersections, intersection ]
+        this.#segments = this.#intersections
+            .map( (int,i,ints) => {
+                if (i > 0){
+                    return new Segment( {
+                        from: ints[i-1],
+                        to: int
+                    } )
+                }
+            } )
+            .filter( v => v )
+        return Promise.all( this.#segments.map( seg => seg.fetchLinks() ) )
     }
+    get intersections(){ return this.#intersections }
     addSegment(segment){
         if(segment instanceof Segment){
             this.#segments.push(segment)
@@ -28,23 +43,30 @@ class Corridor {
     get segments(){ return this.#segments }
 }
 
+import { domain } from './actions.js'
+
 // a node-to-node directed segment
 class Segment {
     #fromIntersection
     #toIntersection
-    #links
-    constructor({fromIntersection,toIntersection}){
-        console.assert(fromNode instanceof Intersection)
-        console.assert(toNode instanceof Intersection)
-        this.#fromIntersection = fromIntersection
-        this.#toIntersection = toIntersection
+    #links = []
+    constructor({from,to}){
+        console.assert(from instanceof Intersection)
+        console.assert(to instanceof Intersection)
+        this.#fromIntersection = from
+        this.#toIntersection = to
     }
     get fromIntersection(){ return this.#fromIntersection }
     get toIntersection(){ return this.#toIntersection }
-    defineLinks(links){
-        // TODO 
-        this.#links = links
+    fetchLinks(links){
+        return fetch(`${domain}/link-nodes/${this.#fromIntersection.id}/${this.toIntersection.id}`)
+            .then( resp => resp.json() )
+            .then( ({links}) => {
+                this.#links = links
+                return true
+            } )   
     }
+    get links(){ return this.#links }
     get geom(){
         return this.links.length == 0 ? null : {
             type: 'FeatureCollection'
@@ -80,5 +102,3 @@ export class Intersection {
         }
     }
 }
-
-export const spatialDataInstance = new SpatialData()
