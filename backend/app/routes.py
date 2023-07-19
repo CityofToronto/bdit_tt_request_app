@@ -185,19 +185,19 @@ def get_route_text(start_node, end_node):
                 }
             )
 
-    stlist = []
-    next = cursor.fetchone()
-    if (next is not NULL):
-        stlist.append(next)
-        next = cursor.fetchone()
+            stlist = []
+            next = cursor.fetchone()
+            if (next is not None):
+                stlist.append(next)
+                next = cursor.fetchone()
 
-    if(len(stlist) > 1):
-        ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
-        if(len(stlist) > 2):
-            for i in [1, len(stlist)-2]:
-                ststr.join(stlist[i])
-    else:
-        ststr.join(stlist)
+            if(len(stlist) > 1):
+                ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
+                if(len(stlist) > 2):
+                    for i in [1, len(stlist)-2]:
+                        ststr.join(stlist[i])
+            else:
+                ststr.join(stlist)
 
     connection.close()
     return ststr
