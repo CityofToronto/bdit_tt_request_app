@@ -11,16 +11,14 @@ Get the app to return the results of a simple travel time aggregation using the 
 
 ### Backend Design
 1. ~~Copy a recent data request's SQL more or less verbatim into a new endpoint/route the backend code~~
-2. Slot in the variables delivered from the front end UI
+2. ~~Slot in the variables delivered from the front end UI~~
     * ~~date range~~
     * ~~time range~~
     * ~~route (defined by start/end nodes)~~
-    * day of week
-    * holidays
-3. Ensure that the qury runs reasonably quick for a simple query (e.g. < 10 seconds)
-    * optimize and refactor if necessary
-4. Ensure that the output data format is as needed. Each result should have fields
-    * mean_travel_time in seconds
+    * ~~day of week~~
+    * ~~holidays~~
+3. Ensure that the output data format is as needed. Each result should have fields
+    * ~~mean_travel_time in seconds~~
     * description of route
         * from_street text
         * to_street text
@@ -31,6 +29,8 @@ Get the app to return the results of a simple travel time aggregation using the 
         * total span of time potentially included in aggregation
         * % of that time/space with 1 + actual observations
         * (together, these can be used to estimate the sample size)
+4. Ensure that the qury runs reasonably quick for a simple query (e.g. < 10 seconds)
+    * optimize and refactor if necessary
 
 ### Frontend design
 The interface should be more of a step-by step walk-through and less of a here-are-all-the-controls-at-once.
