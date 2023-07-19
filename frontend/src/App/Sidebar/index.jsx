@@ -8,7 +8,7 @@ export default function SidebarContent({logActivity}){
         logActivity('create corridor')
     }
     return ( <> 
-        <h2>The sidebar will go here</h2>
+        <h2>Toronto Historic Travel Times</h2>
         <button onClick={createCorridor}>Add a new corridor to the map</button>
     </> )
 }

@@ -1,14 +1,11 @@
 // instantiated once, this is the data store for all spatial data
 class SpatialData {
-    #corridors
-    constructor(){
-        this.#corridors = [ new Corridor() ]
-    }
+    #corridors = []
+    constructor(){}
     get corridors(){ return this.#corridors }
-    addCorridor(corridor){
-        if(corridor instanceof Corridor){
-            this.#corridors.push(corridor)
-        }
+    get activeCorridor(){ return this.#corridors[0] }
+    createCorridor(){
+        this.#corridors.push( new Corridor )
     }
     get segments(){ return this.corridors.flatMap( c => c.segments ) }
     get nodes(){ return this.segments.flatMap( s => [ s.fromNode, s.toNode ] ) }
@@ -102,3 +99,5 @@ export class Intersection {
         }
     }
 }
+
+export const spatialDataInstance = new SpatialData()

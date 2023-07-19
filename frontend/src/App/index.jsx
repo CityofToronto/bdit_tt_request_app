@@ -20,7 +20,7 @@ export default function Layout(){
             </div>
 
             <div className='layoutMap'>
-                <Map/>
+                <Map logActivity={logActivity}/>
             </div>
         </div>
     )
