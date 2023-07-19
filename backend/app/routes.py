@@ -178,7 +178,7 @@ def get_stname(start_node, end_node):
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                stname_query, 
+                stname_query,
                 {
                     "node_start": start_node,
                     "node_end": end_node
@@ -190,6 +190,14 @@ def get_stname(start_node, end_node):
     if (next is not NULL):
         stlist.append(next)
         next = cursor.fetchone()
+
+    if(len(stlist) > 1):
+        ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
+        if(len(stlist) > 2):
+            for i in [1, len(stlist)-2]:
+                ststr.join(stlist[i])
+    else:
+        ststr.join(stlist)
 
     connection.close()
     return stlist
