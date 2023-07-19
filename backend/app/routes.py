@@ -163,7 +163,7 @@ def get_links(from_node_id, to_node_id):
     return links
 
     
-def get_stname(start_node, end_node):
+def get_route_text(start_node, end_node):
 
     stname_query = '''
         SELECT DISTINCT st_name
@@ -200,7 +200,7 @@ def get_stname(start_node, end_node):
         ststr.join(stlist)
 
     connection.close()
-    return stlist
+    return ststr
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
@@ -300,6 +300,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
+    stname = get_route_text(start_node, end_node)
+
     links = get_links(start_node, end_node)
     seglist=[]
     length_m = 0
@@ -327,6 +329,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     connection.close()
     return jsonify({
         'travel_time': float(travel_time),
+        'route_text': stname,
         'links': links
     })
 
