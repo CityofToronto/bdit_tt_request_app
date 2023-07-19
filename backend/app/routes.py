@@ -186,16 +186,14 @@ def get_route_text(start_node, end_node):
             )
 
             stlist = []
-            next = cursor.fetchone()
-            if (next is not None):
-                stlist.append(next)
-                next = cursor.fetchone()
+            for (item,) in cursor.fetchall():
+                stlist.append(item)
 
             if(len(stlist) > 1):
                 ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
                 if(len(stlist) > 2):
-                    for i in [1, len(stlist)-2]:
-                        ststr.join(stlist[i])
+                    via_list = ",".join(stlist[1:-1])
+                    ststr += " along " + via_list
             else:
                 ststr = str(stlist)
 
