@@ -197,7 +197,7 @@ def get_route_text(start_node, end_node):
                     for i in [1, len(stlist)-2]:
                         ststr.join(stlist[i])
             else:
-                ststr.join(stlist)
+                ststr = str(stlist)
 
     connection.close()
     return ststr
