@@ -176,20 +176,27 @@ def get_links(from_node_id, to_node_id):
                     linknames.append(link['name'])
     
             cursor.execute(stname_query, {"node": start_node})
-
             start = []
             for (item,) in cursor.fetchall():
-                start.append(item)
+                if item not in linknames:
+                    start.append(item)
 
             cursor.execute(stname_query, {"node": end_node})
+            end = []
+            for (item,) in cursor.fetchall():
+                if item not in linknames:
+                    end.append(item)
 
-            if(len(stlist) > 1):
-                ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
-                if(len(stlist) > 2):
-                    via_list = ",".join(stlist[1:-1])
-                    ststr += " along " + via_list
+
+
+            if(len(start) > 0 and len(end) > 0):
+                linkstr = ",".join(linknames)
+                startstr = " & ".join(start)
+                endstr = " & ".join(end)
+
+                ststr = startstr + " to " + endstr + " along " + linkstr
             else:
-                ststr = str(stlist)
+                ststr = str(linknames)
 
     connection.close()
     return links, ststr
