@@ -119,32 +119,43 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 #Function that returns a json with geometries of links between two nodes
 def get_links(from_node_id, to_node_id):
 
+    links_query = '''
+                    WITH results as (
+                        SELECT *
+                        FROM here_gis.get_links_btwn_nodes_22_2(
+                            %(node_start)s,
+                            %(node_end)s
+                        ),
+                        UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
+                    )
+
+                    SELECT 
+                        results.link_dir,
+                        attr.st_name,
+                        results.seq,
+                        seg_lookup.segment_id,
+                        ST_AsGeoJSON(streets.geom) AS geojson,
+                        ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
+                    FROM results
+                    JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+                    JOIN here_gis.streets_att_22_2 AS attr 
+                        ON attr.link_id::int = substring(link_dir,'\d+')::int
+                    JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+                    ORDER BY seq;
+                    '''
+
+    stname_query = '''
+                    SELECT DISTINCT st_name
+                    FROM here.routing_streets_22_2 AS routing
+                    INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
+                    WHERE
+                        routing.source = %(node)s
+                        OR routing.target = %(node)s
+                        '''
+
     with getConnection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute('''
-                WITH results as (
-                    SELECT *
-                    FROM here_gis.get_links_btwn_nodes_22_2(
-                        %(node_start)s,
-                        %(node_end)s
-                    ),
-                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
-                )
-
-                SELECT 
-                    results.link_dir,
-                    attr.st_name,
-                    results.seq,
-                    seg_lookup.segment_id,
-                    ST_AsGeoJSON(streets.geom) AS geojson,
-                    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
-                FROM results
-                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-                JOIN here_gis.streets_att_22_2 AS attr 
-                    ON attr.link_id::int = substring(link_dir,'\d+')::int
-                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
-                ORDER BY seq;
-                ''',
+            cursor.execute(links_query,
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
@@ -159,35 +170,18 @@ def get_links(from_node_id, to_node_id):
                 } for link_dir, st_name, seq, segment_id, geojson, length_m in cursor.fetchall()
             ]
 
-    connection.close()
-    return links
-
+            linknames = []
+            for link in links:
+                if link['name'] not in linknames:
+                    linknames.append(link['name'])
     
-def get_route_text(start_node, end_node):
+            cursor.execute(stname_query, {"node": start_node})
 
-    stname_query = '''
-        SELECT DISTINCT st_name
-        FROM here.routing_streets_22_2 AS routing
-        INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
-        WHERE
-            routing.source = %(node_start)s
-            OR routing.target = %(node_end)s
-            '''
-
-    connection = getConnection()
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                stname_query,
-                {
-                    "node_start": start_node,
-                    "node_end": end_node
-                }
-            )
-
-            stlist = []
+            start = []
             for (item,) in cursor.fetchall():
-                stlist.append(item)
+                start.append(item)
+
+            cursor.execute(stname_query, {"node": end_node})
 
             if(len(stlist) > 1):
                 ststr = stlist[0] + " to " + stlist[len(stlist) - 1]
@@ -198,7 +192,7 @@ def get_route_text(start_node, end_node):
                 ststr = str(stlist)
 
     connection.close()
-    return ststr
+    return links, ststr
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
@@ -298,9 +292,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    stname = get_route_text(start_node, end_node)
-
-    links = get_links(start_node, end_node)
+    links, stname = get_links(start_node, end_node)
     seglist=[]
     length_m = 0
     for link in links:
