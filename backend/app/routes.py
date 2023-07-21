@@ -174,19 +174,21 @@ def get_links(from_node_id, to_node_id):
             for link in links:
                 if link['name'] not in linknames:
                     linknames.append(link['name'])
+            print(linknames)
     
-            cursor.execute(stname_query, {"node": start_node})
+            cursor.execute(stname_query, {"node": from_node_id})
             start = []
             for (item,) in cursor.fetchall():
                 if item not in linknames:
                     start.append(item)
+            print(start)
 
-            cursor.execute(stname_query, {"node": end_node})
+            cursor.execute(stname_query, {"node": to_node_id})
             end = []
             for (item,) in cursor.fetchall():
                 if item not in linknames:
                     end.append(item)
-
+            print(end)
 
 
             if(len(start) > 0 and len(end) > 0):
