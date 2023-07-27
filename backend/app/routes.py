@@ -101,7 +101,8 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    links = get_links(from_node_id, to_node_id)
+    (links,human_readable_path_description) = get_links(from_node_id, to_node_id)
+    print(human_readable_path_description)
 
     return jsonify({
         "source": from_node_id, 
@@ -119,32 +120,43 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 #Function that returns a json with geometries of links between two nodes
 def get_links(from_node_id, to_node_id):
 
+    links_query = '''
+        WITH results as (
+            SELECT *
+            FROM here_gis.get_links_btwn_nodes_22_2(
+                %(node_start)s,
+                %(node_end)s
+            ),
+            UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
+        )
+
+        SELECT 
+            results.link_dir,
+            InitCap(attr.st_name) AS st_name,
+            results.seq,
+            seg_lookup.segment_id,
+            ST_AsGeoJSON(streets.geom) AS geojson,
+            ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
+        FROM results
+        JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
+        JOIN here_gis.streets_att_22_2 AS attr 
+            ON attr.link_id::int = substring(link_dir,'\d+')::int
+        JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
+        ORDER BY seq;
+        '''
+
+    stname_query = '''
+        SELECT DISTINCT InitCap(st_name) AS st_name
+        FROM here.routing_streets_22_2 AS routing
+        INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
+        WHERE
+            routing.source = %(node)s
+            OR routing.target = %(node)s;
+    '''
+
     with getConnection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute('''
-                WITH results as (
-                    SELECT *
-                    FROM here_gis.get_links_btwn_nodes_22_2(
-                        %(node_start)s,
-                        %(node_end)s
-                    ),
-                    UNNEST (links) WITH ORDINALITY AS unnested (link_dir, seq)
-                )
-
-                SELECT 
-                    results.link_dir,
-                    attr.st_name,
-                    results.seq,
-                    seg_lookup.segment_id,
-                    ST_AsGeoJSON(streets.geom) AS geojson,
-                    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
-                FROM results
-                JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-                JOIN here_gis.streets_att_22_2 AS attr 
-                    ON attr.link_id::int = substring(link_dir,'\d+')::int
-                JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
-                ORDER BY seq;
-                ''',
+            cursor.execute(links_query,
                 {"node_start": from_node_id, "node_end": to_node_id}
             )
 
@@ -159,8 +171,25 @@ def get_links(from_node_id, to_node_id):
                 } for link_dir, st_name, seq, segment_id, geojson, length_m in cursor.fetchall()
             ]
 
+            linknames = set( link['name'] for link in links )
+    
+            cursor.execute(stname_query, {"node": from_node_id})
+            start = set( name for (name,) in cursor.fetchall() ) - linknames
+
+            cursor.execute(stname_query, {"node": to_node_id})
+            end = set( name for (name,) in cursor.fetchall() ) - linknames
+
+            if(len(start) > 0 and len(end) > 0):
+                linkstr = " & ".join(linknames)
+                startstr = " & ".join(start)
+                endstr = " & ".join(end)
+
+                ststr = linkstr + " from " + startstr + " to " + endstr
+            else:
+                ststr = "Along " + " & ".join(linknames)
+
     connection.close()
-    return links
+    return links, ststr
 
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
@@ -255,13 +284,12 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         FROM corridor_period_daily_avg_tt 
     '''
 
-
     dow_list = re.findall(r"[1-7]", dow_str)
     if len(dow_list) == 0:
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    links = get_links(start_node, end_node)
+    links, stname = get_links(start_node, end_node)
     seglist=[]
     length_m = 0
     for link in links:
@@ -284,8 +312,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 }
             )
             travel_time, = cursor.fetchone()
+
+    connection.close()
     return jsonify({
         'travel_time': float(travel_time),
+        'route_text': stname,
         'links': links
     })
 
