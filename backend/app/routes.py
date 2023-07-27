@@ -102,6 +102,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
     (links,human_readable_path_description) = get_links(from_node_id, to_node_id)
+    print(human_readable_path_description)
 
     return jsonify({
         "source": from_node_id, 
@@ -131,7 +132,7 @@ def get_links(from_node_id, to_node_id):
 
         SELECT 
             results.link_dir,
-            attr.st_name,
+            InitCap(attr.st_name) AS st_name,
             results.seq,
             seg_lookup.segment_id,
             ST_AsGeoJSON(streets.geom) AS geojson,
@@ -145,7 +146,7 @@ def get_links(from_node_id, to_node_id):
         '''
 
     stname_query = '''
-        SELECT DISTINCT st_name
+        SELECT DISTINCT InitCap(st_name) AS st_name
         FROM here.routing_streets_22_2 AS routing
         INNER JOIN here_gis.streets_att_22_2 AS streets USING(link_id)
         WHERE
