@@ -1,17 +1,15 @@
-import { spatialDataInstance as spatialData } from '../../spatialData.js'
+import { useContext, useEffect } from 'react'
+import { DataContext } from '../'
 
 import './sidebar.css'
 
 export default function SidebarContent({logActivity}){
-    function createCorridor(){
-        spatialData.createCorridor()
-        console.log(spatialData.activeCorridor)
-        logActivity('create corridor')
-    }
-    return ( <div className="sidebarContent">
-        <Welcome/>
-        <button onClick={createCorridor}>Add a new corridor to the map</button>
-    </div> )
+    return (
+        <div className="sidebarContent">
+            <Welcome/>
+            <CorridorsContainer logActivity={logActivity}/>
+        </div>
+    )
 }
 
 function Welcome(){
@@ -27,4 +25,17 @@ function Welcome(){
             the documentation</a>. 
         </p>
     </> )
+}
+
+function CorridorsContainer(){
+    const { log, logActivity } = useContext(DataContext)
+    useEffect(()=>{
+        logActivity('test')
+    },[])
+    console.log(log)
+    return (
+        <div>
+            <button onClick={()=>console.log('click!')}>Add a new corridor to the map</button>
+        </div>
+    )
 }

@@ -1,5 +1,5 @@
 // instantiated once, this is the data store for all spatial data
-class SpatialData {
+export class SpatialData {
     #corridors = []
     constructor(){}
     get corridors(){ return this.#corridors }
@@ -99,5 +99,3 @@ export class Intersection {
         }
     }
 }
-
-export const spatialDataInstance = new SpatialData()

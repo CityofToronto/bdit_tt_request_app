@@ -1,27 +1,39 @@
-import { useState } from 'react'
+import { Component, createContext } from 'react'
+import { SpatialData } from '../spatialData.js'
 import SidebarContent from "./Sidebar"
 import Map from "./Map"
 
 import './layout.css'
 
-export default function Layout(){
-    // state variable for forcing a rerender when necessary, 
-    // but also tracking user inputs which may be useful for debugging
-    // is just an array of strings
-    const [ activityLog, setActivityLog ] = useState([])
-    function logActivity(activityDescription){
-        console.log(activityDescription)
-        setActivityLog( [ ...activityLog, activityDescription ] )
-    }
-    return (
-        <div className='layoutContainer'>
-            <div className='layoutSidebar'>
-                <SidebarContent logActivity={logActivity}/>
-            </div>
+export const DataContext = createContext({})
 
-            <div className='layoutMap'>
-                <Map logActivity={logActivity}/>
-            </div>
-        </div>
-    )
+export default class Layout extends Component {
+    constructor(props){
+        super(props)
+        this.logActivity =  this.logActivity.bind(this)
+        this.state = {
+            data: new SpatialData(),
+            log: [],
+            logActivity: this.logActivity
+        }
+    }
+    logActivity(activity){
+        this.setState({
+            log: [ ...this.state.log, activity ]
+        })
+    }
+    render(){
+        return (
+            <DataContext.Provider value={this.state}>
+                <div className='layoutContainer'>
+                    <div className='layoutSidebar'>
+                        <SidebarContent/>
+                    </div>
+                    <div className='layoutMap'>
+                        <Map/>
+                    </div>
+                </div>
+            </DataContext.Provider>
+        )
+    }
 }

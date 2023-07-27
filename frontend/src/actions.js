@@ -1,6 +1,6 @@
 /* test or production servers */
 export const domain = process.env.NODE_ENV === 'development' ? 
-    'http://localhost:5000' : 'https://10.160.2.198/tt-request-backend'
+    'http://localhost:5001' : 'https://10.160.2.198/tt-request-backend'
 
 export function getLinksBetweenNodes(map, sequences){
     sequences.forEach( nodes => {
