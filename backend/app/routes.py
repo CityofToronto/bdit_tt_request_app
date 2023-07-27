@@ -192,13 +192,13 @@ def get_links(from_node_id, to_node_id):
 
 
             if(len(start) > 0 and len(end) > 0):
-                linkstr = ",".join(linknames)
+                linkstr = " & ".join(linknames)
                 startstr = " & ".join(start)
                 endstr = " & ".join(end)
 
-                ststr = startstr + " to " + endstr + " along " + linkstr
+                ststr = linkstr + " from " + startstr + " to " + endstr
             else:
-                ststr = str(linknames)
+                ststr = "Along " + " & ".join(linknames)
 
     connection.close()
     return links, ststr
