@@ -171,26 +171,13 @@ def get_links(from_node_id, to_node_id):
                 } for link_dir, st_name, seq, segment_id, geojson, length_m in cursor.fetchall()
             ]
 
-            linknames = []
-            for link in links:
-                if link['name'] not in linknames:
-                    linknames.append(link['name'])
-            print(linknames)
+            linknames = set( link['name'] for link in links )
     
             cursor.execute(stname_query, {"node": from_node_id})
-            start = []
-            for (item,) in cursor.fetchall():
-                if item not in linknames:
-                    start.append(item)
-            print(start)
+            start = set( name for (name,) in cursor.fetchall() ) - linknames
 
             cursor.execute(stname_query, {"node": to_node_id})
-            end = []
-            for (item,) in cursor.fetchall():
-                if item not in linknames:
-                    end.append(item)
-            print(end)
-
+            end = set( name for (name,) in cursor.fetchall() ) - linknames
 
             if(len(start) > 0 and len(end) > 0):
                 linkstr = " & ".join(linknames)
