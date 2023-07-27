@@ -101,7 +101,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    links = get_links(from_node_id, to_node_id)
+    (links,human_readable_path_description) = get_links(from_node_id, to_node_id)
 
     return jsonify({
         "source": from_node_id, 
