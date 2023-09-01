@@ -1,6 +1,6 @@
 /* test or production servers */
 const domain = process.env.NODE_ENV === 'development' ? 
-    'http://localhost:5000' : 'https://10.160.2.198/tt-request-backend'
+    'http://localhost:8072' : 'https://trans-bdit.intra.prod-toronto.ca/dev-tt-request-backend'
 
 /* GET up to ten closest nodes given coordinate */
 export const getClosestNode = (page, data) => {
