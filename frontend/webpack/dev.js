@@ -5,7 +5,8 @@ const path = require('path')
 const dotenv = require('dotenv').config(
     { path: path.resolve(__dirname, '../.env') }
 )
-const DeadCodePlugin = require('webpack-deadcode-plugin');
+const DeadCodePlugin = require('webpack-deadcode-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = merge(common, { 
     mode: 'development',
@@ -21,6 +22,11 @@ module.exports = merge(common, {
         new DeadCodePlugin({
             patterns: ['src/**/*.(js|jsx|css|less)'],
             detectUnusedExport: false
+        }),
+        new HtmlWebpackPlugin({
+            template:'./src/index_template.html',
+            publicPath:'/dev-traveltime-request',
+            chunks: ['app']
         })
     ],
 } )

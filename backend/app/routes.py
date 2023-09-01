@@ -1,10 +1,11 @@
-import os
-import json
-import re
+import os, json, re
+from dotenv import load_dotenv
 from datetime import datetime
 from flask import abort, jsonify
 from psycopg2 import connect
 from app import app
+
+load_dotenv()
 
 def getConnection():
     return connect(
