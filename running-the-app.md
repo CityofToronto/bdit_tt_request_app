@@ -2,21 +2,22 @@
 
 The steps to set up the app will depend on whether you're (re)starting our production build or working on your own development environment. 
 
-In either case though you'll need to create/modify `/backend/.env` to look something like
+In either case though you'll need to create/modify `backend/.env` to look something like
 
 ```bash
-DB_HOST='10.160.8.132'
+DB_HOST='wouldntyouliketoknow'
 DB_NAME='bigdata'
 DB_USER='tt_request_bot'
 DB_USER_PASSWORD='wouldntyouliketoknow'
 ```
 
 ## Production
-The app is available to users inside the City network at [https://10.160.2.198/traveltime-request/](https://10.160.2.198/traveltime-request/) 
+The app is available to users inside the City network at [https://trans-bdit.intra.prod-toronto.ca/traveltime-request/](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) 
 
-Code is located in `/web` on the EC2 server. 
+Production code is located in `/data/web` on the EC2 server. 
 
-You'll need `sudo` privileges to get the production build running. 
+### Steps
+
 1. switch to user `tt_request_app` with `su tt_request_app`; you'll be asked for a password
 2. pull any updates from the `deploy` branch
 
@@ -45,6 +46,8 @@ sudo nginx -s reload
 
 ### Back-end
 
+There is a dev deployment available at [https://trans-bdit.intra.prod-toronto.ca/dev-traveltime-request/](https://trans-bdit.intra.prod-toronto.ca/dev-traveltime-request/). It listens to ports 8073 for the frontend and 8072 for the backend. 
+
 1. From the project root directory, `cd` into folder `backend`.
 
 2. If necessary, execute command `python3 -m venv venv/` to create a python virtual environment for the backend.
@@ -55,9 +58,9 @@ sudo nginx -s reload
 
 6. ~~Create a pgadmin bot (`tt_request_bot`) to handle here travel time requests and give usage access to this bot for the schemas `here` and `here_gis`, also change the path of this user to schema `here`, and `public`.~~
 
-7. If necessary, edit the environment variables in `backend/.env`
+7. If necessary, edit the environment variables in `backend/.env`.
 
-8. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
+9. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
 
 ### Front-end
 
@@ -87,8 +90,6 @@ sudo nginx -s reload
 * `cd backend`
 * create a `.env` file in `backend/` if you haven't aready. The variables you'll need to set are listed above. 
 * `pip3 install -r requirements.txt`
-* `flask run`
+* `flask run -p 8072`
 
- ## Testing
- 
-> The backend has unit tests powered by pytest for most of the non-database non-API related modules and functions. The tests are located in backend/app/tests. When designing the backend, we followed the single responsibility principle and separated database actions, API interfaces and file actions from logic processing. For example, `parse_util.py` includes all the parsing logic for error checking incoming request and parsing request body, as well as parsing database query results into proper response formats. This module is thoroughly tested for correctness. There are also tests for validating data structures and testing database connections. These tests can all be run with command ‘pytest’ in the backend folder. During our CI/CD workflow, pytest is also part of the process. If any test case fails, CI/CD will terminate with error.
+This should deploy your build to https://trans-bdit.intra.prod-toronto.ca/dev-traveltime-request/
