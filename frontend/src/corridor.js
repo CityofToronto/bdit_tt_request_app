@@ -3,10 +3,25 @@ import { Segment } from './segment.js'
 
 // a sequence of segments forming a coherent corridor
 export class Corridor {
+    #isActive // corridor is currently focused by user
+    #dataContext // SpatialData manages corridors
     #intersections = []
     #segments = []
     #name = 'Give me a name!'
-    constructor(){}
+    constructor(dataContext){
+        this.#dataContext = dataContext
+        //this.activate()
+    }
+    get isActive(){ return this.#isActive }
+    activate(){
+        this.#isActive = true
+        this.#dataContext.corridors.forEach( cor => {
+            if(cor != this) cor.deactivate()
+        } )
+    }
+    deactivate(){
+        this.#isActive = false
+    }
     addIntersection(intersection){
         console.assert(intersection instanceof Intersection)
         this.#intersections = [ ...this.#intersections, intersection ]
