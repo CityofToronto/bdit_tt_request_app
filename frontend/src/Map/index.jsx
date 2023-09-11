@@ -28,7 +28,7 @@ function DataLayer(){
     const { activity, logActivity, data } = useContext(DataContext)
     const corridor = data.activeCorridor
     const map = useMapEvent('click', (event) => { // add an intersection
-        if( corridor?.intersections?.length < 1 ){
+        if( corridor?.intersections?.length < 2 ){
             fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
@@ -39,15 +39,14 @@ function DataLayer(){
                         lng: data.geometry.coordinates[0],
                         textDescription: data.name
                     } )
-                    corridor.addIntersection(intersection)
+                    corridor.addIntersection(intersection,logActivity)
                     logActivity('added intersection')
                 } )
             }
     } )
     
     if(corridor){
-        console.log('map is ready and listening')
-        return ( <>
+        return <>
             {corridor.intersections.map( intersection => (
                 <CircleMarker key={intersection.id}
                     center={intersection.latlng}
@@ -57,13 +56,15 @@ function DataLayer(){
                     <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
                 </CircleMarker>
             ) ) }
-            {corridor.segments.flatMap(seg=>seg.links).map( link => (
-                <Polyline key={link.link_dir} 
-                    positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
-                    color='red'
-                />
-            ) )}
-        </> )
+            {corridor.segments.flatMap(seg=>seg.links).map( link => {
+                return (
+                    <Polyline key={link.link_dir} 
+                        positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
+                        color='red'
+                    /> )
+            
+            } ) }
+        </>
     }
     
 }

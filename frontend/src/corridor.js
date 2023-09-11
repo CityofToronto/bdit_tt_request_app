@@ -22,7 +22,7 @@ export class Corridor {
     deactivate(){
         this.#isActive = false
     }
-    addIntersection(intersection){
+    addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)
         this.#intersections = [ ...this.#intersections, intersection ]
         this.#segments = this.#intersections
@@ -35,7 +35,11 @@ export class Corridor {
                 }
             } )
             .filter( v => v )
-        return Promise.all( this.#segments.map( seg => seg.fetchLinks() ) )
+        Promise.all( this.#segments.map( seg => seg.fetchLinks() ) )
+            .then( () => {
+                // notify the layout that the path is ready to be rendered
+                logActivity('shortest path returned')
+            } )
     }
     get intersections(){ return this.#intersections }
     addSegment(segment){

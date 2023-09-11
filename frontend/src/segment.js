@@ -1,4 +1,5 @@
 import { domain } from './domain.js'
+import { Intersection } from './intersection'
 
 // a node-to-node directed segment
 export class Segment {
@@ -18,7 +19,7 @@ export class Segment {
             .then( resp => resp.json() )
             .then( ({links}) => {
                 this.#links = links
-                return true
+                return true // because this promise is awaited elsewhere
             } )   
     }
     get links(){ return this.#links }
