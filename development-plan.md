@@ -11,16 +11,14 @@ Get the app to return the results of a simple travel time aggregation using the 
 
 ### Backend Design
 1. ~~Copy a recent data request's SQL more or less verbatim into a new endpoint/route the backend code~~
-2. Slot in the variables delivered from the front end UI
+2. ~~Slot in the variables delivered from the front end UI~~
     * ~~date range~~
     * ~~time range~~
     * ~~route (defined by start/end nodes)~~
-    * day of week
-    * holidays
-3. Ensure that the qury runs reasonably quick for a simple query (e.g. < 10 seconds)
-    * optimize and refactor if necessary
-4. Ensure that the output data format is as needed. Each result should have fields
-    * mean_travel_time in seconds
+    * ~~day of week~~
+    * ~~holidays~~
+3. Ensure that the output data format is as needed. Each result should have fields
+    * ~~mean_travel_time in seconds~~
     * description of route
         * from_street text
         * to_street text
@@ -31,21 +29,28 @@ Get the app to return the results of a simple travel time aggregation using the 
         * total span of time potentially included in aggregation
         * % of that time/space with 1 + actual observations
         * (together, these can be used to estimate the sample size)
+4. Ensure that the qury runs reasonably quick for a simple query (e.g. < 10 seconds)
+    * optimize and refactor if necessary
+
 ### Frontend design
-Frontend should regroup around the simplest possible thing
-* do a single aggregation
-    * one time range X one date range X one route
-* display the results or offer them as a one-line CSV download
+The interface should be more of a step-by step walk-through and less of a here-are-all-the-controls-at-once.
 
-Second phase then can work to restore _some_ of the existing, more complex functionality for combinations of values
-* multiple date ranges
-* multiple time ranges
-* multiple routes
-* plus all combinations of the above
+We can start with the map, side panel permanently open. The panel has a welcome message with a quick description of the app. 
+The user is then prompted to identify a corridor by clicking intersections on the map for a start and end node. The routing will display automatically. They may need to add or drag a node at this point and that should be indicated once the initial route is on the map. 
 
-These will rely on the same backend API but just `await` a set of parallel promises, the results to be combined in the frontend before download.
+A corridor has been created! Would they like to add another? Same process, corridors stacking up as added in accordion divs, with the open div indicated as active on the map. Only one open at a time. 
 
-Possible then to display progress for big queries?
+Once a corridor with 2+ nodes has been created, a section on the bottom haf of the panel appears with the temporal options. The welcome message from the top disappears. These options come in two parts:
+* times "Time Periods"
+* dates "Date Ranges" (dow, date range, holiday exclusion)
+
+These options too are each in sets of collapsible divs with only the active one open.
+
+When a Corridor + a Date Range + a Time Period have been created, the Get Travel Times option appears.
+
+All combinations of the three main sections will be combined together and sent in batches to the backend. We can just `await` a set of parallel promises, the results to be combined in the frontend before download.
+
+Possible then to display progress for big queries by the % of promises returned??
 
 ## Medium Term Goals
 * Improve the code

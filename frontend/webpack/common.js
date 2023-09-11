@@ -1,6 +1,5 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const cssLoader = {
     loader: 'css-loader',
@@ -51,12 +50,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            template:'./src/index_template.html',
-            publicPath:'/traveltime-request',
-            chunks: ['app']
-        })
+        new CleanWebpackPlugin()
     ],
     resolve: {
         extensions: ['.js','.jsx']
