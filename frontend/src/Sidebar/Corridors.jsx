@@ -34,15 +34,16 @@ function Corridor({corridor}){
                 }
             } }
         >
-            {corridor.name}
+            <div className='corridorName'>{corridor.name}</div>
             {corridor.isActive && <>
-                <br/>
-                corridor has {corridor.intersections.length} intersections<br/>
-                {corridor.intersections.length == 0 &&
-                    <button onClick={()=>console.log('need to do stuff here')}>
-                        Add a starting intersection
-                    </button> 
-                }
+                <div className='instructions'>
+                    {corridor.intersections.length == 0 &&
+                        <>Click on the map to identify the starting point</>
+                    }
+                    {corridor.intersections.length == 1 &&
+                        <>Click on the map to identify the end point</>
+                    }
+                </div>
             </> }
         </div>
     )

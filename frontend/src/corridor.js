@@ -7,10 +7,9 @@ export class Corridor {
     #dataContext // SpatialData manages corridors
     #intersections = []
     #segments = []
-    #name = 'unnamed corridor'
     constructor(dataContext){
+        // make this corridor aware of all other corridors
         this.#dataContext = dataContext
-        //this.activate()
     }
     get isActive(){ return this.#isActive }
     activate(){
@@ -48,5 +47,18 @@ export class Corridor {
         }
     }
     get segments(){ return this.#segments }
-    get name(){ return this.#name }
+    get links(){ return this.segments.flatMap( seg => seg.links ) }
+    get viaStreets(){
+        let names = new Set( this.links.map( link => link.name ) )
+        return [...names]
+    }
+    get name(){
+        if(this.#intersections.length == 1){
+            return `Incomplete corridor starting from ${this.intersections[0].description}`
+        }else if(this.#intersections.length == 2){
+            let [a,b] = this.intersections
+            return `Corridor from ${a.description} to ${b.description} via ${this.viaStreets.join(' & ')}`
+        }
+        return 'New Corridor'
+    }
 }

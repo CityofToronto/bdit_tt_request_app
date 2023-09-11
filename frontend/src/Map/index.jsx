@@ -56,7 +56,7 @@ function DataLayer(){
                     <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
                 </CircleMarker>
             ) ) }
-            {corridor.segments.flatMap(seg=>seg.links).map( link => {
+            {corridor.links.map( link => {
                 return (
                     <Polyline key={link.link_dir} 
                         positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }

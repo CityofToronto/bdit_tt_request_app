@@ -1,3 +1,11 @@
 .sidebarContent {
     margin: 10px;
 }
+
+.corridorName {
+    font-style: italic;
+}
+
+.instructions {
+    font-weight: bold;
+}
