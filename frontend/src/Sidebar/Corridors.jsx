@@ -34,8 +34,16 @@ function Corridor({corridor}){
                 }
             } }
         >
-            {corridor.name}<br/>
-            corridor has {corridor.intersections.length} intersections
+            {corridor.name}
+            {corridor.isActive && <>
+                <br/>
+                corridor has {corridor.intersections.length} intersections<br/>
+                {corridor.intersections.length == 0 &&
+                    <button onClick={()=>console.log('need to do stuff here')}>
+                        Add a starting intersection
+                    </button> 
+                }
+            </> }
         </div>
     )
 }

@@ -5,7 +5,8 @@ import {
     Popup,
     Polyline
 } from 'react-leaflet'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
 import { Intersection } from '../intersection.js'
@@ -23,40 +24,46 @@ export default function Map() {
     )
 }
 
-const corridor = new Corridor()
-
 function DataLayer(){
-    const [ renderNum, setRenderNum ] = useState(0) // simply forces a rerender when incremented
+    const { activity, logActivity, data } = useContext(DataContext)
+    const corridor = data.activeCorridor
     const map = useMapEvent('click', (event) => { // add an intersection
-        fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
-            .then( resp => resp.json() )
-            .then( node => {
-                const data = node[0]
-                const intersection = new Intersection( {
-                    id: data.node_id,
-                    lat: data.geometry.coordinates[1],
-                    lng: data.geometry.coordinates[0],
-                    textDescription: data.name
+        if( corridor?.intersections?.length < 1 ){
+            fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+                .then( resp => resp.json() )
+                .then( node => {
+                    const data = node[0]
+                    const intersection = new Intersection( {
+                        id: data.node_id,
+                        lat: data.geometry.coordinates[1],
+                        lng: data.geometry.coordinates[0],
+                        textDescription: data.name
+                    } )
+                    corridor.addIntersection(intersection)
+                    logActivity('added intersection')
                 } )
-                return corridor.addIntersection(intersection)
-            } )
-            .then( () => setRenderNum( i => i + 1 ) )
+            }
     } )
-    return ( <>
-        {corridor.intersections.map( intersection => (
-            <CircleMarker key={intersection.id}
-                center={intersection.latlng}
-                radius={10}
-                color='red'
-            >
-                <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
-            </CircleMarker>
-        ) ) }
-        {corridor.segments.flatMap(seg=>seg.links).map( link => (
-            <Polyline key={link.link_dir} 
-                positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
-                color='red'
-            />
-        ) )}
-    </> )
+    
+    if(corridor){
+        console.log('map is ready and listening')
+        return ( <>
+            {corridor.intersections.map( intersection => (
+                <CircleMarker key={intersection.id}
+                    center={intersection.latlng}
+                    radius={10}
+                    color='red'
+                >
+                    <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
+                </CircleMarker>
+            ) ) }
+            {corridor.segments.flatMap(seg=>seg.links).map( link => (
+                <Polyline key={link.link_dir} 
+                    positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
+                    color='red'
+                />
+            ) )}
+        </> )
+    }
+    
 }

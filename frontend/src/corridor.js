@@ -7,7 +7,7 @@ export class Corridor {
     #dataContext // SpatialData manages corridors
     #intersections = []
     #segments = []
-    #name = 'Give me a name!'
+    #name = 'unnamed corridor'
     constructor(dataContext){
         this.#dataContext = dataContext
         //this.activate()
