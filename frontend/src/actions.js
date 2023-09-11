@@ -22,7 +22,7 @@ export const updateClosestNode = (page, data) => {
         .then( r => r.json() )
         .then( data => {
             if (data.length === 1) {
-                const newNode = data[0];
+                const newNode = data[0]; 
                 page.updateMarker(data.nodeIndex, newNode)
             } else {
                 const closestNodes = data

@@ -28,14 +28,19 @@ function Welcome(){
 }
 
 function CorridorsContainer(){
-    const { log, logActivity } = useContext(DataContext)
-    useEffect(()=>{
-        logActivity('test')
-    },[])
-    console.log(log)
+    const { log, logActivity, data } = useContext(DataContext)
+    function addACorridor(){
+        data.createCorridor()
+        logActivity('new corridor')
+    }
     return (
         <div>
-            <button onClick={()=>console.log('click!')}>Add a new corridor to the map</button>
+            <button onClick={addACorridor}>Create a new corridor</button>
+            <div className='corridor-list'>
+                {data.corridors.map( (c,i) => (
+                    <div key={i}>{i}</div>
+                ) ) }
+            </div>
         </div>
     )
 }
