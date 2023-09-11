@@ -1,6 +1,6 @@
 import { Component, createContext } from 'react'
-import { SpatialData } from '../spatialData.js'
-import SidebarContent from "./Sidebar"
+import { SpatialData } from './spatialData.js'
+import SidebarContent from "./Sidebar/index.jsx"
 import Map from "./Map"
 
 import './layout.css'

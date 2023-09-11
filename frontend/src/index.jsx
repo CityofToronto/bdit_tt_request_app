@@ -1,5 +1,5 @@
 import * as ReactDOMclient from 'react-dom/client'
-import App from './App'
+import APP from './Layout'
 import * as serviceWorker from './serviceWorker'
 
 const container = document.getElementById('root')

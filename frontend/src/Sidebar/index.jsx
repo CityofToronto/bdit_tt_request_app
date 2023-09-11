@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { DataContext } from '../'
+import { DataContext } from '../Layout'
 
 import './sidebar.css'
 
@@ -34,13 +34,21 @@ function CorridorsContainer(){
         logActivity('new corridor')
     }
     return (
-        <div>
+        <div style={{border:'1px solid black'}}>
             <button onClick={addACorridor}>Create a new corridor</button>
             <div className='corridor-list'>
                 {data.corridors.map( (c,i) => (
-                    <div key={i}>{i}</div>
+                    <Corridor key={i} corridor={c}/>
                 ) ) }
             </div>
+        </div>
+    )
+}
+
+function Corridor({corridor}){
+    return (
+        <div style={{border:'0.5px solid black'}}>
+            {corridor.name}
         </div>
     )
 }

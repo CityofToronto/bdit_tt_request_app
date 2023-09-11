@@ -15,6 +15,7 @@ export class SpatialData {
 export class Corridor {
     #intersections = []
     #segments = []
+    #name = 'Give me a name!'
     constructor(){}
     addIntersection(intersection){
         console.assert(intersection instanceof Intersection)
@@ -38,6 +39,7 @@ export class Corridor {
         }
     }
     get segments(){ return this.#segments }
+    get name(){ return this.#name }
 }
 
 import { domain } from './actions.js'
