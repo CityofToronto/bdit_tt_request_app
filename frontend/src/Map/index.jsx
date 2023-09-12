@@ -5,12 +5,11 @@ import {
     Popup,
     Polyline
 } from 'react-leaflet'
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
 import { Intersection } from '../intersection.js'
-import { Corridor } from '../corridor.js'
 import 'leaflet/dist/leaflet.css'
 
 const initialMapCenter = { lat: 43.65344, lng: -79.38400 }

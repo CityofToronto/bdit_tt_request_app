@@ -2,23 +2,23 @@
     margin: 10px;
 }
 
-.panelContainer {
+.user-created-factor-container {
     border: 1px solid grey;
     border-radius: 5px;
     padding: 5px;
 }
 
-.panelContainer > * {
+.user-created-factor-container > * {
     margin: 5px 0;
 }
 
-.corridor {
+.factor {
     border-radius: 2px;
     padding: 5px;
     margin: 5px 0;
 }
 
-.corridor.active {
+.factor.active {
     background:#f003;
 }
 
@@ -26,7 +26,7 @@
     background: #00F5;
 }
 
-.corridorName {
+.factorName {
     font-style: italic;
     margin-bottom: 5px;
 }

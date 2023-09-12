@@ -1,6 +1,9 @@
 import { Intersection } from './intersection.js'
 import { Segment } from './segment.js'
 
+import { useContext } from 'react'
+import { DataContext } from './Layout'
+
 // a sequence of segments forming a coherent corridor
 export class Corridor {
     #isActive // corridor is currently focused by user
@@ -61,4 +64,33 @@ export class Corridor {
         }
         return 'New Corridor'
     }
+    render(){
+        return <CorridorElement corridor={this}/>
+    }
+}
+
+function CorridorElement({corridor}){
+    const { logActivity } = useContext(DataContext)
+    return (
+        <div className={`corridor ${corridor.isActive ? 'active' : 'inactive'}`}
+            onClick={()=>{
+                if(!corridor.isActive){
+                    corridor.activate()
+                    logActivity('focus corridor')
+                }
+            } }
+        >
+            <div className='corridorName'>{corridor.name}</div>
+            {corridor.isActive && <>
+                <div className='instructions'>
+                    {corridor.intersections.length == 0 &&
+                        <>Click on the map to identify the starting point</>
+                    }
+                    {corridor.intersections.length == 1 &&
+                        <>Click on the map to identify the end point</>
+                    }
+                </div>
+            </> } 
+        </div>
+    )
 }
