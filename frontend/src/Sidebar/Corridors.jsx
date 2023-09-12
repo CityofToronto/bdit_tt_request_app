@@ -8,8 +8,8 @@ export function CorridorsContainer(){
         logActivity('new corridor')
     }
     return (
-        <div style={{border:'1px solid black'}}>
-            <button onClick={addACorridor}>Create a new corridor</button>
+        <div className='panelContainer'>
+            <div className='bigButton' onClick={addACorridor}>Create a new corridor</div>
             <div className='corridor-list'>
                 {data.corridors.map( (c,i) => (
                     <Corridor key={i} corridor={c}/>
@@ -22,11 +22,7 @@ export function CorridorsContainer(){
 function Corridor({corridor}){
     const { logActivity } = useContext(DataContext)
     return (
-        <div 
-            style={{
-                border: `0.5px solid ${corridor.isActive?'red':'black'}`,
-                background: corridor.isActive ? '#f006' : null
-            }}
+        <div className={`corridor ${corridor.isActive ? 'active' : 'inactive'}`}
             onClick={()=>{
                 if(!corridor.isActive){
                     corridor.activate()

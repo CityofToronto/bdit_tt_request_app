@@ -2,10 +2,46 @@
     margin: 10px;
 }
 
+.panelContainer {
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.panelContainer > * {
+    margin: 5px 0;
+}
+
+.corridor {
+    border-radius: 2px;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.corridor.active {
+    background:#f003;
+}
+
+.corridor.inactive:hover {
+    background: #00F5;
+}
+
 .corridorName {
     font-style: italic;
+    margin-bottom: 5px;
 }
 
 .instructions {
     font-weight: bold;
+}
+
+.bigButton {
+    text-align: center;
+    background: #00f1;
+    border-radius: 5px;
+    margin: 5px 0;
+    padding: 5px;
+}
+.bigButton:hover {
+    background: #00F5;
 }
