@@ -24,6 +24,9 @@ export class Corridor {
     deactivate(){
         this.#isActive = false
     }
+    get isComplete(){
+        return this.intersections.length > 1 && this.links.length > 0
+    }
     addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)
         this.#intersections = [ ...this.#intersections, intersection ]
@@ -72,7 +75,7 @@ export class Corridor {
 function CorridorElement({corridor}){
     const { logActivity } = useContext(DataContext)
     return (
-        <div className={`corridor ${corridor.isActive ? 'active' : 'inactive'}`}
+        <div
             onClick={()=>{
                 if(!corridor.isActive){
                     corridor.activate()

@@ -15,6 +15,9 @@ export class TimeRange {
             if(tr != this) tr.deactivate()
         } )
     }
+    get isComplete(){
+        return false // TODO
+    }
     deactivate(){
         this.#isActive = false
     }

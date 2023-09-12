@@ -21,8 +21,11 @@
 .factor.active {
     background:#f003;
 }
+.factor.complete {
+    background: #0f03;
+}
 
-.corridor.inactive:hover {
+.factor.inactive:hover {
     background: #00F5;
 }
 
