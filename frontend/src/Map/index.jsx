@@ -53,7 +53,12 @@ function DataLayer(){
                     radius={10}
                     color='red'
                 >
-                    <Popup>id: {intersection.id}<br/>description: {intersection.description}</Popup>
+                    <Popup>
+                        <h3>{intersection.description}</h3>
+                        <table>
+                            <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
+                        </table> 
+                    </Popup>
                 </CircleMarker>
             ) ) }
             {corridor.links.map( link => {
