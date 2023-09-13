@@ -12,6 +12,7 @@ export default function SidebarContent(){
             <Welcome/>
             <CorridorsContainer/>
             <TimeRangesContainer/>
+            <DateRangesContainer/>
         </div>
     )
 }
@@ -28,6 +29,22 @@ function TimeRangesContainer(){
                 Create a new time range
             </CreateFactorButton>
             <FactorList factors={data.timeRanges}/>
+        </FactorContainer>
+    )
+}
+
+function DateRangesContainer(){
+    const { logActivity, data } = useContext(DataContext)
+    function addADateRange(){
+        data.createDateRange()
+        logActivity('new date range')
+    }
+    return (
+        <FactorContainer>
+            <CreateFactorButton onClick={addADateRange}>
+                Create a new date range
+            </CreateFactorButton>
+            <FactorList factors={data.dateRanges}/>
         </FactorContainer>
     )
 }

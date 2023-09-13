@@ -1,17 +1,16 @@
 import { Corridor } from './corridor.js'
 import { TimeRange } from './timeRange.js'
+import { DateRange } from './dateRange.js'
 
 // instantiated once, this is the data store for all spatial data
 export class SpatialData {
     #corridors = []
     #timeRanges = []
+    #dateRanges = []
     constructor(){}
-    get corridors(){
-        return this.#corridors
-    }
-    get timeRanges(){
-        return this.#timeRanges
-    }
+    get corridors(){ return this.#corridors }
+    get timeRanges(){ return this.#timeRanges }
+    get dateRanges(){ return this.#dateRanges }
     get activeCorridor(){
         return this.#corridors.find(cor=>cor.isActive)
     }
@@ -24,6 +23,11 @@ export class SpatialData {
         let tr = new TimeRange(this)
         this.#timeRanges.push(tr)
         tr.activate()
+    }
+    createDateRange(){
+        let dr = new DateRange(this)
+        this.#dateRanges.push(dr)
+        dr.activate()
     }
     get segments(){
         return this.corridors.flatMap( c => c.segments )
