@@ -18,7 +18,6 @@ export class TimeRange {
         } )
     }
     get isComplete(){
-        console.log('completeness tested')
         return this.#startTime && this.#endTime && this.#startTime < this.#endTime
     }
     deactivate(){
