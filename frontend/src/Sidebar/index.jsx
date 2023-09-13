@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { DataContext } from '../Layout'
 
 import FactorContainer from './FactorContainer'
-import CreateFactorButton from './CreateFactorButton'
+import BigButton from './BigButton'
 import FactorList from './FactorList'
 import './sidebar.css'
 
@@ -29,7 +29,12 @@ function Results(){
     let numResults = corridors.length * timeRanges.length * dateRanges.length
     return (
         <div>
-            {numResults} travel time{numResults == 1 ? '' : 's'} to estimate
+            {numResults} travel time{numResults == 1 ? '' : 's'} to estimate currently
+            {numResults > 1 && 
+                <BigButton onClick={()=>console.alert('woohoo!')}>
+                    Submit Query
+                </BigButton>
+            }
         </div>
     )
 }
@@ -42,9 +47,9 @@ function TimeRangesContainer(){
     }
     return (
         <FactorContainer>
-            <CreateFactorButton onClick={addATimeRange}>
+            <BigButton onClick={addATimeRange}>
                 Create a new time range
-            </CreateFactorButton>
+            </BigButton>
             <FactorList factors={data.timeRanges}/>
         </FactorContainer>
     )
@@ -58,9 +63,9 @@ function DateRangesContainer(){
     }
     return (
         <FactorContainer>
-            <CreateFactorButton onClick={addADateRange}>
+            <BigButton onClick={addADateRange}>
                 Create a new date range
-            </CreateFactorButton>
+            </BigButton>
             <FactorList factors={data.dateRanges}/>
         </FactorContainer>
     )
@@ -74,9 +79,9 @@ export function CorridorsContainer(){
     }
     return (
         <FactorContainer>
-            <CreateFactorButton onClick={addACorridor}>
+            <BigButton onClick={addACorridor}>
                 Create a new corridor
-            </CreateFactorButton>
+            </BigButton>
             <FactorList factors={data.corridors}/>
         </FactorContainer>
     )

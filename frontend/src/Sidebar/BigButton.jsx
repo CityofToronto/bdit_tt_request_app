@@ -1,4 +1,4 @@
-export default function CreateFactorButton({onClick,children}){
+export default function BigButton({onClick,children}){
     return (
         <div className='bigButton' onClick={onClick}>{children}</div>
     )
