@@ -11,8 +11,25 @@ export default function SidebarContent(){
         <div className="sidebarContent">
             <Welcome/>
             <CorridorsContainer/>
+            <div className='big-math-symbol'>&#xd7;</div>
             <TimeRangesContainer/>
+            <div className='big-math-symbol'>&#xd7;</div>
             <DateRangesContainer/>
+            <div className='big-math-symbol'>=</div> 
+            <Results/>
+        </div>
+    )
+}
+
+function Results(){
+    const { data } = useContext(DataContext)
+    let corridors = data.corridors.filter(c=>c.isComplete)
+    let timeRanges = data.timeRanges.filter(c=>c.isComplete)
+    let dateRanges = data.dateRanges.filter(c=>c.isComplete)
+    let numResults = corridors.length * timeRanges.length * dateRanges.length
+    return (
+        <div>
+            {numResults} travel time{numResults == 1 ? '' : 's'} to estimate
         </div>
     )
 }

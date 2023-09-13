@@ -3,13 +3,18 @@
 }
 
 .user-created-factor-container {
-    border: 1px solid grey;
+    border: 1px solid lightgrey;
     border-radius: 5px;
     padding: 5px;
 }
 
 .user-created-factor-container > * {
     margin: 5px 0;
+}
+
+.big-math-symbol {
+    text-align: center;
+    font-size: 2em;
 }
 
 .factor {
