@@ -77,7 +77,7 @@ function DateRangeElement({dateRange}){
                         Start date
                     </label> <input type='text' name='start-date'
                         value={startInput}
-                        placeholder='2022-01-01'
+                        placeholder='YYYY-MM-DD'
                         onChange={e=>setStartInput(e.target.value)}
                     />
                     <br/>
@@ -85,7 +85,7 @@ function DateRangeElement({dateRange}){
                         End date
                     </label> <input type='text' name='end-date'
                         value={endInput}
-                        placeholder='2022-02-01'
+                        placeholder='YYYY-MM-DD'
                         onChange={e=>setEndInput(e.target.value)}
                     />
                 </div>

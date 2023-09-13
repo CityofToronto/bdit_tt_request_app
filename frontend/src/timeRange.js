@@ -83,7 +83,7 @@ function TimeRangeElement({timeRange}){
                         Start time
                     </label> <input type='text' name='start-time'
                         value={startInput}
-                        placeholder='16:00'
+                        placeholder='HH:MM'
                         onChange={e=>setStartInput(e.target.value)}
                     />
                     <br/>
@@ -91,7 +91,7 @@ function TimeRangeElement({timeRange}){
                         End time
                     </label> <input type='text' name='end-time'
                         value={endInput}
-                        placeholder='19:00'
+                        placeholder='HH:MM'
                         onChange={e=>setEndInput(e.target.value)}
                     />
                 </div>
