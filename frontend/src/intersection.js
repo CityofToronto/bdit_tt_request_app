@@ -25,11 +25,3 @@ export class Intersection {
         }
     }
 }
-
-/* 
-function getClosestNode({latitude,longitude}){
-    fetch(`${domain}/closest-node/${data.longitude}/${data.latitude}`)
-        .then( res => res.json() )
-        etc
-}
-*/

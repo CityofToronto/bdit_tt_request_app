@@ -30,12 +30,40 @@ function Results(){
     return (
         <div>
             {numResults} travel time{numResults == 1 ? '' : 's'} to estimate currently
-            {numResults > 1 && 
-                <BigButton onClick={()=>console.alert('woohoo!')}>
+            {numResults > 0 && 
+                <BigButton onClick={()=>getAllTheData({corridors,timeRanges,dateRanges})}>
                     Submit Query
                 </BigButton>
             }
         </div>
+    )
+}
+
+import { domain } from '../domain.js'
+
+async function getAllTheData({corridors,timeRanges,dateRanges}){
+    const crossProduct = []
+    corridors.forEach( corridor => {
+        timeRanges.forEach( timeRange => {
+            dateRanges.forEach( dateRange => {
+                crossProduct.push({corridor,timeRange,dateRange})
+            } )
+        } )
+    })
+    return Promise.all(
+        crossProduct.map( ({corridor,timeRange,dateRange}) => {
+            // base path
+            let path = `${domain}/aggregate-travel-times`
+            // from and to nodes
+            path += `/${corridor.intersections[0].id}/${corridor.intersections[1].id}`
+            // times - only hours supported right now :(
+            path += `/${timeRange.startHour}/${timeRange.endHour}`
+            // start and end dates
+            path += `/${dateRange.startDateFormatted}/${dateRange.endDateFormatted}`
+            // options not yet supported: holidays and days of week
+            path += '/true/1234567'
+            return fetch(path).then( response => response.json() )
+        } )
     )
 }
 

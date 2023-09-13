@@ -8,6 +8,8 @@ export class TimeRange extends Factor {
     constructor(dataContext){
         super(dataContext)
     }
+    get startHour(){ return this.#startTime?.getHours() }
+    get endHour(){ return this.#endTime?.getHours() }
     get isComplete(){
         return this.#startTime && this.#endTime && this.#startTime < this.#endTime
     }
