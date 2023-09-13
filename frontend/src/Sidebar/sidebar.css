@@ -48,3 +48,8 @@
 .bigButton:hover {
     background: #00F5;
 }
+
+.deleteButton {
+    float: right;
+    margin-left: 10px;
+}

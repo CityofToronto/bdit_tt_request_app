@@ -58,6 +58,9 @@ export class DateRange {
     get endDateFormatted(){
         return DateRange.dateFormatted(this.#endDate)
     }
+    delete(){
+        this.#dataContext.dropFactor(this)
+    }
 }
 
 function DateRangeElement({dateRange}){
@@ -83,6 +86,13 @@ function DateRangeElement({dateRange}){
             <div className='dateRangeName'>{dateRange.name}</div>
             {dateRange.isActive && <>
                 <div>
+                    <div className='deleteButton' onClick={()=>{
+                        console.log('hello')
+                        dateRange.delete()
+                        logActivity('delete dateRange')
+                    }}>
+                        &#x2716;
+                    </div>
                     <label htmlFor='start-date'>
                         Start date
                     </label> <input type='text' name='start-date'

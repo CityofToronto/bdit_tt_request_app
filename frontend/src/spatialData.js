@@ -35,4 +35,13 @@ export class SpatialData {
     get nodes(){
         return this.segments.flatMap( s => [ s.fromNode, s.toNode ] )
     }
+    dropFactor(factor){
+        if(factor instanceof DateRange){
+            this.#dateRanges = this.#dateRanges.filter(dr => dr != factor)
+        }else if(factor instanceof TimeRange){
+            this.#timeRanges = this.#timeRanges.filter(tr => tr != factor)
+        }else if(factor instanceof Corridor){
+            this.#corridors = this.#corridors.filter(c => c != factor)
+        }
+    }
 }
