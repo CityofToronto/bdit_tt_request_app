@@ -70,6 +70,9 @@ export class Corridor {
     render(){
         return <CorridorElement corridor={this}/>
     }
+    delete(){
+        this.#dataContext.dropFactor(this)
+    }
 }
 
 function CorridorElement({corridor}){

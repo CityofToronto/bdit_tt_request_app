@@ -64,6 +64,9 @@ export class TimeRange {
     get endTimeFormatted(){
         return TimeRange.timeFormatted(this.#endTime)
     }
+    delete(){
+        this.#dataContext.dropFactor(this)
+    }
 }
 
 function TimeRangeElement({timeRange}){
