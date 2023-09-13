@@ -63,7 +63,7 @@ export class Corridor {
             return `Incomplete corridor starting from ${this.intersections[0].description}`
         }else if(this.#intersections.length == 2){
             let [a,b] = this.intersections
-            return `Corridor from ${a.description} to ${b.description} via ${this.viaStreets.join(' & ')}`
+            return `${a.description} to ${b.description} via ${this.viaStreets.join(' & ')}`
         }
         return 'New Corridor'
     }
