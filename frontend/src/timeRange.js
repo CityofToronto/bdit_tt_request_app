@@ -1,27 +1,15 @@
+import { Factor } from './factor.js'
 import { useContext, useState, useEffect } from 'react'
 import { DataContext } from './Layout'
 
-export class TimeRange {
-    #isActive // is currently focused by user
-    #dataContext // SpatialData manages this
+export class TimeRange extends Factor {
     #startTime
     #endTime // 
     constructor(dataContext){
-        // make this one aware of all others
-        this.#dataContext = dataContext
-    }
-    get isActive(){ return this.#isActive }
-    activate(){
-        this.#isActive = true
-        this.#dataContext.timeRanges.forEach( tr => {
-            if(tr != this) tr.deactivate()
-        } )
+        super(dataContext)
     }
     get isComplete(){
         return this.#startTime && this.#endTime && this.#startTime < this.#endTime
-    }
-    deactivate(){
-        this.#isActive = false
     }
     get name(){
         if(this.#startTime || this.#endTime){
@@ -63,9 +51,6 @@ export class TimeRange {
     }
     get endTimeFormatted(){
         return TimeRange.timeFormatted(this.#endTime)
-    }
-    delete(){
-        this.#dataContext.dropFactor(this)
     }
 }
 

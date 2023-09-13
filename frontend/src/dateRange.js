@@ -1,26 +1,16 @@
+import { Factor } from './factor.js'
 import { useContext, useState, useEffect } from 'react'
 import { DataContext } from './Layout'
 
-export class DateRange {
-    #isActive // is currently focused by user
-    #dataContext
+export class DateRange extends Factor {
     #startDate
     #endDate
     constructor(dataContext){
-        // make this one aware of all others
-        this.#dataContext = dataContext
-    }
-    get isActive(){ return this.#isActive }
-    activate(){
-        this.#isActive = true
-        this.#dataContext.dateRanges.forEach( dr => {
-            if(dr != this) dr.deactivate()
-        } )
+        super(dataContext)
     }
     get isComplete(){
         return this.#startDate && this.#endDate && this.#startDate < this.#endDate
     }
-    deactivate(){ this.#isActive = false }
     get name(){
         if(this.#startDate || this.#endDate){
             let start = this.#startDate?.toLocaleDateString() ?? '???'
@@ -57,9 +47,6 @@ export class DateRange {
     }
     get endDateFormatted(){
         return DateRange.dateFormatted(this.#endDate)
-    }
-    delete(){
-        this.#dataContext.dropFactor(this)
     }
 }
 

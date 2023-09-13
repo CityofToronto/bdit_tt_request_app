@@ -1,3 +1,4 @@
+import { Factor } from './factor.js'
 import { Intersection } from './intersection.js'
 import { Segment } from './segment.js'
 
@@ -5,24 +6,11 @@ import { useContext } from 'react'
 import { DataContext } from './Layout'
 
 // a sequence of segments forming a coherent corridor
-export class Corridor {
-    #isActive // corridor is currently focused by user
-    #dataContext // SpatialData manages corridors
+export class Corridor extends Factor {
     #intersections = []
     #segments = []
     constructor(dataContext){
-        // make this corridor aware of all other corridors
-        this.#dataContext = dataContext
-    }
-    get isActive(){ return this.#isActive }
-    activate(){
-        this.#isActive = true
-        this.#dataContext.corridors.forEach( cor => {
-            if(cor != this) cor.deactivate()
-        } )
-    }
-    deactivate(){
-        this.#isActive = false
+        super(dataContext)
     }
     get isComplete(){
         return this.intersections.length > 1 && this.links.length > 0
@@ -69,9 +57,6 @@ export class Corridor {
     }
     render(){
         return <CorridorElement corridor={this}/>
-    }
-    delete(){
-        this.#dataContext.dropFactor(this)
     }
 }
 
