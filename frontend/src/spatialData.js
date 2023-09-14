@@ -1,6 +1,7 @@
 import { Corridor } from './corridor.js'
 import { TimeRange } from './timeRange.js'
 import { DateRange } from './dateRange.js'
+import { TravelTimeQuery } from './travelTimeQuery.js'
 
 // instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
@@ -40,5 +41,19 @@ export class SpatialData {
         this.#factors.forEach( f => {
             if(f != factor) f.deactivate()
         } )
+    }
+    get travelTimeQueries(){
+        // is the crossproduct of all complete/valid factors
+        const crossProduct = []
+        this.corridors.filter(c=>c.isComplete).forEach( corridor => {
+            this.timeRanges.filter(c=>c.isComplete).forEach( timeRange => {
+                this.dateRanges.filter(c=>c.isComplete).forEach( dateRange => {
+                    crossProduct.push(
+                        new TravelTimeQuery({corridor,timeRange,dateRange})
+                    )
+                } )
+            } )
+        })
+        return crossProduct
     }
 }
