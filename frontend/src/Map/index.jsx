@@ -44,7 +44,6 @@ function DataLayer(){
                 } )
             }
     } )
-    console.log(data.corridors.filter( c => c.isComplete || c.isActive ).map( c => c.isActive))
     return data.corridors.filter( c => c.isComplete || c.isActive ).map( (corridor,i) => {
         // red: active not complete; green: active complete: grey: inactive
         const color = corridor.isActive ? corridor.isComplete ? 'green' : 'red' : '#0005'
@@ -56,12 +55,12 @@ function DataLayer(){
                         radius={10}
                         pathOptions={{color}}
                     >
-                        <Popup>
+                        {corridor.isActive && <Popup>
                             <h3>{intersection.description}</h3>
                             <table>
                                 <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
                             </table> 
-                        </Popup>
+                        </Popup>}
                     </CircleMarker>
                 ) ) }
                 {corridor.links.map( link => {
