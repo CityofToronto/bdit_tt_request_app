@@ -1,15 +1,19 @@
 import { Corridor } from './corridor.js'
 import { TimeRange } from './timeRange.js'
 import { DateRange } from './dateRange.js'
+import { Days } from './days.js'
 import { TravelTimeQuery } from './travelTimeQuery.js'
 
 // instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
     #factors = []
-    constructor(){}
+    constructor(){
+        this.#factors.push(new Days(this))
+    }
     get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
     get timeRanges(){ return this.#factors.filter( f => f instanceof TimeRange ) }
     get dateRanges(){ return this.#factors.filter( f => f instanceof DateRange ) }
+    get days(){ return this.#factors.filter( f => f instanceof Days ) }
     get activeCorridor(){
         return this.corridors.find( cor => cor.isActive )
     }
@@ -48,9 +52,11 @@ export class SpatialData {
         this.corridors.filter(c=>c.isComplete).forEach( corridor => {
             this.timeRanges.filter(c=>c.isComplete).forEach( timeRange => {
                 this.dateRanges.filter(c=>c.isComplete).forEach( dateRange => {
-                    crossProduct.push(
-                        new TravelTimeQuery({corridor,timeRange,dateRange})
-                    )
+                    this.days.filter(c=>c.isComplete).forEach( days => {
+                        crossProduct.push(
+                            new TravelTimeQuery({corridor,timeRange,dateRange,days})
+                        )
+                        } )
                 } )
             } )
         })
