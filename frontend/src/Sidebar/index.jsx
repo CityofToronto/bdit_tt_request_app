@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 
 import FactorContainer from './FactorContainer'
@@ -22,6 +22,7 @@ export default function SidebarContent(){
 }
 
 function Results(){
+    const [results, setResults ] = useState(undefined)
     const { data } = useContext(DataContext)
     let corridors = data.corridors.filter(c=>c.isComplete)
     let timeRanges = data.timeRanges.filter(c=>c.isComplete)
@@ -31,9 +32,18 @@ function Results(){
         <div>
             {numResults} travel time{numResults == 1 ? '' : 's'} to estimate currently
             {numResults > 0 && 
-                <BigButton onClick={()=>getAllTheData({corridors,timeRanges,dateRanges})}>
+                <BigButton onClick={()=>getAllTheData({corridors,timeRanges,dateRanges},setResults)}>
                     Submit Query
                 </BigButton>
+}
+            {results && 
+                <a download='results.csv'
+                    href={`data:text/plain;charset=utf-8,${encodeURIComponent('sample data')}`}
+                >
+                    <BigButton>
+                        Download results
+                    </BigButton>
+                </a>
             }
         </div>
     )
@@ -41,7 +51,7 @@ function Results(){
 
 import { domain } from '../domain.js'
 
-async function getAllTheData({corridors,timeRanges,dateRanges}){
+function getAllTheData({corridors,timeRanges,dateRanges},setResults){
     const crossProduct = []
     corridors.forEach( corridor => {
         timeRanges.forEach( timeRange => {
@@ -50,7 +60,7 @@ async function getAllTheData({corridors,timeRanges,dateRanges}){
             } )
         } )
     })
-    return Promise.all(
+    Promise.all(
         crossProduct.map( ({corridor,timeRange,dateRange}) => {
             // base path
             let path = `${domain}/aggregate-travel-times`
@@ -64,7 +74,7 @@ async function getAllTheData({corridors,timeRanges,dateRanges}){
             path += '/true/1234567'
             return fetch(path).then( response => response.json() )
         } )
-    )
+    ).then(results => setResults(results))
 }
 
 function TimeRangesContainer(){

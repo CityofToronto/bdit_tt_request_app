@@ -1,5 +1,7 @@
-export default function BigButton({onClick,children}){
+export default function BigButton({children,...props}){
     return (
-        <div className='bigButton' onClick={onClick}>{children}</div>
+        <div className='bigButton' {...props}>
+            {children}
+        </div>
     )
 }
