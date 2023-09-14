@@ -25,9 +25,9 @@ export class TimeRange extends Factor {
         return <TimeRangeElement timeRange={this}/>
     }
     static parseTime(timeString){
-        let match = timeString.match(/^(\d{2}):(\d{2})$/)
+        let match = timeString.match(/^(?<hours>\d{2}):(?<minutes>\d{2})$/)
         if(match){
-            let [whatever,hours,minutes] = match
+            let {hours,minutes} = match.groups
             return new Date(1970, 1, 1, parseInt(hours), parseInt(minutes))
         }
         return undefined

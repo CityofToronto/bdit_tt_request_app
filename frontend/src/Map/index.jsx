@@ -24,9 +24,9 @@ export default function Map() {
 }
 
 function DataLayer(){
-    const { activity, logActivity, data } = useContext(DataContext)
+    const { logActivity, data } = useContext(DataContext)
     const corridor = data.activeCorridor
-    const map = useMapEvent('click', (event) => { // add an intersection
+    useMapEvent('click', (event) => { // add an intersection
         if( corridor?.intersections?.length < 2 ){
             fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
                 .then( resp => resp.json() )
