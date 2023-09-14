@@ -19,7 +19,6 @@ export class Segment {
             .then( resp => resp.json() )
             .then( ({links}) => {
                 this.#links = links
-                console.log(links)
                 return true // because this promise is awaited elsewhere
             } )   
     }
