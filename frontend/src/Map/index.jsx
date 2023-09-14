@@ -58,7 +58,9 @@ function DataLayer(){
                         {corridor.isActive && <Popup>
                             <h3>{intersection.description}</h3>
                             <table>
-                                <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
+                                <tbody>
+                                    <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
+                                </tbody>
                             </table> 
                         </Popup>}
                     </CircleMarker>
