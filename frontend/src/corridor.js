@@ -2,9 +2,6 @@ import { Factor } from './factor.js'
 import { Intersection } from './intersection.js'
 import { Segment } from './segment.js'
 
-import { useContext } from 'react'
-import { DataContext } from './Layout'
-
 // a sequence of segments forming a coherent corridor
 export class Corridor extends Factor {
     #intersections = []
@@ -61,16 +58,8 @@ export class Corridor extends Factor {
 }
 
 function CorridorElement({corridor}){
-    const { logActivity } = useContext(DataContext)
     return (
-        <div
-            onClick={()=>{
-                if(!corridor.isActive){
-                    corridor.activate()
-                    logActivity('focus corridor')
-                }
-            } }
-        >
+        <div>
             <div className='corridorName'>{corridor.name}</div>
             {corridor.isActive && <>
                 <div className='instructions'>

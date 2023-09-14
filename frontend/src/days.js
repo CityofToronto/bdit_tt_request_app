@@ -1,4 +1,6 @@
+import { useState, useContext } from 'react'
 import { Factor } from './factor.js'
+import { DataContext } from './Layout'
 
 const daymap = {
     1: 'Monday',
@@ -11,7 +13,8 @@ const daymap = {
 }
 
 export class Days extends Factor {
-    #days = new Set(daymap.values())
+    // initialize with all days included
+    #days = new Set(Object.keys(daymap).map(n => parseInt(n)))
     constructor(dataContext){
         super(dataContext)
     }
@@ -22,21 +25,51 @@ export class Days extends Factor {
         return this.#days.size > 0
     }
     addDay(number){
-        if(daymap.keys().includes(number)){
-            this.#days.add(number)
+        console.log('add',number)
+        if(Object.keys(daymap).includes(String(number))){
+            this.#days.add(parseInt(number))
+            console.log('it worked')
         }
     }
     removeDay(number){
-        this.#days.delete(number)
+        this.#days.delete(parseInt(number))
+    }
+    hasDay(number){
+        return this.#days.has(parseInt(number))
     }
     get name(){
         if(this.#days.size == 7){
             return 'all days of the week'
         } else if(this.#days.size > 0){
-            return this.daysmap.entries().filter(([num,name])=>{
-                return this.#days.has(num)
+            return Object.entries(daymap).filter(([num,name])=>{
+                return this.#days.has(parseInt(num))
             }).map(([num,name])=>name).join(', ')
         }
         return 'no days selected'
     }
+    render(){ return <DaysElement days={this}/> }
+}
+
+function DaysElement({days}){
+    const { logActivity } = useContext(DataContext)
+    if(days.isActive){
+        return Object.entries(daymap).map( ([num,name]) => (
+            <div key={num}>
+                <input name={name}
+                    type='checkbox'
+                    onChange={ event => {
+                        if(event.target.checked){
+                            days.addDay(num)
+                            logActivity(`add ${name}`)
+                        }else{
+                            days.removeDay(num)
+                            logActivity(`remove ${name}`)
+                        }
+                    } }
+                    checked={days.hasDay(num)}/>
+                <label htmlFor={name}>{name}</label>
+            </div>
+        ) )
+    }
+    return days.name 
 }

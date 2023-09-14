@@ -63,13 +63,7 @@ function DateRangeElement({dateRange}){
         logActivity('change end date')
     },[endInput])
     return (
-        <div onClick={()=>{
-                if(!dateRange.isActive){
-                    dateRange.activate()
-                    logActivity('focus date range')
-                }
-            } }
-        >
+        <div>
             <div className='dateRangeName'>{dateRange.name}</div>
             {dateRange.isActive && <>
                 <div>

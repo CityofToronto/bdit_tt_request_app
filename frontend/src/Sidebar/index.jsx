@@ -15,6 +15,8 @@ export default function SidebarContent(){
             <TimeRangesContainer/>
             <div className='big-math-symbol'>&#xd7;</div>
             <DateRangesContainer/>
+            <div className='big-math-symbol'>&#xd7;</div>
+            <DaysContainer/>
             <div className='big-math-symbol'>=</div> 
             <Results/>
         </div>
@@ -112,6 +114,22 @@ export function CorridorsContainer(){
                 Create a new corridor
             </BigButton>
             <FactorList factors={data.corridors}/>
+        </FactorContainer>
+    )
+}
+
+function DaysContainer(){
+    const { logActivity, data } = useContext(DataContext)
+    function addDays(){
+        data.createDays()
+        logActivity('new days added')
+    }
+    return (
+        <FactorContainer>
+            <BigButton onClick={addDays}>
+                Create a new day of week selection
+            </BigButton>
+            <FactorList factors={data.days}/>
         </FactorContainer>
     )
 }

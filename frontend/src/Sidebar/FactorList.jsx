@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { DataContext } from '../Layout'
 
-// requires the three factor classes to implement the following methods
+// requires the factor classes to implement the following methods
 // .isActive
 // .render()
 // .isComplete
@@ -16,7 +16,12 @@ export default function FactorList({factors}){
                 if(factor.isActive){ classes = [...classes,'active'] }
                 if(factor.isComplete){ classes = [...classes,'complete'] }
                 return (
-                    <div className={classes.join(' ')} key={i}>
+                    <div className={classes.join(' ')} key={i} onClick={()=>{
+                        if(!factor.isActive){
+                            factor.activate()
+                            logActivity('focus factor')
+                        }
+                    } }>
                         <div className='deleteButton' onClick={()=>{
                             factor.delete()
                             logActivity(`delete factor`)

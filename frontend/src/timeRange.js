@@ -69,13 +69,7 @@ function TimeRangeElement({timeRange}){
         logActivity('change end time')
     },[endInput])
     return (
-        <div onClick={()=>{
-                if(!timeRange.isActive){
-                    timeRange.activate()
-                    logActivity('focus time range')
-                }
-            } }
-        >
+        <div>
             <div className='timeRangeName'>{timeRange.name}</div>
             {timeRange.isActive && <>
                 <div>
