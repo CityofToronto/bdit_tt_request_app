@@ -21,4 +21,8 @@ export class TravelTimeQuery {
         path += `/true/${this.#days.apiString}`
         return path
     }
+    get corridor(){ return this.#corridor }
+    get timeRange(){ return this.#timeRange }
+    get dateRange(){ return this.#dateRange }
+    get days(){ return this.#days }
 }

@@ -66,6 +66,16 @@ function getAllTheData(travelTimeQueries,setResults){
         travelTimeQueries.map( TTQ => {
             return fetch(`${domain}/${TTQ.URI}`)
                 .then( response => response.json() )
+                .then( data => {
+                    return {
+                        URI: TTQ.URI,
+                        corridor: TTQ.corridor.name,
+                        timeRange: TTQ.timeRange.name,
+                        dateRange: TTQ.dateRange.name,
+                        daysOfWeek: TTQ.days.name,
+                        mean_travel_time_minutes: data.travel_time
+                    }
+                } )
         } )
     ).then( results => setResults(results) )
 }
