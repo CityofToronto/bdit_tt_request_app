@@ -32,18 +32,29 @@ function Results(){
         <div>
             {numResults} travel time{numResults == 1 ? '' : 's'} to estimate currently
             {numResults > 0 && 
-                <BigButton onClick={()=>getAllTheData({corridors,timeRanges,dateRanges},setResults)}>
+                <BigButton onClick={()=>{
+                    setResults(undefined)
+                    getAllTheData({corridors,timeRanges,dateRanges},setResults)
+                }}>
                     Submit Query
                 </BigButton>
 }
-            {results && 
-                <a download='results.csv'
-                    href={`data:text/plain;charset=utf-8,${encodeURIComponent('sample data')}`}
-                >
-                    <BigButton>
-                        Download results
-                    </BigButton>
-                </a>
+            {results && <>
+                    <a download='results.json'
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(results))}`}
+                    >
+                        <BigButton>
+                            Download results as JSON
+                        </BigButton>
+                    </a>
+                    {false & <a download='results.csv'
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent('lol')}`}
+                    >
+                        <BigButton>
+                            Download results as CSV 
+                        </BigButton>
+                    </a>}
+                </>
             }
         </div>
     )
@@ -74,7 +85,7 @@ function getAllTheData({corridors,timeRanges,dateRanges},setResults){
             path += '/true/1234567'
             return fetch(path).then( response => response.json() )
         } )
-    ).then(results => setResults(results))
+    ).then( results => setResults(results) )
 }
 
 function TimeRangesContainer(){
