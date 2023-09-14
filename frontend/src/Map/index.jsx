@@ -3,7 +3,8 @@ import {
     TileLayer,
     CircleMarker,
     Popup,
-    Polyline
+    Polyline,
+    LayerGroup
 } from 'react-leaflet'
 import { useContext } from 'react'
 import { DataContext } from '../Layout'
@@ -25,9 +26,9 @@ export default function Map() {
 
 function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
-    const corridor = data.activeCorridor
+    const activeCorridor = data.activeCorridor
     useMapEvent('click', (event) => { // add an intersection
-        if( corridor?.intersections?.length < 2 ){
+        if( activeCorridor?.intersections?.length < 2 ){
             fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
@@ -38,37 +39,40 @@ function DataLayer(){
                         lng: data.geometry.coordinates[0],
                         textDescription: data.name
                     } )
-                    corridor.addIntersection(intersection,logActivity)
+                    activeCorridor.addIntersection(intersection,logActivity)
                     logActivity('added intersection')
                 } )
             }
     } )
-    
-    if(corridor){
-        return <>
-            {corridor.intersections.map( intersection => (
-                <CircleMarker key={intersection.id}
-                    center={intersection.latlng}
-                    radius={10}
-                    color='red'
-                >
-                    <Popup>
-                        <h3>{intersection.description}</h3>
-                        <table>
-                            <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
-                        </table> 
-                    </Popup>
-                </CircleMarker>
-            ) ) }
-            {corridor.links.map( link => {
-                return (
-                    <Polyline key={link.link_dir} 
-                        positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
-                        color='red'
-                    /> )
-            
-            } ) }
-        </>
-    }
-    
+    console.log(data.corridors.filter( c => c.isComplete || c.isActive ).map( c => c.isActive))
+    return data.corridors.filter( c => c.isComplete || c.isActive ).map( (corridor,i) => {
+        // red: active not complete; green: active complete: grey: inactive
+        const color = corridor.isActive ? corridor.isComplete ? 'green' : 'red' : '#0005'
+        return (
+            <LayerGroup key={i}>
+                {corridor.intersections.map( intersection => (
+                    <CircleMarker key={intersection.id}
+                        center={intersection.latlng}
+                        radius={10}
+                        pathOptions={{color}}
+                    >
+                        <Popup>
+                            <h3>{intersection.description}</h3>
+                            <table>
+                                <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
+                            </table> 
+                        </Popup>
+                    </CircleMarker>
+                ) ) }
+                {corridor.links.map( link => {
+                    return (
+                        <Polyline key={link.link_dir} 
+                            positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
+                            pathOptions={{color}}
+                        />
+                    )
+                } ) }
+            </LayerGroup>
+        )
+    } )
 }
