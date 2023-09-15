@@ -25,10 +25,10 @@ export class TimeRange extends Factor {
         return <TimeRangeElement timeRange={this}/>
     }
     static parseTime(timeString){
-        let match = timeString.match(/^(?<hours>\d{2}):(?<minutes>\d{2})$/)
+        let match = timeString.match(/^(?<hours>\d{2})$/)
         if(match){
-            let {hours,minutes} = match.groups
-            return new Date(1970, 1, 1, parseInt(hours), parseInt(minutes))
+            let {hours} = match.groups
+            return new Date(1970, 1, 1, parseInt(hours))
         }
         return undefined
     }
@@ -43,8 +43,7 @@ export class TimeRange extends Factor {
     static timeFormatted(datetime){
         if(datetime){
             let hours = datetime.getHours()
-            let mins = datetime.getMinutes()
-            return `${hours < 10 ? '0'+hours : hours}:${mins < 10 ? '0'+mins : mins}`
+            return `${hours < 10 ? '0'+hours : hours}`
         }
         return ''
     }
@@ -74,18 +73,18 @@ function TimeRangeElement({timeRange}){
             {timeRange.isActive && <>
                 <div>
                     <label htmlFor='start-time'>
-                        Start time
+                        Start hour
                     </label> <input type='text' name='start-time'
                         value={startInput}
-                        placeholder='HH:MM'
+                        placeholder='HH'
                         onChange={e=>setStartInput(e.target.value)}
                     />
                     <br/>
                     <label htmlFor='end-time'>
-                        End time
+                        End hour
                     </label> <input type='text' name='end-time'
                         value={endInput}
-                        placeholder='HH:MM'
+                        placeholder='HH'
                         onChange={e=>setEndInput(e.target.value)}
                     />
                 </div>
