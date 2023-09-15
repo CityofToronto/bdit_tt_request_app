@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import { Factor } from './factor.js'
 import { DataContext } from './Layout'
 

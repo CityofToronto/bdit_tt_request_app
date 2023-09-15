@@ -46,8 +46,7 @@ export class TravelTimeQuery {
         }
         if(type=='json'){
             return record
-        }else if(type='csv'){
-            // TODO escape values!
+        }else if(type=='csv'){
             return Object.values(record).join(',')
         }
         return 'invalid type requested'
