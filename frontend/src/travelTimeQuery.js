@@ -1,8 +1,11 @@
+import { domain } from './domain.js'
+
 export class TravelTimeQuery {
     #corridor
     #timeRange
     #dateRange
     #days
+    #travelTime
     constructor({corridor,timeRange,dateRange,days}){
         this.#corridor = corridor
         this.#timeRange = timeRange
@@ -25,4 +28,31 @@ export class TravelTimeQuery {
     get timeRange(){ return this.#timeRange }
     get dateRange(){ return this.#dateRange }
     get days(){ return this.#days }
+    async fetchData(){
+        return fetch(`${domain}/${this.URI}`)
+            .then( response => response.json() )
+            .then( data => {
+                this.#travelTime = data.travel_time
+            } )
+    }
+    resultsRecord(type='json'){
+        const record = {
+            URI: this.URI,
+            corridor: this.corridor.name,
+            timeRange: this.timeRange.name,
+            dateRange: this.dateRange.name,
+            daysOfWeek: this.days.name,
+            mean_travel_time_minutes: this.#travelTime
+        }
+        if(type=='json'){
+            return record
+        }else if(type='csv'){
+            // TODO escape values!
+            return Object.values(record).join(',')
+        }
+        return 'invalid type requested'
+    }
+    static csvHeader(){
+        return 'URI,corridor,timeRange,dateRange,daysOfWeek,mean_travel_time_minutes'
+    }
 }

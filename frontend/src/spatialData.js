@@ -7,6 +7,7 @@ import { TravelTimeQuery } from './travelTimeQuery.js'
 // instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
     #factors = []
+    #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
     constructor(){
         this.#factors.push(new Days(this))
     }
@@ -61,10 +62,24 @@ export class SpatialData {
                         crossProduct.push(
                             new TravelTimeQuery({corridor,timeRange,dateRange,days})
                         )
-                        } )
+                    } )
                 } )
             } )
         })
-        return crossProduct
+        // add new travelTimeRequests
+        crossProduct.forEach( TTQ => {
+            if( ! this.#queries.has(TTQ.URI) ){
+                this.#queries.set(TTQ.URI,TTQ)
+            }
+        } )
+        // remove old/modified travelTimeRequests
+        let currentURIs = new Set(crossProduct.map(TTI=>TTI.URI))
+        let currentKeys = [...this.#queries.keys()]
+        currentKeys.filter( key => ! currentURIs.has(key) )
+            .forEach( key => this.#queries.delete(key) )
+        return [...this.#queries.values()]
+    }
+    fetchAllResults(){
+        return Promise.all(this.travelTimeQueries.map(TTQ=>TTQ.fetchData()))
     }
 }

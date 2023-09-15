@@ -4,6 +4,7 @@ import { DataContext } from '../Layout'
 import FactorContainer from './FactorContainer'
 import BigButton from './BigButton'
 import FactorList from './FactorList'
+import { TravelTimeQuery } from '../travelTimeQuery.js'
 import './sidebar.css'
 
 export default function SidebarContent(){
@@ -24,7 +25,7 @@ export default function SidebarContent(){
 }
 
 function Results(){
-    const [results, setResults ] = useState(undefined)
+    const [ results, setResults ] = useState(undefined)
     const { data } = useContext(DataContext)
     const numResults = data.travelTimeQueries.length
     return (
@@ -33,51 +34,32 @@ function Results(){
             {numResults > 0 && 
                 <BigButton onClick={()=>{
                     setResults(undefined)
-                    getAllTheData(data.travelTimeQueries,setResults)
+                    data.fetchAllResults().then( () => {
+                        setResults(data.travelTimeQueries) 
+                    } )
                 }}>
                     Submit Query
                 </BigButton>
 }
             {results && <>
                     <a download='results.json'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(results))}`}
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(results.map(r=>r.resultsRecord('json'))))}`}
                     >
                         <BigButton>
                             Download results as JSON
                         </BigButton>
                     </a>
-                    {false && <a download='results.csv'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent('lol')}`}
+                    <a download='results.csv'
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(TravelTimeQuery.csvHeader() + '\n' + results.map(r=>r.resultsRecord('csv')).join('\n'))}`}
                     >
                         <BigButton>
                             Download results as CSV 
                         </BigButton>
-                    </a>}
+                    </a>
                 </>
             }
         </div>
     )
-}
-
-import { domain } from '../domain.js'
-
-function getAllTheData(travelTimeQueries,setResults){
-    Promise.all(
-        travelTimeQueries.map( TTQ => {
-            return fetch(`${domain}/${TTQ.URI}`)
-                .then( response => response.json() )
-                .then( data => {
-                    return {
-                        URI: TTQ.URI,
-                        corridor: TTQ.corridor.name,
-                        timeRange: TTQ.timeRange.name,
-                        dateRange: TTQ.dateRange.name,
-                        daysOfWeek: TTQ.days.name,
-                        mean_travel_time_minutes: data.travel_time
-                    }
-                } )
-        } )
-    ).then( results => setResults(results) )
 }
 
 function TimeRangesContainer(){
