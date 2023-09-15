@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    font-family: Charter, sans-serif
+}
+
+.layoutContainer {
+    display: flex;
+    height: 99vh;
+}
+
+.layoutSidebar {
+    flex: 1 30%;
+    background-color: white;
+    border-right: 2px solid lightgrey;
+}
+
+.layoutMap {
+    flex: 1 66%;
+}

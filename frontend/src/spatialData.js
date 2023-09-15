@@ -1,76 +1,85 @@
-// instantiated once, this is the data store for all spatial data
+import { Corridor } from './corridor.js'
+import { TimeRange } from './timeRange.js'
+import { DateRange } from './dateRange.js'
+import { Days } from './days.js'
+import { TravelTimeQuery } from './travelTimeQuery.js'
+
+// instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
-    #corridors
+    #factors = []
+    #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
     constructor(){
-        this.#corridors = []
+        this.#factors.push(new Days(this))
     }
-    get corridors(){ return this.#corridors }
-    addCorridor(corridor){
-        if(corridor instanceof Corridor){
-            this.#corridors.push(corridor)
-        }
+    get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
+    get timeRanges(){ return this.#factors.filter( f => f instanceof TimeRange ) }
+    get dateRanges(){ return this.#factors.filter( f => f instanceof DateRange ) }
+    get days(){ return this.#factors.filter( f => f instanceof Days ) }
+    get activeCorridor(){
+        return this.corridors.find( cor => cor.isActive )
     }
-    get segments(){ return this.corridors.flatMap( c => c.segments ) }
-    get nodes(){ return this.segments.flatMap( s => [ s.fromNode, s.toNode ] ) }
-}
-
-// a sequence of segments forming a coherent corridor
-class Corridor {
-    #segments
-    constructor(){
-        this.#segments = []
+    createCorridor(){
+        let corridor = new Corridor(this)
+        this.#factors.push(corridor)
+        corridor.activate()
     }
-    addSegment(segment){
-        if(segment instanceof Segment){
-            this.#segments.push(segment)
-        }
+    createTimeRange(){
+        let tr = new TimeRange(this)
+        this.#factors.push(tr)
+        tr.activate()
     }
-    get segments(){ return this.#segments }
-}
-
-// a node-to-node directed segment
-class Segment {
-    #fromNode
-    #toNode
-    #links
-    constructor({fromNode,toNode}){
-        console.assert(fromNode instanceof Node)
-        console.assert(toNode instanceof Node)
-        this.#fromNode = fromNode
-        this.#toNode = toNode
+    createDateRange(){
+        let dr = new DateRange(this)
+        this.#factors.push(dr)
+        dr.activate()
     }
-    get fromNode(){ return this.#fromNode }
-    get toNode(){ return this.#toNode }
-    defineLinks(links){
-        // TODO 
-        this.#links = links
+    createDays(){
+        let days = new Days(this)
+        this.#factors.push(days)
+        days.activate()
     }
-    get geom(){
-        return this.links.length == 0 ? null : {
-            type: 'FeatureCollection'
-            // TODO etc
-        }
+    get segments(){
+        return this.corridors.flatMap( c => c.segments )
     }
-}
-
-export class Node {
-    #id
-    #lat
-    #lon
-    constructor({id,lat,lon}){
-        this.#id = id
-        this.#lat = lat
-        this.#lon = lon
+    get nodes(){
+        return this.segments.flatMap( s => [ s.fromNode, s.toNode ] )
     }
-    get id(){ return this.#id }
-    get geojson(){
-        return {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [this.#lon, this.#lat]
-            },
-            properties: { id: this.#id }
-        }
+    dropFactor(factor){
+        this.#factors = this.#factors.filter(f => f != factor)
+    }
+    deactivateOtherFactors(factor){
+        this.#factors.forEach( f => {
+            if(f != factor) f.deactivate()
+        } )
+    }
+    get travelTimeQueries(){
+        // is the crossproduct of all complete/valid factors
+        const crossProduct = []
+        this.corridors.filter(c=>c.isComplete).forEach( corridor => {
+            this.timeRanges.filter(tr=>tr.isComplete).forEach( timeRange => {
+                this.dateRanges.filter(dr=>dr.isComplete).forEach( dateRange => {
+                    this.days.filter(d=>d.isComplete).forEach( days => {
+                        crossProduct.push(
+                            new TravelTimeQuery({corridor,timeRange,dateRange,days})
+                        )
+                    } )
+                } )
+            } )
+        })
+        // add new travelTimeRequests
+        crossProduct.forEach( TTQ => {
+            if( ! this.#queries.has(TTQ.URI) ){
+                this.#queries.set(TTQ.URI,TTQ)
+            }
+        } )
+        // remove old/modified travelTimeRequests
+        let currentURIs = new Set(crossProduct.map(TTI=>TTI.URI))
+        let currentKeys = [...this.#queries.keys()]
+        currentKeys.filter( key => ! currentURIs.has(key) )
+            .forEach( key => this.#queries.delete(key) )
+        return [...this.#queries.values()]
+    }
+    fetchAllResults(){
+        return Promise.all(this.travelTimeQueries.map(TTQ=>TTQ.fetchData()))
     }
 }
