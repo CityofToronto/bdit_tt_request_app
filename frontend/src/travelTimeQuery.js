@@ -35,6 +35,9 @@ export class TravelTimeQuery {
                 this.#travelTime = data.travel_time
             } )
     }
+    get hasData(){
+        return Boolean(this.#travelTime)
+    }
     resultsRecord(type='json'){
         const record = {
             URI: this.URI,

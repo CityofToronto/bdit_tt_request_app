@@ -80,6 +80,10 @@ export class SpatialData {
         return [...this.#queries.values()]
     }
     fetchAllResults(){
-        return Promise.all(this.travelTimeQueries.map(TTQ=>TTQ.fetchData()))
+        return Promise.all(
+            this.travelTimeQueries
+                .filter( TTQ => ! TTQ.hasData )
+                .map( TTQ => TTQ.fetchData() )
+        )
     }
 }
