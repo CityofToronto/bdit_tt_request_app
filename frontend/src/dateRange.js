@@ -13,8 +13,8 @@ export class DateRange extends Factor {
     }
     get name(){
         if(this.#startDate || this.#endDate){
-            let start = this.#startDate?.toLocaleDateString() ?? '???'
-            let end = this.#endDate?.toLocaleDateString() ?? '???'
+            let start = DateRange.dateFormatted(this.#startDate) ?? '???'
+            let end = DateRange.dateFormatted(this.#endDate) ?? '???'
             return `From ${start} to ${end}`
         }
         return 'New Date Range'
@@ -36,7 +36,7 @@ export class DateRange extends Factor {
         this.#endDate = DateRange.parseDate(input)
         return this.#endDate
     }
-    static dateFormatted(datetime){ // TODO
+    static dateFormatted(datetime){
         if(datetime){
             return datetime.toISOString().substring(0,10)
         }

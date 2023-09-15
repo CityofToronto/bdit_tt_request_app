@@ -56,9 +56,9 @@ export class SpatialData {
         // is the crossproduct of all complete/valid factors
         const crossProduct = []
         this.corridors.filter(c=>c.isComplete).forEach( corridor => {
-            this.timeRanges.filter(c=>c.isComplete).forEach( timeRange => {
-                this.dateRanges.filter(c=>c.isComplete).forEach( dateRange => {
-                    this.days.filter(c=>c.isComplete).forEach( days => {
+            this.timeRanges.filter(tr=>tr.isComplete).forEach( timeRange => {
+                this.dateRanges.filter(dr=>dr.isComplete).forEach( dateRange => {
+                    this.days.filter(d=>d.isComplete).forEach( days => {
                         crossProduct.push(
                             new TravelTimeQuery({corridor,timeRange,dateRange,days})
                         )
