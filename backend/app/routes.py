@@ -67,11 +67,12 @@ def get_closest_node(longitude, latitude):
             cursor.execute(sql, {"latitude": latitude, "longitude": longitude})
 
             candidate_nodes = []
-            for node_id, name, geojson, distance in cursor.fetchall():
+            for node_id, geojson, distance, intersection_name, street_names in cursor.fetchall():
                 if distance < 50: # meters
                     candidate_nodes.append( {
                         'node_id': node_id,
-                        'name': name,
+                        'name': intersection_name,
+                        'street_names': street_names,
                         'geometry': json.loads(geojson)
                     } )
     connection.close()
