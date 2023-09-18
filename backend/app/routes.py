@@ -252,22 +252,22 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
                 cn.hr
             -- where corridor has at least 80pct of links with data
             HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8 
-        ), 
+        ),
 
         -- Average the hours selected into daily period level data
-        corridor_period_daily_avg_tt AS ( 
+        corridor_period_daily_avg_tt AS (
             SELECT
                 dt,
                 AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
-            FROM corridor_hourly_daily_agg 
-            GROUP BY 
+            FROM corridor_hourly_daily_agg
+            GROUP BY
                 dt
         )
 
         -- Average all the days with data to get period level data for each date range
         SELECT 
             ROUND(AVG(avg_corr_period_daily_tt) / 60, 2) AS average_tt_min
-        FROM corridor_period_daily_avg_tt 
+        FROM corridor_period_daily_avg_tt
     '''
 
     dow_list = re.findall(r"[1-7]", dow_str)
@@ -301,7 +301,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
     connection.close()
     return jsonify({
-        'travel_time': float(travel_time),
+        'travel_time': travel_time, # may be null if insufficient data
         'route_text': stname,
         'links': links
     })
