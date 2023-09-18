@@ -301,7 +301,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
     connection.close()
     return jsonify({
-        'travel_time': float(travel_time),
+        'travel_time': travel_time,
         'route_text': stname,
         'links': links
     })
