@@ -68,7 +68,7 @@ function DateRangeElement({dateRange}){
             {dateRange.isActive && <>
                 <div>
                     <label htmlFor='start-date'>
-                        Start date
+                        Start date (inclusive)
                     </label> <input type='text' name='start-date'
                         value={startInput}
                         placeholder='YYYY-MM-DD'
@@ -76,7 +76,7 @@ function DateRangeElement({dateRange}){
                     />
                     <br/>
                     <label htmlFor='end-date'>
-                        End date
+                        End date (exclusive)
                     </label> <input type='text' name='end-date'
                         value={endInput}
                         placeholder='YYYY-MM-DD'
