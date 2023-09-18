@@ -51,11 +51,16 @@ def get_closest_node(longitude, latitude):
             sql = '''
                 SELECT 
                     cg_nodes.node_id::int,
-                    here_nodes.intersec_name AS stname,
                     ST_AsGeoJSON(cg_nodes.geom) AS geom,
-                    cg_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance
+                    cg_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance,
+                    array_agg(DISTINCT InitCap(streets_att_21_1.st_name)) AS street_names,
+                    string_agg(DISTINCT InitCap(streets_att_21_1.st_name), ' & ') AS st_name
                 FROM congestion.network_nodes AS cg_nodes
-                JOIN here.routing_nodes_intersec_name AS here_nodes USING (node_id)
+                JOIN here.routing_nodes_21_1 AS here_nodes USING (node_id)
+                JOIN here_gis.streets_att_21_1 USING (link_id)
+                GROUP BY
+                    cg_nodes.node_id,
+                    cg_nodes.geom
                 ORDER BY distance
                 LIMIT 10
                 '''
