@@ -53,6 +53,10 @@ export class TimeRange extends Factor {
     get endTimeFormatted(){
         return TimeRange.timeFormatted(this.#endTime)
     }
+    get hoursInRange(){ // how many hours are in the timeRange?
+        if(! this.isComplete){ return undefined }
+        return this.#endTime.getHours() - this.#startTime.getHours()
+    }
 }
 
 function TimeRangeElement({timeRange}){

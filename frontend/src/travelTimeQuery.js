@@ -29,6 +29,10 @@ export class TravelTimeQuery {
     get dateRange(){ return this.#dateRange }
     get days(){ return this.#days }
     async fetchData(){
+        console.log(this.hoursInRange)
+        if( this.hoursInRange < 1 ){
+            return this.#travelTime = -999
+        }
         return fetch(`${domain}/${this.URI}`)
             .then( response => response.json() )
             .then( data => {
@@ -38,6 +42,9 @@ export class TravelTimeQuery {
     get hasData(){
         return Boolean(this.#travelTime)
     }
+    get hoursInRange(){ // number of hours covered by query options
+        return this.timeRange.hoursInRange * this.dateRange.daysInRange(this.days)
+    }
     resultsRecord(type='json'){
         const record = {
             URI: this.URI,
@@ -45,6 +52,7 @@ export class TravelTimeQuery {
             timeRange: `"${this.timeRange.name}"`,
             dateRange: `"${this.dateRange.name}"`,
             daysOfWeek: `"${this.days.name}"`,
+            hoursInRange: this.hoursInRange,
             mean_travel_time_minutes: this.#travelTime
         }
         if(type=='json'){
@@ -55,6 +63,6 @@ export class TravelTimeQuery {
         return 'invalid type requested'
     }
     static csvHeader(){
-        return 'URI,corridor,timeRange,dateRange,daysOfWeek,mean_travel_time_minutes'
+        return 'URI,corridor,timeRange,dateRange,daysOfWeek,hoursPossible,mean_travel_time_minutes'
     }
 }

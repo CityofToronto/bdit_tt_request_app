@@ -48,6 +48,25 @@ export class DateRange extends Factor {
     get endDateFormatted(){
         return DateRange.dateFormatted(this.#endDate)
     }
+    daysInRange(daysOptions){ // number of days covered by this dateRange
+        // TODO this will need to be revisited with the holiday options enabled
+        if( ! (this.isComplete && daysOptions.isComplete) ){
+            return undefined
+        }
+        // iterate each day in the range
+        let d = new Date(this.#startDate.valueOf())
+        let dayCount = 0
+        while(d < this.#endDate){
+            let dow = d.getUTCDay() 
+            let isodow = dow == 0 ? 7 : dow
+            if( daysOptions.hasDay(isodow) ){
+                dayCount ++
+            }
+            // incrememnt, modified in-place
+            d.setUTCDate(d.getUTCDate() + 1)
+        }
+        return dayCount
+    }
 }
 
 function DateRangeElement({dateRange}){
