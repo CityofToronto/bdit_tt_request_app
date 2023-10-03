@@ -2,16 +2,19 @@ export class Intersection {
     #id
     #lat
     #lng
-    #textDescription
-    constructor({id,lat,lng,textDescription}){
+    #streetNames
+    constructor({id,lat,lng,streetNames}){
         this.#id = id
         this.#lat = lat
         this.#lng = lng
-        this.#textDescription = textDescription
+        this.#streetNames = new Set(streetNames)
     }
     get id(){ return this.#id }
     get latlng(){ return { lat: this.#lat, lng: this.#lng } }
-    get description(){ return this.#textDescription }
+    get description(){
+        return [...this.#streetNames].join(' & ')
+    }
+    get streetNames(){ return this.#streetNames }
     get geojson(){
         return {
             type: 'Feature',

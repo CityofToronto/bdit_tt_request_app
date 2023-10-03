@@ -37,7 +37,7 @@ function DataLayer(){
                         id: data.node_id,
                         lat: data.geometry.coordinates[1],
                         lng: data.geometry.coordinates[0],
-                        textDescription: data.name
+                        streetNames: data.street_names
                     } )
                     activeCorridor.addIntersection(intersection,logActivity)
                     logActivity('added intersection')
