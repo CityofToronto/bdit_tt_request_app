@@ -45,10 +45,14 @@ export class Corridor extends Factor {
     get name(){
         if(this.#intersections.length == 1){
             return `Incomplete corridor starting from ${this.intersections[0].description}`
-        }else if(this.#intersections.length == 2){
+        }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
             let start = difference(this.intersections[0].streetNames,this.viaStreets)
             let end = difference(this.intersections[1].streetNames,this.viaStreets)
             return `${[...start].join(' & ')} to ${[...end].join(' & ')} via ${[...this.viaStreets].join(' & ')}`
+        }else if(this.#intersections.length == 2){ // but no via streets (yet?)
+            let start = [...this.intersections[0].streetNames].join(' & ')
+            let end = [...this.intersections[1].streetNames].join(' & ')
+            return `from ${start} to ${end}`
         }
         return 'New Corridor'
     }
