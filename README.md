@@ -7,6 +7,18 @@ The Travel Time Request App is a simple React application designed to help City 
 
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City, though it has undergone substantial development by the Data & Analytics Unit since then. 
 
+## How to use the app
+When you enter the app, you will be prompted to add/create at least one of each of the following:
+* a corridor, drawn on the map
+* a time range, given in hours of the day, 00 - 23
+* a date range (note that the end of the date range is exclusive)
+* a day of week selection
+* _coming soon_! a selection of whether or not to include statutory holidays 
+
+The app will combine these factors together to request travel times for all possible combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
+
+Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON. 
+
 ## Methodology
 
 Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to about 2012. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
