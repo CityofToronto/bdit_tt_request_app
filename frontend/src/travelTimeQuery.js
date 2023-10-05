@@ -48,17 +48,25 @@ export class TravelTimeQuery {
     resultsRecord(type='json'){
         const record = {
             URI: this.URI,
-            corridor: `"${this.corridor.name}"`,
-            timeRange: `"${this.timeRange.name}"`,
-            dateRange: `"${this.dateRange.name}"`,
-            daysOfWeek: `"${this.days.name}"`,
+            corridor: this.corridor.name,
+            timeRange: this.timeRange.name,
+            dateRange: this.dateRange.name,
+            daysOfWeek: this.days.name,
             hoursInRange: this.hoursInRange,
             mean_travel_time_minutes: this.#travelTime
         }
         if(type=='json'){
             return record
         }else if(type=='csv'){
-            return Object.values(record).join(',')
+            return Object.values(record)
+                .map( value => {
+                    
+                    if(typeof value == 'string'){
+                        return `"${value}"`
+                    }
+                    return value
+                } )
+                .join(',')
         }
         return 'invalid type requested'
     }
