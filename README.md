@@ -9,7 +9,19 @@ This app was originally developed as a [class project by U of T students](https:
 
 ## Methodology
 
-Data are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here). Formerly these needs were handled through a more time-consuming data request process.
+Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to about 2012. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
+
+The number of vehicles within the City of Toronto reporting their position to HERE in this way has been estimated to be around 500 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.  
+
+Travel times are provided to us in the form of _average speeds_ along links of the street network within in 5-minute time bins. Given the sparseness of the vehicle probe data, most links, in most time bins are empty. The scond most common sample size is a single vehicle observation.
+
+Before generating an averaged travel time, we do severale steps to aggregate and average this sparse data into larger units. 
+* We aggregate _links_ spatially into longer _corridors_ between major intersections
+* We aggregate _corridors_ temporally into one-hour bins
+
+ We generate averaged travel times from these one-hour-corridor bin units where one or more vehicles has travelled 80% or more of the length of the corridor.
+
+ We aggregate corridors together spatially as necessary into larger corridors where 80% or more of segments have met the criteria above. Where data is missing it is extrapolated at the average speed over the rest of the length.
 
 ### Other means of estimating travel times
 
