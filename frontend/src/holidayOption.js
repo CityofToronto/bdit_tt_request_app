@@ -9,4 +9,5 @@ export class HolidayOption extends Factor {
         this.#includeHolidays = includeHolidays
     }
     get holidaysIncluded(){ return this.#includeHolidays }
+    get name(){ return `holidays included = ${this.holidaysIncluded}` }
 }

@@ -82,9 +82,17 @@ export class SpatialData {
             this.timeRanges.filter(tr=>tr.isComplete).forEach( timeRange => {
                 this.dateRanges.filter(dr=>dr.isComplete).forEach( dateRange => {
                     this.days.filter(d=>d.isComplete).forEach( days => {
-                        crossProduct.push(
-                            new TravelTimeQuery({corridor,timeRange,dateRange,days})
-                        )
+                        this.holidayOptions.forEach( holidayOption => {
+                            crossProduct.push(
+                                new TravelTimeQuery({
+                                    corridor,
+                                    timeRange,
+                                    dateRange,
+                                    days,
+                                    holidayOption
+                                })
+                            )
+                        } )
                     } )
                 } )
             } )

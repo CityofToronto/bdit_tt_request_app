@@ -5,12 +5,14 @@ export class TravelTimeQuery {
     #timeRange
     #dateRange
     #days
+    #holidayOption
     #travelTime
-    constructor({corridor,timeRange,dateRange,days}){
+    constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
         this.#timeRange = timeRange
         this.#dateRange = dateRange
         this.#days = days
+        this.#holidayOption = holidayOption
     }
     get URI(){
         let path = `aggregate-travel-times`
@@ -20,8 +22,10 @@ export class TravelTimeQuery {
         path += `/${this.#timeRange.startHour}/${this.#timeRange.endHour}`
         // start and end dates
         path += `/${this.#dateRange.startDateFormatted}/${this.#dateRange.endDateFormatted}`
-        // options not yet supported: holidays and days of week
-        path += `/true/${this.#days.apiString}`
+        // holiday inclusion
+        path += `/${this.#holidayOption.holidaysIncluded}`
+        // days of week
+        path += `/${this.#days.apiString}`
         return path
     }
     get corridor(){ return this.#corridor }
@@ -29,7 +33,6 @@ export class TravelTimeQuery {
     get dateRange(){ return this.#dateRange }
     get days(){ return this.#days }
     async fetchData(){
-        console.log(this.hoursInRange)
         if( this.hoursInRange < 1 ){
             return this.#travelTime = -999
         }
@@ -52,6 +55,7 @@ export class TravelTimeQuery {
             timeRange: this.timeRange.name,
             dateRange: this.dateRange.name,
             daysOfWeek: this.days.name,
+            holidaysIncluded: this.#holidayOption.holidaysIncluded,
             hoursInRange: this.hoursInRange,
             mean_travel_time_minutes: this.#travelTime
         }
@@ -71,6 +75,6 @@ export class TravelTimeQuery {
         return 'invalid type requested'
     }
     static csvHeader(){
-        return 'URI,corridor,timeRange,dateRange,daysOfWeek,hoursPossible,mean_travel_time_minutes'
+        return 'URI,corridor,timeRange,dateRange,daysOfWeek,holidaysIncluded,hoursPossible,mean_travel_time_minutes'
     }
 }
