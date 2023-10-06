@@ -1,13 +1,17 @@
 import { Factor } from './factor.js'
-//import { useContext, useState, useEffect } from 'react'
-import { DataContext } from './Layout'
 
 export class HolidayOption extends Factor {
     #includeHolidays
+    #dataContext
     constructor(dataContext,includeHolidays){
         super(dataContext)
+        // store this here too to actually access the holiday data
+        this.#dataContext = dataContext
+        // selection for whether to include holidays
         this.#includeHolidays = includeHolidays
     }
     get holidaysIncluded(){ return this.#includeHolidays }
-    get name(){ return `holidays included = ${this.holidaysIncluded}` }
+    get holidays(){
+        return this.#dataContext.holidays
+    }
 }

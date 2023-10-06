@@ -46,7 +46,9 @@ export class TravelTimeQuery {
         return Boolean(this.#travelTime)
     }
     get hoursInRange(){ // number of hours covered by query options
-        return this.timeRange.hoursInRange * this.dateRange.daysInRange(this.days)
+        let hoursPerDay = this.timeRange.hoursInRange
+        let numDays = this.dateRange.daysInRange(this.days,this.#holidayOption)
+        return hoursPerDay * numDays
     }
     resultsRecord(type='json'){
         const record = {

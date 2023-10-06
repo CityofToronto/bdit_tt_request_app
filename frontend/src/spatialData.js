@@ -28,6 +28,7 @@ export class SpatialData {
     get activeCorridor(){
         return this.corridors.find( cor => cor.isActive )
     }
+    get holidays(){ return this.#knownHolidays }
     createCorridor(){
         let corridor = new Corridor(this)
         this.#factors.push(corridor)

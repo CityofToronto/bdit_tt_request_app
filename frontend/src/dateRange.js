@@ -48,25 +48,38 @@ export class DateRange extends Factor {
     get endDateFormatted(){
         return DateRange.dateFormatted(this.#endDate)
     }
-    daysInRange(daysOptions){ // number of days covered by this dateRange
-        // TODO this will need to be revisited with the holiday options enabled
+    // number of days covered by this dateRange, considering DoW and holidays
+    daysInRange(daysOptions,holidayOptions){
+        // TODO: this logic is pretty convoluted - clean it up!!
         if( ! (this.isComplete && daysOptions.isComplete) ){
             return undefined
         }
+        let holidayDates = new Set(holidayOptions.holidays.map(h=>h.date))
         // iterate each day in the range
         let d = new Date(this.#startDate.valueOf())
         let dayCount = 0
+        const holidaysExcluded = ! holidayOptions.holidaysIncluded
         while(d < this.#endDate){
-            let dow = d.getUTCDay() 
+            let dow = d.getUTCDay()
             let isodow = dow == 0 ? 7 : dow
             if( daysOptions.hasDay(isodow) ){
-                dayCount ++
+                // if holidays are NOT included, check the date isn't a holiday
+                if( ! ( holidaysExcluded && holidayDates.has(formatISODate(d)) ) ){
+                    dayCount ++
+                }
             }
-            // incrememnt, modified in-place
+            // incrememnt one day, modified in-place
             d.setUTCDate(d.getUTCDate() + 1)
         }
         return dayCount
     }
+}
+
+function formatISODate(dt){ // this is waaay too complicated... alas
+    let year = dt.getUTCFullYear() // should be good
+    let month = 1 + dt.getUTCMonth() // 0 - 11 -> 1 - 12
+    let day = dt.getUTCDate() // 1 - 31
+    return `${year}-${('0'+month).slice(-2)}-${('0'+day).slice(-2)}`
 }
 
 function DateRangeElement({dateRange}){
