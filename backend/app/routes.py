@@ -333,7 +333,13 @@ def get_holidays():
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute('SELECT dt FROM ref.holiday ORDER BY dt;')
-            dates = [str(x) for (x,) in cursor.fetchall()]
+            cursor.execute("""
+                SELECT
+                    dt::text,
+                    holiday
+                FROM ref.holiday
+                ORDER BY dt;
+            """)
+            dates = [ {'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
     connection.close()
     return dates
