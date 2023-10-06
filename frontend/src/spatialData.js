@@ -2,6 +2,7 @@ import { Corridor } from './corridor.js'
 import { TimeRange } from './timeRange.js'
 import { DateRange } from './dateRange.js'
 import { Days } from './days.js'
+import { HolidayOption } from './holidayOption.js'
 import { TravelTimeQuery } from './travelTimeQuery.js'
 
 // instantiated once, this is the data store for all spatial and temporal data
@@ -10,11 +11,13 @@ export class SpatialData {
     #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
     constructor(){
         this.#factors.push(new Days(this))
+        this.#factors.push(new HolidayOption(this))
     }
     get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
     get timeRanges(){ return this.#factors.filter( f => f instanceof TimeRange ) }
     get dateRanges(){ return this.#factors.filter( f => f instanceof DateRange ) }
     get days(){ return this.#factors.filter( f => f instanceof Days ) }
+    get holidayOptions(){ return this.#factors.filter( f => f instanceof HolidayOption ) }
     get activeCorridor(){
         return this.corridors.find( cor => cor.isActive )
     }

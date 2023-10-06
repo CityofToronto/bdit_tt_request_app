@@ -18,6 +18,8 @@ export default function SidebarContent(){
             <DateRangesContainer/>
             <div className='big-math-symbol'>&#xd7;</div>
             <DaysContainer/>
+            <div className='big-math-symbol'>&#xd7;</div>
+            <HolidaysContainer/>
             <div className='big-math-symbol'>=</div> 
             <Results/>
         </div>
@@ -128,6 +130,22 @@ function DaysContainer(){
                 Create a new day of week selection
             </BigButton>
             <FactorList factors={data.days}/>
+        </FactorContainer>
+    )
+}
+
+function HolidaysContainer(){
+    const { logActivity, data } = useContext(DataContext)
+    function changeSomething(){
+        data.yaddaYadda()
+        logActivity('holiday options modified')
+    }
+    return (
+        <FactorContainer>
+            <BigButton onClick={changeSomething}>
+                Opt to include/exclude holidays
+            </BigButton>
+            <FactorList factors={data.holidayOptions}/>
         </FactorContainer>
     )
 }
