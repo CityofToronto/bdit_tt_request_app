@@ -4,20 +4,27 @@ import { DateRange } from './dateRange.js'
 import { Days } from './days.js'
 import { HolidayOption } from './holidayOption.js'
 import { TravelTimeQuery } from './travelTimeQuery.js'
+import { domain } from './domain.js'
 
 // instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
     #factors = []
     #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
+    #knownHolidays = []
     constructor(){
         this.#factors.push(new Days(this))
         this.#factors.push(new HolidayOption(this))
+        fetch(`${domain}/holidays`)
+            .then( response => response.json() )
+            .then( holidayList => this.#knownHolidays = holidayList )
     }
     get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
     get timeRanges(){ return this.#factors.filter( f => f instanceof TimeRange ) }
     get dateRanges(){ return this.#factors.filter( f => f instanceof DateRange ) }
     get days(){ return this.#factors.filter( f => f instanceof Days ) }
-    get holidayOptions(){ return this.#factors.filter( f => f instanceof HolidayOption ) }
+    get holidayOptions(){
+        return this.#factors.filter( f => f instanceof HolidayOption )
+    }
     get activeCorridor(){
         return this.corridors.find( cor => cor.isActive )
     }
