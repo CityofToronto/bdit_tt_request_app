@@ -314,9 +314,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 # test URL /date-bounds
 @app.route('/date-bounds', methods=['GET'])
 def get_date_bounds():
-    """
-    Get the earliest date and latest data in the travel database.
-    """
+    "Get the earliest date and latest data in the travel database."
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
@@ -327,3 +325,15 @@ def get_date_bounds():
         "start_time": min_date.strftime('%Y-%m-%d'),
         "end_time": max_date.strftime('%Y-%m-%d')
     }
+
+# test URL /holidays
+@app.route('/holidays', methods=['GET'])
+def get_holidays():
+    "Return dates of all known holidays in ascending order"
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT dt FROM ref.holiday ORDER BY dt;')
+            dates = [str(x) for (x,) in cursor.fetchall()]
+    connection.close()
+    return dates
