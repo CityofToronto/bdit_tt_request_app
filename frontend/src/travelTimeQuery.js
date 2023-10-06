@@ -13,7 +13,7 @@ export class TravelTimeQuery {
         this.#days = days
     }
     get URI(){
-        let path = `aggregate-travel-times`
+        let path = `${domain}/aggregate-travel-times`
         // from and to nodes
         path += `/${this.#corridor.intersections[0].id}/${this.#corridor.intersections[1].id}`
         // times - only hours supported right now :(
@@ -33,7 +33,7 @@ export class TravelTimeQuery {
         if( this.hoursInRange < 1 ){
             return this.#travelTime = -999
         }
-        return fetch(`${domain}/${this.URI}`)
+        return fetch(this.URI)
             .then( response => response.json() )
             .then( data => {
                 this.#travelTime = data.travel_time
