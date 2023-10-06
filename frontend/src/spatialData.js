@@ -13,7 +13,7 @@ export class SpatialData {
     #knownHolidays = []
     constructor(){
         this.#factors.push(new Days(this))
-        this.#factors.push(new HolidayOption(this))
+        this.#factors.push(new HolidayOption(this,true))
         fetch(`${domain}/holidays`)
             .then( response => response.json() )
             .then( holidayList => this.#knownHolidays = holidayList )
@@ -61,6 +61,19 @@ export class SpatialData {
         this.#factors.forEach( f => {
             if(f != factor) f.deactivate()
         } )
+    }
+    includeHolidays(){
+        this.holidayOptions.forEach(f => this.dropFactor(f))
+        this.#factors.push(new HolidayOption(this,true))
+    }
+    excludeHolidays(){
+        this.holidayOptions.forEach(f => this.dropFactor(f))
+        this.#factors.push(new HolidayOption(this,false))
+    }
+    includeAndExcludeHolidays(){
+        this.holidayOptions.forEach(f => this.dropFactor(f))
+        this.#factors.push(new HolidayOption(this,true))
+        this.#factors.push(new HolidayOption(this,false))
     }
     get travelTimeQueries(){
         // is the crossproduct of all complete/valid factors

@@ -1,17 +1,12 @@
 import { Factor } from './factor.js'
-import { domain } from './domain.js'
 //import { useContext, useState, useEffect } from 'react'
 import { DataContext } from './Layout'
 
 export class HolidayOption extends Factor {
-    #includeHolidays = true
-    #holidays = []
-    constructor(dataContext){
+    #includeHolidays
+    constructor(dataContext,includeHolidays){
         super(dataContext)
-        fetch(`${domain}/holidays`)
-            .then( holidays => this.#holidays = holidays )
+        this.#includeHolidays = includeHolidays
     }
-    render(){
-        return <p>hello world</p>
-    }
+    get holidaysIncluded(){ return this.#includeHolidays }
 }

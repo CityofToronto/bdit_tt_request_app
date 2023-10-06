@@ -136,16 +136,51 @@ function DaysContainer(){
 
 function HolidaysContainer(){
     const { logActivity, data } = useContext(DataContext)
-    function changeSomething(){
-        data.yaddaYadda()
-        logActivity('holiday options modified')
+    let options = data.holidayOptions
+    let included, excluded
+    if(options.length == 1){
+        included = options[0].holidaysIncluded
+        excluded = ! included
+    }else{
+        included = true
+        excluded = true
+    }
+    function handleChange(option){
+        if(option=='no'){
+            data.excludeHolidays()
+        }else if(option=='yeah'){
+            data.includeHolidays()
+        }else{
+            data.includeAndExcludeHolidays()
+        }
+        logActivity(`include holidays? ${option}`)
     }
     return (
         <FactorContainer>
-            <BigButton onClick={changeSomething}>
-                Opt to include/exclude holidays
-            </BigButton>
-            <FactorList factors={data.holidayOptions}/>
+            <div><b>Include holidays?</b></div>
+            <label>
+                <input type="radio" value="yes" 
+                    checked={included && !excluded}
+                    onChange={()=>handleChange('yeah')}
+                />
+                Yes
+            </label>
+            <br/>
+            <label>
+                <input type="radio" value="no"
+                    checked={excluded && !included}
+                    onChange={()=>handleChange('no')}
+                />
+                No
+            </label>
+            <br/>
+            <label>
+                <input type="radio" value="yeahNo"
+                    checked={included&&excluded}
+                    onChange={()=>handleChange('yeah no')}
+                />
+                Yes & No (do it both ways)
+            </label>
         </FactorContainer>
     )
 }
