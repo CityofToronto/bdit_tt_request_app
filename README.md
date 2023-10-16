@@ -13,7 +13,7 @@ When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-req
 * a time range, given in hours of the day, 00 - 23
 * a date range (note that the end of the date range is exclusive)
 * a day of week selection
-* _coming soon_! a selection of whether or not to include statutory holidays 
+* a selection of whether or not to include statutory holidays 
 
 The app will combine these factors together to request travel times for all possible combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
 
@@ -28,7 +28,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 * time range
 * date range
 * days of week
-* holiday inclusion (will be added shortly)
+* holiday inclusion
 
 The other fields may require some explanation:
 
@@ -37,7 +37,6 @@ The other fields may require some explanation:
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to two decimal places. Where insufficient data was available to complete the request, the value will be null, and in cases where the request was impossible a value of -999 will be assigned. (See `hoursInRange` below). |
 | `URI` | The URI is the API endpoint that corresponds to this exect request. It may be of little use to some end users but may help us to reproduce the request and verify data quality. It can also serve as a unique ID. |
 | `hoursInRange` | The total number of hours that are theoretically within the scope of this request. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
-
 
 
 ## Methodology
