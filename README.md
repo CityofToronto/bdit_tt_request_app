@@ -13,7 +13,7 @@ When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-req
 * a time range, given in hours of the day, 00 - 23
 * a date range (note that the end of the date range is exclusive)
 * a day of week selection
-* _coming soon_! a selection of whether or not to include statutory holidays 
+* a selection of whether or not to include statutory holidays 
 
 The app will combine these factors together to request travel times for all possible combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
 
