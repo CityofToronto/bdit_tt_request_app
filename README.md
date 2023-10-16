@@ -19,7 +19,26 @@ The app will combine these factors together to request travel times for all poss
 
 Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON.
 
-If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process. 
+If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process.
+
+## Outputs
+
+The app can return results in either CSV or JSON format. The fields in either case are the same. There will be one column for each of the input parameters:
+* corridor
+* time range
+* date range
+* days of week
+* holiday inclusion (will be added shortly)
+
+The other fields may require some explanation:
+
+| Field | Description | 
+|----|----|
+| `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to two decimal places. Where insufficient data was available to complete the request, the value will be null, and in cases where the request was impossible a value of -999 will be assigned. (See `hoursInRange` below). |
+| `URI` | The URI is the API endpoint that corresponds to this exect request. It may be of little use to some end users but may help us to reproduce the request and verify data quality. It can also serve as a unique ID. |
+| `hoursInRange` | The total number of hours that are theoretically within the scope of this request. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
+
+
 
 ## Methodology
 
