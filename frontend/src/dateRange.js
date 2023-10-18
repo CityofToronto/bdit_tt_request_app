@@ -1,5 +1,7 @@
 import { Factor } from './factor.js'
 import { useContext, useState, useEffect } from 'react'
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css';
 import { DataContext } from './Layout'
 
 export class DateRange extends Factor {
@@ -22,22 +24,17 @@ export class DateRange extends Factor {
     render(){
         return <DateRangeElement dateRange={this}/>
     }
-    static parseDate(dateString){ 
-        if(dateString.match(/^\d{4}-\d{2}-\d{2}$/)){
-            return new Date(dateString)
-        }
-        return undefined
-    }
-    setStartDate(input){
-        this.#startDate = DateRange.parseDate(input)
+    setStartDate(inputDate){
+        this.#startDate = inputDate
         return this.#startDate
     }
-    setEndDate(input){
-        this.#endDate = DateRange.parseDate(input)
+    setEndDate(inputDate){
+        this.#endDate = inputDate
         return this.#endDate
     }
     static dateFormatted(datetime){
         if(datetime){
+            console.log('type',datetime)
             return datetime.toISOString().substring(0,10)
         }
         return ''
@@ -83,38 +80,25 @@ function formatISODate(dt){ // this is waaay too complicated... alas
 }
 
 function DateRangeElement({dateRange}){
-    const [ startInput, setStartInput ] = useState(dateRange.startDateFormatted)
-    const [ endInput, setEndInput ] = useState(dateRange.endDateFormatted)
     const { logActivity } = useContext(DataContext)
+    const [ selectedRange, setSelectedRange ] = useState([null,null])
     useEffect(()=>{
-        dateRange.setStartDate(startInput)
-        logActivity('change start date')
-    },[startInput])
-    useEffect(()=>{
-        dateRange.setEndDate(endInput)
-        logActivity('change end date')
-    },[endInput])
+        let [ start, end ] = selectedRange
+        dateRange.setStartDate(start)
+        dateRange.setEndDate(end)
+        logActivity('dateRange selected/updated')
+    },[selectedRange])
+    // TODO remove
+    console.log(selectedRange)
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
             {dateRange.isActive && <>
-                <div>
-                    <label htmlFor='start-date'>
-                        Start date (inclusive)
-                    </label> <input type='text' name='start-date'
-                        value={startInput}
-                        placeholder='YYYY-MM-DD'
-                        onChange={e=>setStartInput(e.target.value)}
-                    />
-                    <br/>
-                    <label htmlFor='end-date'>
-                        End date (exclusive)
-                    </label> <input type='text' name='end-date'
-                        value={endInput}
-                        placeholder='YYYY-MM-DD'
-                        onChange={e=>setEndInput(e.target.value)}
-                    />
-                </div>
+                <Calendar
+                    selectRange={true}
+                    allowPartialRange={true}
+                    onChange={setSelectedRange}
+                />
             </> }
         </div>
     )
