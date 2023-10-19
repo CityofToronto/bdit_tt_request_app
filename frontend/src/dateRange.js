@@ -34,7 +34,6 @@ export class DateRange extends Factor {
     }
     static dateFormatted(datetime){
         if(datetime){
-            console.log('type',datetime)
             return datetime.toISOString().substring(0,10)
         }
         return ''
