@@ -79,10 +79,14 @@ function formatISODate(dt){ // this is waaay too complicated... alas
     return `${year}-${('0'+month).slice(-2)}-${('0'+day).slice(-2)}`
 }
 
+const today = new Date()
+const earliestDataDate = new Date('2017-01-01')
+
 function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
-    const [ selectedRange, setSelectedRange ] = useState([null,null])
+    const [ selectedRange, setSelectedRange ] = useState(undefined)
     useEffect(()=>{
+        if(!selectedRange) return;
         let [ start, end ] = selectedRange
         dateRange.setStartDate(start)
         dateRange.setEndDate(end)
@@ -97,6 +101,8 @@ function DateRangeElement({dateRange}){
                     selectRange={true}
                     allowPartialRange={true}
                     onChange={setSelectedRange}
+                    maxDate={today}
+                    minDate={earliestDataDate}
                 />
             </> }
         </div>
