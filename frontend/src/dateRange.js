@@ -88,13 +88,12 @@ function DateRangeElement({dateRange}){
         dateRange.setEndDate(end)
         logActivity('dateRange selected/updated')
     },[selectedRange])
-    // TODO remove
-    console.log(selectedRange)
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
             {dateRange.isActive && <>
                 <Calendar
+                    value={selectedRange}
                     selectRange={true}
                     allowPartialRange={true}
                     onChange={setSelectedRange}
