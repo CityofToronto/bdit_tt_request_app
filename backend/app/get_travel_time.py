@@ -20,7 +20,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             WHERE   
                 cn.segment_id::integer IN %(seglist)s
                 AND cn.hr <@ %(time_range)s::numrange
-                AND date_part('isodow', cn.dt)::integer IN %(dow_list)s
+                AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
             {holiday_subquery}
             GROUP BY
@@ -63,6 +63,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                     "seglist": tuple(seglist),
                     "node_start": start_node,
                     "node_end": end_node,
+                    # this is where we define that the end of the range is exclusive
                     "time_range": f"[{start_time},{end_time})", # ints
                     "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
                     "dow_list": tuple(dow_list)

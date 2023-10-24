@@ -63,18 +63,11 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
     methods=['GET']
 )
-# aggregate_travel_times()
-#
-# Params:
-# - start_node(int): the node_id of the starting node
-# - end_node(int): the node_id of the end node
-# - start_time(int): starting hour of aggregation
-# - end_time(int): end hour of aggregation (exclusive)
-# - start_date(datetime): start date of aggregation
-# - end_date(datetime): end date of aggregation (exclusive)
-# - include_holidays(str): Set to 'true' to include holidays in aggregation, otherwise 'false' to exclude holidays.
-# - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included
-#
+# - start_node, end_node (int): the congestion network / HERE node_id's
+# - start_time, end_time (int): starting (inclusive), ending (exclusive) hours of aggregation
+# - start_date, end_date (YYYY-MM-DD): start (inclusive), end (exclusive) date of aggregation
+# - include_holidays(str, boolean-ish): 'true' will include holidays
+# - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included (ISODOW)
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
     try:
         start_node = int(start_node)
@@ -113,16 +106,15 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 # test URL /date-bounds
 @app.route('/date-bounds', methods=['GET'])
 def get_date_bounds():
-    "Get the earliest date and latest data in the travel database."
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute('SELECT MIN(dt), MAX(dt) FROM here.ta;')
+            cursor.execute('SELECT MIN(dt)::text, MAX(dt)::text FROM here.ta;')
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
-        "start_time": min_date.strftime('%Y-%m-%d'),
-        "end_time": max_date.strftime('%Y-%m-%d')
+        "start_time": min_date,
+        "end_time": max_date
     }
 
 # test URL /holidays
@@ -132,13 +124,9 @@ def get_holidays():
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT
-                    dt::text,
-                    holiday
-                FROM ref.holiday
-                ORDER BY dt;
-            """)
-            dates = [ {'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
+            cursor.execute(
+                "SELECT dt::text, holiday FROM ref.holiday ORDER BY dt;"
+            )
+            dates = [{'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
     connection.close()
     return dates
