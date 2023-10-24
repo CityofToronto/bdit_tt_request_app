@@ -3,13 +3,9 @@ from datetime import datetime
 from flask import jsonify
 from app import app
 from app.db import getConnection
+from app.get_closest_nodes import get_closest_nodes
 
 from app.get_links import get_links
-
-@app.errorhandler(400)
-def request_error(e):
-    """parse flask's default abort HTML into a JSON object containing the error message"""
-    return jsonify(error=e.description), 400
 
 @app.route('/')
 def index():
@@ -20,48 +16,13 @@ def index():
 
 # test URL /closest-node/-79.3400/43.6610
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
-def get_closest_node(longitude, latitude):
-    """
-    This function fetches a set of closest nodes to the given
-    point, sorted by ascending order of distance.
-    returns a GeoJSON feature for each node
-    """
-
+def closest_node(longitude,latitude):
     try:
         longitude = float(longitude)
         latitude = float(latitude)
     except:
         return jsonify({'error': "Longitude and latitude must be decimal numbers!"})
-
-    with getConnection() as connection:
-        with connection.cursor() as cursor:
-            sql = '''
-                SELECT 
-                    cg_nodes.node_id::int,
-                    ST_AsGeoJSON(cg_nodes.geom) AS geom,
-                    cg_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance,
-                    array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
-                FROM congestion.network_nodes AS cg_nodes
-                JOIN here.routing_nodes_21_1 AS here_nodes USING (node_id)
-                JOIN here_gis.streets_att_21_1 AS streets USING (link_id)
-                GROUP BY
-                    cg_nodes.node_id,
-                    cg_nodes.geom
-                ORDER BY distance
-                LIMIT 10
-                '''
-            cursor.execute(sql, {"latitude": latitude, "longitude": longitude})
-
-            candidate_nodes = []
-            for node_id, geojson, distance, street_names in cursor.fetchall():
-                if distance < 50: # meters
-                    candidate_nodes.append( {
-                        'node_id': node_id,
-                        'street_names': street_names,
-                        'geometry': json.loads(geojson)
-                    } )
-    connection.close()
-    return jsonify(candidate_nodes)
+    return jsonify(get_closest_nodes(longitude,latitude))
 
 
 # test URL /link-nodes/30421154/30421153
