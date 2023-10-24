@@ -1,6 +1,6 @@
 import json, re
 from datetime import datetime
-from flask import abort, jsonify
+from flask import jsonify
 from app import app
 from app.db import getConnection
 
@@ -11,16 +11,12 @@ def request_error(e):
     """parse flask's default abort HTML into a JSON object containing the error message"""
     return jsonify(error=e.description), 400
 
-
-@app.errorhandler(501)
-def not_implemented_error(e):
-    """parse flask's default abort HTML into a JSON object containing the error message"""
-    return jsonify(error=e.description), 501
-
-
 @app.route('/')
 def index():
-    return "Travel Time webapp backend"
+    return jsonify({
+        'description': 'Travel Time App backend root',
+        'endpoints': [str(rule) for rule in app.url_map.iter_rules()]
+    })
 
 # test URL /closest-node/-79.3400/43.6610
 @app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
