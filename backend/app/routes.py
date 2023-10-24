@@ -39,8 +39,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    (links,human_readable_path_description) = get_links(from_node_id, to_node_id)
-    print(human_readable_path_description)
+    links = get_links(from_node_id, to_node_id)
 
     return jsonify({
         "source": from_node_id, 
@@ -155,7 +154,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         #Raise error and return without executing query: dow list does not contain valid characters
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    links, stname = get_links(start_node, end_node)
+    links = get_links(start_node, end_node)
     seglist=[]
     length_m = 0
     for link in links:
@@ -182,7 +181,6 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     connection.close()
     return jsonify({
         'travel_time': float(travel_time), # may be null if insufficient data
-        'route_text': stname,
         'links': links
     })
 
