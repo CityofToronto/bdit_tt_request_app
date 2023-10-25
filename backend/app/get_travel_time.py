@@ -3,11 +3,16 @@ from app.get_links import get_links
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     
-    holiday_clause = ''
+    tt_holiday_clause = ''
+    sample_holiday_clause = ''
     if not include_holidays:
-        holiday_clause = '''AND NOT EXISTS (
+        tt_holiday_clause = '''AND NOT EXISTS (
             SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
-        ) '''
+        )'''
+        sample_holiday_clause = '''AND NOT EXISTS (
+            SELECT 1 FROM ref.holiday WHERE ta_path.dt = holiday.dt
+        )'''
+
     
     agg_tt_query = f''' 
         -- Aggregate segments to corridor on a daily, hourly basis
@@ -22,7 +27,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
-                {holiday_clause}
+                {tt_holiday_clause}
             GROUP BY
                 cn.dt,
                 cn.hr
@@ -54,7 +59,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND dt <@ %(date_range)s::daterange
             AND EXTRACT(ISODOW FROM dt)::integer IN %(dow_list)s
             AND EXTRACT(HOUR FROM tod)::numeric <@ %(time_range)s::numrange
-            {holiday_clause}
+            {sample_holiday_clause}
     """
 
     links = get_links(start_node, end_node)
