@@ -3,9 +3,9 @@ from app.get_links import get_links
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     
-    holiday_subquery = ''
+    holiday_clause = ''
     if not include_holidays:
-        holiday_subquery = '''AND NOT EXISTS (
+        holiday_clause = '''AND NOT EXISTS (
             SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
         ) '''
     
@@ -22,7 +22,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
                 AND cn.dt <@ %(date_range)s::daterange 
-            {holiday_subquery}
+                {holiday_clause}
             GROUP BY
                 cn.dt,
                 cn.hr
@@ -46,33 +46,43 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         FROM corridor_period_daily_avg_tt
     '''
 
+    sample_size_query = f"""
+        SELECT SUM( ((length / 1000.0) / mean) * sample_size ) AS probe_hours
+        FROM here.ta_path
+        WHERE
+            link_dir IN %(link_dir_list)s
+            AND dt <@ %(date_range)s::daterange
+            AND EXTRACT(ISODOW FROM dt)::integer IN %(dow_list)s
+            AND EXTRACT(HOUR FROM tod)::numeric <@ %(time_range)s::numrange
+            {holiday_clause}
+    """
+
     links = get_links(start_node, end_node)
-    seglist=[]
-    length_m = 0
-    for link in links:
-        length_m += link["length_m"]
-        seglist.append(link["segment_id"])
+
+    query_params = {
+        "length_m": sum([link['length_m'] for link in links]),
+        "seglist": tuple(set([link['segment_id'] for link in links])),
+        "link_dir_list": tuple([link['link_dir'] for link in links]),
+        "node_start": start_node,
+        "node_end": end_node,
+        # this is where we define that the end of the range is exclusive
+        "time_range": f"[{start_time},{end_time})", # ints
+        "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
+        "dow_list": tuple(dow_list)
+    }
 
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                agg_tt_query, 
-                {
-                    "length_m": length_m,
-                    "seglist": tuple(seglist),
-                    "node_start": start_node,
-                    "node_end": end_node,
-                    # this is where we define that the end of the range is exclusive
-                    "time_range": f"[{start_time},{end_time})", # ints
-                    "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-                    "dow_list": tuple(dow_list)
-                }
-            )
+            cursor.execute(agg_tt_query, query_params)
             travel_time, = cursor.fetchone()
+            cursor.execute(sample_size_query, query_params)
+            probe_hours, = cursor.fetchone()
 
     connection.close()
     return {
         'travel_time': float(travel_time), # may be null if insufficient data
-        'links': links
+        'links': links,
+        'estimated_vehicle_count': float((probe_hours * 60) / travel_time),
+        'query_params': query_params
     }
