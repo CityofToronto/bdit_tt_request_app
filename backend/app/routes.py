@@ -89,7 +89,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 
     include_holidays = include_holidays.lower() in ['true', 'yes', 't']
 
-    dow_list = re.findall(r"[1-7]", dow_str)
+    dow_list = list(set([int(numstr) for numstr in re.findall(r"[1-7]", dow_str)]))
     if len(dow_list) == 0:
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 

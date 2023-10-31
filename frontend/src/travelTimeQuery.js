@@ -7,6 +7,7 @@ export class TravelTimeQuery {
     #days
     #holidayOption
     #travelTime
+    #estimatedSample
     constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
         this.#timeRange = timeRange
@@ -40,6 +41,7 @@ export class TravelTimeQuery {
             .then( response => response.json() )
             .then( data => {
                 this.#travelTime = data.travel_time
+                this.#estimatedSample = data.estimated_vehicle_count
             } )
     }
     get hasData(){
@@ -59,6 +61,7 @@ export class TravelTimeQuery {
             daysOfWeek: this.days.name,
             holidaysIncluded: this.#holidayOption.holidaysIncluded,
             hoursInRange: this.hoursInRange,
+            estimatedVehicleCount: this.#estimatedSample,
             mean_travel_time_minutes: this.#travelTime
         }
         if(type=='json'){
@@ -77,6 +80,6 @@ export class TravelTimeQuery {
         return 'invalid type requested'
     }
     static csvHeader(){
-        return 'URI,corridor,timeRange,dateRange,daysOfWeek,holidaysIncluded,hoursPossible,mean_travel_time_minutes'
+        return 'URI,corridor,timeRange,dateRange,daysOfWeek,holidaysIncluded,hoursPossible,estimatedSample,mean_travel_time_minutes'
     }
 }
