@@ -11,6 +11,10 @@ export class Intersection {
     }
     get id(){ return this.#id }
     get latlng(){ return { lat: this.#lat, lng: this.#lng } }
+    get displayCoords(){
+        // for display purposes only
+        return `${this.#lng.toFixed(5)}, ${this.#lat.toFixed(5)}`
+    }
     get description(){
         return [...this.#streetNames].join(' & ')
     }

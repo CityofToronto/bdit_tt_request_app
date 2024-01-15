@@ -46,9 +46,13 @@ export class Corridor extends Factor {
         if(this.#intersections.length == 1){
             return `Incomplete corridor starting from ${this.intersections[0].description}`
         }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
+            // routing should be done
             let start = difference(this.intersections[0].streetNames,this.viaStreets)
             let end = difference(this.intersections[1].streetNames,this.viaStreets)
-            return `${[...start].join(' & ')} to ${[...end].join(' & ')} via ${[...this.viaStreets].join(' & ')}`
+            // no cross-street of a different name
+            if(start.size == 0){ start.add(this.intersections[0].displayCoords) }
+            if(end.size == 0){ end.add(this.intersections[1].displayCoords) }
+            return `${[...this.viaStreets].join(' & ')} from ${[...start].join(' & ')} to ${[...end].join(' & ')}`
         }else if(this.#intersections.length == 2){ // but no via streets (yet?)
             let start = [...this.intersections[0].streetNames].join(' & ')
             let end = [...this.intersections[1].streetNames].join(' & ')
