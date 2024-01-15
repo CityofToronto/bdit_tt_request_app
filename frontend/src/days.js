@@ -50,7 +50,7 @@ export class Days extends Factor {
             this.#days.size == weekend.size
             && [...weekend].every(v => this.#days.has(v))
         ){
-            return 'weekend'
+            return 'weekends'
         } else if(this.#days.size > 0){
             return daylist
                 .filter( ({iso}) => this.#days.has(iso) )
