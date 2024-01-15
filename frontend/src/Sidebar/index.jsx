@@ -127,7 +127,7 @@ function DaysContainer(){
     return (
         <FactorContainer>
             <BigButton onClick={addDays}>
-                Create a new day of week selection
+                Create a new day-of-week selection
             </BigButton>
             <FactorList factors={data.days}/>
         </FactorContainer>
