@@ -12,6 +12,9 @@ const daylist = [
     { iso: 7, js: 0, label: 'Sunday' } // note the different numeric representation
 ]
 
+const weekday = new Set([1,2,3,4,5])
+const weekend = new Set([6,7])
+
 export class Days extends Factor {
     // initialize with all days included
     #days = new Set(daylist.map(d=>d.iso))
@@ -37,7 +40,17 @@ export class Days extends Factor {
     }
     get name(){
         if(this.#days.size == 7){
-            return 'all days of the week'
+            return 'all days'
+        } else if(
+            this.#days.size == weekday.size
+            && [...weekday].every(v => this.#days.has(v))
+        ){
+            return 'weekdays'
+        } else if(
+            this.#days.size == weekend.size
+            && [...weekend].every(v => this.#days.has(v))
+        ){
+            return 'weekend'
         } else if(this.#days.size > 0){
             return daylist
                 .filter( ({iso}) => this.#days.has(iso) )
