@@ -1,5 +1,5 @@
 
-const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)/
+const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})/
 
 export async function restoreStateFromFile(fileDropEvent,stateData){
     fileDropEvent.stopPropagation()
@@ -23,6 +23,12 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
                     let timeRange = stateData.createTimeRange()
                     timeRange.setStartTime(startTime)
                     timeRange.setEndTime(endTime)
+                } )
+            distinctPairs(URIs,'startDate','endDate')
+                .forEach( ({startDate,endDate}) => {
+                    let dateRange = stateData.createDateRange()
+                    dateRange.setStartDate(new Date(Date.parse(startDate)))
+                    dateRange.setEndDate(new Date(Date.parse(endDate)))
                 } )
         } )
 }

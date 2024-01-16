@@ -44,6 +44,7 @@ export class SpatialData {
         let dr = new DateRange(this)
         this.#factors.push(dr)
         dr.activate()
+        return dr
     }
     createDays(){
         let days = new Days(this)
