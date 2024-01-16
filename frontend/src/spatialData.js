@@ -51,6 +51,7 @@ export class SpatialData {
         let days = new Days(this)
         this.#factors.push(days)
         days.activate()
+        return days
     }
     get segments(){
         return this.corridors.flatMap( c => c.segments )

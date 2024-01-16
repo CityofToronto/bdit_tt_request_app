@@ -1,4 +1,3 @@
-
 const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/
 
 export async function restoreStateFromFile(fileDropEvent,stateData){
@@ -47,6 +46,13 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
             }else{
                 stateData.excludeHolidays()
             }
+            // days of week
+            // TODO: drop the default selection?
+            [... new Set(URIs.map(uri=>uri.dow))].forEach( dows => {
+                let daysFactor = stateData.createDays()
+                let days = dows.split('').map(Number)
+                daysFactor.setFromSet(new Set(days))
+            } )
         } )
 }
 
