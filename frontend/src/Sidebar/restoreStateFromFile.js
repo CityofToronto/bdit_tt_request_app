@@ -1,5 +1,5 @@
 
-const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})/
+const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/
 
 export async function restoreStateFromFile(fileDropEvent,stateData){
     fileDropEvent.stopPropagation()
@@ -20,7 +20,7 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
             distinctPairs(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
                     console.log('unhandled corridor nodes',startNode,endNode)
-                    /* TODO do soemthing like
+                    /* TODO do something like - but more complicated!
                     let corridor = stateData.createCorridor()
                     corridor.addIntersection(startNode)
                     corridor.addIntersection(endNode)
@@ -38,10 +38,21 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
                     dateRange.setEndDate(new Date(Date.parse(endDate)))
                 } )
+            // holiday inclusion
+            let holidays = new Set(URIs.map(uri => uri.holidays))
+            if(holidays.has('true') && holidays.has('false')){
+                stateData.includeAndExcludeHolidays()
+            }else if(holidays.has('true')){
+                stateData.includeHolidays()
+            }else{
+                stateData.excludeHolidays()
+            }
         } )
 }
 
-function distinctPairs(list,prop1,prop2){
+// get distinct value pairs from a list of objects by their property names
+// all are strings
+function distinctPairs(list, prop1, prop2){
     let distinctKeys = new Set( list.map(o => `${o[prop1]} | ${o[prop2]}`) )
     return [...distinctKeys].map( k => {
         let vals = k.split(' | ')
