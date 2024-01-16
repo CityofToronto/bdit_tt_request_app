@@ -5,11 +5,16 @@ import FactorContainer from './FactorContainer'
 import BigButton from './BigButton'
 import FactorList from './FactorList'
 import { TravelTimeQuery } from '../travelTimeQuery.js'
+import { restoreStateFromFile } from './restoreStateFromFile.js'
 import './sidebar.css'
 
 export default function SidebarContent(){
     return (
-        <div className="sidebarContent">
+        <div className="sidebarContent"
+            onDragEnter={ e => { e.stopPropagation(); e.preventDefault() } }
+            onDragOver={ e => { e.stopPropagation(); e.preventDefault() } }
+            onDrop={restoreStateFromFile}
+        >
             <Welcome/>
             <CorridorsContainer/>
             <div className='big-math-symbol'>&#xd7;</div>
