@@ -38,6 +38,7 @@ export class SpatialData {
         let tr = new TimeRange(this)
         this.#factors.push(tr)
         tr.activate()
+        return tr
     }
     createDateRange(){
         let dr = new DateRange(this)

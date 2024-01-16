@@ -9,11 +9,15 @@ import { restoreStateFromFile } from './restoreStateFromFile.js'
 import './sidebar.css'
 
 export default function SidebarContent(){
+    const { data, logActivity } = useContext(DataContext)
     return (
         <div className="sidebarContent"
             onDragEnter={ e => { e.stopPropagation(); e.preventDefault() } }
             onDragOver={ e => { e.stopPropagation(); e.preventDefault() } }
-            onDrop={restoreStateFromFile}
+            onDrop={ event => {
+                restoreStateFromFile(event,data)
+                    .then( logActivity('state restored from file') ) // not working?
+            } }
         >
             <Welcome/>
             <CorridorsContainer/>
@@ -45,7 +49,7 @@ function Results(){
                     setIsFetchingData(true)
                     data.fetchAllResults().then( () => {
                         setIsFetchingData(false)
-                        setResults(data.travelTimeQueries) 
+                        setResults(data.travelTimeQueries)
                     } )
                 }}>
                     Submit Query
