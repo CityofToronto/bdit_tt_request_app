@@ -16,8 +16,16 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
         .then( data => {
             // should be a list of objects each with a URI property
             let URIs = data.map( r => r.URI.match(URIpattern).groups )
-            console.log(URIs)
 
+            distinctPairs(URIs,'startNode','endNode')
+                .forEach( ({startNode,endNode}) => {
+                    console.log('unhandled corridor nodes',startNode,endNode)
+                    /* TODO do soemthing like
+                    let corridor = stateData.createCorridor()
+                    corridor.addIntersection(startNode)
+                    corridor.addIntersection(endNode)
+                    */
+                } )
             distinctPairs(URIs,'startTime','endTime')
                 .forEach( ({startTime,endTime}) => {
                     let timeRange = stateData.createTimeRange()

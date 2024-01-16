@@ -33,6 +33,7 @@ export class SpatialData {
         let corridor = new Corridor(this)
         this.#factors.push(corridor)
         corridor.activate()
+        return corridor
     }
     createTimeRange(){
         let tr = new TimeRange(this)
