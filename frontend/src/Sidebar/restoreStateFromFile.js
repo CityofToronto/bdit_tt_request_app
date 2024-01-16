@@ -48,10 +48,9 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
             }
             // days of week
             // TODO: drop the default selection?
-            [... new Set(URIs.map(uri=>uri.dow))].forEach( dows => {
+            [... new Set(URIs.map(uri=>uri.dow))].forEach( dowsString => {
                 let daysFactor = stateData.createDays()
-                let days = dows.split('').map(Number)
-                daysFactor.setFromSet(new Set(days))
+                daysFactor.setFromSet(new Set(dowsString.split('').map(Number)))
             } )
         } )
 }

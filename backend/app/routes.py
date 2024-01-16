@@ -4,6 +4,7 @@ from flask import jsonify
 from app import app
 from app.db import getConnection
 from app.get_closest_nodes import get_closest_nodes
+from app.get_node import get_node
 from app.get_travel_time import get_travel_time
 
 from app.get_links import get_links
@@ -25,6 +26,14 @@ def closest_node(longitude,latitude):
         return jsonify({'error': "Longitude and latitude must be decimal numbers!"})
     return jsonify(get_closest_nodes(longitude,latitude))
 
+# test URL /node/30357505
+@app.route('/node/<node_id>', methods=['GET'])
+def node(node_id):
+    try:
+        node_id = int(node_id)
+    except:
+        return jsonify({'error': "node_id should be an integer"})
+    return jsonify(get_node(node_id))
 
 # test URL /link-nodes/30421154/30421153
 #shell function - outputs json for use on frontend
