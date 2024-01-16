@@ -15,7 +15,7 @@ export default function SidebarContent(){
             onDragEnter={ e => { e.stopPropagation(); e.preventDefault() } }
             onDragOver={ e => { e.stopPropagation(); e.preventDefault() } }
             onDrop={ event => {
-                restoreStateFromFile(event,data)
+                restoreStateFromFile(event,data,logActivity)
                     .then( logActivity('state restored from file') ) // not working?
             } }
         >

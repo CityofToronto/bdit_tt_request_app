@@ -1,6 +1,9 @@
+import { Intersection } from '../intersection.js'
+import { domain } from '../domain.js'
+
 const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/
 
-export async function restoreStateFromFile(fileDropEvent,stateData){
+export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
     fileDropEvent.stopPropagation()
     fileDropEvent.preventDefault()
 
@@ -18,12 +21,23 @@ export async function restoreStateFromFile(fileDropEvent,stateData){
 
             distinctPairs(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
-                    console.log('unhandled corridor nodes',startNode,endNode)
-                    /* TODO do something like - but more complicated!
                     let corridor = stateData.createCorridor()
-                    corridor.addIntersection(startNode)
-                    corridor.addIntersection(endNode)
-                    */
+                    Promise.all(
+                        [startNode,endNode].map(node_id => {
+                            return fetch(`${domain}/node/${node_id}`)
+                            .then( resp => resp.json() )
+                            .then( node => new Intersection( {
+                                    id: node.node_id,
+                                    lat: node.geometry.coordinates[1],
+                                    lng: node.geometry.coordinates[0],
+                                    streetNames: node.street_names
+                                } )
+                            )
+                        } )
+                    ).then( intersections => {
+                        corridor.addIntersection(intersections[0],logActivity)
+                        corridor.addIntersection(intersections[1],logActivity)
+                    })
                 } )
             distinctPairs(URIs,'startTime','endTime')
                 .forEach( ({startTime,endTime}) => {
