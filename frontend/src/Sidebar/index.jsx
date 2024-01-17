@@ -4,7 +4,6 @@ import { DataContext } from '../Layout'
 import FactorContainer from './FactorContainer'
 import BigButton from './BigButton'
 import FactorList from './FactorList'
-import { TravelTimeQuery } from '../travelTimeQuery.js'
 import { restoreStateFromFile } from './restoreStateFromFile.js'
 import './sidebar.css'
 
@@ -67,7 +66,7 @@ function Results(){
                         </BigButton>
                     </a>
                     <a download='results.csv'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(TravelTimeQuery.csvHeader() + '\n' + results.map(r=>r.resultsRecord('csv')).join('\n'))}`}
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent([...results[0].resultsRecord('').keys()].join(',') + '\n' + results.map(r=>r.resultsRecord('csv')).join('\n'))}`}
                     >
                         <BigButton>
                             Download results as CSV 

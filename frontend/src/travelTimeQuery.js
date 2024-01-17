@@ -53,33 +53,30 @@ export class TravelTimeQuery {
         return hoursPerDay * numDays
     }
     resultsRecord(type='json'){
-        const record = {
-            URI: this.URI,
-            corridor: this.corridor.name,
-            timeRange: this.timeRange.name,
-            dateRange: this.dateRange.name,
-            daysOfWeek: this.days.name,
-            holidaysIncluded: this.#holidayOption.holidaysIncluded,
-            hoursInRange: this.hoursInRange,
-            estimatedVehicleCount: this.#estimatedSample,
-            mean_travel_time_minutes: this.#travelTime
-        }
+        // map used instead of object to preserve insertion order
+        const record = new Map()
+        record.set('URI',this.URI)
+        record.set('routeStreets',this.corridor.viaStreetsString)
+        record.set('startCrossStreets',this.corridor.startCrossStreetsString)
+        record.set('endCrossStreets',this.corridor.endCrossStreetsString)
+        record.set('timeRange',this.timeRange.name)
+        record.set('dateRange',this.dateRange.name)
+        record.set('daysOfWeek', this.days.name)
+        record.set('holidaysIncluded', this.#holidayOption.holidaysIncluded)
+        record.set('hoursInRange', this.hoursInRange)
+        record.set('estimatedVehicleCount', this.#estimatedSample)
+        record.set('mean_travel_time_minutes', this.#travelTime)
+        record.set('mean_travel_time_seconds', 60* this.#travelTime)
+
         if(type=='json'){
-            return record
+            return Object.fromEntries(record) // can't JSONify maps
         }else if(type=='csv'){
-            return Object.values(record)
-                .map( value => {
-                    
-                    if(typeof value == 'string'){
-                        return `"${value}"`
-                    }
-                    return value
-                } )
+            // add double quotes to strings and concatenate
+            return [...record.values()]
+                .map( value => typeof value == 'string' ? `"${value}"` : value )
                 .join(',')
         }
-        return 'invalid type requested'
-    }
-    static csvHeader(){
-        return 'URI,corridor,timeRange,dateRange,daysOfWeek,holidaysIncluded,hoursPossible,estimatedSample,mean_travel_time_minutes'
+        // the keys of a map record are used to create the CSV header
+        return record
     }
 }
