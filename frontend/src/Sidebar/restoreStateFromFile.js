@@ -1,7 +1,7 @@
 import { Intersection } from '../intersection.js'
 import { domain } from '../domain.js'
 
-const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/
+const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
 
 export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
     fileDropEvent.stopPropagation()
@@ -10,15 +10,10 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
     // only handle one file at a time
     let file = fileDropEvent.dataTransfer.files[0]
 
-    // TODO: handle CSV
-    if( file.type != 'application/json' ) { return }
-
     return file.text()
-        .then( text => JSON.parse(text) )
-        .then( data => {
+        .then( textData => {
             // should be a list of objects each with a URI property
-            let URIs = data.map( r => r.URI.match(URIpattern).groups )
-
+            let URIs = [...textData.matchAll(URIpattern)].map(m=>m.groups)
             distinctPairs(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
                     let corridor = stateData.createCorridor()
