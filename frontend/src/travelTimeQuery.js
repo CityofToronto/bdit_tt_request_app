@@ -64,15 +64,16 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('estimatedVehicleCount', this.#estimatedSample)
         record.set('mean_travel_time_minutes', this.#travelTime)
+
         if(type=='json'){
-            // can't JSONify maps
-            return Object.fromEntries(record)
+            return Object.fromEntries(record) // can't JSONify maps
         }else if(type=='csv'){
+            // add double quotes to strings and concatenate
             return [...record.values()]
-                // add double quotes to strings and concatenate
                 .map( value => typeof value == 'string' ? `"${value}"` : value )
                 .join(',')
         }
+        // the keys of a map record are used to create the CSV header
         return record
     }
 }
