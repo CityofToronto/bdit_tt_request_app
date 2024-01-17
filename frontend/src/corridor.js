@@ -42,21 +42,38 @@ export class Corridor extends Factor {
     get viaStreets(){
         return new Set( this.links.map( link => link.name ) )
     }
+    get viaStreetsString(){
+        return [...this.viaStreets].join(' & ')
+    }
+    get startCrossStreets(){
+        try { return difference(this.#intersections[0].streetNames,this.viaStreets) }
+        catch (e) { return new Set() }
+    }
+    get startCrossStreetsString(){
+        if(this.startCrossStreets.size > 0){
+            return [...this.startCrossStreets].join(' & ')
+        }
+        try{ return this.#intersections[0].displayCoords }
+        catch { }
+    }
+    get endCrossStreets(){
+        try { return difference(this.#intersections[1].streetNames,this.viaStreets) }
+        catch (e) { return new Set() }
+    }
+    get endCrossStreetsString(){
+        if(this.endCrossStreets.size > 0){
+            return [...this.endCrossStreets].join(' & ')
+        }
+        try{ return this.#intersections[1].displayCoords }
+        catch { }
+    }
     get name(){
         if(this.#intersections.length == 1){
-            return `Incomplete corridor starting from ${this.intersections[0].description}`
+            return `Incomplete corridor starting from ${this.startCrossStreetsString}`
         }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
-            // routing should be done
-            let start = difference(this.intersections[0].streetNames,this.viaStreets)
-            let end = difference(this.intersections[1].streetNames,this.viaStreets)
-            // no cross-street of a different name
-            if(start.size == 0){ start.add(this.intersections[0].displayCoords) }
-            if(end.size == 0){ end.add(this.intersections[1].displayCoords) }
-            return `${[...this.viaStreets].join(' & ')} from ${[...start].join(' & ')} to ${[...end].join(' & ')}`
+            return `${this.viaStreetsString} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }else if(this.#intersections.length == 2){ // but no via streets (yet?)
-            let start = [...this.intersections[0].streetNames].join(' & ')
-            let end = [...this.intersections[1].streetNames].join(' & ')
-            return `from ${start} to ${end}`
+            return `from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }
         return 'New Corridor'
     }
@@ -68,14 +85,16 @@ export class Corridor extends Factor {
 function CorridorElement({corridor}){
     return (
         <div>
-            <div className='corridorName'>{corridor.name}</div>
+            <div className='corridorName'>
+                {corridor.name}
+            </div>
             {corridor.isActive && <>
                 <div className='instructions'>
                     {corridor.intersections.length == 0 &&
-                        <>Click on the map to identify the starting point</>
+                        'Click on the map to identify the starting point'
                     }
                     {corridor.intersections.length == 1 &&
-                        <>Click on the map to identify the end point</>
+                        'Click on the map to identify the end point'
                     }
                 </div>
             </> } 

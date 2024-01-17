@@ -56,7 +56,9 @@ export class TravelTimeQuery {
         // map used instead of object to preserve insertion order
         const record = new Map()
         record.set('URI',this.URI)
-        record.set('corridor',this.corridor.name)
+        record.set('routeStreets',this.corridor.viaStreetsString)
+        record.set('startCrossStreets',this.corridor.startCrossStreetsString)
+        record.set('endCrossStreets',this.corridor.endCrossStreetsString)
         record.set('timeRange',this.timeRange.name)
         record.set('dateRange',this.dateRange.name)
         record.set('daysOfWeek', this.days.name)
@@ -64,6 +66,7 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('estimatedVehicleCount', this.#estimatedSample)
         record.set('mean_travel_time_minutes', this.#travelTime)
+        record.set('mean_travel_time_seconds', 60* this.#travelTime)
 
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps
