@@ -38,6 +38,11 @@ export class Days extends Factor {
     hasDay(number){
         return this.#days.has(parseInt(number))
     }
+    setFromSet(dowSet){
+        const validDays = new Set([...weekday,...weekend])
+        let validDowSet = new Set([...dowSet].filter(v => validDays.has(v)))
+        this.#days = validDowSet
+    }
     get name(){
         if(this.#days.size == 7){
             return 'all days'

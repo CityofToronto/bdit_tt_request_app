@@ -5,11 +5,20 @@ import FactorContainer from './FactorContainer'
 import BigButton from './BigButton'
 import FactorList from './FactorList'
 import { TravelTimeQuery } from '../travelTimeQuery.js'
+import { restoreStateFromFile } from './restoreStateFromFile.js'
 import './sidebar.css'
 
 export default function SidebarContent(){
+    const { data, logActivity } = useContext(DataContext)
     return (
-        <div className="sidebarContent">
+        <div className="sidebarContent"
+            onDragEnter={ e => { e.stopPropagation(); e.preventDefault() } }
+            onDragOver={ e => { e.stopPropagation(); e.preventDefault() } }
+            onDrop={ event => {
+                restoreStateFromFile(event,data,logActivity)
+                    .then( logActivity('state restored from file') ) // not working?
+            } }
+        >
             <Welcome/>
             <CorridorsContainer/>
             <div className='big-math-symbol'>&#xd7;</div>
@@ -40,7 +49,7 @@ function Results(){
                     setIsFetchingData(true)
                     data.fetchAllResults().then( () => {
                         setIsFetchingData(false)
-                        setResults(data.travelTimeQueries) 
+                        setResults(data.travelTimeQueries)
                     } )
                 }}>
                     Submit Query

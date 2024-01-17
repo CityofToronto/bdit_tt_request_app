@@ -33,21 +33,25 @@ export class SpatialData {
         let corridor = new Corridor(this)
         this.#factors.push(corridor)
         corridor.activate()
+        return corridor
     }
     createTimeRange(){
         let tr = new TimeRange(this)
         this.#factors.push(tr)
         tr.activate()
+        return tr
     }
     createDateRange(){
         let dr = new DateRange(this)
         this.#factors.push(dr)
         dr.activate()
+        return dr
     }
     createDays(){
         let days = new Days(this)
         this.#factors.push(days)
         days.activate()
+        return days
     }
     get segments(){
         return this.corridors.flatMap( c => c.segments )
