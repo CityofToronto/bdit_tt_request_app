@@ -4,7 +4,6 @@ import { DataContext } from '../Layout'
 import FactorContainer from './FactorContainer'
 import BigButton from './BigButton'
 import FactorList from './FactorList'
-import { TravelTimeQuery } from '../travelTimeQuery.js'
 import { restoreStateFromFile } from './restoreStateFromFile.js'
 import './sidebar.css'
 

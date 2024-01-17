@@ -54,7 +54,7 @@ export class Corridor extends Factor {
             return [...this.startCrossStreets].join(' & ')
         }
         try{ return this.#intersections[0].displayCoords }
-        catch { }
+        catch { return }
     }
     get endCrossStreets(){
         try { return difference(this.#intersections[1].streetNames,this.viaStreets) }
@@ -65,7 +65,7 @@ export class Corridor extends Factor {
             return [...this.endCrossStreets].join(' & ')
         }
         try{ return this.#intersections[1].displayCoords }
-        catch { }
+        catch { return }
     }
     get name(){
         if(this.#intersections.length == 1){
