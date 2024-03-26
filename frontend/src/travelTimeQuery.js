@@ -66,7 +66,10 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('estimatedVehicleCount', this.#estimatedSample)
         record.set('mean_travel_time_minutes', this.#travelTime)
-        record.set('mean_travel_time_seconds', 60* this.#travelTime)
+        record.set(
+            'mean_travel_time_seconds',
+            this.#travelTime ? 60 * this.#travelTime : null
+        )
 
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps
