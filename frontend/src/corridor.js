@@ -70,12 +70,14 @@ export class Corridor extends Factor {
         return ''
     }
     get bearing(){
+        // azimuth calculation borrowed from:
+        // http://www.movable-type.co.uk/scripts/latlong.html
         if( ! this.#intersections.length == 2 ) return undefined;
         const [A, B] = this.#intersections
         const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
             - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
         const y = Math.sin(d2r(B.lng - A.lng)) * Math.cos(d2r(B.lat))
-        // degrees from true East, "corrected" 17d for the city's grid rotation
+        // degrees from true East TODO: adjust this by 17 degrees
         const azimuth = r2d(Math.atan2(x,y))
         const compass = { NE: 45, SE: -45, SW: -135, NW: 135 }
         if( azimuth < compass.NE && azimuth > compass.SE ) return 'East'
