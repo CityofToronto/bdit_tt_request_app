@@ -69,13 +69,29 @@ export class Corridor extends Factor {
         }
         return ''
     }
+    get bearing(){
+        if( ! this.#intersections.length == 2) return
+        const [A, B] = this.#intersections
+        const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
+            - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
+        const y = Math.sin(d2r(B.lng - A.lng)) * Math.cos(d2r(B.lat))
+        // degrees from true East, "corrected" 17d for the city's grid rotation
+        const azimuth = r2d(Math.atan2(x,y))
+        const compass = { NE: 45, SE: -45, SW: -135, NW: 135 }
+        console.log(azimuth)
+        if( azimuth < compass.NE && azimuth > compass.SE ) return 'East'
+        if( azimuth > compass.NE && azimuth < compass.NW ) return 'North'
+        if( azimuth < compass.SE && azimuth > compass.SW ) return 'South'
+        if( azimuth > compass.NW || azimuth < compass.SW ) return 'West'
+        return azimuth
+    }
     get name(){
         if(this.#intersections.length == 1){
             return `Incomplete corridor starting from ${this.startCrossStreetsString}`
         }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
-            return `${this.viaStreetsString} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
+            return `${this.viaStreetsString} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString} (${this.bearing})`
         }else if(this.#intersections.length == 2){ // but no via streets (yet?)
-            return `from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
+            return `from ${this.startCrossStreetsString} to ${this.endCrossStreetsString} (${this.bearing})`
         }
         return 'New Corridor'
     }
@@ -112,3 +128,7 @@ function difference(setA, setB) {
     }
     return setDiff 
 }
+
+// convert between degrees and radians
+function d2r(degrees) { return degrees * (Math.PI / 180) }
+function r2d(rad) { return rad / (Math.PI / 180) }
