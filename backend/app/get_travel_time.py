@@ -80,14 +80,15 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(agg_tt_query, query_params)
+            # travel_time may be null if there's insufficient data
             travel_time, = cursor.fetchone()
             cursor.execute(sample_size_query, query_params)
             probe_hours, = cursor.fetchone()
 
     connection.close()
     return {
-        'travel_time': float(travel_time), # may be null if insufficient data
+        'travel_time': None if travel_time is None else float(travel_time),
         'links': links,
-        'estimated_vehicle_count': float((probe_hours * 60) / travel_time),
+        'estimated_vehicle_count': None if travel_time is None else float((probe_hours * 60) / travel_time),
         'query_params': query_params
     }
