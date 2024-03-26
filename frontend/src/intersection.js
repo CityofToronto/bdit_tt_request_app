@@ -10,7 +10,9 @@ export class Intersection {
         this.#streetNames = new Set(streetNames)
     }
     get id(){ return this.#id }
-    get latlng(){ return { lat: this.#lat, lng: this.#lng } }
+    get lat(){ return this.#lat }
+    get lng(){ return this.#lng }
+    get latlng(){ return { lat: this.lat, lng: this.lng } }
     get displayCoords(){
         // for display purposes only
         return `${this.#lng.toFixed(5)}, ${this.#lat.toFixed(5)}`
