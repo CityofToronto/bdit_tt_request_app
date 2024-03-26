@@ -70,7 +70,7 @@ export class Corridor extends Factor {
         return ''
     }
     get bearing(){
-        if( ! this.#intersections.length == 2) return
+        if( ! this.#intersections.length == 2 ) return undefined;
         const [A, B] = this.#intersections
         const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
             - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
@@ -78,7 +78,6 @@ export class Corridor extends Factor {
         // degrees from true East, "corrected" 17d for the city's grid rotation
         const azimuth = r2d(Math.atan2(x,y))
         const compass = { NE: 45, SE: -45, SW: -135, NW: 135 }
-        console.log(azimuth)
         if( azimuth < compass.NE && azimuth > compass.SE ) return 'East'
         if( azimuth > compass.NE && azimuth < compass.NW ) return 'North'
         if( azimuth < compass.SE && azimuth > compass.SW ) return 'South'
