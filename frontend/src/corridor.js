@@ -80,10 +80,10 @@ export class Corridor extends Factor {
         // degrees from true East TODO: adjust this by 17 degrees
         const azimuth = r2d(Math.atan2(x,y))
         const compass = { NE: 45, SE: -45, SW: -135, NW: 135 }
-        if( azimuth < compass.NE && azimuth > compass.SE ) return 'East'
-        if( azimuth > compass.NE && azimuth < compass.NW ) return 'North'
-        if( azimuth < compass.SE && azimuth > compass.SW ) return 'South'
-        if( azimuth > compass.NW || azimuth < compass.SW ) return 'West'
+        if( azimuth < compass.NE && azimuth > compass.SE ) return 'Eastbound'
+        if( azimuth > compass.NE && azimuth < compass.NW ) return 'Northbound'
+        if( azimuth < compass.SE && azimuth > compass.SW ) return 'Southbound'
+        if( azimuth > compass.NW || azimuth < compass.SW ) return 'Westbound'
         return azimuth
     }
     get name(){
