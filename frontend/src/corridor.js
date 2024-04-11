@@ -84,15 +84,15 @@ export class Corridor extends Factor {
         if( azimuth > compass.NE && azimuth < compass.NW ) return 'Northbound'
         if( azimuth < compass.SE && azimuth > compass.SW ) return 'Southbound'
         if( azimuth > compass.NW || azimuth < compass.SW ) return 'Westbound'
-        return azimuth
+        return ''
     }
     get name(){
         if(this.#intersections.length == 1){
             return `Incomplete corridor starting from ${this.startCrossStreetsString}`
         }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
-            return `${this.viaStreetsString} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString} (${this.bearing})`
+            return `${this.viaStreetsString} ${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }else if(this.#intersections.length == 2){ // but no via streets (yet?)
-            return `from ${this.startCrossStreetsString} to ${this.endCrossStreetsString} (${this.bearing})`
+            return `${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }
         return 'New Corridor'
     }
