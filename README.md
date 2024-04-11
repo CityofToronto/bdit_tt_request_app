@@ -34,6 +34,7 @@ The other fields may require some explanation:
 | Field | Description |
 |----|----|
 | `routeStreets` | The name(s) of the streets along the corridor. I.e. the path taken. |
+| `direction` | The approximate compass direction of travel for a corridor e.g. "Westbound". |
 | `startCrossStreets` | The names of any cross-street(s) at the start of the corridor. If the corridor starts mid-block then coordinates of that point will be returned instead. |
 | `endCrossStreets` | The names of any cross-street(s) at the end of the corridor. If the corridor ends mid-block then coordinates of that point will be returned instead. |
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to two decimal places. Where insufficient data was available to complete the request, the value will be null, and in cases where the request was impossible a value of -999 will be assigned. (See `hoursInRange` below). |

@@ -57,6 +57,7 @@ export class TravelTimeQuery {
         const record = new Map()
         record.set('URI',this.URI)
         record.set('routeStreets',this.corridor.viaStreetsString)
+        record.set('direction',this.corridor.bearing)
         record.set('startCrossStreets',this.corridor.startCrossStreetsString)
         record.set('endCrossStreets',this.corridor.endCrossStreetsString)
         record.set('timeRange',this.timeRange.name)

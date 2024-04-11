@@ -69,13 +69,30 @@ export class Corridor extends Factor {
         }
         return ''
     }
+    get bearing(){
+        // azimuth calculation borrowed from:
+        // http://www.movable-type.co.uk/scripts/latlong.html
+        if( ! this.#intersections.length == 2 ) return undefined;
+        const [A, B] = this.#intersections
+        const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
+            - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
+        const y = Math.sin(d2r(B.lng - A.lng)) * Math.cos(d2r(B.lat))
+        // degrees from true East TODO: adjust this by 17 degrees
+        const azimuth = r2d(Math.atan2(x,y))
+        const compass = { NE: 45, SE: -45, SW: -135, NW: 135 }
+        if( azimuth < compass.NE && azimuth > compass.SE ) return 'Eastbound'
+        if( azimuth > compass.NE && azimuth < compass.NW ) return 'Northbound'
+        if( azimuth < compass.SE && azimuth > compass.SW ) return 'Southbound'
+        if( azimuth > compass.NW || azimuth < compass.SW ) return 'Westbound'
+        return ''
+    }
     get name(){
         if(this.#intersections.length == 1){
             return `Incomplete corridor starting from ${this.startCrossStreetsString}`
         }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
-            return `${this.viaStreetsString} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
+            return `${this.viaStreetsString} ${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }else if(this.#intersections.length == 2){ // but no via streets (yet?)
-            return `from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
+            return `${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }
         return 'New Corridor'
     }
@@ -112,3 +129,7 @@ function difference(setA, setB) {
     }
     return setDiff 
 }
+
+// convert between degrees and radians
+function d2r(degrees) { return degrees * (Math.PI / 180) }
+function r2d(rad) { return rad / (Math.PI / 180) }
