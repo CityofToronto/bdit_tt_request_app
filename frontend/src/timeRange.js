@@ -15,8 +15,9 @@ export class TimeRange extends Factor {
     }
     get name(){
         if(this.#startTime || this.#endTime){
-            let start = this.#startTime?.toLocaleTimeString() ?? '???'
-            let end = this.#endTime?.toLocaleTimeString() ?? '???'
+            let options = { hour: "2-digit", minute: "2-digit", hour12: false }
+            let start = this.#startTime?.toLocaleTimeString('en-CA',options) ?? '???'
+            let end = this.#endTime?.toLocaleTimeString('en-CA',options) ?? '???'
             return `From ${start} to ${end}`
         }
         return 'New Time Range'
