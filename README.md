@@ -1,9 +1,9 @@
 # Travel Time Request App
 
-[Go to the Travel Time Request App!](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) (you must be inside the City network)
+[Go to the Travel Time Request App!](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) (You must be on a computer inside the City's network.)
 
 ## About
-The Travel Time Request App is a simple React application designed to help City staff find averaged motor vehicle travel times for selected corridors within the city for any time since ~ 2012.
+The Travel Time Request App is a simple web application designed to help City staff find averaged motor-vehicle travel times for selected corridors within the city for any time since ~2017.
 
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City, though it has undergone substantial development by the Data & Analytics Unit since then. 
 
