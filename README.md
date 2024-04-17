@@ -1,9 +1,9 @@
 # Travel Time Request App
 
-[Go to the Travel Time Request App!](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) (you must be inside the City network)
+[Go to the Travel Time Request App!](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) (You must be on a computer inside the City's network.)
 
 ## About
-The Travel Time Request App is a simple React application designed to help City staff find averaged motor vehicle travel times for selected corridors within the city for any time since ~ 2012.
+The Travel Time Request App is a simple web application designed to help City staff find averaged motor-vehicle travel times for selected corridors within the city for any time since ~2017.
 
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City, though it has undergone substantial development by the Data & Analytics Unit since then. 
 
@@ -23,25 +23,23 @@ If you have any trouble using the app, please send an email to Nate Wessel (nate
 
 ## Outputs
 
-The app can return results in either CSV or JSON format. The fields in either case are the same. There will be one column for each of the input parameters:
-* time range
-* date range
-* days of week
-* holiday inclusion
-
-The other fields may require some explanation:
+The app can return results in either CSV or JSON format. The fields in either case are the same:
 
 | Field | Description |
 |----|----|
-| `routeStreets` | The name(s) of the streets along the corridor. I.e. the path taken. |
+| `URI` | The URI is the API endpoint that corresponds to the travel time request for each record. It can serve as a unique ID for each record. The URI allows us to reconstruct a request precisely and gather additional information to diagnose issues and verify data quality. |
+| `routeStreets` | The names of the streets along the corridor. I.e. the path between A and B. |
 | `direction` | The approximate compass direction of travel for a corridor e.g. "Westbound". |
 | `startCrossStreets` | The names of any cross-street(s) at the start of the corridor. If the corridor starts mid-block then coordinates of that point will be returned instead. |
 | `endCrossStreets` | The names of any cross-street(s) at the end of the corridor. If the corridor ends mid-block then coordinates of that point will be returned instead. |
-| `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to two decimal places. Where insufficient data was available to complete the request, the value will be null, and in cases where the request was impossible a value of -999 will be assigned. (See `hoursInRange` below). |
+| `timeRange` | Text description of the time-of-day range included in the query. |
+| `dateRange` | Text description of the range of dates included in the query. |
+| `daysOfWeek` | Text description of the days of week included in the query.  |
+| `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. |
+| `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
+| `estimatedVehicleCount` | Deprecated. A very rough estimate of the number of observed probe vehicles operating within the given corridor and temporal bounds. This is NOT an estimate of traffic volume. Includes partial trips through the corridor and may be subject to additional caveats which we are still exploring. This is calculated as the total amount of time vehicles spent travelling along the selected links divided by the mean travel time. |
+| `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to two decimal places. Where insufficient data was available to complete the request, the value will be null, and in cases where the request was impossible a value of -999 will be assigned. (See `hoursInRange`). |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
-| `URI` | The URI is the API endpoint that corresponds to this exect request. It may be of little use to some end users but can help us to reproduce the request and verify data quality. It can also serve as a unique ID for the record. |
-| `hoursInRange` | The total number of hours that are theoretically within the scope of this request. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
-| `estimatedVehicleCount` | A very rough estimate of the number of actual vehicles traversing the corridor within the given temporal bounds. Includes partial trips through the corridor and may be subject to additional caveats which we are still exploring. This is calculated as (the total amount of time vehicles spent travelling along the selected links) divided by (the mean travel time). |
 
 
 ## Methodology
