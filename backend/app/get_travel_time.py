@@ -23,9 +23,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
             FROM congestion.network_segments_daily AS cn
             WHERE   
-                cn.segment_id::integer IN %(seglist)s
+                cn.segment_id::integer = ANY(%(seglist)s)
                 AND cn.hr <@ %(time_range)s::numrange
-                AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
+                AND date_part('ISODOW', cn.dt)::integer = ANY(%(dow_list)s)
                 AND cn.dt <@ %(date_range)s::daterange 
                 {tt_holiday_clause}
             GROUP BY
@@ -55,9 +55,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         SELECT SUM( ((length / 1000.0) / mean) * sample_size ) AS probe_hours
         FROM here.ta_path
         WHERE
-            link_dir IN %(link_dir_list)s
+            link_dir = ANY(%(link_dir_list)s)
             AND dt <@ %(date_range)s::daterange
-            AND EXTRACT(ISODOW FROM dt)::integer IN %(dow_list)s
+            AND EXTRACT(ISODOW FROM dt)::integer = ANY(%(dow_list)s)
             AND EXTRACT(HOUR FROM tod)::numeric <@ %(time_range)s::numrange
             {sample_holiday_clause}
     """
@@ -66,14 +66,14 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     query_params = {
         "length_m": sum([link['length_m'] for link in links]),
-        "seglist": tuple(set([link['segment_id'] for link in links])),
-        "link_dir_list": tuple([link['link_dir'] for link in links]),
+        "seglist": list(set([link['segment_id'] for link in links])),
+        "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
         "node_end": end_node,
         # this is where we define that the end of the range is exclusive
         "time_range": f"[{start_time},{end_time})", # ints
         "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
-        "dow_list": tuple(dow_list)
+        "dow_list": dow_list
     }
 
     connection = getConnection()
