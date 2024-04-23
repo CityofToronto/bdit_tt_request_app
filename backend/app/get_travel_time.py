@@ -22,17 +22,17 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 cn.hr,
                 SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
             FROM congestion.network_segments_daily AS cn
-            WHERE   
+            WHERE
                 cn.segment_id::integer IN %(seglist)s
                 AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
-                AND cn.dt <@ %(date_range)s::daterange 
+                AND cn.dt <@ %(date_range)s::daterange
                 {tt_holiday_clause}
             GROUP BY
                 cn.dt,
                 cn.hr
             -- where corridor has at least 80pct of links with data
-            HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8 
+            HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8
         ),
 
         -- Average the hours selected into daily period level data
@@ -41,8 +41,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 dt,
                 AVG(corr_hourly_daily_tt) AS avg_corr_period_daily_tt
             FROM corridor_hourly_daily_agg
-            GROUP BY
-                dt
+            GROUP BY dt
         )
 
         -- Average all the days with data to get period level data for each date range
@@ -60,6 +59,25 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND EXTRACT(ISODOW FROM dt)::integer IN %(dow_list)s
             AND EXTRACT(HOUR FROM tod)::numeric <@ %(time_range)s::numrange
             {sample_holiday_clause}
+    """
+
+    sample_hour_query = f"""
+        SELECT
+            cn.dt,
+            cn.hr,
+            SUM(cn.unadjusted_tt) AS corr_hourly_daily_tt
+        FROM congestion.network_segments_daily AS cn
+        WHERE   
+            cn.segment_id::integer IN %(seglist)s
+            AND cn.hr <@ %(time_range)s::numrange
+            AND date_part('ISODOW', cn.dt)::integer IN %(dow_list)s
+            AND cn.dt <@ %(date_range)s::daterange 
+            {tt_holiday_clause}
+        GROUP BY
+            cn.dt,
+            cn.hr
+        -- where corridor has at least 80pct of links with data
+        HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8
     """
 
     links = get_links(start_node, end_node)
@@ -85,8 +103,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(sample_size_query, query_params)
             probe_hours, = cursor.fetchone()
 
+            cursor.execute(sample_hour_query, query_params)
+            hour_bins_used = cursor.rowcount
+
     connection.close()
     return {
+        'bins': hour_bins_used,
         'travel_time': None if travel_time is None else float(travel_time),
         'links': links,
         'estimated_vehicle_count': None if travel_time is None else float((probe_hours * 60) / travel_time),
