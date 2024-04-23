@@ -20,7 +20,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             SELECT
                 cn.dt,
                 cn.hr,
-                SUM(cn.tt) AS corr_hourly_daily_tt
+                SUM(cn.unadjusted_tt) * %(length_m)s::numeric / SUM(cn.length_w_data) AS corr_hourly_daily_tt
             FROM congestion.network_segments_daily AS cn
             WHERE   
                 cn.segment_id::integer = ANY(%(seglist)s)
