@@ -18,7 +18,10 @@ export class TimeRange extends Factor {
         return hour > 0 ? hour : 24
     }
     get isComplete(){
-        return this.#startTime && this.#endTime && this.#startTime < this.#endTime
+        if(!(this.#startTime && this.#endTime)){
+            return false
+        }
+        return this.startHour < this.endHour
     }
     get name(){
         if(this.#startTime || this.#endTime){
