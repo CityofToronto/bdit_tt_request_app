@@ -1,24 +1,17 @@
 from app.db import getConnection
 from app.get_links import get_links
-import numpy
-import random
+import numpy, random
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
-    
+
     tt_holiday_clause = ''
-    sample_holiday_clause = ''
     if not include_holidays:
         tt_holiday_clause = '''AND NOT EXISTS (
             SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
         )'''
-        sample_holiday_clause = '''AND NOT EXISTS (
-            SELECT 1 FROM ref.holiday WHERE ta_path.dt = holiday.dt
-        )'''
 
     hourly_tt_query = f'''
         SELECT
-            dt,
-            hr,
             SUM(cn.unadjusted_tt) * %(length_m)s::real / SUM(cn.length_w_data) AS tt
         FROM congestion.network_segments_daily AS cn
         WHERE
@@ -53,7 +46,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         with connection.cursor() as cursor:
             # get the hourly travel times
             cursor.execute(hourly_tt_query, query_params)
-            tt_hourly = [ tt for (dt, hr, tt) in cursor.fetchall() ]
+            tt_hourly = [ tt for (tt,) in cursor.fetchall() ]
     connection.close()
 
     # bootstrap for synthetic sample distribution
@@ -67,9 +60,11 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     return {
         'average_travel_time': numpy.mean(tt_hourly),
-        'upper': numpy.percentile(sample_distribution,95),
-        'lower': numpy.percentile(sample_distribution,5),
-        'hourly_travel_times': tt_hourly
-        #'links': links,
-        #'query_params': query_params
+        'confidence_intervals': {
+            'upper': numpy.percentile(sample_distribution,95),
+            'lower': numpy.percentile(sample_distribution,5)
+        },
+        'all_hourly_travel_times': tt_hourly,
+        'links': links,
+        'query_params': query_params
     }
