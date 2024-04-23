@@ -8,8 +8,15 @@ export class TimeRange extends Factor {
     constructor(dataContext){
         super(dataContext)
     }
+    // returns values 0-23
     get startHour(){ return this.#startTime?.getHours() }
-    get endHour(){ return this.#endTime?.getHours() }
+    // returns values 1-24
+    get endHour(){
+        // values 0-23
+        // BUT if the final hour is midnight, return 24 instead of zero
+        const hour = this.#endTime?.getHours()
+        return hour > 0 ? hour : 24
+    }
     get isComplete(){
         return this.#startTime && this.#endTime && this.#startTime < this.#endTime
     }
@@ -56,7 +63,7 @@ export class TimeRange extends Factor {
     }
     get hoursInRange(){ // how many hours are in the timeRange?
         if(! this.isComplete){ return undefined }
-        return this.#endTime.getHours() - this.#startTime.getHours()
+        return this.endHour - this.startHour
     }
 }
 
