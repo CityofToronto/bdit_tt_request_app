@@ -80,7 +80,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     p95lower, p90lower, p90upper, p95upper = numpy.percentile(
         sample_distribution,
-        [2.5,5,95,97.5]
+        [ 2.5, 5, 95, 97.5 ]
     )
 
     return {
@@ -90,15 +90,27 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'clock': secs2clock(tt_seconds),
             'confidence_intervals': {
                 'p=0.9': {
-                    'lower': secs2clock(p90lower),
-                    'upper': secs2clock(p90upper)
+                    'lower': {
+                        'seconds': p90lower,
+                        'clock': secs2clock(p90lower)
+                    },
+                    'upper': {
+                        'seconds': p90upper,
+                        'clock': secs2clock(p90upper)
+                    }
                 },
                 'p=0.95': {
-                    'lower': secs2clock(p95lower),
-                    'upper': secs2clock(p95upper)
+                    'lower': {
+                        'seconds': p95lower,
+                        'clock': secs2clock(p95lower)
+                    },
+                    'upper': {
+                        'seconds': p95upper,
+                        'clock': secs2clock(p95upper)
+                    }
                 }
             }
         },
-        #'links': links,
-        #'query_params': query_params,
+        'links': links,
+        'query_params': query_params,
     }
