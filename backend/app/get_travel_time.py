@@ -88,25 +88,28 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'seconds':  tt_seconds,
             'minutes': tt_seconds / 60,
             'clock': secs2clock(tt_seconds),
-            'confidence_intervals': {
-                'p=0.9': {
-                    'lower': {
-                        'seconds': p90lower,
-                        'clock': secs2clock(p90lower)
+            'confidence': {
+                'sample': len(sample),
+                'intervals': {
+                    'p=0.9': {
+                        'lower': {
+                            'seconds': p90lower,
+                            'clock': secs2clock(p90lower)
+                        },
+                        'upper': {
+                            'seconds': p90upper,
+                            'clock': secs2clock(p90upper)
+                        }
                     },
-                    'upper': {
-                        'seconds': p90upper,
-                        'clock': secs2clock(p90upper)
-                    }
-                },
-                'p=0.95': {
-                    'lower': {
-                        'seconds': p95lower,
-                        'clock': secs2clock(p95lower)
-                    },
-                    'upper': {
-                        'seconds': p95upper,
-                        'clock': secs2clock(p95upper)
+                    'p=0.95': {
+                        'lower': {
+                            'seconds': p95lower,
+                            'clock': secs2clock(p95lower)
+                        },
+                        'upper': {
+                            'seconds': p95upper,
+                            'clock': secs2clock(p95upper)
+                        }
                     }
                 }
             }
