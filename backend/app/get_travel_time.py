@@ -1,6 +1,25 @@
 from app.db import getConnection
 from app.get_links import get_links
-import numpy, random
+import math, numpy, random
+
+# the way we currently do it
+def mean_daily_mean(obs):
+    # group the observations by date
+    dates = {}
+    for (dt,tt) in obs:
+        dates[dt] = [tt] if not dt in dates else dates[dt] + [tt]
+    # take the daily averages
+    daily_means = [ numpy.mean(times) for times in dates.values() ]
+    #average the days together
+    return numpy.mean(daily_means)
+
+# the way we might do it
+def mean_hourly(obs):
+    return numpy.mean([tt for (dt,tt) in obs])
+
+# format travel times in seconds like a clock for humans to read
+def secs2clock(seconds):
+    return f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60)}'
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
 
@@ -12,6 +31,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     hourly_tt_query = f'''
         SELECT
+            dt,
             SUM(cn.unadjusted_tt) * %(length_m)s::real / SUM(cn.length_w_data) AS tt
         FROM congestion.network_segments_daily AS cn
         WHERE
@@ -46,25 +66,39 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         with connection.cursor() as cursor:
             # get the hourly travel times
             cursor.execute(hourly_tt_query, query_params)
-            tt_hourly = [ tt for (tt,) in cursor.fetchall() ]
+            sample = cursor.fetchall()
     connection.close()
+    tt_hourly = [ tt for (dt,tt) in sample ]
 
     # bootstrap for synthetic sample distribution
     sample_distribution = []
     for i in range(0,100):
-        bootstrap_sample = random.choices(
-            tt_hourly,
-            k = len(tt_hourly)
-        )
-        sample_distribution.append( numpy.mean(bootstrap_sample) )
+        bootstrap_sample = random.choices( sample, k = len(sample) )
+        sample_distribution.append( mean_daily_mean(bootstrap_sample) )
+
+    tt_seconds = mean_daily_mean(sample)
+
+    p95lower, p90lower, p90upper, p95upper = numpy.percentile(
+        sample_distribution,
+        [2.5,5,95,97.5]
+    )
 
     return {
-        'average_travel_time': numpy.mean(tt_hourly),
-        'confidence_intervals': {
-            'upper': numpy.percentile(sample_distribution,95),
-            'lower': numpy.percentile(sample_distribution,5)
+        'travel_time': {
+            'seconds':  tt_seconds,
+            'minutes': tt_seconds / 60,
+            'clock': secs2clock(tt_seconds),
+            'confidence_intervals': {
+                'p=0.9': {
+                    'lower': secs2clock(p90lower),
+                    'upper': secs2clock(p90upper)
+                },
+                'p=0.95': {
+                    'lower': secs2clock(p95lower),
+                    'upper': secs2clock(p95upper)
+                }
+            }
         },
-        'all_hourly_travel_times': tt_hourly,
-        'links': links,
-        'query_params': query_params
+        #'links': links,
+        #'query_params': query_params,
     }
