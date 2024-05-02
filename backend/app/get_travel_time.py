@@ -17,9 +17,13 @@ def mean_daily_mean(obs):
 def mean_hourly(obs):
     return numpy.mean([tt for (dt,tt) in obs])
 
-# format travel times in seconds like a clock for humans to read
-def secs2clock(seconds):
-    return f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60):02d}'
+def timeFormat(seconds):
+    return {
+        'seconds': seconds,
+        'minutes': seconds / 60,
+        # format travel times in seconds like a clock for humans to read
+        'clock': f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60):02d}'
+    }
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
 
@@ -84,36 +88,24 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     )
 
     return {
-        'travel_time': {
-            'seconds':  tt_seconds,
-            'minutes': tt_seconds / 60,
-            'clock': secs2clock(tt_seconds),
+        'results': {
+            'travel_time': timeFormat(tt_seconds),
             'confidence': {
                 'sample': len(sample),
                 'intervals': {
                     'p=0.9': {
-                        'lower': {
-                            'seconds': p90lower,
-                            'clock': secs2clock(p90lower)
-                        },
-                        'upper': {
-                            'seconds': p90upper,
-                            'clock': secs2clock(p90upper)
-                        }
+                        'lower': timeFormat(p90lower),
+                        'upper': timeFormat(p90upper)
                     },
                     'p=0.95': {
-                        'lower': {
-                            'seconds': p95lower,
-                            'clock': secs2clock(p95lower)
-                        },
-                        'upper': {
-                            'seconds': p95upper,
-                            'clock': secs2clock(p95upper)
-                        }
+                        'lower': timeFormat(p95lower),
+                        'upper': timeFormat(p95upper)
                     }
                 }
             }
         },
-        'links': links,
-        'query_params': query_params,
+        'corridor':{
+            'links': links
+        },
+        'query_params': query_params
     }
