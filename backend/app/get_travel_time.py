@@ -19,7 +19,7 @@ def mean_hourly(obs):
 
 # format travel times in seconds like a clock for humans to read
 def secs2clock(seconds):
-    return f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60)}'
+    return f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60):02d}'
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
 
