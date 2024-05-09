@@ -89,6 +89,5 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     return {
         'travel_time': None if travel_time is None else float(travel_time),
         'links': links,
-        'estimated_vehicle_count': None if travel_time is None else float((probe_hours * 60) / travel_time),
         'query_params': query_params
     }
