@@ -6,7 +6,7 @@ export class TravelTimeQuery {
     #dateRange
     #days
     #holidayOption
-    #travelTime
+    #results
     constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
         this.#timeRange = timeRange
@@ -34,14 +34,14 @@ export class TravelTimeQuery {
     get days(){ return this.#days }
     async fetchData(){
         if( this.hoursInRange < 1 ){
-            return this.#travelTime = -999
+            return this.#results = undefined
         }
         return fetch(this.URI)
             .then( response => response.json() )
-            .then( data => this.#travelTime = data.results.travel_time )
+            .then( data => this.#results = data.results )
     }
     get hasData(){
-        return Boolean(this.#travelTime)
+        return Boolean(this.#results)
     }
     get hoursInRange(){ // number of hours covered by query options
         let hoursPerDay = this.timeRange.hoursInRange
@@ -61,9 +61,9 @@ export class TravelTimeQuery {
         record.set('daysOfWeek', this.days.name)
         record.set('holidaysIncluded', this.#holidayOption.holidaysIncluded)
         record.set('hoursInRange', this.hoursInRange)
-        record.set('sample', this.#travelTime.confidence.sample)
-        record.set('mean_travel_time_minutes', this.#travelTime.minutes)
-        record.set('mean_travel_time_seconds', this.#travelTime.seconds)
+        record.set('sample', this.#results.confidence.sample)
+        record.set('mean_travel_time_minutes', this.#results.travel_time.minutes)
+        record.set('mean_travel_time_seconds', this.#results.travel_time.seconds)
 
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps
