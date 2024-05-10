@@ -7,7 +7,6 @@ export class TravelTimeQuery {
     #days
     #holidayOption
     #travelTime
-    #estimatedSample
     constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
         this.#timeRange = timeRange
@@ -39,7 +38,7 @@ export class TravelTimeQuery {
         }
         return fetch(this.URI)
             .then( response => response.json() )
-            .then( data => this.#travelTime = data.travel_time )
+            .then( data => this.#travelTime = data.results.travel_time )
     }
     get hasData(){
         return Boolean(this.#travelTime)

@@ -71,6 +71,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             # get the hourly travel times
             cursor.execute(hourly_tt_query, query_params)
             sample = cursor.fetchall()
+
     connection.close()
     tt_hourly = [ tt for (dt,tt) in sample ]
 
