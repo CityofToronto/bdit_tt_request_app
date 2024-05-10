@@ -51,17 +51,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         FROM corridor_period_daily_avg_tt
     '''
 
-    sample_size_query = f"""
-        SELECT SUM( ((length / 1000.0) / mean) * sample_size ) AS probe_hours
-        FROM here.ta_path
-        WHERE
-            link_dir = ANY(%(link_dir_list)s)
-            AND dt <@ %(date_range)s::daterange
-            AND EXTRACT(ISODOW FROM dt)::integer = ANY(%(dow_list)s)
-            AND EXTRACT(HOUR FROM tod)::numeric <@ %(time_range)s::numrange
-            {sample_holiday_clause}
-    """
-
     links = get_links(start_node, end_node)
 
     query_params = {
@@ -82,13 +71,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(agg_tt_query, query_params)
             # travel_time may be null if there's insufficient data
             travel_time, = cursor.fetchone()
-            cursor.execute(sample_size_query, query_params)
-            probe_hours, = cursor.fetchone()
 
     connection.close()
     return {
         'travel_time': None if travel_time is None else float(travel_time),
         'links': links,
-        'estimated_vehicle_count': None if travel_time is None else float((probe_hours * 60) / travel_time),
         'query_params': query_params
     }
