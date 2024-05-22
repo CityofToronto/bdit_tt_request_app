@@ -84,37 +84,39 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 'query_params': query_params
             }
         }
-        
-    # bootstrap for synthetic sample distribution
-    sample_distribution = []
-    for i in range(0,100):
-        bootstrap_sample = random.choices( sample, k = len(sample) )
-        sample_distribution.append( mean_daily_mean(bootstrap_sample) )
 
     tt_seconds = mean_daily_mean(sample)
 
-    p95lower, p90lower, p90upper, p95upper = numpy.percentile(
-        sample_distribution,
-        [ 2.5, 5, 95, 97.5 ]
-    )
+    reported_intervals = None
+    if len(sample) > 1:
+        # bootstrap for synthetic sample distribution
+        sample_distribution = []
+        for i in range(0,100):
+            bootstrap_sample = random.choices( sample, k = len(sample) )
+            sample_distribution.append( mean_daily_mean(bootstrap_sample) )
+        p95lower, p90lower, p90upper, p95upper = numpy.percentile(
+            sample_distribution,
+            [ 2.5, 5, 95, 97.5 ]
+        )
+        reported_intervals = {
+            'p=0.9': {
+                'lower': timeFormat(p90lower),
+                'upper': timeFormat(p90upper)
+            },
+            'p=0.95': {
+                'lower': timeFormat(p95lower),
+                'upper': timeFormat(p95upper)
+            }
+        }
 
     return {
         'results': {
             'travel_time': timeFormat(tt_seconds),
             'confidence': {
                 'sample': len(sample),
-                'intervals': {
-                    'p=0.9': {
-                        'lower': timeFormat(p90lower),
-                        'upper': timeFormat(p90upper)
-                    },
-                    'p=0.95': {
-                        'lower': timeFormat(p95lower),
-                        'upper': timeFormat(p95upper)
-                    }
-                }
+                'intervals': reported_intervals
             }
         },
-        'corridor':{ 'links': links },
+        'corridor': { 'links': links },
         'query_params': query_params
     }
