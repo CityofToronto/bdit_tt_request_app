@@ -76,7 +76,14 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     tt_hourly = [ tt for (dt,tt) in sample ]
 
     if len(sample) < 1:
-        return {'error': 'not enough data'}
+        # no ravel times or related info to return here
+        return { 
+            'results': {
+                'confidence': { 'sample': 0 },
+                'corridor':{ 'links': links },
+                'query_params': query_params
+            }
+        }
         
     # bootstrap for synthetic sample distribution
     sample_distribution = []
@@ -108,8 +115,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 }
             }
         },
-        'corridor':{
-            'links': links
-        },
+        'corridor':{ 'links': links },
         'query_params': query_params
     }

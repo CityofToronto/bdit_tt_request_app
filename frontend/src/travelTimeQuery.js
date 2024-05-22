@@ -38,7 +38,7 @@ export class TravelTimeQuery {
         }
         return fetch(this.URI)
             .then( response => response.json() )
-            .then( data => this.#results = data?.results )
+            .then( data => this.#results = data.results )
     }
     get hasData(){
         return Boolean(this.#results)
@@ -61,7 +61,7 @@ export class TravelTimeQuery {
         record.set('daysOfWeek', this.days.name)
         record.set('holidaysIncluded', this.#holidayOption.holidaysIncluded)
         record.set('hoursInRange', this.hoursInRange)
-        record.set('sample', this.#results?.confidence?.sample ?? 0)
+        record.set('sample', this.#results.confidence?.sample)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
         record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
