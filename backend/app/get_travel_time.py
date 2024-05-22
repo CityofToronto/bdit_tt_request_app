@@ -1,6 +1,6 @@
 from app.db import getConnection
 from app.get_links import get_links
-import math, numpy, random
+import math, numpy, random, numbers
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -75,6 +75,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     connection.close()
     tt_hourly = [ tt for (dt,tt) in sample ]
 
+    if len(sample) < 1:
+        return {'error': 'not enough data'}
+        
     # bootstrap for synthetic sample distribution
     sample_distribution = []
     for i in range(0,100):
