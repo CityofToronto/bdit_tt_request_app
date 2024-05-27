@@ -5,7 +5,7 @@ setwd('C:\\Users\\nwessel\\Documents\\GitHub\\tt_app\\analysis')
 purple = '#9e7cbd'
 grey = '#4f4c4c'
 
-# plot by month for busiest weekday period
+# compare monthly data for two periods by direction of travel
 read_csv('results-monthly.csv') %>%
     group_by( dateRange, direction) %>%
     mutate(ttt = mean_travel_time_minutes) %>%
@@ -18,14 +18,14 @@ read_csv('results-monthly.csv') %>%
     ggplot( aes( x=fromDate, y=ttt, lty=direction ) ) +
         geom_line( size = 1.2, color=grey ) +
         geom_point( color=grey, size=2 ) +
-        annotate( # approximate dates of installation start and end
+        annotate( # approximate start/end dates of complete-street installation
             'rect',
-            xmin=ymd('2023-09-11'),
-            xmax=ymd('2023-10-15'),
-            ymin=-Inf,
-            ymax=Inf,
-            fill=grey,
-            alpha=0.2
+            xmin = ymd('2023-09-11'),
+            xmax = ymd('2023-10-15'),
+            ymin = -Inf,
+            ymax = Inf,
+            fill = grey,
+            alpha = 0.2
         ) +
         scale_y_continuous(
             breaks = c(0,2,4,6,8,10,12),
@@ -42,7 +42,7 @@ read_csv('results-monthly.csv') %>%
         theme_bw()
 
 
-# plot by time of day, pre- and post-install
+# compare two date ranges plotted by hour of day
 read_csv('results-ToD.csv') %>%
     extract(
         timeRange,
