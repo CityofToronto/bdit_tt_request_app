@@ -1,5 +1,3 @@
-# testing MoE's
-
 library('tidyverse')
 
 setwd('C:\\Users\\nwessel\\Documents\\GitHub\\tt_app\\analysis')
@@ -20,10 +18,6 @@ read_csv('results-monthly.csv') %>%
     ggplot( aes( x=fromDate, y=ttt, lty=direction ) ) +
         geom_line( size = 1.2, color=grey ) +
         geom_point( color=grey, size=2 ) +
-        geom_ribbon(
-            aes(ymin = moe_lower_p95/60, ymax = moe_upper_p95/60),
-            alpha=0.25
-        ) +
         annotate( # approximate dates of installation start and end
             'rect',
             xmin=ymd('2023-09-11'),
@@ -65,10 +59,6 @@ read_csv('results-ToD.csv') %>%
     ) %>%
     ggplot( aes( x=0.5+hour, y=mean_travel_time_seconds, lty=direction ) ) +
     geom_line( aes(color=period,), size = 1 ) +
-    geom_ribbon(
-        aes(ymin = moe_lower_p95, ymax = moe_upper_p95, fill=period),
-        alpha=0.25
-    ) +
     scale_color_manual(values=c('before'=grey,'after'=purple)) +
     labs( title = 'Bloor West travel times between Runnymede & Aberfoyle' ) + 
     ylab( 'Travel Time (seconds)' ) +
