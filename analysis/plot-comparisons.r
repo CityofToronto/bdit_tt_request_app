@@ -6,7 +6,7 @@ purple = '#9e7cbd'
 grey = '#4f4c4c'
 
 # compare monthly data for two periods by direction of travel
-read_csv('results-monthly.csv') %>%
+read_csv('sample-data/results-monthly.csv') %>%
     group_by( dateRange, direction) %>%
     mutate(ttt = mean_travel_time_minutes) %>%
     extract(
@@ -43,7 +43,7 @@ read_csv('results-monthly.csv') %>%
 
 
 # compare two date ranges plotted by hour of day
-read_csv('results-ToD.csv') %>%
+read_csv('sample-data/results-ToD.csv') %>%
     extract(
         timeRange,
         into=c('hour'),
