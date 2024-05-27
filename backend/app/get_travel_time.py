@@ -79,6 +79,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         # no ravel times or related info to return here
         return { 
             'results': {
+                'observations': [timeFormat(tt) for (dt,tt) in sample],
                 'confidence': { 'sample': 0 },
                 'corridor':{ 'links': links },
                 'query_params': query_params
@@ -115,7 +116,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'confidence': {
                 'sample': len(sample),
                 'intervals': reported_intervals
-            }
+            },
+            'observations': [timeFormat(tt) for (dt,tt) in sample]
         },
         'corridor': { 'links': links },
         'query_params': query_params
