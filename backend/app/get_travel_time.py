@@ -19,8 +19,8 @@ def mean_hourly(obs):
 
 def timeFormat(seconds):
     return {
-        'seconds': seconds,
-        'minutes': seconds / 60,
+        'seconds': round(seconds,3),
+        'minutes': round(seconds/60,3),
         # format travel times in seconds like a clock for humans to read
         'clock': f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60):02d}'
     }
