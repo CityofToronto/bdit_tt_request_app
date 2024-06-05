@@ -78,15 +78,19 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     if len(sample) < 1:
         # no travel times or related info to return here
         return {
-            'travel_time': None,
-            'links': links,
-            'query_params': query_params
+            'results': {'travel_time': None},
+            'query': {
+                'corridor': {'links': links},
+                'query_params': query_params
+            }
         }
 
     tt_seconds = mean_daily_mean(sample)
 
     return {
-        'travel_time': timeFormat(tt_seconds),
-        'links': links,
-        'query_params': query_params
+        'results': {'travel_time': timeFormat(tt_seconds)},
+        'query': {
+            'corridor': {'links': links},
+            'query_params': query_params
+        }
     }
