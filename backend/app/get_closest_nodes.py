@@ -1,7 +1,9 @@
+"""Return intersection(s) near a provided coordinate"""
+
 import json
 from app.db import getConnection
 
-sql = '''
+SQL = '''
 SELECT 
     cg_nodes.node_id::int,
     ST_AsGeoJSON(cg_nodes.geom) AS geom,
@@ -20,7 +22,7 @@ LIMIT 3;
 def get_closest_nodes(longitude, latitude):
     with getConnection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(sql, {"latitude": latitude, "longitude": longitude})
+            cursor.execute(SQL, {"latitude": latitude, "longitude": longitude})
             candidate_nodes = []
             for node_id, geojson, distance, street_names in cursor.fetchall():
                 if distance < 50: # meters

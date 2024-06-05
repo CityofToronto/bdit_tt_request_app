@@ -1,20 +1,18 @@
+"""Function for returning data from the aggregate-travel-times/ endpoint"""
+
 from app.db import getConnection
 from app.get_links import get_links
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
-    
-    tt_holiday_clause = ''
-    sample_holiday_clause = ''
+    """Function for returning data from the aggregate-travel-times/ endpoint"""
+
+    holiday_clause = ''
     if not include_holidays:
-        tt_holiday_clause = '''AND NOT EXISTS (
+        holiday_clause = '''AND NOT EXISTS (
             SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
         )'''
-        sample_holiday_clause = '''AND NOT EXISTS (
-            SELECT 1 FROM ref.holiday WHERE ta_path.dt = holiday.dt
-        )'''
 
-    
-    agg_tt_query = f''' 
+    agg_tt_query = f'''
         -- Aggregate segments to corridor on a daily, hourly basis
         WITH corridor_hourly_daily_agg AS (
             SELECT
@@ -27,7 +25,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 AND cn.hr <@ %(time_range)s::numrange
                 AND date_part('ISODOW', cn.dt)::integer = ANY(%(dow_list)s)
                 AND cn.dt <@ %(date_range)s::daterange 
-                {tt_holiday_clause}
+                {holiday_clause}
             GROUP BY
                 cn.dt,
                 cn.hr
@@ -54,8 +52,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     links = get_links(start_node, end_node)
 
     query_params = {
-        "length_m": sum([link['length_m'] for link in links]),
-        "seglist": list(set([link['segment_id'] for link in links])),
+        "length_m": sum(link['length_m'] for link in links),
+        "seglist": list(set(link['segment_id'] for link in links)),
         "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
         "node_end": end_node,

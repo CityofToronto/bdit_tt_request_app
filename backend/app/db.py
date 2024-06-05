@@ -1,3 +1,5 @@
+"""Handle connection to database"""
+
 import os
 from dotenv import load_dotenv
 from psycopg import connect

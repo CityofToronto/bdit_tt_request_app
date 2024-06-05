@@ -21,7 +21,7 @@ SELECT
 FROM results
 JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
 JOIN here_gis.streets_att_22_2 AS attr 
-    ON attr.link_id::int = substring(link_dir,'\d+')::int
+    ON attr.link_id::int = left(link_dir, -1)::int
 JOIN congestion.network_links_22_2 AS seg_lookup USING ( link_dir )
 ORDER BY seq;
 '''
