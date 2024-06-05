@@ -2,7 +2,7 @@
 
 from app.db import getConnection
 from app.get_links import get_links
-import numpy
+import numpy, math
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -12,8 +12,16 @@ def mean_daily_mean(obs):
         dates[dt] = [tt] if not dt in dates else dates[dt] + [tt]
     # take the daily averages
     daily_means = [ numpy.mean(times) for times in dates.values() ]
-    #average the days together
+    # average the days together
     return numpy.mean(daily_means)
+
+def timeFormat(seconds):
+    return {
+        'seconds': round(seconds,3),
+        'minutes': round(seconds/60,3),
+        # format travel times in seconds like a clock for humans to read
+        'clock': f'{math.floor(seconds/3600):02d}:{math.floor(seconds/60):02d}:{round(seconds%60):02d}'
+    }
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
@@ -78,7 +86,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     tt_seconds = mean_daily_mean(sample)
 
     return {
-        'travel_time': round(tt_seconds / 60, 2),
+        'travel_time': timeFormat(tt_seconds),
         'links': links,
         'query_params': query_params
     }
