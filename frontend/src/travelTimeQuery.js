@@ -64,6 +64,8 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
+        record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
+        record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
 
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps
