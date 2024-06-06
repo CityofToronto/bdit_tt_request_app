@@ -59,7 +59,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_dir,
             dt,
             extract(HOUR FROM tod) AS hr,
-            mean AS spd,
+            length,
             length / mean * 3.6 AS tt 
         FROM here.ta
         WHERE
@@ -74,8 +74,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     links = get_links(start_node, end_node)
 
+    total_corridor_length = sum(link['length_m'] for link in links)
+
     query_params = {
-        "length_m": sum(link['length_m'] for link in links),
+        "length_m": total_corridor_length,
         "seglist": list(set(link['segment_id'] for link in links)),
         "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
@@ -100,10 +102,28 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(raw_data_query, query_params)
             raw_data_frame = pandas.DataFrame(
                 cursor.fetchall(),
-                columns=['link_dir','dt','hr','spd','tt']
+                columns=['link_dir','dt','hr','length','tt']
             )
 
     connection.close()
+
+    # get average travel times per link / date / hour
+    hr_means = raw_data_frame.groupby(['link_dir','dt','hr']).mean()
+    # sum lengths and travel times of available links per date / hour
+    hr_sums = hr_means.groupby(['dt','hr']).sum()
+    # extrapolate over missing data within each hour
+    hr_sums['tt_extrapolated'] = hr_sums['tt'] * hr_sums['length'] / total_corridor_length
+    # filter out hours with too much missing data
+    observations = hr_sums[ hr_sums['length'] / total_corridor_length > 0.8 ]
+    # convert to format that can be used by the same summary function
+
+    # TODO unpack this into a list
+    for tup in observations.itertuples():
+        dt, hr = tup.Index
+        #print(str(dt),tup.tt_extrapolated)
+
+    # TODO compare results to previous method
+    # TODO check query speeds
 
     tt_hourly = [ tt for (dt,tt) in sample ]
 
