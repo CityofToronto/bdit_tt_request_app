@@ -2,7 +2,7 @@
 
 from app.db import getConnection
 from app.get_links import get_links
-import numpy, math
+import numpy, math, pandas
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -27,9 +27,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     """Function for returning data from the aggregate-travel-times/ endpoint"""
 
     holiday_clause = ''
+    holiday_clause_raw = ''
     if not include_holidays:
         holiday_clause = '''AND NOT EXISTS (
             SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
+        )'''
+        holiday_clause_raw = '''AND NOT EXISTS (
+            SELECT 1 FROM ref.holiday WHERE ta.dt = holiday.dt
         )'''
 
     hourly_tt_query = f'''
@@ -50,6 +54,24 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8;
     '''
 
+    raw_data_query = f'''
+        SELECT
+            link_dir,
+            dt,
+            extract(HOUR FROM tod) AS hr,
+            mean AS spd,
+            length / mean * 3.6 AS tt 
+        FROM here.ta
+        WHERE
+            link_dir = ANY(%(link_dir_list)s)
+            AND tod >= %(start_time)s::time
+            AND tod < %(end_time)s::time
+            AND date_part('ISODOW', dt) = ANY(%(dow_list)s)
+            AND dt >= %(start_date)s::date
+            AND dt < %(end_date)s::date
+            {holiday_clause_raw}
+    '''
+
     links = get_links(start_node, end_node)
 
     query_params = {
@@ -60,6 +82,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         "node_end": end_node,
         # this is where we define that the end of the range is exclusive
         "time_range": f"[{start_time},{end_time})", # ints
+        "start_time": f'{start_time:02d}:00:00',
+        "end_time": f'{end_time:02d}:00:00',
+        "start_date": start_date,
+        "end_date": end_date,
         "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
         "dow_list": dow_list
     }
@@ -70,6 +96,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             # get the hourly travel times
             cursor.execute(hourly_tt_query, query_params)
             sample = cursor.fetchall()
+
+            cursor.execute(raw_data_query, query_params)
+            raw_data_frame = pandas.DataFrame(
+                cursor.fetchall(),
+                columns=['link_dir','dt','hr','spd','tt']
+            )
 
     connection.close()
 
