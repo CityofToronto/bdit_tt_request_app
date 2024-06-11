@@ -117,12 +117,11 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     observations = hr_sums[ hr_sums['length'] / total_corridor_length > 0.8 ]
     # convert to format that can be used by the same summary function
 
-    # TODO unpack this into a list
+    obs_list = []
     for tup in observations.itertuples():
-        dt, hr = tup.Index
-        #print(str(dt),tup.tt_extrapolated)
+        (dt, hr), tt = tup.Index, tup.tt
+        obs_list.append((dt, tt))
 
-    # TODO compare results to previous method
     # TODO check query speeds
 
     tt_hourly = [ tt for (dt,tt) in sample ]
@@ -138,9 +137,17 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         }
 
     tt_seconds = mean_daily_mean(sample)
+    tt_seconds_raw = mean_daily_mean(obs_list)
+    print(
+        len(sample),
+        len(obs_list)
+    )
 
     return {
-        'results': {'travel_time': timeFormat(tt_seconds)},
+        'results': {
+            'travel_time': timeFormat(tt_seconds),
+            'travel_time2': timeFormat(tt_seconds_raw)
+        },
         'query': {
             'corridor': {'links': links},
             'query_params': query_params
