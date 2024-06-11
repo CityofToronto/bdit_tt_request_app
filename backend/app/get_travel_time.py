@@ -32,7 +32,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             SELECT 1 FROM ref.holiday WHERE ta.dt = holiday.dt
         )'''
 
-    raw_data_query = f'''
+    query = f'''
         SELECT
             link_dir,
             dt,
@@ -72,7 +72,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(raw_data_query, query_params)
+            cursor.execute(query, query_params)
             raw_data_frame = pandas.DataFrame(
                 cursor.fetchall(),
                 columns=['link_dir','dt','hr','length','tt']
