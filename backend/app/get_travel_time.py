@@ -3,7 +3,6 @@
 from app.db import getConnection
 from app.get_links import get_links
 import numpy, math, pandas
-from scipy.stats import hmean
 
 # the way we currently do it
 def mean_daily_mean(obs):
