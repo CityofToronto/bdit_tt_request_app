@@ -85,16 +85,16 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     # join previously queried link lengths
     link_speeds_df = link_speeds_df.join(links_df)
-    # calculate travel times from speed and length (in seconds)
+    # calculate link travel times from speed and length (in seconds)
     link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
     # get average travel times per link / date / hour
     hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
     # sum lengths and travel times of available links per date / hour
     hr_sums = hr_means.groupby(['dt','hr']).sum()
-    # extrapolate over missing data within each hour
-    hr_sums['tt_extrapolated'] = hr_sums['tt'] * hr_sums['length'] / total_corridor_length
     # filter out hours with too much missing data
     observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
+    # extrapolate over missing data within each hour
+    observations['tt_extrapolated'] = observations['tt'] * observations['length'] / total_corridor_length
     # convert to format that can be used by the same summary function
     sample = []
     for tup in observations.itertuples():
