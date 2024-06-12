@@ -3,6 +3,7 @@
 from app.db import getConnection
 from app.get_links import get_links
 import numpy, math, pandas
+from scipy.stats import hmean
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -87,6 +88,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     link_speeds_df = link_speeds_df.join(links_df)
     # calculate link travel times from speed and length (in seconds)
     link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
+    # no longer need speeds now that this is measured in terms of travel time
+    # removing it just to prevent any confusion around averaging
+    link_speeds_df.drop('speed',axis='columns',inplace=True)
     # get average travel times per link / date / hour
     hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
     # sum lengths and travel times of available links per date / hour
