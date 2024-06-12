@@ -36,7 +36,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         SELECT
             link_dir,
             dt::text,
-            extract(HOUR FROM tod) AS hr,
+            extract(HOUR FROM tod)::smallint AS hr,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
