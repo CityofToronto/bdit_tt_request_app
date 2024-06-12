@@ -113,7 +113,7 @@ export class SpatialData {
         let currentKeys = [...this.#queries.keys()]
         currentKeys.filter( key => ! currentURIs.has(key) )
             .forEach( key => this.#queries.delete(key) )
-        return [...this.#queries.values()]
+        return [...this.#queries.values()].sort((a,b)=> a.URI < b.URI ? -1 : 1)
     }
     fetchAllResults(){
         return Promise.all(
