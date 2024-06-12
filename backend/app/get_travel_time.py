@@ -37,8 +37,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_dir,
             dt,
             extract(HOUR FROM tod) AS hr,
-            length,
-            length / mean * 3.6 AS tt 
+            mean::real AS speed_kmph
         FROM here.ta
         WHERE
             link_dir = ANY(%(link_dir_list)s)
@@ -52,7 +51,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     links = get_links(start_node, end_node)
 
-    total_corridor_length = sum(link['length_m'] for link in links)
+    links_df = pandas.DataFrame({
+        'link_dir': [l['link_dir'] for l in links],
+        'length': [l['length_m'] for l in links]
+    }).set_index('link_dir')
+
+    total_corridor_length = links_df['length'].sum()
 
     query_params = {
         # not actually query params any more, but have been useful before
@@ -73,15 +77,18 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(query, query_params)
-            raw_data_frame = pandas.DataFrame(
+            link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
-                columns=['link_dir','dt','hr','length','tt']
-            )
-
+                columns=['link_dir','dt','hr','speed']
+            ).set_index('link_dir')
     connection.close()
 
+    # join previously queried link lengths
+    link_speeds_df = link_speeds_df.join(links_df)
+    # calculate travel times from speed and length (in seconds)
+    link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
     # get average travel times per link / date / hour
-    hr_means = raw_data_frame.groupby(['link_dir','dt','hr']).mean()
+    hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
     # sum lengths and travel times of available links per date / hour
     hr_sums = hr_means.groupby(['dt','hr']).sum()
     # extrapolate over missing data within each hour
