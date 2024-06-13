@@ -101,7 +101,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # convert to format that can be used by the same summary function
     sample = []
     for tup in observations.itertuples():
-        (dt, hr), tt = tup.Index, tup.tt
+        (dt, hr), tt = tup.Index, tup.tt_extrapolated
         sample.append((dt, tt))
 
     if len(sample) < 1:
