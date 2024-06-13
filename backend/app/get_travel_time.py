@@ -97,7 +97,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # filter out hours with too much missing data
     observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
     # extrapolate over missing data within each hour
-    observations['tt_extrapolated'] = observations['tt'] * observations['length'] / total_corridor_length
+    observations['tt_extrapolated'] = observations['tt'] * total_corridor_length / observations['length']
     # convert to format that can be used by the same summary function
     sample = []
     for tup in observations.itertuples():
