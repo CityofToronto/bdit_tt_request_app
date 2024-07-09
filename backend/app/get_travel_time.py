@@ -35,8 +35,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     query = f'''
         SELECT
             link_dir,
-            dt::text,
-            extract(HOUR FROM tod)::smallint AS hr,
+            tx::text,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
@@ -79,9 +78,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(query, query_params)
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
-                columns=['link_dir','dt','hr','speed']
+                columns=['link_dir','tx','speed']
             ).set_index('link_dir')
     connection.close()
+
+    make_bins(links_df, link_speeds_df)
+
+    return 42
 
     # join previously queried link lengths
     link_speeds_df = link_speeds_df.join(links_df)
@@ -123,3 +126,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'query_params': query_params
         }
     }
+
+def make_bins(links_df, link_speeds_df):
+    """Create the smallest temporal bins possible while ensuring at least 80%
+    of links, by lenght, have observations."""
+    print(links_df)
+    print(link_speeds_df)
