@@ -38,7 +38,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     query = f'''
         SELECT
             link_dir,
-            tx::text,
+            tod::text AS tx,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
@@ -49,6 +49,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND dt >= %(start_date)s::date
             AND dt < %(end_date)s::date
             {holiday_clause}
+        ORDER BY tx
     '''
 
     links = get_links(start_node, end_node)
@@ -82,7 +83,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
                 columns=['link_dir','tx','speed']
-            ).set_index('link_dir')
+            ).set_index(['link_dir'])
     connection.close()
 
     make_bins(links_df, link_speeds_df)
@@ -156,6 +157,22 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
 def make_bins(links_df, link_speeds_df):
     """Create the smallest temporal bins possible while ensuring at least 80%
-    of links, by lenght, have observations."""
-    print(links_df)
-    print(link_speeds_df)
+    of links, by length, have observations."""
+    # start with an empty set of links
+    links = set()
+    bin_ends = list()
+    total_length = links_df['length'].sum()
+    minimum_length = 0.8 * total_length
+    for tx in link_speeds_df.tx.unique():
+        # add links one bin at a time
+        five_min_bin = link_speeds_df[link_speeds_df['tx']==tx]
+        links.update(five_min_bin.index.unique())
+        # measure the length of links in the set
+        length_so_far = links_df.loc[list(links),'length'].sum()
+        # define length threshold
+        if length_so_far >= minimum_length:
+            bin_ends.append(tx)
+            links = set() # reset
+        else:
+            pass
+    print(bin_ends)
