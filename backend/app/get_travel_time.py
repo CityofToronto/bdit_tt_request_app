@@ -38,7 +38,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     query = f'''
         SELECT
             link_dir,
-            tod::text AS tx,
+            dt::text,
+            extract(HOUR FROM tod)::smallint AS hr,
+            tx::text,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
@@ -82,13 +84,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(query, query_params)
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
-                columns=['link_dir','tx','speed']
+                columns=['link_dir','dt','hr','tx','speed']
             ).set_index(['link_dir'])
     connection.close()
 
-    make_bins(links_df, link_speeds_df)
-
-    return 42
+    # create custom binning and then remove the column used for that
+    bins = make_bins(links_df, link_speeds_df)
+    del link_speeds_df['tx']
 
     # join previously queried link lengths
     link_speeds_df = link_speeds_df.join(links_df)
@@ -175,4 +177,4 @@ def make_bins(links_df, link_speeds_df):
             links = set() # reset
         else:
             pass
-    print(bin_ends)
+    return bin_ends
