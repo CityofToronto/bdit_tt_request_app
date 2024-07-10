@@ -2,7 +2,10 @@
 
 from app.db import getConnection
 from app.get_links import get_links
-import numpy, math, pandas
+import numpy
+import math
+import pandas
+import random
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -118,8 +121,30 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     tt_seconds = mean_daily_mean(sample)
 
+    reported_intervals = None
+    if len(sample) > 1:
+        # bootstrap for synthetic sample distribution
+        sample_distribution = []
+        for i in range(0,100):
+            bootstrap_sample = random.choices( sample, k = len(sample) )
+            sample_distribution.append( mean_daily_mean(bootstrap_sample) )
+        p95lower, p95upper = numpy.percentile(sample_distribution, [2.5, 97.5])
+        reported_intervals = {
+            'p=0.95': {
+                'lower': timeFormat(p95lower),
+                'upper': timeFormat(p95upper)
+            }
+        }
+
     return {
-        'results': {'travel_time': timeFormat(tt_seconds)},
+        'results': {
+            'travel_time': timeFormat(tt_seconds),
+            'confidence': {
+                'sample': len(sample),
+                'intervals': reported_intervals
+            },
+            'observations': [timeFormat(tt) for (dt,tt) in sample]
+        },
         'query': {
             'corridor': {'links': links},
             'query_params': query_params

@@ -17,6 +17,14 @@ read_csv('sample-data/results-monthly.csv') %>%
     mutate( fromDate= ymd(fromDate) + days(15) ) %>%
     ggplot( aes( x=fromDate, y=ttt, lty=direction ) ) +
         geom_line( size = 1.2, color=grey ) +
+        geom_ribbon(
+            aes(
+                ymin = moe_lower_p95 / 60,
+                ymax = moe_upper_p95 / 60,
+                fill = direction
+            ), 
+            alpha = 0.25
+        ) +
         geom_point( color=grey, size=2 ) +
         annotate( # approximate start/end dates of complete-street installation
             'rect',
@@ -58,18 +66,26 @@ read_csv('sample-data/results-ToD.csv') %>%
         ), levels=c('before','after')),
     ) %>%
     ggplot( aes( x=0.5+hour, y=mean_travel_time_seconds, lty=direction ) ) +
-    geom_line( aes(color=period,), size = 1 ) +
-    scale_color_manual(values=c('before'=grey,'after'=purple)) +
-    labs( title = 'Bloor West travel times between Runnymede & Aberfoyle' ) + 
-    ylab( 'Travel Time (seconds)' ) +
-    xlab( 'Hour of day' ) + 
-    scale_y_continuous(
-        breaks = 60 * seq(0,14,1),
-        minor_breaks = NULL,
-        limits = c(0, NA)
-    ) +
-    scale_x_continuous(
-        breaks = seq(0,24),
-        minor_breaks = c(),
-    ) +
-    theme_bw()
+        geom_line( aes(color=period,), size = 1 ) +
+        geom_ribbon(
+            aes(
+                ymin = moe_lower_p95,
+                ymax = moe_upper_p95,
+                fill = period
+            ), 
+            alpha = 0.25
+        ) +
+        scale_color_manual(values=c('before'=grey,'after'=purple)) +
+        labs( title = 'Bloor West travel times between Runnymede & Aberfoyle' ) + 
+        ylab( 'Travel Time (seconds)' ) +
+        xlab( 'Hour of day' ) + 
+        scale_y_continuous(
+            breaks = 60 * seq(0,14,1),
+            minor_breaks = NULL,
+            limits = c(0, NA)
+        ) +
+        scale_x_continuous(
+            breaks = seq(0,24),
+            minor_breaks = c(),
+        ) +
+        theme_bw()
