@@ -39,8 +39,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         SELECT
             link_dir,
             dt::text,
-            extract(HOUR FROM tod)::smallint AS hr,
-            tx::text,
+            tx,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
@@ -84,13 +83,21 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             cursor.execute(query, query_params)
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
-                columns=['link_dir','dt','hr','tx','speed']
-            ).set_index(['link_dir'])
+                columns=['link_dir','dt','tx','speed']
+            )
     connection.close()
 
-    # create custom binning and then remove the column used for that
+    # create custom binning
     bins = make_bins(links_df, link_speeds_df)
-    del link_speeds_df['tx']
+    # rolling join of bins to data
+    link_speeds_df = pandas.merge_asof(
+        link_speeds_df,
+        pandas.DataFrame({'tx': bins,'bin':bins}),
+        on='tx',
+        direction='forward'
+    ).set_index('link_dir')
+    # drop column used only for binning
+    link_speeds_df.drop('tx',axis='columns',inplace=True)
 
     # join previously queried link lengths
     link_speeds_df = link_speeds_df.join(links_df)
@@ -99,13 +106,14 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # no longer need speeds now that this is measured in terms of travel time
     # removing it just to prevent any confusion around averaging
     link_speeds_df.drop('speed',axis='columns',inplace=True)
-    # get average travel times per link / date / hour
-    hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
-    # sum lengths and travel times of available links per date / hour
-    hr_sums = hr_means.groupby(['dt','hr']).sum()
+    # get average travel times per link / date / bin
+    hr_means = link_speeds_df.groupby(['link_dir','dt','bin']).mean()
+    # sum lengths and travel times of available links per date / bin
+    bin_sums = hr_means.groupby(['dt','bin']).sum()
     # filter out hours with too much missing data
-    observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
-    # extrapolate over missing data within each hour
+    # i.e. incomplete bins
+    observations = bin_sums[ bin_sums['length'] / total_corridor_length >= 0.8 ]
+    # extrapolate over missing data within each bin
     observations = observations.assign(
         tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
     )
@@ -168,7 +176,7 @@ def make_bins(links_df, link_speeds_df):
     for tx in link_speeds_df.tx.unique():
         # add links one bin at a time
         five_min_bin = link_speeds_df[link_speeds_df['tx']==tx]
-        links.update(five_min_bin.index.unique())
+        links.update(five_min_bin.link_dir.unique())
         # measure the length of links in the set
         length_so_far = links_df.loc[list(links),'length'].sum()
         # define length threshold
