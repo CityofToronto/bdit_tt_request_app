@@ -52,7 +52,7 @@ export class Corridor extends Factor {
     get startCrossStreetsString(){
         if(this.startCrossStreets.size > 0){
             return [...this.startCrossStreets].join(' & ')
-        }else if(this.intersections.length > 0){
+        }else if(this.#intersections.size > 0){
             return this.intersections[0].displayCoords
         }
         return ''
@@ -64,7 +64,7 @@ export class Corridor extends Factor {
     get endCrossStreetsString(){
         if(this.endCrossStreets.size > 0){
             return [...this.endCrossStreets].join(' & ')
-        }else if(this.intersections.length > 1){
+        }else if(this.#intersections.size > 1){
             return this.intersections[1].displayCoords
         }
         return ''
@@ -72,7 +72,7 @@ export class Corridor extends Factor {
     get bearing(){
         // azimuth calculation borrowed from:
         // http://www.movable-type.co.uk/scripts/latlong.html
-        if( ! this.intersections.length == 2 ) return undefined;
+        if( ! this.#intersections.size == 2 ) return undefined;
         const [A, B] = this.intersections
         const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
             - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
@@ -87,11 +87,11 @@ export class Corridor extends Factor {
         return ''
     }
     get name(){
-        if(this.intersections.length == 1){
+        if(this.#intersections.size == 1){
             return `Incomplete corridor starting from ${this.startCrossStreetsString}`
-        }else if(this.intersections.length == 2 && this.viaStreets.size > 0){
+        }else if(this.#intersections.size == 2 && this.viaStreets.size > 0){
             return `${this.viaStreetsString} ${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
-        }else if(this.intersections.length == 2){ // but no via streets (yet?)
+        }else if(this.#intersections.size == 2){ // but no via streets (yet?)
             return `${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }
         return 'New Corridor'
