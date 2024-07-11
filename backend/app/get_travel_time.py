@@ -112,7 +112,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     if len(sample) < 1:
         # no travel times or related info to return here
         return {
-            'results': {'travel_time': None},
+            'results': {
+                'travel_time': None,
+                'observations': [],
+                'confidence': {
+                    'sample': len(sample) # 0
+                },
+            },
             'query': {
                 'corridor': {'links': links},
                 'query_params': query_params
