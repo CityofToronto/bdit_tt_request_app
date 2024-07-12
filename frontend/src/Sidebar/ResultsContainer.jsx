@@ -16,16 +16,13 @@ export default function ResultsContainer(){
             {!isFetchingData && <>
                 {data.queryCount} travel time{data.queryCount == 1 ? '' : 's'} to be queried
             </>}
-            {data.queryCount > 0 && ! isFetchingData &&
+            {data.queryCount > 0 && !isFetchingData && !data.allQueriesHaveData &&
                 <BigButton onClick={()=>{
-                    setResults(undefined)
                     setIsFetchingData(true)
                     data.fetchAllResults().then( () => {
                         setIsFetchingData(false)
                     } )
-                }}>
-                    Submit Query
-                </BigButton>
+                }}>Submit Query</BigButton>
             }
             {isFetchingData && <>
                 <p>Finished fetching {data.queryCountFinished}/{data.queryCount} results</p>
