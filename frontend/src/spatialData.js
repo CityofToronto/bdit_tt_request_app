@@ -135,9 +135,12 @@ export class SpatialData {
     get queue(){ return this.#queue }
     get allQueriesHaveData(){
         return ( // some queries, all with data
-            this.#queries.size > 0
-            &&
-            [...this.#queries.values()].filter(q=>!q.hasData).length == 0
+            this.queryCount > 0
+            && this.queryCount == this.queryCountFinished
         )
+    }
+    get queryCount(){ return this.#queries.size }
+    get queryCountFinished(){
+        return [...this.#queries.values()].filter(q=>q.hasData).length
     }
 }

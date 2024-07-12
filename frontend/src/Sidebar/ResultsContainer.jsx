@@ -3,45 +3,42 @@ import { DataContext } from '../Layout'
 import BigButton from './BigButton'
 
 export default function ResultsContainer(){
-    const [ results, setResults ] = useState(undefined)
     const [ isFetchingData, setIsFetchingData ] = useState(false)
-    const [ doneCount, setDoneCount ] = useState(-1)
+    const [ progress, setProgress ] = useState(-1)
     const { data } = useContext(DataContext)
-    const numResults = data.travelTimeQueries.length
     useEffect(()=>{
         data.queue.on('active',()=>{
-            setDoneCount(count => count + 1)
+            setProgress( 100 * data.queryCountFinished / data.queryCount )
         })
     },[])
     return (
         <div>
             {!isFetchingData && <>
-                {numResults} travel time{numResults == 1 ? '' : 's'} to be queried
+                {data.queryCount} travel time{data.queryCount == 1 ? '' : 's'} to be queried
             </>}
-            {numResults > 0 && ! isFetchingData &&
+            {data.queryCount > 0 && ! isFetchingData &&
                 <BigButton onClick={()=>{
                     setResults(undefined)
                     setIsFetchingData(true)
                     data.fetchAllResults().then( () => {
                         setIsFetchingData(false)
-                        setResults(data.travelTimeQueries)
                     } )
                 }}>
                     Submit Query
                 </BigButton>
             }
             {isFetchingData && <>
-                <p>Finished fetching {doneCount}/{numResults} results</p>
-                <ProgressBar percentDone={100*doneCount/numResults}/>
+                <p>Finished fetching {data.queryCountFinished}/{data.queryCount} results</p>
+                <ProgressBar percentDone={progress}/>
             </>}
-            {results && data.allQueriesHaveData && <>
+            {data.allQueriesHaveData && <>
                     <a download='results.json'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(results.map(r=>r.resultsRecord('json'))))}`}
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(data.travelTimeQueries.map(r=>r.resultsRecord('json'))))}`}
                     >
                         <BigButton>Download results as JSON</BigButton>
                     </a>
                     <a download='results.csv'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent([...results[0].resultsRecord('').keys()].join(',') + '\n' + results.map(r=>r.resultsRecord('csv')).join('\n'))}`}
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent([...data.travelTimeQueries[0].resultsRecord('').keys()].join(',') + '\n' + data.travelTimeQueries.map(r=>r.resultsRecord('csv')).join('\n'))}`}
                     >
                         <BigButton>Download results as CSV </BigButton>
                     </a>
