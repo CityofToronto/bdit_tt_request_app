@@ -5,12 +5,14 @@ import { Days } from './days.js'
 import { HolidayOption } from './holidayOption.js'
 import { TravelTimeQuery } from './travelTimeQuery.js'
 import { domain } from './domain.js'
+import PQueue from 'p-queue'
 
 // instantiated once, this is the data store for all spatial and temporal data
 export class SpatialData {
     #factors = []
     #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
     #knownHolidays = []
+    #queue = new PQueue({concurrency: 3})
     constructor(){
         this.#factors.push(new Days(this))
         this.#factors.push(new HolidayOption(this,true))
@@ -116,10 +118,10 @@ export class SpatialData {
         return [...this.#queries.values()].sort((a,b)=> a.URI < b.URI ? -1 : 1)
     }
     fetchAllResults(){
-        return Promise.all(
+        return this.#queue.addAll(
             this.travelTimeQueries
                 .filter( TTQ => ! TTQ.hasData )
-                .map( TTQ => TTQ.fetchData() )
+                .map( TTQ => () => TTQ.fetchData() )
         )
     }
 }
