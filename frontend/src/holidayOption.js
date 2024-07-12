@@ -3,7 +3,7 @@ import { Factor } from './factor.js'
 export class HolidayOption extends Factor {
     #includeHolidays
     #dataContext
-    constructor(dataContext,includeHolidays){
+    constructor(dataContext, includeHolidays){
         super(dataContext)
         // store this here too to actually access the holiday data
         this.#dataContext = dataContext

@@ -72,20 +72,33 @@ export class SpatialData {
         } )
     }
     includeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,true))
+        this.holidayOptions.forEach( factor => {
+            if(!factor.holidaysIncluded) this.dropFactor(factor)
+        } )
+        if(this.holidayOptions.length == 0){
+            this.#factors.push(new HolidayOption(this,true))
+        }
         this.updateQueries()
     }
     excludeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,false))
+        this.holidayOptions.forEach( factor => {
+            if(factor.holidaysIncluded) this.dropFactor(factor)
+        } )
+        if(this.holidayOptions.length == 0){
+            this.#factors.push(new HolidayOption(this,false))
+        }
         this.updateQueries()
     }
     includeAndExcludeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,true))
-        this.#factors.push(new HolidayOption(this,false))
-        this.updateQueries()
+        console.assert(this.holidayOptions.length == 1)
+        // add a factor for whatever the opposite of the existing one is
+        this.#factors.push(
+            new HolidayOption(
+                this,
+                ! this.holidayOptions[0].holidaysIncluded
+            )
+        )
+        this.updateQueries() 
     }
     updateQueries(){
         // this should be run any time the inputs change to keep the list fresh
