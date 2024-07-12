@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { DataContext } from '../Layout'
 
 import FactorContainer from './FactorContainer'
