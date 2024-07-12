@@ -15,7 +15,9 @@ export default function ResultsContainer(){
     },[])
     return (
         <div>
-            {numResults} travel time{numResults == 1 ? '' : 's'} to be queried
+            {!isFetchingData && <>
+                {numResults} travel time{numResults == 1 ? '' : 's'} to be queried
+            </>}
             {numResults > 0 && ! isFetchingData &&
                 <BigButton onClick={()=>{
                     setResults(undefined)
