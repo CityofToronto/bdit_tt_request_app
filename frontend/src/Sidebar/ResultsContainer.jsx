@@ -34,7 +34,7 @@ export default function ResultsContainer(){
                 <p>Finished fetching {doneCount}/{numResults} results</p>
                 <ProgressBar percentDone={100*doneCount/numResults}/>
             </>}
-            {results && <>
+            {results && data.allQueriesHaveData && <>
                     <a download='results.json'
                         href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(results.map(r=>r.resultsRecord('json'))))}`}
                     >

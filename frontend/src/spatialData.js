@@ -133,4 +133,11 @@ export class SpatialData {
         )
     }
     get queue(){ return this.#queue }
+    get allQueriesHaveData(){
+        return ( // some queries, all with data
+            this.#queries.size > 0
+            &&
+            [...this.#queries.values()].filter(q=>!q.hasData).length == 0
+        )
+    }
 }
