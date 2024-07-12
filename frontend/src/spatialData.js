@@ -82,8 +82,9 @@ export class SpatialData {
         this.#factors.push(new HolidayOption(this,true))
         this.#factors.push(new HolidayOption(this,false))
     }
-    get travelTimeQueries(){
-        // is the crossproduct of all complete/valid factors
+    updateQueries(){
+        // this should be run any time the inputs change to keep the list fresh
+        // queries are the crossproduct of all complete/valid factors
         const crossProduct = []
         this.corridors.filter(c=>c.isComplete).forEach( corridor => {
             this.timeRanges.filter(tr=>tr.isComplete).forEach( timeRange => {
@@ -104,17 +105,20 @@ export class SpatialData {
                 } )
             } )
         })
-        // add new travelTimeRequests
+        // add any new travelTimeRequests
         crossProduct.forEach( TTQ => {
             if( ! this.#queries.has(TTQ.URI) ){
                 this.#queries.set(TTQ.URI,TTQ)
             }
         } )
-        // remove old/modified travelTimeRequests
+        // remove any old/modified travelTimeRequests
         let currentURIs = new Set(crossProduct.map(TTI=>TTI.URI))
         let currentKeys = [...this.#queries.keys()]
         currentKeys.filter( key => ! currentURIs.has(key) )
             .forEach( key => this.#queries.delete(key) )
+    }
+    get travelTimeQueries(){
+        this.updateQueries()
         return [...this.#queries.values()].sort((a,b)=> a.URI < b.URI ? -1 : 1)
     }
     fetchAllResults(){
