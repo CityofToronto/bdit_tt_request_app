@@ -30,10 +30,15 @@ export class Days extends Factor {
     addDay(number){
         if( daylist.map(d=>d.iso).includes(parseInt(number)) ){
             this.#days.add(parseInt(number))
+            this.hasUpdated()
         }
     }
     removeDay(number){
-        this.#days.delete(parseInt(number))
+        let dayNum = parseInt(number)
+        if(this.#days.has(dayNum)){
+            this.#days.delete(dayNum)
+            this.hasUpdated()
+        }
     }
     hasDay(number){
         return this.#days.has(parseInt(number))

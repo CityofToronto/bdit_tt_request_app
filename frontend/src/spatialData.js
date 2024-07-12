@@ -53,6 +53,7 @@ export class SpatialData {
         let days = new Days(this)
         this.#factors.push(days)
         days.activate()
+        this.updateQueries() // this is the only factor that starts out complete
         return days
     }
     get segments(){
@@ -63,6 +64,7 @@ export class SpatialData {
     }
     dropFactor(factor){
         this.#factors = this.#factors.filter(f => f != factor)
+        this.updateQueries()
     }
     deactivateOtherFactors(factor){
         this.#factors.forEach( f => {
@@ -70,20 +72,37 @@ export class SpatialData {
         } )
     }
     includeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,true))
+        this.holidayOptions.forEach( factor => {
+            if(!factor.holidaysIncluded) this.dropFactor(factor)
+        } )
+        if(this.holidayOptions.length == 0){
+            this.#factors.push(new HolidayOption(this,true))
+        }
+        this.updateQueries()
     }
     excludeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,false))
+        this.holidayOptions.forEach( factor => {
+            if(factor.holidaysIncluded) this.dropFactor(factor)
+        } )
+        if(this.holidayOptions.length == 0){
+            this.#factors.push(new HolidayOption(this,false))
+        }
+        this.updateQueries()
     }
     includeAndExcludeHolidays(){
-        this.holidayOptions.forEach(f => this.dropFactor(f))
-        this.#factors.push(new HolidayOption(this,true))
-        this.#factors.push(new HolidayOption(this,false))
+        console.assert(this.holidayOptions.length == 1)
+        // add a factor for whatever the opposite of the existing one is
+        this.#factors.push(
+            new HolidayOption(
+                this,
+                ! this.holidayOptions[0].holidaysIncluded
+            )
+        )
+        this.updateQueries() 
     }
-    get travelTimeQueries(){
-        // is the crossproduct of all complete/valid factors
+    updateQueries(){
+        // this should be run any time the inputs change to keep the list fresh
+        // queries are the crossproduct of all complete/valid factors
         const crossProduct = []
         this.corridors.filter(c=>c.isComplete).forEach( corridor => {
             this.timeRanges.filter(tr=>tr.isComplete).forEach( timeRange => {
@@ -104,17 +123,19 @@ export class SpatialData {
                 } )
             } )
         })
-        // add new travelTimeRequests
+        // add any new travelTimeRequests
         crossProduct.forEach( TTQ => {
             if( ! this.#queries.has(TTQ.URI) ){
                 this.#queries.set(TTQ.URI,TTQ)
             }
         } )
-        // remove old/modified travelTimeRequests
+        // remove any old/modified travelTimeRequests
         let currentURIs = new Set(crossProduct.map(TTI=>TTI.URI))
         let currentKeys = [...this.#queries.keys()]
         currentKeys.filter( key => ! currentURIs.has(key) )
             .forEach( key => this.#queries.delete(key) )
+    }
+    get travelTimeQueries(){
         return [...this.#queries.values()].sort((a,b)=> a.URI < b.URI ? -1 : 1)
     }
     fetchAllResults(){
@@ -123,5 +144,16 @@ export class SpatialData {
                 .filter( TTQ => ! TTQ.hasData )
                 .map( TTQ => () => TTQ.fetchData() )
         )
+    }
+    get queue(){ return this.#queue }
+    get allQueriesHaveData(){
+        return ( // some queries, all with data
+            this.queryCount > 0
+            && this.queryCount == this.queryCountFinished
+        )
+    }
+    get queryCount(){ return this.#queries.size }
+    get queryCountFinished(){
+        return [...this.#queries.values()].filter(q=>q.hasData).length
     }
 }

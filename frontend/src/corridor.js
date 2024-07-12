@@ -29,6 +29,7 @@ export class Corridor extends Factor {
             .then( () => {
                 // notify the layout that the path is ready to be rendered
                 logActivity('shortest path returned')
+                this.hasUpdated()
             } )
     }
     get intersections(){ return [...this.#intersections.values()] }

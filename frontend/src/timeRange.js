@@ -45,10 +45,12 @@ export class TimeRange extends Factor {
     }
     setStartTime(input){
         this.#startTime = TimeRange.parseTime(input)
+        this.hasUpdated()
         return this.#startTime
     }
     setEndTime(input){
         this.#endTime = TimeRange.parseTime(input)
+        this.hasUpdated()
         return this.#endTime
     }
     static timeFormatted(datetime){
