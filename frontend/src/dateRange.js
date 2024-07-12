@@ -26,10 +26,12 @@ export class DateRange extends Factor {
     }
     setStartDate(inputDate){
         this.#startDate = inputDate
+        this.notifyIsUpdated()
         return this.#startDate
     }
     setEndDate(inputDate){
         this.#endDate = inputDate
+        this.notifyIsUpdated()
         return this.#endDate
     }
     static dateFormatted(datetime){

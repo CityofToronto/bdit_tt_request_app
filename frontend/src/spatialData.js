@@ -53,6 +53,7 @@ export class SpatialData {
         let days = new Days(this)
         this.#factors.push(days)
         days.activate()
+        this.updateQueries() // this is the only factor that starts out complete
         return days
     }
     get segments(){
@@ -63,6 +64,7 @@ export class SpatialData {
     }
     dropFactor(factor){
         this.#factors = this.#factors.filter(f => f != factor)
+        this.updateQueries()
     }
     deactivateOtherFactors(factor){
         this.#factors.forEach( f => {
@@ -72,15 +74,18 @@ export class SpatialData {
     includeHolidays(){
         this.holidayOptions.forEach(f => this.dropFactor(f))
         this.#factors.push(new HolidayOption(this,true))
+        this.updateQueries()
     }
     excludeHolidays(){
         this.holidayOptions.forEach(f => this.dropFactor(f))
         this.#factors.push(new HolidayOption(this,false))
+        this.updateQueries()
     }
     includeAndExcludeHolidays(){
         this.holidayOptions.forEach(f => this.dropFactor(f))
         this.#factors.push(new HolidayOption(this,true))
         this.#factors.push(new HolidayOption(this,false))
+        this.updateQueries()
     }
     updateQueries(){
         // this should be run any time the inputs change to keep the list fresh
@@ -118,7 +123,6 @@ export class SpatialData {
             .forEach( key => this.#queries.delete(key) )
     }
     get travelTimeQueries(){
-        this.updateQueries()
         return [...this.#queries.values()].sort((a,b)=> a.URI < b.URI ? -1 : 1)
     }
     fetchAllResults(){

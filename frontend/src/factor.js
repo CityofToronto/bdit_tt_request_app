@@ -27,4 +27,8 @@ export class Factor {
     render(){ // this will be overwritten but must be implemented
         return <></>
     }
+    notifyIsUpdated(){
+        // should be called when a factor has been updated and is complete
+        this.#dataContext.updateQueries()
+    }
 }
