@@ -128,4 +128,5 @@ export class SpatialData {
                 .map( TTQ => () => TTQ.fetchData() )
         )
     }
+    get queue(){ return this.#queue }
 }
