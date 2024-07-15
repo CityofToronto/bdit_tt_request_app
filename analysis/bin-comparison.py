@@ -1,6 +1,6 @@
 # test whether travel times are drawn from the same distribution
 
-import requests, scipy
+import requests, scipy, numpy
 
 sig_level = 0.05
 
@@ -10,15 +10,14 @@ backend = {
 }
 
 dates = { # need to be incremented as more data available
-    'pre': '2024-07-04/2024-07-07',
-    'post': '2024-07-11/2024-07-14'
+    'before': '2024-07-04/2024-07-07',
+    'after': '2024-07-11/2024-07-14'
 }
 
 corridor = '30364284/30363982' # Eglinton Westbound from Bathurst to Allen
 
-time = '16/18' # PM Peak
+time = '15/18' # PM Peak
 
-# get data for the same corridor and month, for each year in the range
 def getObs(responseData):
     return [ tt['seconds'] for tt in responseData['results']['observations'] ]
 
@@ -29,9 +28,14 @@ for server, endpoint in backend.items():
             f"{endpoint}/aggregate-travel-times/{corridor}/{time}/{dateRanges}/false/12345"
         ).json() )
     for dateRanges in dates.values() ]
-    print('number of observations', [len(obs) for obs in data])
+    print(
+        'number of observations:',
+        [len(obs) for obs in data],
+        '(travel times higher',
+        'before)' if numpy.mean(data[0]) > numpy.mean(data[1]) else 'after)'
+    )
 
-    # use a Mann-Whitney U test
+    # Apply a Mann-Whitney U test
     # https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
     # available in scipy as
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
