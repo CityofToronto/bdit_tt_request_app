@@ -122,8 +122,8 @@ def get_date_bounds():
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
-        "start_time": min_date,
-        "end_time": max_date
+        "start_date": min_date,
+        "end_date": max_date
     }
 
 # test URL /holidays
