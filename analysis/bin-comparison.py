@@ -40,9 +40,13 @@ for server, endpoint in backend.items():
     # available in scipy as
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
 
-    data_t1 = data[0]
-    data_t2 = data[1]
-    stat, pvalue = scipy.stats.ranksums(data_t1, data_t2, 'two-sided')
+    before_data = data[0]
+    after_data = data[1]
+    stat, pvalue = scipy.stats.ranksums(
+        before_data,
+        after_data,
+        'greater' # one-tailed test that before > after (times decreased)
+    )
     print(
         f'Travel time distributions differ with a P-value of {pvalue}'
         if pvalue < sig_level else
