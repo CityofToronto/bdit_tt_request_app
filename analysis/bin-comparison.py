@@ -52,3 +52,12 @@ for server, endpoint in backend.items():
         if pvalue < sig_level else
         f'Travel times are not significantly different' 
     )
+
+    # plot histograms side by side
+    from matplotlib import pyplot
+    bins = numpy.linspace(0, 600, 20)
+    pyplot.hist(data[0], bins, alpha=0.5, label='before')
+    pyplot.hist(data[1], bins, alpha=0.5, label='after')
+    pyplot.legend()
+    pyplot.savefig(f'./plots/histogram-{server}.png')
+    pyplot.close()
