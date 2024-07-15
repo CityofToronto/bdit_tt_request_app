@@ -12,6 +12,7 @@ export class SpatialData {
     #factors = []
     #queries = new Map() // store/cache for travelTimeQueries, letting them remember their results if any
     #knownHolidays = []
+    #dataDateRange = { minDate: undefined, maxDate: undefined }
     #queue = new PQueue({concurrency: 3})
     constructor(){
         this.#factors.push(new Days(this))
@@ -19,6 +20,12 @@ export class SpatialData {
         fetch(`${domain}/holidays`)
             .then( response => response.json() )
             .then( holidayList => this.#knownHolidays = holidayList )
+        fetch(`${domain}/date-range`)
+            .then( response => response.json() )
+            .then( dates => {
+                this.#dataDateRange.minDate = new Date(dates.minDate)
+                this.#dataDateRange.maxDate = new Date(dates.maxDate)
+            } )
     }
     get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
     get timeRanges(){ return this.#factors.filter( f => f instanceof TimeRange ) }
@@ -31,6 +38,7 @@ export class SpatialData {
         return this.corridors.find( cor => cor.isActive )
     }
     get holidays(){ return this.#knownHolidays }
+    get dateRange(){ return this.#dataDateRange }
     createCorridor(){
         let corridor = new Corridor(this)
         this.#factors.push(corridor)

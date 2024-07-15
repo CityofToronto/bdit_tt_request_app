@@ -7,8 +7,10 @@ import { DataContext } from './Layout'
 export class DateRange extends Factor {
     #startDate
     #endDate
+    #dataContext
     constructor(dataContext){
         super(dataContext)
+        this.#dataContext = dataContext
     }
     get isComplete(){
         return this.#startDate && this.#endDate && this.#startDate < this.#endDate
@@ -71,6 +73,14 @@ export class DateRange extends Factor {
         }
         return dayCount
     }
+    get maxDate(){
+        // default to today if actual max date not known (yet)
+        return this.#dataContext.dateRange.maxDate ?? new Date()
+    }
+    get minDate(){
+        // default to today if actual max date not known (yet)
+        return this.#dataContext.dateRange.minDate ?? new Date('2017-09-01')
+    }
 }
 
 function formatISODate(dt){ // this is waaay too complicated... alas
@@ -79,9 +89,6 @@ function formatISODate(dt){ // this is waaay too complicated... alas
     let day = dt.getUTCDate() // 1 - 31
     return `${year}-${('0'+month).slice(-2)}-${('0'+day).slice(-2)}`
 }
-
-const today = new Date()
-const earliestDataDate = new Date('2017-01-01')
 
 function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
@@ -102,8 +109,8 @@ function DateRangeElement({dateRange}){
                     selectRange={true}
                     allowPartialRange={true}
                     onChange={setSelectedRange}
-                    maxDate={today}
-                    minDate={earliestDataDate}
+                    maxDate={dateRange.maxDate}
+                    minDate={dateRange.minDate}
                 />
             </> }
         </div>
