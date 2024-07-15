@@ -4,7 +4,7 @@ import { Segment } from './segment.js'
 
 // a sequence of segments forming a coherent corridor
 export class Corridor extends Factor {
-    #intersections = []
+    #intersections = new Map() // disallows duplicates
     #segments = []
     constructor(dataContext){
         super(dataContext)
@@ -14,8 +14,8 @@ export class Corridor extends Factor {
     }
     addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)
-        this.#intersections = [ ...this.#intersections, intersection ]
-        this.#segments = this.#intersections
+        this.#intersections.set(intersection.id, intersection)
+        this.#segments = this.intersections
             .map( (int,i,ints) => {
                 if (i > 0){
                     return new Segment( {
@@ -29,9 +29,10 @@ export class Corridor extends Factor {
             .then( () => {
                 // notify the layout that the path is ready to be rendered
                 logActivity('shortest path returned')
+                this.hasUpdated()
             } )
     }
-    get intersections(){ return this.#intersections }
+    get intersections(){ return [...this.#intersections.values()] }
     addSegment(segment){
         if(segment instanceof Segment){
             this.#segments.push(segment)
@@ -46,34 +47,34 @@ export class Corridor extends Factor {
         return [...this.viaStreets].join(' & ')
     }
     get startCrossStreets(){
-        try { return difference(this.#intersections[0].streetNames,this.viaStreets) }
+        try { return difference(this.intersections[0].streetNames,this.viaStreets) }
         catch (e) { return new Set() }
     }
     get startCrossStreetsString(){
         if(this.startCrossStreets.size > 0){
             return [...this.startCrossStreets].join(' & ')
-        }else if(this.#intersections.length > 0){
-            return this.#intersections[0].displayCoords
+        }else if(this.#intersections.size > 0){
+            return this.intersections[0].displayCoords
         }
         return ''
     }
     get endCrossStreets(){
-        try { return difference(this.#intersections[1].streetNames,this.viaStreets) }
+        try { return difference(this.intersections[1].streetNames,this.viaStreets) }
         catch (e) { return new Set() }
     }
     get endCrossStreetsString(){
         if(this.endCrossStreets.size > 0){
             return [...this.endCrossStreets].join(' & ')
-        }else if(this.#intersections.length > 1){
-            return this.#intersections[1].displayCoords
+        }else if(this.#intersections.size > 1){
+            return this.intersections[1].displayCoords
         }
         return ''
     }
     get bearing(){
         // azimuth calculation borrowed from:
         // http://www.movable-type.co.uk/scripts/latlong.html
-        if( ! this.#intersections.length == 2 ) return undefined;
-        const [A, B] = this.#intersections
+        if( ! this.#intersections.size == 2 ) return undefined;
+        const [A, B] = this.intersections
         const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
             - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
         const y = Math.sin(d2r(B.lng - A.lng)) * Math.cos(d2r(B.lat))
@@ -87,11 +88,11 @@ export class Corridor extends Factor {
         return ''
     }
     get name(){
-        if(this.#intersections.length == 1){
+        if(this.#intersections.size == 1){
             return `Incomplete corridor starting from ${this.startCrossStreetsString}`
-        }else if(this.#intersections.length == 2 && this.viaStreets.size > 0){
+        }else if(this.#intersections.size == 2 && this.viaStreets.size > 0){
             return `${this.viaStreetsString} ${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
-        }else if(this.#intersections.length == 2){ // but no via streets (yet?)
+        }else if(this.#intersections.size == 2){ // but no via streets (yet?)
             return `${this.bearing.toLowerCase()} from ${this.startCrossStreetsString} to ${this.endCrossStreetsString}`
         }
         return 'New Corridor'
