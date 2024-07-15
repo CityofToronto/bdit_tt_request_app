@@ -59,5 +59,6 @@ for server, endpoint in backend.items():
     pyplot.hist(data[0], bins, alpha=0.5, label='before')
     pyplot.hist(data[1], bins, alpha=0.5, label='after')
     pyplot.legend()
-    pyplot.savefig(f'./plots/histogram-{server}.png')
+    pyplot.title(server)
+    pyplot.savefig(f'./histogram-{server}.png')
     pyplot.close()
