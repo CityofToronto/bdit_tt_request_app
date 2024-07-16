@@ -23,8 +23,10 @@ export class SpatialData {
         fetch(`${domain}/date-range`)
             .then( response => response.json() )
             .then( dates => {
-                this.#dataDateRange.minDate = new Date(dates.minDate)
-                this.#dataDateRange.maxDate = new Date(dates.maxDate)
+                // a raw date will be parsed as UTC time then converted to local
+                // adding the 00:00:00 time component makes it read as local time
+                this.#dataDateRange.minDate = new Date(`${dates.minDate}T00:00:00`)
+                this.#dataDateRange.maxDate = new Date(`${dates.maxDate}T00:00:00`)
             } )
     }
     get corridors(){ return this.#factors.filter( f => f instanceof Corridor ) }
