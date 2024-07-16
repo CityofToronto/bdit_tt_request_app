@@ -113,7 +113,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     )
 
 # test URL /date-bounds
-@app.route('/date-bounds', methods=['GET'])
+@app.route('/date-range', methods=['GET'])
 def get_date_bounds():
     connection = getConnection()
     with connection:
@@ -122,8 +122,8 @@ def get_date_bounds():
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
-        "start_time": min_date,
-        "end_time": max_date
+        "minDate": min_date,
+        "maxDate": max_date
     }
 
 # test URL /holidays
