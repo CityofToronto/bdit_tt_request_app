@@ -11,7 +11,5 @@ export class HolidayOption extends Factor {
         this.#includeHolidays = includeHolidays
     }
     get holidaysIncluded(){ return this.#includeHolidays }
-    get holidays(){
-        return this.#dataContext.holidays
-    }
+    get holidays(){ return this.#dataContext.holidays }
 }

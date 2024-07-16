@@ -78,7 +78,7 @@ export class DateRange extends Factor {
         return this.#dataContext.dateRange.maxDate ?? new Date()
     }
     get minDate(){
-        // default to today if actual max date not known (yet)
+        // default to last known value if actual max date not known (yet)
         return this.#dataContext.dateRange.minDate ?? new Date('2017-09-01')
     }
 }
