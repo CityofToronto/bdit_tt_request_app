@@ -134,8 +134,8 @@ def get_holidays():
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                "SELECT dt::text, holiday FROM ref.holiday ORDER BY dt;"
+                "SELECT dt::text, EXTRACT(ISODOW FROM dt)::int, holiday FROM ref.holiday ORDER BY dt;"
             )
-            dates = [{'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
+            dates = [{'date': dt, 'dow': dow, 'name': nm} for (dt, dow, nm) in cursor.fetchall()]
     connection.close()
     return dates
