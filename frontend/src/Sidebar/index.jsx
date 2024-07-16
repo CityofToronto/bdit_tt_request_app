@@ -101,6 +101,9 @@ function DaysContainer(){
 
 function HolidaysContainer(){
     const { logActivity, data } = useContext(DataContext)
+    if( ! data.travelTimeQueries.some(ttq=>ttq.holidaysAreRelevant) ){
+        return
+    }
     let options = data.holidayOptions
     let included, excluded
     if(options.length == 1){
@@ -115,7 +118,7 @@ function HolidaysContainer(){
             data.excludeHolidays()
         }else if(option=='yeah'){
             data.includeHolidays()
-        }else{
+        }else{ // yeah no, eh?
             data.includeAndExcludeHolidays()
         }
         logActivity(`include holidays? ${option}`)
