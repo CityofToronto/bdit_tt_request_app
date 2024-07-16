@@ -131,11 +131,24 @@ def get_date_bounds():
 def get_holidays():
     "Return dates of all known holidays in ascending order"
     connection = getConnection()
+    query = f"""
+    SELECT
+        dt::text,
+        EXTRACT(ISODOW FROM dt)::int,
+        holiday
+    FROM ref.holiday
+    WHERE dt >= %(minDate)s AND dt < %(maxDate)s
+    ORDER BY dt;
+    """
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT dt::text, EXTRACT(ISODOW FROM dt)::int, holiday FROM ref.holiday ORDER BY dt;"
-            )
-            dates = [{'date': dt, 'dow': dow, 'name': nm} for (dt, dow, nm) in cursor.fetchall()]
+            cursor.execute(query, get_date_bounds())
+            dates = [
+                {
+                    'date': dt,
+                    'dow': dow,
+                    'name': nm
+                } for (dt, dow, nm) in cursor.fetchall()
+            ]
     connection.close()
     return dates
