@@ -9,14 +9,18 @@ backend = {
     'development': 'http://localhost:8072'
 }
 
-dates = { # need to be incremented as more data available
-    'before': '2024-07-04/2024-07-07',
-    'after': '2024-07-11/2024-07-14'
+dates = {
+    'before': '2024-07-02/2024-07-09',
+    'after': '2024-07-11/2024-07-18'
 }
 
-corridor = '30364284/30363982' # Eglinton Westbound from Bathurst to Allen
+corridor = '30364284/30363982' # Eglinton westbound from Bathurst to Allen
+#corridor = '30363865/30363947' # Eglinton eastbound from Oakwood to Allen
+#corridor = '30361437/30363947' # Allen Southbound to Eglinton
 
-time = '15/18' # PM Peak
+#time = '15/18' # PM Peak
+#time = '07/09' # AM Peak
+time = '9/16' # midday
 
 def getObs(responseData):
     return [ tt['seconds'] for tt in responseData['results']['observations'] ]
