@@ -113,7 +113,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     )
 
 # test URL /date-bounds
-@app.route('/date-bounds', methods=['GET'])
+@app.route('/date-range', methods=['GET'])
 def get_date_bounds():
     connection = getConnection()
     with connection:
@@ -122,8 +122,8 @@ def get_date_bounds():
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
-        "start_time": min_date,
-        "end_time": max_date
+        "minDate": min_date,
+        "maxDate": max_date
     }
 
 # test URL /holidays
@@ -131,11 +131,24 @@ def get_date_bounds():
 def get_holidays():
     "Return dates of all known holidays in ascending order"
     connection = getConnection()
+    query = f"""
+    SELECT
+        dt::text,
+        EXTRACT(ISODOW FROM dt)::int,
+        holiday
+    FROM ref.holiday
+    WHERE dt >= %(minDate)s AND dt < %(maxDate)s
+    ORDER BY dt;
+    """
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT dt::text, holiday FROM ref.holiday ORDER BY dt;"
-            )
-            dates = [{'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
+            cursor.execute(query, get_date_bounds())
+            dates = [
+                {
+                    'date': dt,
+                    'dow': dow,
+                    'name': nm
+                } for (dt, dow, nm) in cursor.fetchall()
+            ]
     connection.close()
     return dates

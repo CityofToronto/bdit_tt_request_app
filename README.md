@@ -35,7 +35,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `timeRange` | Text description of the time-of-day range included in the query. |
 | `dateRange` | Text description of the range of dates included in the query. |
 | `daysOfWeek` | Text description of the days of week included in the query.  |
-| `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. |
+| `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. If there are no holidays within the date range, will return `NA`. |
 | `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |

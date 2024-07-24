@@ -49,6 +49,19 @@ export class TravelTimeQuery {
         let numDays = this.dateRange.daysInRange(this.days,this.#holidayOption)
         return hoursPerDay * numDays
     }
+    get holidaysAreRelevant(){ // are holidays actually relevant for this query?
+        const isodows = this.#days.ISODOWs
+        const minDate = this.#dateRange.startDateFormatted
+        const maxDate = this.#dateRange.endDateFormatted
+        const holidays = this.#holidayOption.holidays.filter( holiday => {
+            return (
+                isodows.has(holiday.dow)
+                && holiday.date >= minDate
+                && holiday.date < maxDate
+            )
+        } )
+        return holidays.length > 0
+    }
     resultsRecord(type='json'){
         // map used instead of object to preserve insertion order
         const record = new Map()
@@ -60,7 +73,10 @@ export class TravelTimeQuery {
         record.set('timeRange',this.timeRange.name)
         record.set('dateRange',this.dateRange.name)
         record.set('daysOfWeek', this.days.name)
-        record.set('holidaysIncluded', this.#holidayOption.holidaysIncluded)
+        record.set(
+            'holidaysIncluded',
+            this.holidaysAreRelevant ? this.#holidayOption.holidaysIncluded : 'NA'
+        )
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)

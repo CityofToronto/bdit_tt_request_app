@@ -16,7 +16,8 @@ SELECT
     InitCap(attr.st_name) AS st_name,
     results.seq,
     ST_AsGeoJSON(streets.geom) AS geojson,
-    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
+    streets.source,
+    streets.target
 FROM results
 JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
 JOIN here_gis.streets_att_22_2 AS attr 
@@ -42,8 +43,9 @@ def get_links(from_node_id, to_node_id):
                     'name': st_name,
                     'sequence': seq,
                     'geometry': json.loads(geojson),
-                    'length_m': length_m
-                } for link_dir, st_name, seq, geojson, length_m in cursor.fetchall()
+                    'source': source,
+                    'target': target
+                } for link_dir, st_name, seq, geojson, source, target in cursor.fetchall()
             ]
 
     connection.close()
