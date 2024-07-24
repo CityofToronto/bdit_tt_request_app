@@ -62,10 +62,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     total_corridor_length = links_df['length'].sum()
 
     query_params = {
-        # not actually query params any more, but have been useful before
-        "length_m": total_corridor_length,
-        "seglist": list(set(link['segment_id'] for link in links)),
-        # real query params
         "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
         "node_end": end_node,
