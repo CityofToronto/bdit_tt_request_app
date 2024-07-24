@@ -10,7 +10,15 @@ export class Corridor extends Factor {
         super(dataContext)
     }
     get isComplete(){
-        return this.intersections.length > 1 && this.links.length > 0
+        return this.intersections.length > 1 && this.routeIsValid
+    }
+    get routeIsValid(){
+        if(this.links.length == 0) return false;
+        // need to assert that there are no gaps in the route
+        return this.links.every( (link, i, links) => {
+            if(i == 0) return true
+            return link.source == links[i-1].target
+        } )
     }
     addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)

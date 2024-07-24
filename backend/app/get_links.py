@@ -17,7 +17,9 @@ SELECT
     results.seq,
     seg_lookup.segment_id,
     ST_AsGeoJSON(streets.geom) AS geojson,
-    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m
+    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m,
+    streets.source,
+    streets.target
 FROM results
 JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
 JOIN here_gis.streets_att_22_2 AS attr 
@@ -45,8 +47,10 @@ def get_links(from_node_id, to_node_id):
                     'sequence': seq,
                     'segment_id': segment_id,
                     'geometry': json.loads(geojson),
-                    'length_m': length_m
-                } for link_dir, st_name, seq, segment_id, geojson, length_m in cursor.fetchall()
+                    'length_m': length_m,
+                    'source': source,
+                    'target': target
+                } for link_dir, st_name, seq, segment_id, geojson, length_m, source, target in cursor.fetchall()
             ]
 
     connection.close()
