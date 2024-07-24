@@ -4,7 +4,7 @@ library('dbplyr')
 
 con <- DBI::dbConnect(
     RPostgres::Postgres(), 
-    host = 'trans-bdit-db-prod0-rds-smkrfjrhhbft.cpdcqisgj1fj.ca-central-1.rds.amazonaws.com',
+    host = 'insert DB host here',
     user = 'nwessel',
     dbname = 'bigdata',
     password = rstudioapi::askForPassword("Database password")
