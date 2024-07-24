@@ -12,9 +12,12 @@ con <- DBI::dbConnect(
 
 # look at hourly binning
 tbl( con, in_schema('here','ta_path') ) %>%
-    filter( dt == '2024-07-04' ) %>%
+    filter( dt == '2024-07-18' ) %>%
     mutate( hours = sample_size * ((length / 1000) / mean) ) %>%
     group_by( tod ) %>% 
-    summarize( probe_count = 12 * sum(hours) ) %>%
+    summarize(
+        # x 12 because otherwise we'd have the number of hours in a five-minute bin
+        probe_count = 12 * sum(hours)
+    ) %>%
     ggplot( aes(x = tod, y = probe_count) ) + 
         geom_line()
