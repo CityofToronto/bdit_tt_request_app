@@ -6,7 +6,7 @@ import {
     Polyline,
     LayerGroup
 } from 'react-leaflet'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
@@ -20,6 +20,7 @@ export default function Map() {
         <MapContainer center={initialMapCenter} zoom={15} style={{height:'100vh'}}>
             <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
             <DataLayer/>
+            <NodeLayer/>
         </MapContainer>
     )
 }
@@ -76,4 +77,25 @@ function DataLayer(){
             </LayerGroup>
         )
     } )
+}
+
+function NodeLayer(){
+    // briefly shows locations of nearby clickable nodes on double-click
+    const [ nodes, setNodes ] = useState([]) 
+    useMapEvent('dblclick', (event) => {
+        fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+            .then( resp => resp.json() )
+            .then( setNodes )
+    } )
+    return (
+        <LayerGroup>
+            {nodes.map( node => (
+                <CircleMarker key={nodes.node_id}
+                    center={{ lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0] }}
+                    radius={5}
+                    pathOptions={{color:'grey'}}
+                />
+            ) ) }
+        </LayerGroup>
+    )
 }
