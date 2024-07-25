@@ -16,7 +16,7 @@ GROUP BY
     cg_nodes.node_id,
     cg_nodes.geom
 ORDER BY distance
-LIMIT 10;
+LIMIT 20;
 '''
 
 def get_closest_nodes(longitude, latitude):
