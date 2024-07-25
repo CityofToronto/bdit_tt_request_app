@@ -85,13 +85,19 @@ function NodeLayer(){
     useMapEvent('dblclick', (event) => {
         fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
             .then( resp => resp.json() )
-            .then( setNodes )
+            .then( nodes => {
+                setNodes(nodes)
+                setTimeout(
+                    () => setNodes([]),
+                    5000
+                )
+            } )
     } )
     return (
         <LayerGroup>
-            {nodes.map( node => (
-                <CircleMarker key={nodes.node_id}
-                    center={{ lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0] }}
+            {nodes.map( (node,i) => (
+                <CircleMarker key={i}
+                    center={{lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0]}}
                     radius={5}
                     pathOptions={{color:'grey'}}
                 />
