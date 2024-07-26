@@ -15,7 +15,7 @@ import 'leaflet/dist/leaflet.css'
 
 const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
-export default function(){
+export default function CartoMap(){
     return (
         <MapContainer
             center={initialMapCenter}
