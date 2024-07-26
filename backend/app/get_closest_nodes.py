@@ -19,16 +19,17 @@ ORDER BY distance
 LIMIT 20;
 '''
 
-def get_closest_nodes(longitude, latitude):
+def get_nodes_within(meters,longitude, latitude):
     with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {"latitude": latitude, "longitude": longitude})
             candidate_nodes = []
             for node_id, geojson, distance, street_names in cursor.fetchall():
-                candidate_nodes.append( {
-                    'node_id': node_id,
-                    'street_names': street_names,
-                    'geometry': json.loads(geojson)
-                } )
+                if distance <= meters:
+                    candidate_nodes.append( {
+                        'node_id': node_id,
+                        'street_names': street_names,
+                        'geometry': json.loads(geojson)
+                    } )
     connection.close()
     return candidate_nodes
