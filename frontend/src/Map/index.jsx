@@ -35,7 +35,7 @@ function DataLayer(){
     const activeCorridor = data.activeCorridor
     useMapEvent('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
-            fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+            fetch(`${domain}/nodes-within/50/${event.latlng.lng}/${event.latlng.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
                     const data = node[0]
@@ -88,7 +88,7 @@ function NodeLayer(){
     // briefly shows locations of nearby clickable nodes on double-click
     const [ nodes, setNodes ] = useState( new Map() )
     useMapEvent('dblclick', (event) => {
-        fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+        fetch(`${domain}/nodes-within/1000/${event.latlng.lng}/${event.latlng.lat}`)
             .then( resp => resp.json() )
             .then( intersections => {
                 setNodes( n => { // add intersections
