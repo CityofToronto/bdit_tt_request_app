@@ -17,7 +17,12 @@ const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
 export default function Map() {
     return (
-        <MapContainer center={initialMapCenter} zoom={15} style={{height:'100vh'}}>
+        <MapContainer
+            center={initialMapCenter}
+            zoom={15}
+            style={{height:'100vh'}}
+            doubleClickZoom={false}
+        >
             <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
             <DataLayer/>
             <NodeLayer/>
@@ -93,7 +98,7 @@ function NodeLayer(){
                 setTimeout( // remove them
                     () => setNodes( n => {
                         let ids = new Set(intersections.map(i => i.node_id))
-                        return [...n.filter( node => ! ids.has(node.node_id) ) ]
+                        return [...n.filter( node => ! ids.has(node.node_id) )]
                     } ),
                     5000
                 )
