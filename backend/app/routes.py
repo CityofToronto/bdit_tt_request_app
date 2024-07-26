@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import jsonify
 from app import app
 from app.db import getConnection
-from app.get_closest_nodes import get_closest_nodes
+from app.get_closest_nodes import get_nodes_within
 from app.get_node import get_node
 from app.get_travel_time import get_travel_time
 
@@ -17,14 +17,15 @@ def index():
     })
 
 # test URL /closest-node/-79.3400/43.6610
-@app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
-def closest_node(longitude,latitude):
+@app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
+def closest_node(meters,longitude,latitude):
     try:
         longitude = float(longitude)
         latitude = float(latitude)
+        meters = float(meters)
     except:
-        return jsonify({'error': "Longitude and latitude must be decimal numbers!"})
-    return jsonify(get_closest_nodes(longitude,latitude))
+        return jsonify({'error': "all inputs must be decimal numbers"})
+    return jsonify(get_nodes_within(meters,longitude,latitude))
 
 # test URL /node/30357505
 @app.route('/node/<node_id>', methods=['GET'])
