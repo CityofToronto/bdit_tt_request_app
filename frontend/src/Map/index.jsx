@@ -6,7 +6,7 @@ import {
     Polyline,
     LayerGroup
 } from 'react-leaflet'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
@@ -15,11 +15,17 @@ import 'leaflet/dist/leaflet.css'
 
 const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
-export default function Map() {
+export default function CartoMap(){
     return (
-        <MapContainer center={initialMapCenter} zoom={15} style={{height:'100vh'}}>
+        <MapContainer
+            center={initialMapCenter}
+            zoom={15}
+            style={{height:'100vh'}}
+            doubleClickZoom={false}
+        >
             <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
             <DataLayer/>
+            <NodeLayer/>
         </MapContainer>
     )
 }
@@ -29,7 +35,7 @@ function DataLayer(){
     const activeCorridor = data.activeCorridor
     useMapEvent('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
-            fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
+            fetch(`${domain}/nodes-within/50/${event.latlng.lng}/${event.latlng.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
                     const data = node[0]
@@ -76,4 +82,37 @@ function DataLayer(){
             </LayerGroup>
         )
     } )
+}
+
+function NodeLayer(){
+    // briefly shows locations of nearby clickable nodes on double-click
+    const [ nodes, setNodes ] = useState( new Map() )
+    useMapEvent('dblclick', (event) => {
+        fetch(`${domain}/nodes-within/1000/${event.latlng.lng}/${event.latlng.lat}`)
+            .then( resp => resp.json() )
+            .then( intersections => {
+                setNodes( n => { // add intersections
+                    intersections.forEach( i => n.set(i.node_id,i) )
+                    return new Map(n)
+                } )
+                setTimeout( // remove them
+                    () => setNodes( n => {
+                        intersections.forEach( i => n.delete(i.node_id) )
+                        return new Map(n)
+                    } ),
+                    5000
+                )
+            } )
+    } )
+    return (
+        <LayerGroup>
+            {[...nodes.values()].map( (node,i) => (
+                <CircleMarker key={i}
+                    center={{lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0]}}
+                    radius={5}
+                    pathOptions={{color:'grey'}}
+                />
+            ) ) }
+        </LayerGroup>
+    )
 }
