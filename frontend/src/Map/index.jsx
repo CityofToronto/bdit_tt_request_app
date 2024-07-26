@@ -81,14 +81,20 @@ function DataLayer(){
 
 function NodeLayer(){
     // briefly shows locations of nearby clickable nodes on double-click
-    const [ nodes, setNodes ] = useState([]) 
+    const [ nodes, setNodes ] = useState( [] )
     useMapEvent('dblclick', (event) => {
         fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
             .then( resp => resp.json() )
-            .then( nodes => {
-                setNodes(nodes)
-                setTimeout(
-                    () => setNodes([]),
+            .then( intersections => {
+                setNodes( n => { // add intersections
+                    intersections.forEach( i => n.push(i) )
+                    return [...n]
+                } )
+                setTimeout( // remove them
+                    () => setNodes( n => {
+                        let ids = new Set(intersections.map(i => i.node_id))
+                        return [...n.filter( node => ! ids.has(node.node_id) ) ]
+                    } ),
                     5000
                 )
             } )
