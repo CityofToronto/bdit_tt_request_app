@@ -15,7 +15,7 @@ import 'leaflet/dist/leaflet.css'
 
 const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
-export default function Map() {
+export default function(){
     return (
         <MapContainer
             center={initialMapCenter}
@@ -86,19 +86,19 @@ function DataLayer(){
 
 function NodeLayer(){
     // briefly shows locations of nearby clickable nodes on double-click
-    const [ nodes, setNodes ] = useState( [] )
+    const [ nodes, setNodes ] = useState( new Map() )
     useMapEvent('dblclick', (event) => {
         fetch(`${domain}/closest-node/${event.latlng.lng}/${event.latlng.lat}`)
             .then( resp => resp.json() )
             .then( intersections => {
                 setNodes( n => { // add intersections
-                    intersections.forEach( i => n.push(i) )
-                    return [...n]
+                    intersections.forEach( i => n.set(i.node_id,i) )
+                    return new Map(n)
                 } )
                 setTimeout( // remove them
                     () => setNodes( n => {
-                        let ids = new Set(intersections.map(i => i.node_id))
-                        return [...n.filter( node => ! ids.has(node.node_id) )]
+                        intersections.forEach( i => n.delete(i.node_id) )
+                        return new Map(n)
                     } ),
                     5000
                 )
@@ -106,7 +106,7 @@ function NodeLayer(){
     } )
     return (
         <LayerGroup>
-            {nodes.map( (node,i) => (
+            {[...nodes.values()].map( (node,i) => (
                 <CircleMarker key={i}
                     center={{lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0]}}
                     radius={5}
