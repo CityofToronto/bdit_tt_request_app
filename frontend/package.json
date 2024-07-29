@@ -46,6 +46,7 @@
         "@mui/material": "5.x",
         "express": "^4.18.2",
         "leaflet": "^1.9.4",
+        "maplibre-gl": "^4.5.0",
         "p-queue": "^8.0.1",
         "react": "18.x",
         "react-calendar": "^4.6.1",
@@ -53,6 +54,7 @@
         "react-dom": "18.x",
         "react-dropdown": "^1.11.0",
         "react-leaflet": "^4.2.1",
+        "react-map-gl": "^7.1.7",
         "react-notifications": "^1.7.4",
         "react-refresh": "^0.11.0",
         "react-time-picker": "^4.0.1"
