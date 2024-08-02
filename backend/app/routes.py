@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import jsonify
 from app import app
 from app.db import getConnection
-from app.get_closest_nodes import get_closest_nodes
+from app.get_closest_nodes import get_nodes_within
 from app.get_node import get_node
 from app.get_travel_time import get_travel_time
 
@@ -17,14 +17,15 @@ def index():
     })
 
 # test URL /closest-node/-79.3400/43.6610
-@app.route('/closest-node/<longitude>/<latitude>', methods=['GET'])
-def closest_node(longitude,latitude):
+@app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
+def closest_node(meters,longitude,latitude):
     try:
         longitude = float(longitude)
         latitude = float(latitude)
+        meters = float(meters)
     except:
-        return jsonify({'error': "Longitude and latitude must be decimal numbers!"})
-    return jsonify(get_closest_nodes(longitude,latitude))
+        return jsonify({'error': "all inputs must be decimal numbers"})
+    return jsonify(get_nodes_within(meters,longitude,latitude))
 
 # test URL /node/30357505
 @app.route('/node/<node_id>', methods=['GET'])
@@ -113,7 +114,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     )
 
 # test URL /date-bounds
-@app.route('/date-bounds', methods=['GET'])
+@app.route('/date-range', methods=['GET'])
 def get_date_bounds():
     connection = getConnection()
     with connection:
@@ -122,8 +123,8 @@ def get_date_bounds():
             ( min_date, max_date ) = cursor.fetchone()
     connection.close()
     return {
-        "start_time": min_date,
-        "end_time": max_date
+        "minDate": min_date,
+        "maxDate": max_date
     }
 
 # test URL /holidays
@@ -131,11 +132,24 @@ def get_date_bounds():
 def get_holidays():
     "Return dates of all known holidays in ascending order"
     connection = getConnection()
+    query = f"""
+    SELECT
+        dt::text,
+        EXTRACT(ISODOW FROM dt)::int,
+        holiday
+    FROM ref.holiday
+    WHERE dt >= %(minDate)s AND dt < %(maxDate)s
+    ORDER BY dt;
+    """
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT dt::text, holiday FROM ref.holiday ORDER BY dt;"
-            )
-            dates = [{'date': dt, 'name': nm} for (dt, nm) in cursor.fetchall()]
+            cursor.execute(query, get_date_bounds())
+            dates = [
+                {
+                    'date': dt,
+                    'dow': dow,
+                    'name': nm
+                } for (dt, dow, nm) in cursor.fetchall()
+            ]
     connection.close()
     return dates

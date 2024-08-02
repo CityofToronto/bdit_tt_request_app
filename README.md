@@ -35,7 +35,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `timeRange` | Text description of the time-of-day range included in the query. |
 | `dateRange` | Text description of the range of dates included in the query. |
 | `daysOfWeek` | Text description of the days of week included in the query.  |
-| `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. |
+| `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. If there are no holidays within the date range, will return `NA`. |
 | `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
@@ -45,7 +45,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 
 Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to about 2017. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
 
-The number of vehicles within the City of Toronto reporting their position to HERE in this way has been estimated to be around 500 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.  
+The number of vehicles within the City of Toronto reporting their position to HERE in this way has been [estimated](./analysis/total-fleet-size.r) to be around 2,000 to 3,000 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.  
 
 Travel times are provided to us in the form of _average speeds_ along links of the street network in 5-minute time bins. Given the sparseness of the vehicle probe data, most links, in most time bins are empty. The scond most common sample size is a single vehicle observation.
 

@@ -27,6 +27,10 @@ export class Days extends Factor {
     get isComplete(){
         return this.#days.size > 0
     }
+    get ISODOWs(){
+        // returns a copy just to be safe
+        return new Set(this.#days)
+    }
     addDay(number){
         if( daylist.map(d=>d.iso).includes(parseInt(number)) ){
             this.#days.add(parseInt(number))
