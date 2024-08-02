@@ -16,6 +16,7 @@ SELECT
     InitCap(attr.st_name) AS st_name,
     results.seq,
     ST_AsGeoJSON(streets.geom) AS geojson,
+    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m,
     streets.source,
     streets.target
 FROM results
@@ -43,9 +44,10 @@ def get_links(from_node_id, to_node_id):
                     'name': st_name,
                     'sequence': seq,
                     'geometry': json.loads(geojson),
+                    'length_m': length_m,
                     'source': source,
                     'target': target
-                } for link_dir, st_name, seq, geojson, source, target in cursor.fetchall()
+                } for link_dir, st_name, seq, geojson, length_m, source, target in cursor.fetchall()
             ]
 
     connection.close()
