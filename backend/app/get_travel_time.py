@@ -2,7 +2,10 @@
 
 from app.db import getConnection
 from app.get_links import get_links
-import numpy, math, random
+import numpy
+import math
+import pandas
+import random
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -29,51 +32,78 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     holiday_clause = ''
     if not include_holidays:
         holiday_clause = '''AND NOT EXISTS (
-            SELECT 1 FROM ref.holiday WHERE cn.dt = holiday.dt
+            SELECT 1 FROM ref.holiday WHERE ta.dt = holiday.dt
         )'''
 
-    hourly_tt_query = f'''
+    query = f'''
         SELECT
-            dt,
-            SUM(cn.unadjusted_tt) * %(length_m)s::real / SUM(cn.length_w_data) AS tt
-        FROM congestion.network_segments_daily AS cn
+            link_dir,
+            dt::text,
+            extract(HOUR FROM tod)::smallint AS hr,
+            mean::real AS speed_kmph
+        FROM here.ta
         WHERE
-            cn.segment_id::integer = ANY(%(seglist)s)
-            AND cn.hr <@ %(time_range)s::numrange
-            AND date_part('ISODOW', cn.dt)::integer = ANY(%(dow_list)s)
-            AND cn.dt <@ %(date_range)s::daterange
+            link_dir = ANY(%(link_dir_list)s)
+            AND tod >= %(start_time)s::time
+            AND tod < %(end_time)s::time
+            AND date_part('ISODOW', dt) = ANY(%(dow_list)s)
+            AND dt >= %(start_date)s::date
+            AND dt < %(end_date)s::date
             {holiday_clause}
-        GROUP BY
-            cn.dt,
-            cn.hr
-        -- where corridor has at least 80pct of links with data
-        HAVING SUM(cn.length_w_data) >= %(length_m)s::numeric * 0.8;
     '''
 
     links = get_links(start_node, end_node)
 
+    links_df = pandas.DataFrame({
+        'link_dir': [l['link_dir'] for l in links],
+        'length': [l['length_m'] for l in links]
+    }).set_index('link_dir')
+
+    total_corridor_length = links_df['length'].sum()
+
     query_params = {
-        "length_m": sum(link['length_m'] for link in links),
-        "seglist": list(set(link['segment_id'] for link in links)),
         "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
         "node_end": end_node,
-        # this is where we define that the end of the range is exclusive
-        "time_range": f"[{start_time},{end_time})", # ints
-        "date_range": f"[{start_date},{end_date})", # 'YYYY-MM-DD'
+        "start_time": f'{start_time:02d}:00:00',
+        "end_time": f'{end_time:02d}:00:00',
+        "start_date": start_date,
+        "end_date": end_date,
         "dow_list": dow_list
     }
 
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            # get the hourly travel times
-            cursor.execute(hourly_tt_query, query_params)
-            sample = cursor.fetchall()
-
+            cursor.execute(query, query_params)
+            link_speeds_df = pandas.DataFrame(
+                cursor.fetchall(),
+                columns=['link_dir','dt','hr','speed']
+            ).set_index('link_dir')
     connection.close()
 
-    tt_hourly = [ tt for (dt,tt) in sample ]
+    # join previously queried link lengths
+    link_speeds_df = link_speeds_df.join(links_df)
+    # calculate link travel times from speed and length (in seconds)
+    link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
+    # no longer need speeds now that this is measured in terms of travel time
+    # removing it just to prevent any confusion around averaging
+    link_speeds_df.drop('speed',axis='columns',inplace=True)
+    # get average travel times per link / date / hour
+    hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
+    # sum lengths and travel times of available links per date / hour
+    hr_sums = hr_means.groupby(['dt','hr']).sum()
+    # filter out hours with too much missing data
+    observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
+    # extrapolate over missing data within each hour
+    observations = observations.assign(
+        tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
+    )
+    # convert to format that can be used by the same summary function
+    sample = []
+    for tup in observations.itertuples():
+        (dt, hr), tt = tup.Index, tup.tt_extrapolated
+        sample.append((dt, tt))
 
     if len(sample) < 1:
         # no travel times or related info to return here
