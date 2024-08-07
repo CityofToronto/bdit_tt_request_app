@@ -5,64 +5,74 @@ import requests, scipy, numpy
 sig_level = 0.05
 
 backend = {
-    'production': 'http://localhost:8070',
+    #'production': 'http://localhost:8070',
     'development': 'http://localhost:8072'
 }
 
 dates = {
-    'before': '2024-07-02/2024-07-09',
-    'after': '2024-07-11/2024-07-18'
+    'before': '2024-07-23/2024-07-28',
+    'after': '2024-07-30/2024-08-04'
 }
+corridors = [
+    {'ids': '30414573/30412502', 'label': 'Richmond to Lakeshore'},
+    {'ids': '30414649/30414576', 'label': 'Dundas to Queen'},
+    {'ids': '30414576/30414531', 'label': 'Queen to King'},
+    {'ids': '30414531/30414540', 'label': 'King to Front'},
+    {'ids': '30414540/30412502', 'label': 'Front to Lakeshore'},
+]
 
-corridor = '30364284/30363982' # Eglinton westbound from Bathurst to Allen
-#corridor = '30363865/30363947' # Eglinton eastbound from Oakwood to Allen
-#corridor = '30361437/30363947' # Allen Southbound to Eglinton
-
-#time = '15/18' # PM Peak
-#time = '07/09' # AM Peak
-time = '9/16' # midday
+times = [
+    {'hours': '07/10', 'label': 'AM Peak'},
+    {'hours': '10/15', 'label': 'Midday'},
+    {'hours': '15/18', 'label': 'PM Peak'}
+]
 
 def getObs(responseData):
     return [ tt['seconds'] for tt in responseData['results']['observations'] ]
 
-for server, endpoint in backend.items():
-    print(f'using {server} server:')
-    data = [
-        getObs( requests.get(
-            f"{endpoint}/aggregate-travel-times/{corridor}/{time}/{dateRanges}/false/12345"
-        ).json() )
-    for dateRanges in dates.values() ]
-    print(
-        'number of observations:',
-        [len(obs) for obs in data],
-        '(travel times higher',
-        'before)' if numpy.mean(data[0]) > numpy.mean(data[1]) else 'after)'
-    )
+for corridor in corridors:
+    for time in times:
+        for server, endpoint in backend.items():
+            label = f"{corridor['label']} - {time['label']}"
+            print(label, server)
+            data = [
+                getObs( requests.get(
+                    f"{endpoint}/aggregate-travel-times/{corridor['ids']}/{time['hours']}/{dateRanges}/false/12345"
+                ).json() )
+            for dateRanges in dates.values() ]
+            print(
+                '\tnumber of observations:',
+                [len(obs) for obs in data],
+                '(travel times higher',
+                'before)' if numpy.mean(data[0]) > numpy.mean(data[1]) else 'after)'
+            )
 
-    # Apply a Mann-Whitney U test
-    # https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
-    # available in scipy as
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
+            # Apply a Mann-Whitney U test
+            # https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
+            # available in scipy as
+            # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ranksums.html
 
-    before_data = data[0]
-    after_data = data[1]
-    stat, pvalue = scipy.stats.ranksums(
-        before_data,
-        after_data,
-        'greater' # one-tailed test that before > after (times decreased)
-    )
-    print(
-        f'Travel time distributions differ with a P-value of {pvalue}'
-        if pvalue < sig_level else
-        f'Travel times are not significantly different' 
-    )
+            before_data = data[0]
+            after_data = data[1]
+            stat, pvalue = scipy.stats.ranksums(
+                before_data,
+                after_data,
+                'two-sided' # two-tailed test
+            )
+            print(
+                f'\tTravel time distributions differ with a P-value of {pvalue}'
+                if pvalue < sig_level else
+                f'\tTravel times are not significantly different' 
+            )
+            if pvalue < sig_level:
+                label += f' p={pvalue:.6}'
 
-    # plot histograms side by side
-    from matplotlib import pyplot
-    bins = numpy.linspace(0, 600, 20)
-    pyplot.hist(data[0], bins, alpha=0.5, label='before')
-    pyplot.hist(data[1], bins, alpha=0.5, label='after')
-    pyplot.legend()
-    pyplot.title(server)
-    pyplot.savefig(f'./histogram-{server}.png')
-    pyplot.close()
+            # plot histograms side by side
+            from matplotlib import pyplot
+            bins = numpy.linspace(0, 1000, 20)
+            pyplot.hist(data[0], bins, alpha=0.5, label='before')
+            pyplot.hist(data[1], bins, alpha=0.5, label='after')
+            pyplot.legend()
+            pyplot.title(label)
+            pyplot.savefig(f"./histogram-{label}.png")
+            pyplot.close()
