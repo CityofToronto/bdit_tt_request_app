@@ -30,22 +30,23 @@ times = [
 def getObs(responseData):
     return [ tt['seconds'] for tt in responseData['results']['observations'] ]
 
+print('corridor,time_range,before_time_seconds,after_time_seconds,P_diff,difference_seconds')
 for corridor in corridors:
     for time in times:
         for server, endpoint in backend.items():
             label = f"{corridor['label']} - {time['label']}"
-            print(label, server)
+            #print(label, server)
             data = [
                 getObs( requests.get(
                     f"{endpoint}/aggregate-travel-times/{corridor['ids']}/{time['hours']}/{dateRanges}/false/12345"
                 ).json() )
             for dateRanges in dates.values() ]
-            print(
-                '\tnumber of observations:',
-                [len(obs) for obs in data],
-                '(travel times higher',
-                'before)' if numpy.mean(data[0]) > numpy.mean(data[1]) else 'after)'
-            )
+            #print(
+            #    '\tnumber of observations:',
+            #    [len(obs) for obs in data],
+            #    '(travel times higher',
+            #    'before)' if numpy.mean(data[0]) > numpy.mean(data[1]) else 'after)'
+            #)
 
             # Apply a Mann-Whitney U test
             # https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
@@ -59,20 +60,25 @@ for corridor in corridors:
                 after_data,
                 'two-sided' # two-tailed test
             )
-            print(
-                f'\tTravel time distributions differ with a P-value of {pvalue}'
-                if pvalue < sig_level else
-                f'\tTravel times are not significantly different' 
-            )
-            if pvalue < sig_level:
-                label += f' p={pvalue:.6}'
+            row = f"{corridor['label']},{time['label']}"
+            row += f",{round(numpy.mean(before_data),2)},{round(numpy.mean(after_data),2)}"
+            row += f",{round(pvalue,6) if pvalue < 0.05 else ''}"
+            row += f",{round(numpy.mean(after_data) - numpy.mean(before_data),2) if pvalue < 0.05 else ''}"
+            print(row)
+            #print(
+            #    f'\tTravel time distributions differ with a P-value of {pvalue}'
+            #    if pvalue < sig_level else
+            #    f'\tTravel times are not significantly different' 
+            #)
+            #if pvalue < sig_level:
+            #    label += f' p={pvalue:.6}'
 
             # plot histograms side by side
-            from matplotlib import pyplot
-            bins = numpy.linspace(0, 1000, 20)
-            pyplot.hist(data[0], bins, alpha=0.5, label='before')
-            pyplot.hist(data[1], bins, alpha=0.5, label='after')
-            pyplot.legend()
-            pyplot.title(label)
-            pyplot.savefig(f"./histogram-{label}.png")
-            pyplot.close()
+            #from matplotlib import pyplot
+            #bins = numpy.linspace(0, 1000, 20)
+            #pyplot.hist(data[0], bins, alpha=0.5, label='before')
+            #pyplot.hist(data[1], bins, alpha=0.5, label='after')
+            #pyplot.legend()
+            #pyplot.title(label)
+            #pyplot.savefig(f"./histogram-{label}.png")
+            #pyplot.close()
