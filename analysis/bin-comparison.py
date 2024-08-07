@@ -10,11 +10,12 @@ backend = {
 }
 
 dates = {
-    'before': '2024-07-23/2024-07-28',
+    'before': '2024-07-01/2024-07-28',
     'after': '2024-07-30/2024-08-04'
 }
 corridors = [
     {'ids': '30414573/30412502', 'label': 'Richmond to Lakeshore'},
+    {'ids': '30414649/30412502', 'label': 'Dundas to Lakeshore'},
     {'ids': '30414649/30414576', 'label': 'Dundas to Queen'},
     {'ids': '30414576/30414531', 'label': 'Queen to King'},
     {'ids': '30414531/30414540', 'label': 'King to Front'},
