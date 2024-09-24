@@ -4,7 +4,7 @@ from app.db import getConnection
 links_query = '''
 WITH results as (
     SELECT *
-    FROM here_gis.get_links_btwn_nodes_22_2(
+    FROM here_gis.get_links_btwn_nodes_23_4(
         %(node_start)s,
         %(node_end)s
     ),
@@ -20,8 +20,8 @@ SELECT
     streets.source,
     streets.target
 FROM results
-JOIN here.routing_streets_22_2 AS streets USING ( link_dir )
-JOIN here_gis.streets_att_22_2 AS attr 
+JOIN here.routing_streets_23_4 AS streets USING ( link_dir )
+JOIN here_gis.streets_att_23_4 AS attr 
     ON attr.link_id::int = left(link_dir, -1)::int
 ORDER BY seq;
 '''
