@@ -83,8 +83,25 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             )
     connection.close()
 
+
     # create custom binning
     bins = make_bins(links_df, link_speeds_df)
+
+    # handle the case where there are no observations; return early. 
+    if link_speeds_df.empty or len(bins) == 0:
+        return {
+            'results': {
+                'travel_time': None,
+                'observations': [],
+                'confidence': {
+                    'sample': 0
+                },
+            },
+            'query': {
+                'corridor': {'links': links},
+                'query_params': query_params
+            }
+        }
     # rolling join of bins to data
     link_speeds_df = pandas.merge_asof(
         link_speeds_df,
