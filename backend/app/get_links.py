@@ -15,8 +15,8 @@ SELECT
     results.link_dir,
     InitCap(attr.st_name) AS st_name,
     results.seq,
-    ST_AsGeoJSON(streets.geom) AS geojson,
-    ST_Length( ST_Transform(streets.geom,2952) ) AS length_m,
+    ST_AsGeoJSON(ST_LineMerge(streets.geom)) AS geojson,
+    ST_Length( ST_LineMerge(ST_Transform(streets.geom,2952)) ) AS length_m,
     streets.source,
     streets.target
 FROM results
