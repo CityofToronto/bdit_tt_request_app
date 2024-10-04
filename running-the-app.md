@@ -60,7 +60,7 @@ There is a dev deployment available at [https://trans-bdit.intra.prod-toronto.ca
 
 7. If necessary, edit the environment variables in `backend/.env`.
 
-9. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070  --timeout 90 --name=data_request_app" gunicorn app:app -D`
+9. Gunicorn is the service to be used to deploy a production version of the API server. Run `GUNICORN_CMD_ARGS="--bind=0.0.0.0:8070 --timeout 10 --name=tt_request_app" --workers=2 --threads=5 gunicorn app:app -D`
 
 ### Front-end
 
