@@ -16,7 +16,7 @@ SELECT
     results.link_dir,
     InitCap(attr.st_name) AS st_name,
     results.seq,
-    ST_AsGeoJSON(streets.geom) AS geojson,
+    ST_AsGeoJSON(ST_LineMerge(streets.geom)) AS geojson,
     ST_Length( ST_Transform(streets.geom,2952) ) AS length_m,
     streets.source,
     streets.target
@@ -28,7 +28,7 @@ ORDER BY seq;
 '''
 
 # returns a json with geometries of links between two nodes
-def get_links(from_node_id, to_node_id, map_version):
+def get_links(from_node_id, to_node_id, map_version='23_4'):
     parsed_links_query = sql.SQL(links_query).format(
         routing_function = sql.Identifier(f'get_links_btwn_nodes_{map_version}'),
         street_geoms_table = sql.Identifier(f'routing_streets_{map_version}'),
