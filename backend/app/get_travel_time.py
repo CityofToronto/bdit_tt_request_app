@@ -2,6 +2,7 @@
 
 from app.db import getConnection
 from app.get_links import get_links
+from app.selectMapVersion import selectMapVersion
 import numpy
 import math
 import pandas
@@ -53,7 +54,20 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         ORDER BY tx
     '''
 
-    links = get_links(start_node, end_node)
+    map_version = selectMapVersion(start_date, end_date)
+
+    links = get_links(
+        start_node,
+        end_node,
+        map_version
+    )
+
+    links_df = pandas.DataFrame({
+        'link_dir': [l['link_dir'] for l in links],
+        'length': [l['length_m'] for l in links]
+    }).set_index('link_dir')
+
+    total_corridor_length = links_df['length'].sum()
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
@@ -147,7 +161,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links},
+                'corridor': {'links': links, 'map_version': map_version},
                 'query_params': query_params
             }
         }
@@ -179,7 +193,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormat(tt) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links},
+            'corridor': {'links': links, 'map_version': map_version},
             'query_params': query_params
         }
     }
