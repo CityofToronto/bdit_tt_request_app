@@ -2,6 +2,7 @@
 
 from app.db import getConnection
 from app.get_links import get_links
+from app.selectMapVersion import selectMapVersion
 import numpy
 import math
 import pandas
@@ -26,34 +27,8 @@ def timeFormat(seconds):
         'clock': f'{math.floor(seconds/3600):02d}:{math.floor((seconds/60)%60):02d}:{round(seconds%60):02d}'
     }
 
-def selectMapVersion(start_date, end_date):
-    query = """
-    WITH coverage AS (
-        SELECT
-            street_version,
-            valid_range * daterange(%(start_date)s, %(end_date)s,'[)') AS overlap
-        FROM here.street_valid_range
-    )
-
-    SELECT
-        street_version,
-        UPPER(overlap) - LOWER(overlap) AS days_covered
-    FROM coverage
-    WHERE UPPER(overlap) - LOWER(overlap) IS NOT NULL
-    ORDER BY days_covered DESC NULLS LAST
-    """
-    connection = getConnection()
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute(query,{'start_date':start_date,'end_date':end_date})
-            (map_version, coverage) = cursor.fetchone()
-    connection.close()
-    return map_version
-
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
-
-    map_version = selectMapVersion(start_date, end_date)
 
     holiday_clause = ''
     if not include_holidays:
@@ -78,7 +53,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    links = get_links(start_node, end_node, map_version)
+    map_version = selectMapVersion(start_date, end_date)
+
+    links = get_links(
+        start_node,
+        end_node,
+        map_version
+    )
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
@@ -142,7 +123,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links},
+                'corridor': {'links': links, 'map_version': map_version},
                 'query_params': query_params
             }
         }
@@ -174,7 +155,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormat(tt) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links},
+            'corridor': {'links': links, 'map_version': map_version},
             'query_params': query_params
         }
     }
