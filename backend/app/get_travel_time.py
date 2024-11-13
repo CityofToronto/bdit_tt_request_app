@@ -46,13 +46,14 @@ def selectMapVersion(start_date, end_date):
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(query,{'start_date':start_date,'end_date':end_date})
-            print(cursor.fetchall())
+            (map_version, coverage) = cursor.fetchone()
     connection.close()
+    return map_version
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
 
-    selectMapVersion(start_date, end_date)
+    map_version = selectMapVersion(start_date, end_date)
 
     holiday_clause = ''
     if not include_holidays:
@@ -77,7 +78,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    links = get_links(start_node, end_node)
+    links = get_links(start_node, end_node, map_version)
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
