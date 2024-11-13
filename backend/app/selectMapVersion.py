@@ -1,5 +1,8 @@
 from app.db import getConnection
 
+# Selects Here map version to use based on dates in the provided query.
+# however the query also has nodes which may or may not be version-specific
+
 def selectMapVersion(start_date, end_date):
     query = """
     WITH coverage AS (
