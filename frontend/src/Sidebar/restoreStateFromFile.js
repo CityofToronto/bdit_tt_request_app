@@ -16,6 +16,11 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
             let URIs = [...textData.matchAll(URIpattern)].map(m=>m.groups)
             distinctPairs(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
+                    // skip if corridor is already present
+                    if(stateData.corridors
+                        .flatMap(c=>c.segments)
+                        .some( seg => seg.fromIntersection.id == startNode && seg.toIntersection.id == endNode )
+                    ){ return }
                     let corridor = stateData.createCorridor()
                     Promise.all(
                         [startNode,endNode].map(node_id => {
