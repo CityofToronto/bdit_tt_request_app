@@ -41,6 +41,8 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                 } )
             distinctPairs(URIs,'startTime','endTime')
                 .forEach( ({startTime,endTime}) => {
+                    // skip if already present
+                    if(stateData.timeRanges.some(tr=>parseInt(startTime)==tr.startHour && parseInt(endTime)==tr.endHour)){return}
                     let timeRange = stateData.createTimeRange()
                     timeRange.setStartTime(startTime)
                     timeRange.setEndTime(endTime)
