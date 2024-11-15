@@ -49,6 +49,8 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                 } )
             distinctPairs(URIs,'startDate','endDate')
                 .forEach( ({startDate,endDate}) => {
+                    // skip if already present
+                    if(stateData.dateRanges.some(dr=>startDate==dr.startDateFormatted && endDate==dr.endDateFormatted)){return}
                     let dateRange = stateData.createDateRange()
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
                     dateRange.setEndDate(new Date(Date.parse(endDate)))
