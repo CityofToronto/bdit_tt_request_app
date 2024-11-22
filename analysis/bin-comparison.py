@@ -5,22 +5,26 @@ import requests, scipy, numpy
 sig_level = 0.05
 
 backend = {
-    'production': 'http://localhost:8070',
+#    'production': 'http://localhost:8070',
     'development': 'http://localhost:8072'
 }
 
 dates = {
-    'before': '2024-07-02/2024-07-09',
-    'after': '2024-07-11/2024-07-18'
+    'before': '2024-09-01/2024-10-11',
+    'after': '2024-10-12/2024-11-20'
 }
 
-corridor = '30364284/30363982' # Eglinton westbound from Bathurst to Allen
-#corridor = '30363865/30363947' # Eglinton eastbound from Oakwood to Allen
-#corridor = '30361437/30363947' # Allen Southbound to Eglinton
+#corridor = '30357505/30345882' # Bloor westbound from Runnymede to Aberfoyle
+#corridor = '30345882/30357505' # Bloor eastbound from Aberfoyle to Runnymede
+
+corridor = '30345882/970252141' # Bloor eastbound from Aberfoyle to Royal York
+#corridor = '970252141/30347302' # Bloor eastbound from Royal York to Kingsway
+#corridor = '30347302/30347896' # Bloor eastbound from Kingsway to Jane
+#corridor = '30347896/30357505' # Bloor eastbound from Jane to Runnymede
 
 #time = '15/18' # PM Peak
-#time = '07/09' # AM Peak
-time = '9/16' # midday
+time = '07/09' # AM Peak
+#time = '9/16' # midday
 
 def getObs(responseData):
     return [ tt['seconds'] for tt in responseData['results']['observations'] ]
@@ -59,7 +63,7 @@ for server, endpoint in backend.items():
 
     # plot histograms side by side
     from matplotlib import pyplot
-    bins = numpy.linspace(0, 600, 20)
+    bins = numpy.linspace(0, 1200, 20)
     pyplot.hist(data[0], bins, alpha=0.5, label='before')
     pyplot.hist(data[1], bins, alpha=0.5, label='after')
     pyplot.legend()
