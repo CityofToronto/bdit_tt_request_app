@@ -7,16 +7,15 @@
 
 import requests, scipy, numpy, pandas
 from datetime import date
-from matplotlib import pyplot
 
 sig_level = 0.05
-min_length_to_analyse = 1000 # meters
+min_length_to_analyse = 250 # meters
 
 backend = 'http://localhost:8072'
 
 dates = {
     'before': '2024-09-01/2024-10-11',
-    'after': '2024-10-12/2024-11-20'
+    'after': '2024-10-16/2024-11-23'
 }
 time = '15/18' # PM Peak
 corridor = '30345882/30357505' # Bloor eastbound from Aberfoyle to Runnymede
@@ -27,15 +26,20 @@ links = requests.get(f"{backend}/link-nodes/{corridor}").json()['links']
 # create a list of node OD pairs to iterate over
 # basically a spatial moving window over the corridor
 queries = []
+cumWindowStartM = 0
 for i, link in enumerate(links):
-    cumLength = link['length_m']
+    cumWindowLength = link['length_m']
     for next_link in links[i+1:]:
-        if cumLength >= min_length_to_analyse:
+        if cumWindowLength >= min_length_to_analyse:
             queries.append({
-                'ODpair': f'{link["source"]}/{next_link["target"]}'
+                'ODpair': f'{link["source"]}/{next_link["target"]}',
+                # start and end positions of the rolling window
+                'windowStartM': cumWindowStartM,
+                'windowEndM': cumWindowStartM + cumWindowLength
             })
             break
-        cumLength += next_link['length_m']
+        cumWindowLength += next_link['length_m']
+    cumWindowStartM += link['length_m']
 
 
 def getObs(responseData):
@@ -74,10 +78,4 @@ results = pandas.DataFrame(queries)
 
 print(results)
 
-    bins = numpy.linspace(0, 1200, 20)
-    pyplot.hist(data[0], bins, alpha=0.5, label='before')
-    pyplot.hist(data[1], bins, alpha=0.5, label='after')
-    pyplot.legend()
-    pyplot.title(server)
-    pyplot.savefig(f'./histogram-{server}.png')
-    pyplot.close()
+results.to_csv('corridor-windows.csv')
