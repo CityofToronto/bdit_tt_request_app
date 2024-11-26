@@ -17,13 +17,18 @@ dates = {
 #corridor = '30357505/30345882' # Bloor westbound from Runnymede to Aberfoyle
 #corridor = '30345882/30357505' # Bloor eastbound from Aberfoyle to Runnymede
 
-corridor = '30345882/970252141' # Bloor eastbound from Aberfoyle to Royal York
-#corridor = '970252141/30347302' # Bloor eastbound from Royal York to Kingsway
-#corridor = '30347302/30347896' # Bloor eastbound from Kingsway to Jane
+#corridor = '30345882/970252141' # Bloor eastbound from Aberfoyle to Royal York (NS)
+#corridor = '970252141/30347302' # Bloor eastbound from Royal York to Kingsway (NS)
+#corridor = '30347302/30347896' # Bloor eastbound from Kingsway to Jane (significant AM peak decrease)
 #corridor = '30347896/30357505' # Bloor eastbound from Jane to Runnymede
 
-#time = '15/18' # PM Peak
-time = '07/09' # AM Peak
+#corridor = '970252141/30345882' # Bloor westbound from Aberfoyle to Royal York (NS)
+#corridor = '30347302/970252141' # Bloor westbound from Royal York to Kingsway (NS)
+corridor = '30347896/30347302' # Bloor westbound from Kingsway to Jane (significant AM peak decrease)
+#corridor = '30357505/30347896' # Bloor westbound from Jane to Runnymede
+
+time = '15/18' # PM Peak
+#time = '07/09' # AM Peak
 #time = '9/16' # midday
 
 def getObs(responseData):
