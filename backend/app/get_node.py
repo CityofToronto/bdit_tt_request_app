@@ -5,15 +5,14 @@ from app.db import getConnection
 
 SQL = '''
 SELECT
-    ST_AsGeoJSON(cg_nodes.geom) AS geom,
+    ST_AsGeoJSON(ST_Dump(here_nodes.geom)) AS geom,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
-FROM congestion.network_nodes AS cg_nodes
-JOIN here.routing_nodes_23_4 AS here_nodes USING (node_id)
+FROM here.routing_nodes_23_4 AS here_nodes
 JOIN here_gis.streets_att_23_4 AS streets USING (link_id)
 WHERE node_id = %(node_id)s
 GROUP BY
     node_id,
-    cg_nodes.geom;
+    here_nodes.geom;
 '''
 
 def get_node(node_id):
