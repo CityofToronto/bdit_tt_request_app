@@ -90,8 +90,8 @@ export class TravelTimeQuery {
         let sum_sq_dev = this.#results.observations.reduce((cumsum, tt) => {
             return cumsum + (mean_obs - tt.seconds)**2
         }, 0)
-        let variance = sum_sq_dev / this.#results.observations.length
-        record.set('tt_sd_seconds', Math.sqrt(variance))
+        let sample_variance = sum_sq_dev / (this.#results.observations.length - 1)
+        record.set('tt_sd_seconds', Math.sqrt(sample_variance))
         record.set('length_in_meters', this.corridor.length_in_meters)
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
