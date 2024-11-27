@@ -48,6 +48,9 @@ export class Corridor extends Factor {
     }
     get segments(){ return this.#segments }
     get links(){ return this.segments.flatMap( seg => seg.links ) }
+    get length_in_meters(){
+        return this.links.reduce((cs,link)=>cs+link.length_m, 0)
+    }
     get viaStreets(){
         return new Set( this.links.map( link => link.name ) )
     }

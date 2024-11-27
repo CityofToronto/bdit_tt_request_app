@@ -78,21 +78,21 @@ export class TravelTimeQuery {
             this.holidaysAreRelevant ? this.#holidayOption.holidaysIncluded : 'NA'
         )
         record.set('hoursInRange', this.hoursInRange)
-        record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
-        record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
         // get the standard deviation of the travel time observations
         // start by calculating the mean again, separately
+        // this is because the tt means we use aren't straight averages, for historical reasons
         let sum_obs = this.#results.observations.reduce((cumsum, tt) => {
             return cumsum + tt.seconds
         }, 0)
         let mean_obs = sum_obs / this.#results.observations.length
-        console.log(mean_obs)
+        record.set('mean_travel_time_seconds', mean_obs)
         // sum of the squared deviations from the mean
         let sum_sq_dev = this.#results.observations.reduce((cumsum, tt) => {
             return cumsum + Math.abs(mean_obs - tt.seconds)
         }, 0)
         let variance = sum_sq_dev / this.#results.observations.length
         record.set('tt_sd_seconds', Math.sqrt(variance))
+        record.set('length_in_meters', this.corridor.length_in_meters)
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
