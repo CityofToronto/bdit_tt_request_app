@@ -71,7 +71,6 @@ export class TimeRange extends Factor {
         if(this.endHour > this.startHour){
             return this.endHour - this.startHour
         } else {
-            console.log(this.endHour,this.startHour, 24 - this.startHour + this.endHour)
             return 24 - this.startHour + this.endHour
         }
     }
