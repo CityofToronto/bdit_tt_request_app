@@ -88,7 +88,7 @@ export class TravelTimeQuery {
         record.set('mean_travel_time_seconds', mean_obs)
         // sum of the squared deviations from the mean
         let sum_sq_dev = this.#results.observations.reduce((cumsum, tt) => {
-            return cumsum + Math.abs(mean_obs - tt.seconds)
+            return cumsum + (mean_obs - tt.seconds)**2
         }, 0)
         let variance = sum_sq_dev / this.#results.observations.length
         record.set('tt_sd_seconds', Math.sqrt(variance))
