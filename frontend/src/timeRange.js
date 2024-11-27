@@ -21,7 +21,7 @@ export class TimeRange extends Factor {
         if(!(this.#startTime && this.#endTime)){
             return false
         }
-        return this.startHour < this.endHour
+        return this.startHour != this.endHour
     }
     get name(){
         if(this.#startTime || this.#endTime){
