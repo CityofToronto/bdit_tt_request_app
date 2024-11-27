@@ -80,6 +80,19 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
+        // get the standard deviation of the travel time observations
+        // start by calculating the mean again, separately
+        let sum_obs = this.#results.observations.reduce((cumsum, tt) => {
+            return cumsum + tt.seconds
+        }, 0)
+        let mean_obs = sum_obs / this.#results.observations.length
+        console.log(mean_obs)
+        // sum of the squared deviations from the mean
+        let sum_sq_dev = this.#results.observations.reduce((cumsum, tt) => {
+            return cumsum + Math.abs(mean_obs - tt.seconds)
+        }, 0)
+        let variance = sum_sq_dev / this.#results.observations.length
+        record.set('tt_sd_seconds', Math.sqrt(variance))
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
