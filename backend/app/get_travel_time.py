@@ -36,6 +36,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             SELECT 1 FROM ref.holiday WHERE ta.dt = holiday.dt
         )'''
 
+    # if end_time is less than the start_time, then we wrap around midnight
+    ToD_and_or = 'AND' if end_time > start_time else 'OR'
+
     query = f'''
         SELECT
             link_dir,
@@ -45,8 +48,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         FROM here.ta
         WHERE
             link_dir = ANY(%(link_dir_list)s)
-            AND tod >= %(start_time)s::time
-            AND tod < %(end_time)s::time
+            AND (
+                tod >= %(start_time)s::time
+                {ToD_and_or} tod < %(end_time)s::time
+            )
             AND date_part('ISODOW', dt) = ANY(%(dow_list)s)
             AND dt >= %(start_date)s::date
             AND dt < %(end_date)s::date

@@ -21,7 +21,7 @@ export class TimeRange extends Factor {
         if(!(this.#startTime && this.#endTime)){
             return false
         }
-        return this.startHour < this.endHour
+        return this.startHour != this.endHour
     }
     get name(){
         if(this.#startTime || this.#endTime){
@@ -68,7 +68,11 @@ export class TimeRange extends Factor {
     }
     get hoursInRange(){ // how many hours are in the timeRange?
         if(! this.isComplete){ return undefined }
-        return this.endHour - this.startHour
+        if(this.endHour > this.startHour){
+            return this.endHour - this.startHour
+        } else {
+            return 24 - this.startHour + this.endHour
+        }
     }
 }
 
