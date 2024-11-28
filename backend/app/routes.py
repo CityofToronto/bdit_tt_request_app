@@ -11,9 +11,15 @@ from app.get_links import get_links
 
 @app.route('/')
 def index():
+    """Provides basic documentation about the available resources"""
     return jsonify({
         'description': 'Travel Time App backend root',
-        'endpoints': [str(rule) for rule in app.url_map.iter_rules()]
+        'endpoints': [
+            {
+                'path': str(rule),
+                'docstring': app.view_functions[rule.endpoint].__doc__
+            } for rule in app.url_map.iter_rules()
+        ]
     })
 
 # test URL /closest-node/-79.3400/43.6610
