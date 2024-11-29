@@ -11,10 +11,13 @@ from app.get_links import get_links
 
 @app.route('/')
 def index():
-    """Provides basic documentation about the available resources"""
+    """Provide basic documentation about the available resources.
+    
+    All endpoints return JSON-formatted data.
+    """
     return jsonify({
         'description': 'Travel Time App backend',
-        'endpoints': [
+        'available_endpoints': [
             {
                 'path': str(rule),
                 'docstring': app.view_functions[rule.endpoint].__doc__
@@ -25,8 +28,15 @@ def index():
 # test URL /closest-node/-79.3400/43.6610
 @app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
 def closest_node(meters, longitude, latitude):
-    """Returns up to 20 nodes within a given radius (in meters) of a point.
-    Nodes are selected from the Congestion Network, i.e. are fairly major intersections."""
+    """Return up to 20 nodes within a given radius (in meters) of a point.
+
+    Nodes are drawn from the Congestion Network, i.e. are fairly major intersections.
+
+    Arguments:
+    meters (numeric): distance around latitude and longitude to search
+    latitude (numeric): latitude of point to search around
+    longitude (numeric): longitude of point to search around
+    """
     try:
         longitude = float(longitude)
         latitude = float(latitude)
@@ -86,15 +96,17 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
 )
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
     """
+    Return averaged travel times given the specified parameters.
+
     Aggregates travel times, returning averaged travel times along the selected corridor during the specified dates and times.
     Also returns some helpful diagnostic data such as the parsed query args, the route identified between the nodes, and some measures of sampling error.
 
     Arguments:
-    start_node, end_node (int): HERE network node_id's
-    start_time, end_time (int): starting (inclusive), ending (exclusive) hours
-    start_date, end_date (YYYY-MM-DD): start (inclusive), end (exclusive) dates
-    include_holidays(str, boolean-ish): 'true' will include holidays, 'false' will exclude them
-    dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included; ISODOW specification
+    start_node, end_node (int): HERE network node_id's from the current Here map version
+    start_time, end_time (int): starting (inclusive), ending (exclusive) hours. May include leading zeros. If the end_time is less than the start_time, the time will wrap midnight.
+    start_date, end_date (str, YYYY-MM-DD): start (inclusive), end (exclusive) dates. end_date must be greater than start_date.
+    include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
+    dow_list (str): flattened list of integers, i.e. [1,2,3,4,5] -> '12345', representing days of week to be included; ISODOW specification
     """
     try:
         start_node = int(start_node)
@@ -148,7 +160,10 @@ def get_date_bounds():
 # test URL /holidays
 @app.route('/holidays', methods=['GET'])
 def get_holidays():
-    "Return dates of all Ontario holidays in ascending order. These should fully cover any available travel time data."
+    """Return dates of all Ontario holidays in ascending order.
+
+    Holidays will fully cover the range of any available travel time data.
+    """
     connection = getConnection()
     query = f"""
     SELECT
