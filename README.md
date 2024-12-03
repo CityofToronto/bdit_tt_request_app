@@ -11,14 +11,17 @@ This app was originally developed as a [class project by U of T students](https:
 
 ### Via the front-end user-interface 
 
-When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/), you will be prompted to add/create at least one of each of the following:
-* a corridor, drawn on the map
-* a time range, given in hours of the day, 00 - 23
-* a date range (note that the end of the date range is exclusive)
-* a day of week selection
-* a selection of whether or not to include statutory holidays 
+When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/), you will be prompted to create at least one of each of the following factors:
 
-The app will combine these factors together to request travel times for all possible combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
+| Factor | Description |
+| ----- | ----------- |
+| Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. |
+| Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight. |
+| Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. |
+| Day of Week | Identify the days of week to include in the aggregation. |
+| Holiday Inclusion | Decide whether to include or exclude Ontario's statutory holidays if applicable. You can also opt to do it both ways. |
+
+The app will combine these factors together to request travel times for all valid combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
 
 Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON.
 
