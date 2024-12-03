@@ -106,7 +106,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     start_time, end_time (int): starting (inclusive), ending (exclusive) hours. May include leading zeros. If the end_time is less than the start_time, the time will wrap midnight.
     start_date, end_date (str, YYYY-MM-DD): start (inclusive), end (exclusive) dates. end_date must be greater than start_date.
     include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
-    dow_list (str): flattened list of integers, i.e. [1,2,3,4,5] -> '12345', representing days of week to be included; ISODOW specification
+    dow_list (str): concatenated list of integers representing days of week to be included; ISODOW specification. E.g. [6,7] -> '67' for Saturday and Sunday only.
     """
     try:
         start_node = int(start_node)
