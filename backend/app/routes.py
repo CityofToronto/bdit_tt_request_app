@@ -33,9 +33,9 @@ def closest_node(meters, longitude, latitude):
     Nodes are drawn from the Congestion Network, i.e. are fairly major intersections.
 
     Arguments:
-    meters (numeric): distance around latitude and longitude to search
-    latitude (numeric): latitude of point to search around
-    longitude (numeric): longitude of point to search around
+    meters (float): distance around latitude and longitude to search
+    latitude (float): latitude of point to search around
+    longitude (float): longitude of point to search around
     """
     try:
         longitude = float(longitude)
