@@ -49,7 +49,12 @@ def closest_node(meters, longitude, latitude):
 @app.route('/node/<node_id>', methods=['GET'])
 def node(node_id):
     """Returns information about a given node in the Here street network.
-    This uses the latest map version and may not recognize an older node_id."""
+
+    This uses the latest map version and may not recognize an older node_id.
+    
+    arguments:
+    node_id (int): identifier of the node in the latest Here map version
+    """
     try:
         node_id = int(node_id)
     except:
