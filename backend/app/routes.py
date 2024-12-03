@@ -101,6 +101,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     """
     Return averaged travel times given the specified parameters.
 
+    This function just parses arguments and otherwise wraps around `get_travel_times` which does the actual work...
     Aggregates travel times, returning averaged travel times along the selected corridor during the specified dates and times.
     Also returns some helpful diagnostic data such as the parsed query args, the route identified between the nodes, and some measures of sampling error.
 
