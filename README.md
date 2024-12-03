@@ -8,6 +8,9 @@ The Travel Time Request App is a simple web application designed to help City st
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City, though it has undergone substantial development by the Data & Analytics Unit since then. 
 
 ## How to use the app
+
+### Via the front-end user-interface 
+
 When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/), you will be prompted to add/create at least one of each of the following:
 * a corridor, drawn on the map
 * a time range, given in hours of the day, 00 - 23
@@ -21,7 +24,7 @@ Once each factor type has been validly entered it will turn from red to green. O
 
 If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process.
 
-## Outputs
+#### Outputs
 
 The app can return results in either CSV or JSON format. The fields in either case are the same:
 
@@ -40,6 +43,11 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
 
+### By querying the back-end API directly
+
+The front-end UI pulls all data from the backend service available at https://trans-bdit.intra.prod-toronto.ca/tt-request-backend/. This API defines several endpoints, all of which return JSON-structured data. Those endpoints are documented at the link above.
+
+Generally, the API returns much more data than is available through the UI and this allows some extended use-cases which are just starting to be documented in the [`analysis/`](./analysis) folder. These may include looking at travel time variability within a given window and conducting statistical comparisons between different time periods.
 
 ## Methodology
 
@@ -59,7 +67,7 @@ We aggregate corridors together spatially as necessary into larger corridors whe
 
 ### Other means of estimating travel times
 
-The City also has [bluetooth sensors](https://github.com/CityofToronto/bdit_data-sources/blob/master/bluetooth/README.md) at some intersections which can be used to get a more reliable measure of travel time. These sensors pick up a much larger proportion of vehicles than the HERE data, making it possible to do a temporally fine-grained analysis. The sensors however are only in a few locations, especially in the downtown core and along the Gardiner and DVP expressways.  
+The City also has [bluetooth sensors](https://github.com/CityofToronto/bdit_data-sources/blob/master/bluetooth/README.md) at some intersections which can be used to get a more reliable measure of travel time. These sensors pick up a much larger proportion of vehicles than the HERE data, making it possible to do a temporally fine-grained analysis. The sensors however are only in a few locations, especially in the downtown core and along the Gardiner and DVP expressways.
 
 ## Development
 
