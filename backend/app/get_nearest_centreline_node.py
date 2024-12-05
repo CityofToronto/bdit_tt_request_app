@@ -41,7 +41,7 @@ def get_nearest_centreline_node(longitude, latitude):
                 'centreline_id': centreline_id,
                 'street_names': street_names,
                 'geometry': loadJSON(geojson),
-                'distance_from_supplied_coordinates': distance
+                'distance': distance
             }
     connection.close()
     return node
