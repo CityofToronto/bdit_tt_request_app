@@ -54,14 +54,17 @@ def node(node_id):
     
     arguments:
     node_id (int): identifier of the node in the latest Here map version
+    optional GET arg ?doConflation will also return the nearest node in the centreline network
     """
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
+
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
+
     return jsonify(get_node(node_id, doConflation))
 
 # test URL /link-nodes/30421154/30421153
