@@ -25,6 +25,13 @@ GROUP BY
 '''
 
 def get_nearest_centreline_node(longitude, latitude):
+    """
+    Return the nearest node from the latest city centreline network
+
+    arguments:
+    longitude (float): longitude of the point to search around
+    latitude (float): latitude of the point to search around
+    """
     node = {}
     with getConnection() as connection:
         with connection.cursor() as cursor:
