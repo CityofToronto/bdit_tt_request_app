@@ -1,6 +1,6 @@
 import json, re
 from datetime import datetime
-from flask import jsonify
+from flask import jsonify, request
 from app import app
 from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
@@ -54,12 +54,18 @@ def node(node_id):
     
     arguments:
     node_id (int): identifier of the node in the latest Here map version
+    optional GET arg ?doConflation will also return the nearest node in the centreline network
     """
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
-    return jsonify(get_node(node_id))
+
+    doConflation = False
+    if request.args.get('doConflation') is not None:
+        doConflation = True
+
+    return jsonify(get_node(node_id, doConflation))
 
 # test URL /link-nodes/30421154/30421153
 #shell function - outputs json for use on frontend
