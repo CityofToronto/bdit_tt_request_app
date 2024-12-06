@@ -16,7 +16,7 @@ When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-req
 | Factor | Description |
 | ----- | ----------- |
 | Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. |
-| Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight. |
+| Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight[^1]. |
 | Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. |
 | Day of Week | Identify the days of week to include in the aggregation. |
 | Holiday Inclusion | Decide whether to include or exclude Ontario's statutory holidays if applicable. You can also opt to do it both ways. |
@@ -75,3 +75,5 @@ The City also has [bluetooth sensors](https://github.com/CityofToronto/bdit_data
 ## Development
 
 For information on development and deployment, see [Running the App](./running-the-app.md).
+
+[^1]: Time ranges that wrap midnight will result in some discontinuity of periods because of the interaction with the date range and day-of-week paremeters. For example, if you select the time range `[22,2)` but only have one date within your date range (e.g. `[2024-01-01,2024-01-02)`) then the aggregation will include both the period from `[2024-01-01 00:00:00, 2024-01-01 02:00:00)` and `[2024-01-01 22:00:00, 2024-01-01 00:00:00)`, averaged together. That is, botht he early morning and late evening of the same day.
