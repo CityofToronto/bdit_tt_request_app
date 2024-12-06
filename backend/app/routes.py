@@ -6,8 +6,7 @@ from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
 from app.get_node import get_node
 from app.get_travel_time import get_travel_time
-
-from app.get_links import get_links
+from app.get_here_links import get_here_links
 
 @app.route('/')
 def index():
@@ -67,10 +66,10 @@ def node(node_id):
 
     return jsonify(get_node(node_id, doConflation))
 
-# test URL /link-nodes/30421154/30421153
+# test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend
-@app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
-def get_links_between_two_nodes(from_node_id, to_node_id):
+@app.route('/link-nodes/here/<from_node_id>/<to_node_id>')
+def get_here_links_between_two_nodes(from_node_id, to_node_id):
     """Returns links of the shortest path between any two nodes on the HERE network.
     
     Results include link_dir IDs, link geometries, and lengths in meters.
@@ -85,7 +84,7 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    links = get_links(from_node_id, to_node_id)
+    links = get_here_links(from_node_id, to_node_id)
 
     return jsonify({
         "source": from_node_id, 
