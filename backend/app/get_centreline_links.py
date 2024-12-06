@@ -13,10 +13,10 @@ WITH centreline_path AS (
 SELECT
     centreline_id,
     linear_name_full_legal AS st_name,
-    from_intersection_id,
-    to_intersection_id,
     ST_AsGeoJSON(geom) AS geojson,
-    ST_length(ST_Transform(geom, 2952)) AS length_m
+    ST_length(ST_Transform(geom, 2952)) AS length_m,
+    from_intersection_id,
+    to_intersection_id
 FROM centreline_path
 JOIN gis_core.centreline_latest USING (centreline_id)
 '''
