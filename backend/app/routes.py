@@ -84,23 +84,18 @@ def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
 
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
+
     if network == 'here':
         links = get_here_links(from_node_id, to_node_id)
     elif network == 'centreline':
         links = get_centreline_links(from_node_id, to_node_id)
     else:
         return jsonify({'error': "Network should be one of ['here','centreline']"}), 400
+
     return jsonify({
         "source": from_node_id, 
         "target": to_node_id,
-        "links": links,
-        # the following three fields are for compatibility and should eventually be removed
-        "path_name": "",
-        #"link_dirs": [ link['link_dir'] for link in links ],
-        "geometry": {
-            "type": "MultiLineString",
-            "coordinates": [ link['geometry']['coordinates'] for link in links ]
-        }
+        "links": links
     })
 
 
