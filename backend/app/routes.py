@@ -71,10 +71,20 @@ def node(node_id):
 #shell function - outputs json for use on frontend
 @app.route('/link-nodes/<network>/<from_node_id>/<to_node_id>')
 def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
-    """Returns links of the shortest path between any two nodes on the HERE network.
-    
-    Results include link_dir IDs, link geometries, and lengths in meters.
+    """Returns a list of links/edges defining the shortest path between two nodes.
+
+    Each link has 
+        * an ID (centreline_id or linkdir, depending on the reference network)
+        * a geometry, GeoJSON style
+        * a length in meters
+        * the name of the street
+        * source and target nodes in the reference network
     Routing is done in PostgreSQL using `here_gis.get_links_btwn_nodes_{map_version}`
+
+    arguments:
+    network (str): reference network to use; either 'here' or 'centreline'
+    from_node_id (int): origin node ID on the reference network
+    to_node_id (int): destination node ID on the reference network
     """
     try:
         from_node_id = int(from_node_id)
