@@ -1,7 +1,7 @@
 """Function for returning data from the aggregate-travel-times/ endpoint"""
 
 from app.db import getConnection
-from app.get_links import get_links
+from app.get_here_links import get_here_links
 from app.selectMapVersion import selectMapVersion
 import numpy
 import math
@@ -60,7 +60,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     map_version = selectMapVersion(start_date, end_date)
 
-    links = get_links(
+    links = get_here_links(
         start_node,
         end_node,
         map_version
