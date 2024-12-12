@@ -7,3 +7,4 @@ pandas==2.2.2
 psycopg==3.1.18
 python-dotenv==0.15.0
 numpy==1.26.0
+git+ssh://git@github.com/Toronto-Big-Data-Innovation-Team/traveltimetools.git@7e4fc23

@@ -3,6 +3,7 @@
 from app.db import getConnection
 from app.get_here_links import get_here_links
 from app.selectMapVersion import selectMapVersion
+from traveltimetools.utils import timeFormat
 import numpy
 import math
 import pandas
@@ -18,14 +19,6 @@ def mean_daily_mean(obs):
     daily_means = [ numpy.mean(times) for times in dates.values() ]
     # average the days together
     return numpy.mean(daily_means)
-
-def timeFormat(seconds):
-    return {
-        'seconds': round(seconds,3),
-        'minutes': round(seconds/60,3),
-        # format travel times in seconds like a clock for humans to read
-        'clock': f'{math.floor(seconds/3600):02d}:{math.floor((seconds/60)%60):02d}:{round(seconds%60):02d}'
-    }
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
