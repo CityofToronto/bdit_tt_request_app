@@ -1,4 +1,5 @@
 import json, re
+from subprocess import check_output
 from datetime import datetime
 from flask import jsonify, request
 from app import app
@@ -23,6 +24,13 @@ def index():
                 'docstring': app.view_functions[rule.endpoint].__doc__
             } for rule in app.url_map.iter_rules()
         ]
+    })
+
+@app.route('/version')
+def getGitHash():
+    """Return the Git hash of the application"""
+    return jsonify({
+        'git-hash': check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
     })
 
 # test URL /closest-node/-79.3400/43.6610
