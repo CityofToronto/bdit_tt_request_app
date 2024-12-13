@@ -8,6 +8,7 @@ import numpy
 import math
 import pandas
 import random
+from app.getGitHash import getGitHash
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -20,8 +21,28 @@ def mean_daily_mean(obs):
     # average the days together
     return numpy.mean(daily_means)
 
+def checkCache(uri,hash):
+    query = f'''
+        SELECT results
+        FROM nwessel.cached_travel_times
+        WHERE uri_string = %(uri)s AND commit_hash = %(hash)s
+    '''
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, {'uri': uri, 'hash': hash})
+            for (record,) in cursor: # will skip if no records
+                return record # there could only be one
+
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
+
+    # first check the cache
+    cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
+    cachedValue = checkCache(cacheURI,getGitHash())
+
+    if cachedValue:
+        return cachedValue
 
     holiday_clause = ''
     if not include_holidays:
