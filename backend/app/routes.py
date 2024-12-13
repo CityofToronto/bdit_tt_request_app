@@ -1,5 +1,4 @@
 import json, re
-from subprocess import check_output
 from datetime import datetime
 from flask import jsonify, request
 from app import app
@@ -9,7 +8,7 @@ from app.get_node import get_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
-
+from app.getGitHash import getGitHash
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -27,10 +26,10 @@ def index():
     })
 
 @app.route('/version')
-def getGitHash():
+def version():
     """Return the Git hash of the application"""
     return jsonify({
-        'git-hash': check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
+        'git-hash': getGitHash()
     })
 
 # test URL /closest-node/-79.3400/43.6610
