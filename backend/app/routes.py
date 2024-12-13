@@ -8,7 +8,7 @@ from app.get_node import get_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
-
+from app.getGitHash import getGitHash
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -23,6 +23,13 @@ def index():
                 'docstring': app.view_functions[rule.endpoint].__doc__
             } for rule in app.url_map.iter_rules()
         ]
+    })
+
+@app.route('/version')
+def version():
+    """Return the Git hash of the current application HEAD"""
+    return jsonify({
+        'git-HEAD': getGitHash()
     })
 
 # test URL /closest-node/-79.3400/43.6610
