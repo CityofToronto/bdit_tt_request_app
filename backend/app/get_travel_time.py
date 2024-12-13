@@ -3,6 +3,7 @@
 from app.db import getConnection
 from app.get_here_links import get_here_links
 from app.selectMapVersion import selectMapVersion
+from traveltimetools.utils import timeFormats
 import numpy
 import math
 import pandas
@@ -18,14 +19,6 @@ def mean_daily_mean(obs):
     daily_means = [ numpy.mean(times) for times in dates.values() ]
     # average the days together
     return numpy.mean(daily_means)
-
-def timeFormat(seconds):
-    return {
-        'seconds': round(seconds,3),
-        'minutes': round(seconds/60,3),
-        # format travel times in seconds like a clock for humans to read
-        'clock': f'{math.floor(seconds/3600):02d}:{math.floor((seconds/60)%60):02d}:{round(seconds%60):02d}'
-    }
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
@@ -145,19 +138,19 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         p95lower, p95upper = numpy.percentile(sample_distribution, [2.5, 97.5])
         reported_intervals = {
             'p=0.95': {
-                'lower': timeFormat(p95lower),
-                'upper': timeFormat(p95upper)
+                'lower': timeFormats(p95lower,1),
+                'upper': timeFormats(p95upper,1)
             }
         }
 
     return {
         'results': {
-            'travel_time': timeFormat(tt_seconds),
+            'travel_time': timeFormats(tt_seconds,1),
             'confidence': {
                 'sample': len(sample),
                 'intervals': reported_intervals
             },
-            'observations': [timeFormat(tt) for (dt,tt) in sample]
+            'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
             'corridor': {'links': links, 'map_version': map_version},
