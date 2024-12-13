@@ -21,7 +21,7 @@ def mean_daily_mean(obs):
     # average the days together
     return numpy.mean(daily_means)
 
-def checkCache(uri,hash):
+def checkCache(uri):
     query = f'''
         SELECT results
         FROM nwessel.cached_travel_times
@@ -30,17 +30,20 @@ def checkCache(uri,hash):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(query, {'uri': uri, 'hash': hash})
+            cursor.execute(query, {'uri': uri, 'hash': getGitHash()})
             for (record,) in cursor: # will skip if no records
                 return record # there could only be one
+
+def cacheAndReturn(obj,uri):
+    # TODO: cache!
+    return obj
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
 
     # first check the cache
     cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
-    cachedValue = checkCache(cacheURI,getGitHash())
-
+    cachedValue = checkCache(cacheURI)
     if cachedValue:
         return cachedValue
 
@@ -133,7 +136,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     if len(sample) < 1:
         # no travel times or related info to return here
-        return {
+        return cacheAndReturn({
             'results': {
                 'travel_time': None,
                 'observations': [],
@@ -145,7 +148,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 'corridor': {'links': links, 'map_version': map_version},
                 'query_params': query_params
             }
-        }
+        }, cacheURI)
 
     tt_seconds = mean_daily_mean(sample)
 
@@ -164,7 +167,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             }
         }
 
-    return {
+    return cacheAndReturn({
         'results': {
             'travel_time': timeFormats(tt_seconds,1),
             'confidence': {
@@ -177,4 +180,4 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'corridor': {'links': links, 'map_version': map_version},
             'query_params': query_params
         }
-    }
+    },cacheURI)
