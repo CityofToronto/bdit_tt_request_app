@@ -27,9 +27,9 @@ def index():
 
 @app.route('/version')
 def version():
-    """Return the Git hash of the application"""
+    """Return the Git hash of the current application HEAD"""
     return jsonify({
-        'git-hash': getGitHash()
+        'git-HEAD': getGitHash()
     })
 
 # test URL /closest-node/-79.3400/43.6610
