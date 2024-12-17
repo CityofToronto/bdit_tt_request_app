@@ -8,6 +8,7 @@ import numpy
 import math
 import pandas
 import random
+import json
 from app.getGitHash import getGitHash
 
 # the way we currently do it
@@ -35,7 +36,14 @@ def checkCache(uri):
                 return record # there could only be one
 
 def cacheAndReturn(obj,uri):
-    # TODO: cache!
+    query = f'''
+        INSERT INTO nwessel.cached_travel_times (uri_string, commit_hash, results)
+        VALUES (%(uri)s, %(hash)s, %(results)s)
+    '''
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
     return obj
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
