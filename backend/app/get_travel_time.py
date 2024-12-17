@@ -31,9 +31,12 @@ def checkCache(uri):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(query, {'uri': uri, 'hash': getGitHash()})
-            for (record,) in cursor: # will skip if no records
-                return record # there could only be one
+            try:
+                cursor.execute(query, {'uri': uri, 'hash': getGitHash()})
+                for (record,) in cursor: # will skip if no records
+                    return record # there could only be one
+            except:
+                pass
 
 def cacheAndReturn(obj,uri):
     query = f'''
@@ -43,8 +46,10 @@ def cacheAndReturn(obj,uri):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
-    return obj
+            try:
+                cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
+            finally:
+                return obj
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
