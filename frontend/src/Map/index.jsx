@@ -1,11 +1,11 @@
 import {
-    MapContainer,
     TileLayer,
     CircleMarker,
     Popup,
     Polyline,
     LayerGroup
 } from 'react-leaflet'
+import Map from 'react-map-gl/maplibre'
 import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
@@ -13,20 +13,17 @@ import { domain } from '../domain.js'
 import { Intersection } from '../intersection.js'
 import 'leaflet/dist/leaflet.css'
 
-const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
-
 export default function CartoMap(){
     return (
-        <MapContainer
-            center={initialMapCenter}
-            zoom={15}
+        <Map
+            initialViewState={{latitude: 43.65344, longitude: -79.38400, zoom: 14, bearing: -17}}
             style={{height:'100vh'}}
-            doubleClickZoom={false}
+            mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
         >
-            <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
-            <DataLayer/>
-            <NodeLayer/>
-        </MapContainer>
+            {false && <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>}
+            {false && <DataLayer/>}
+            {false && <NodeLayer/>}
+        </Map>
     )
 }
 
