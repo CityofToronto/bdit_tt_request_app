@@ -1,10 +1,5 @@
-import {
-    CircleMarker,
-    Popup,
-    Polyline,
-    LayerGroup
-} from 'react-leaflet'
-import {Map, useMap} from 'react-map-gl/maplibre'
+import {CircleMarker, Polyline, LayerGroup} from 'react-leaflet'
+import {Map, useMap, Source, Layer} from 'react-map-gl/maplibre'
 import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
@@ -46,39 +41,26 @@ function DataLayer(){
                 } )
             }
     } )
-    return <></>
-    return data.corridors.filter( c => c.isComplete || c.isActive ).map( (corridor,i) => {
-        // red: active not complete; green: active complete: grey: inactive
-        const color = corridor.isActive ? corridor.isComplete ? 'green' : 'red' : '#0005'
-        return (
-            <LayerGroup key={i}>
-                {corridor.intersections.map( intersection => (
-                    <CircleMarker key={intersection.id}
-                        center={intersection.latlng}
-                        radius={10}
-                        pathOptions={{color}}
-                    >
-                        {corridor.isActive && <Popup>
-                            <h3>{intersection.description}</h3>
-                            <table>
-                                <tbody>
-                                    <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
-                                </tbody>
-                            </table> 
-                        </Popup>}
-                    </CircleMarker>
-                ) ) }
-                {corridor.links.map( link => {
-                    return (
-                        <Polyline key={link.link_dir} 
-                            positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
-                            pathOptions={{color}}
-                        />
-                    )
-                } ) }
-            </LayerGroup>
-        )
-    } )
+    const corridorsGeojson = {
+        type: 'FeatureCollection',
+        features: data.corridors.flatMap(c=>c.geojsonFeatures)
+    }
+    const nodeStyle = {
+        id:'corridor-links',
+        type:'circle',
+        paint:{'circle-radius': 5, 'circle-color': 'red'}
+    }
+    const lineStyle = {
+        id:'corridor-links',
+        type:'line',
+        paint:{'line-width': 10, 'line-color': 'black'}
+    }
+    return (
+        <Source id='corridor-links' type='geojson'data={corridorsGeojson}>
+            <Layer {...nodeStyle}/>
+            <Layer {...lineStyle}/>
+        </Source>
+    )
 }
 
 function NodeLayer(){

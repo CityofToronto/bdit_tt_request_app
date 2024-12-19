@@ -20,6 +20,9 @@ export class Corridor extends Factor {
             return link.source == links[i-1].target
         } )
     }
+    get geojsonFeatures(){
+        return this.intersections.map( i => i.geojson )
+    }
     addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)
         this.#intersections.set(intersection.id, intersection)
