@@ -1,5 +1,4 @@
 import {
-    TileLayer,
     CircleMarker,
     Popup,
     Polyline,
@@ -20,7 +19,6 @@ export default function CartoMap(){
             style={{height:'100vh'}}
             mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
         >
-            {false && <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>}
             {false && <DataLayer/>}
             {false && <NodeLayer/>}
         </Map>
