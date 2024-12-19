@@ -16,7 +16,7 @@ import 'leaflet/dist/leaflet.css'
 export default function CartoMap(){
     return (
         <Map
-            initialViewState={{latitude: 43.65344, longitude: -79.38400, zoom: 14, bearing: -17}}
+            initialViewState={{latitude: 43.65344, longitude: -79.38400, zoom: 14, bearing: -16.5}}
             style={{height:'100vh'}}
             mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
         >
