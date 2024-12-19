@@ -4,7 +4,7 @@ import {
     Polyline,
     LayerGroup
 } from 'react-leaflet'
-import Map from 'react-map-gl/maplibre'
+import {Map, useMap} from 'react-map-gl/maplibre'
 import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
 import { useMapEvent } from 'react-leaflet/hooks'
@@ -19,7 +19,7 @@ export default function CartoMap(){
             style={{height:'100vh'}}
             mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
         >
-            {false && <DataLayer/>}
+            <DataLayer/>
             {false && <NodeLayer/>}
         </Map>
     )
@@ -28,9 +28,10 @@ export default function CartoMap(){
 function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
     const activeCorridor = data.activeCorridor
-    useMapEvent('click', (event) => { // add an intersection
+    const map = useMap()
+    map.current.once('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
-            fetch(`${domain}/nodes-within/50/${event.latlng.lng}/${event.latlng.lat}`)
+            fetch(`${domain}/nodes-within/50/${event.lngLat.lng}/${event.lngLat.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
                     const data = node[0]
@@ -45,6 +46,7 @@ function DataLayer(){
                 } )
             }
     } )
+    return <></>
     return data.corridors.filter( c => c.isComplete || c.isActive ).map( (corridor,i) => {
         // red: active not complete; green: active complete: grey: inactive
         const color = corridor.isActive ? corridor.isComplete ? 'green' : 'red' : '#0005'
