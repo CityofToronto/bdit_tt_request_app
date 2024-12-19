@@ -15,7 +15,7 @@ export class Segment {
     get fromIntersection(){ return this.#fromIntersection }
     get toIntersection(){ return this.#toIntersection }
     fetchLinks(){
-        return fetch(`${domain}/link-nodes/${this.#fromIntersection.id}/${this.toIntersection.id}`)
+        return fetch(`${domain}/link-nodes/here/${this.#fromIntersection.id}/${this.toIntersection.id}`)
             .then( resp => resp.json() )
             .then( ({links}) => {
                 this.#links = links

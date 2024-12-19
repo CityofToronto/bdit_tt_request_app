@@ -6,9 +6,9 @@ from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
 from app.get_node import get_node
 from app.get_travel_time import get_travel_time
-
-from app.get_links import get_links
-
+from app.get_here_links import get_here_links
+from app.get_centreline_links import get_centreline_links
+from app.getGitHash import getGitHash
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -23,6 +23,13 @@ def index():
                 'docstring': app.view_functions[rule.endpoint].__doc__
             } for rule in app.url_map.iter_rules()
         ]
+    })
+
+@app.route('/version')
+def version():
+    """Return the Git hash of the current application HEAD"""
+    return jsonify({
+        'git-HEAD': getGitHash()
     })
 
 # test URL /closest-node/-79.3400/43.6610
@@ -67,14 +74,24 @@ def node(node_id):
 
     return jsonify(get_node(node_id, doConflation))
 
-# test URL /link-nodes/30421154/30421153
+# test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend
-@app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
-def get_links_between_two_nodes(from_node_id, to_node_id):
-    """Returns links of the shortest path between any two nodes on the HERE network.
-    
-    Results include link_dir IDs, link geometries, and lengths in meters.
+@app.route('/link-nodes/<network>/<from_node_id>/<to_node_id>')
+def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
+    """Returns a list of links/edges defining the shortest path between two nodes.
+
+    Each link has 
+        * an ID (centreline_id or linkdir, depending on the reference network)
+        * a geometry, GeoJSON style
+        * a length in meters
+        * the name of the street
+        * source and target nodes in the reference network
     Routing is done in PostgreSQL using `here_gis.get_links_btwn_nodes_{map_version}`
+
+    arguments:
+    network (str): reference network to use; either 'here' or 'centreline'
+    from_node_id (int): origin node ID on the reference network
+    to_node_id (int): destination node ID on the reference network
     """
     try:
         from_node_id = int(from_node_id)
@@ -85,29 +102,22 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    links = get_links(from_node_id, to_node_id)
+    if network == 'here':
+        links = get_here_links(from_node_id, to_node_id)
+    elif network == 'centreline':
+        links = get_centreline_links(from_node_id, to_node_id)
+    else:
+        return jsonify({'error': "Network should be one of ['here','centreline']"}), 400
 
     return jsonify({
         "source": from_node_id, 
         "target": to_node_id,
-        "links": links,
-        # the following three fields are for compatibility and should eventually be removed
-        "path_name": "",
-        "link_dirs": [ link['link_dir'] for link in links ],
-        "geometry": {
-            "type": "MultiLineString",
-            "coordinates": [ link['geometry']['coordinates'] for link in links ]
-        }
+        "links": links
     })
 
 
-
-
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
-@app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
-    methods=['GET']
-)
+@app.route('/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>')
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
     """
     Return averaged travel times given the specified parameters.
