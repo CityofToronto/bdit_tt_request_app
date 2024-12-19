@@ -1,24 +1,49 @@
 import json, re
 from datetime import datetime
-from flask import jsonify
+from flask import jsonify, request
 from app import app
 from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
 from app.get_node import get_node
 from app.get_travel_time import get_travel_time
-
-from app.get_links import get_links
-
+from app.get_here_links import get_here_links
+from app.get_centreline_links import get_centreline_links
+from app.getGitHash import getGitHash
 @app.route('/')
 def index():
+    """Provide basic documentation about the available resources.
+    
+    All endpoints return JSON-formatted data.
+    """
     return jsonify({
-        'description': 'Travel Time App backend root',
-        'endpoints': [str(rule) for rule in app.url_map.iter_rules()]
+        'description': 'Travel Time App backend',
+        'available_endpoints': [
+            {
+                'path': str(rule),
+                'docstring': app.view_functions[rule.endpoint].__doc__
+            } for rule in app.url_map.iter_rules()
+        ]
+    })
+
+@app.route('/version')
+def version():
+    """Return the Git hash of the current application HEAD"""
+    return jsonify({
+        'git-HEAD': getGitHash()
     })
 
 # test URL /closest-node/-79.3400/43.6610
 @app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
-def closest_node(meters,longitude,latitude):
+def closest_node(meters, longitude, latitude):
+    """Return up to 20 nodes within a given radius (in meters) of a point.
+
+    Nodes are drawn from the Congestion Network, i.e. are fairly major intersections.
+
+    Arguments:
+    meters (float): distance around latitude and longitude to search
+    latitude (float): latitude of point to search around
+    longitude (float): longitude of point to search around
+    """
     try:
         longitude = float(longitude)
         latitude = float(latitude)
@@ -30,17 +55,44 @@ def closest_node(meters,longitude,latitude):
 # test URL /node/30357505
 @app.route('/node/<node_id>', methods=['GET'])
 def node(node_id):
+    """Returns information about a given node in the Here street network.
+
+    This uses the latest map version and may not recognize an older node_id.
+    
+    arguments:
+    node_id (int): identifier of the node in the latest Here map version
+    optional GET arg ?doConflation will also return the nearest node in the centreline network
+    """
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
-    return jsonify(get_node(node_id))
 
-# test URL /link-nodes/30421154/30421153
+    doConflation = False
+    if request.args.get('doConflation') is not None:
+        doConflation = True
+
+    return jsonify(get_node(node_id, doConflation))
+
+# test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend
-@app.route('/link-nodes/<from_node_id>/<to_node_id>', methods=['GET'])
-def get_links_between_two_nodes(from_node_id, to_node_id):
-    """Returns links of the shortest path between two nodes on the HERE network"""
+@app.route('/link-nodes/<network>/<from_node_id>/<to_node_id>')
+def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
+    """Returns a list of links/edges defining the shortest path between two nodes.
+
+    Each link has 
+        * an ID (centreline_id or linkdir, depending on the reference network)
+        * a geometry, GeoJSON style
+        * a length in meters
+        * the name of the street
+        * source and target nodes in the reference network
+    Routing is done in PostgreSQL using `here_gis.get_links_btwn_nodes_{map_version}`
+
+    arguments:
+    network (str): reference network to use; either 'here' or 'centreline'
+    from_node_id (int): origin node ID on the reference network
+    to_node_id (int): destination node ID on the reference network
+    """
     try:
         from_node_id = int(from_node_id)
         to_node_id = int(to_node_id)
@@ -50,35 +102,37 @@ def get_links_between_two_nodes(from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    links = get_links(from_node_id, to_node_id)
+    if network == 'here':
+        links = get_here_links(from_node_id, to_node_id)
+    elif network == 'centreline':
+        links = get_centreline_links(from_node_id, to_node_id)
+    else:
+        return jsonify({'error': "Network should be one of ['here','centreline']"}), 400
 
     return jsonify({
         "source": from_node_id, 
         "target": to_node_id,
-        "links": links,
-        # the following three fields are for compatibility and should eventually be removed
-        "path_name": "",
-        "link_dirs": [ link['link_dir'] for link in links ],
-        "geometry": {
-            "type": "MultiLineString",
-            "coordinates": [ link['geometry']['coordinates'] for link in links ]
-        }
+        "links": links
     })
 
 
-
-
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
-@app.route(
-    '/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>',
-    methods=['GET']
-)
-# - start_node, end_node (int): the congestion network / HERE node_id's
-# - start_time, end_time (int): starting (inclusive), ending (exclusive) hours of aggregation
-# - start_date, end_date (YYYY-MM-DD): start (inclusive), end (exclusive) date of aggregation
-# - include_holidays(str, boolean-ish): 'true' will include holidays
-# - dow_list(str): flattened list of integers, i.e. [1,2,3,4] -> '1234', representing days of week to be included (ISODOW)
+@app.route('/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>')
 def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
+    """
+    Return averaged travel times given the specified parameters.
+
+    This function just parses arguments and otherwise wraps around `get_travel_times` which does the actual work...
+    Aggregates travel times, returning averaged travel times along the selected corridor during the specified dates and times.
+    Also returns some helpful diagnostic data such as the parsed query args, the route identified between the nodes, and some measures of sampling error.
+
+    Arguments:
+    start_node, end_node (int): HERE network node_id's from the current Here map version
+    start_time, end_time (int): starting (inclusive), ending (exclusive) hours. May include leading zeros. If the end_time is less than the start_time, the time will wrap midnight.
+    start_date, end_date (str, YYYY-MM-DD): start (inclusive), end (exclusive) dates. end_date must be greater than start_date.
+    include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
+    dow_list (str): concatenated list of integers representing days of week to be included; ISODOW specification. E.g. [6,7] -> '67' for Saturday and Sunday only.
+    """
     try:
         start_node = int(start_node)
         end_node = int(end_node)
@@ -116,6 +170,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
 # test URL /date-bounds
 @app.route('/date-range', methods=['GET'])
 def get_date_bounds():
+    """Returns the dates of the earliest and latest available travel time data."""
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
@@ -130,7 +185,10 @@ def get_date_bounds():
 # test URL /holidays
 @app.route('/holidays', methods=['GET'])
 def get_holidays():
-    "Return dates of all known holidays in ascending order"
+    """Return dates of all Ontario holidays in ascending order.
+
+    Holidays will fully cover the range of any available travel time data.
+    """
     connection = getConnection()
     query = f"""
     SELECT
