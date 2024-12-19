@@ -8,20 +8,26 @@ The Travel Time Request App is a simple web application designed to help City st
 This app was originally developed as a [class project by U of T students](https://www.youtube.com/watch?v=y6lnefduogo) in partnership with the City, though it has undergone substantial development by the Data & Analytics Unit since then. 
 
 ## How to use the app
-When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/), you will be prompted to add/create at least one of each of the following:
-* a corridor, drawn on the map
-* a time range, given in hours of the day, 00 - 23
-* a date range (note that the end of the date range is exclusive)
-* a day of week selection
-* a selection of whether or not to include statutory holidays 
 
-The app will combine these factors together to request travel times for all possible combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
+### Via the front-end user-interface 
+
+When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/), you will be prompted to create at least one of each of the following factors:
+
+| Factor | Description |
+| ----- | ----------- |
+| Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. |
+| Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight[^1]. |
+| Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. |
+| Day of Week | Identify the days of week to include in the aggregation. |
+| Holiday Inclusion | Decide whether to include or exclude Ontario's statutory holidays if applicable. You can also opt to do it both ways. |
+
+The app will combine these factors together to request travel times for all valid combinations. If one of each type of factor is selected, only a single travel time will be estimated with the given parameters. 
 
 Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON.
 
 If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process.
 
-## Outputs
+#### Outputs
 
 The app can return results in either CSV or JSON format. The fields in either case are the same:
 
@@ -40,10 +46,15 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
 
+### By querying the back-end API directly
+
+The front-end UI pulls all data from the backend service available at https://trans-bdit.intra.prod-toronto.ca/tt-request-backend/. This API defines several endpoints, all of which return JSON-structured data. Those endpoints are documented at the link above.
+
+Generally, the API returns much more data than is available through the UI and this allows some extended use-cases which are just starting to be documented in the [`analysis/`](./analysis) folder. These may include looking at travel time variability within a given window and conducting statistical comparisons between different time periods.
 
 ## Methodology
 
-Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to about 2017. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
+Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to 2017-09-01. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
 
 The number of vehicles within the City of Toronto reporting their position to HERE in this way has been [estimated](./analysis/total-fleet-size.r) to be around 2,000 to 3,000 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.  
 
@@ -59,8 +70,10 @@ We aggregate corridors together spatially as necessary into larger corridors whe
 
 ### Other means of estimating travel times
 
-The City also has [bluetooth sensors](https://github.com/CityofToronto/bdit_data-sources/blob/master/bluetooth/README.md) at some intersections which can be used to get a more reliable measure of travel time. These sensors pick up a much larger proportion of vehicles than the HERE data, making it possible to do a temporally fine-grained analysis. The sensors however are only in a few locations, especially in the downtown core and along the Gardiner and DVP expressways.  
+The City also has [bluetooth sensors](https://github.com/CityofToronto/bdit_data-sources/blob/master/bluetooth/README.md) at some intersections which can be used to get a more reliable measure of travel time. These sensors pick up a much larger proportion of vehicles than the HERE data, making it possible to do a temporally fine-grained analysis. The sensors however are only in a few locations, especially in the downtown core and along the Gardiner and DVP expressways.
 
 ## Development
 
 For information on development and deployment, see [Running the App](./running-the-app.md).
+
+[^1]: Time ranges that wrap midnight will result in some discontinuity of periods because of the interaction with the date range and day-of-week paremeters. For example, if you select the time range `[22,2)` but only have one date within your date range (e.g. `[2024-01-01,2024-01-02)`) then the aggregation will include both the period from `[2024-01-01 00:00:00, 2024-01-01 02:00:00)` and `[2024-01-01 22:00:00, 2024-01-01 00:00:00)`, averaged together. That is, both the early morning and late evening of the same day.
