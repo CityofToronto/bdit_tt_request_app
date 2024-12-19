@@ -41,25 +41,34 @@ function DataLayer(){
                 } )
             }
     } )
-    const corridorsGeojson = {
+    const corridorsGeojsonLinear = {
         type: 'FeatureCollection',
-        features: data.corridors.flatMap(c=>c.geojsonFeatures)
+        features: data.corridors.flatMap(c=>c.geojsonFeaturesLinear)
+    }
+    const corridorsGeojsonPoint = {
+        type: 'FeatureCollection',
+        features: data.corridors.flatMap(c=>c.geojsonFeaturesPoint)
     }
     const nodeStyle = {
-        id:'corridor-links',
+        id:'corridor-nodes',
         type:'circle',
         paint:{'circle-radius': 5, 'circle-color': 'red'}
     }
     const lineStyle = {
         id:'corridor-links',
         type:'line',
-        paint:{'line-width': 10, 'line-color': 'black'}
+        paint:{'line-width': 3, 'line-color': 'black'},
+        layout: {'line-cap': 'round'}
     }
     return (
-        <Source id='corridor-links' type='geojson'data={corridorsGeojson}>
-            <Layer {...nodeStyle}/>
-            <Layer {...lineStyle}/>
-        </Source>
+        <>
+            <Source id='corridor-links' type='geojson'data={corridorsGeojsonLinear}>
+                <Layer {...lineStyle}/>
+            </Source>
+            <Source id='corridor-nodes' type='geojson'data={corridorsGeojsonPoint}>
+                <Layer {...nodeStyle}/>
+            </Source>
+        </>
     )
 }
 
