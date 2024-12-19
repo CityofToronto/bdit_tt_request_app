@@ -1,12 +1,15 @@
 """Function for returning data from the aggregate-travel-times/ endpoint"""
 
 from app.db import getConnection
-from app.get_links import get_links
+from app.get_here_links import get_here_links
 from app.selectMapVersion import selectMapVersion
+from traveltimetools.utils import timeFormats
 import numpy
 import math
 import pandas
 import random
+import json
+from app.getGitHash import getGitHash
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -19,16 +22,43 @@ def mean_daily_mean(obs):
     # average the days together
     return numpy.mean(daily_means)
 
-def timeFormat(seconds):
-    return {
-        'seconds': round(seconds,3),
-        'minutes': round(seconds/60,3),
-        # format travel times in seconds like a clock for humans to read
-        'clock': f'{math.floor(seconds/3600):02d}:{math.floor((seconds/60)%60):02d}:{round(seconds%60):02d}'
-    }
+def checkCache(uri):
+    query = f'''
+        SELECT results
+        FROM nwessel.cached_travel_times
+        WHERE uri_string = %(uri)s AND commit_hash = %(hash)s
+    '''
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, {'uri': uri, 'hash': getGitHash()})
+                for (record,) in cursor: # will skip if no records
+                    return record # there could only be one
+            except:
+                pass
+
+def cacheAndReturn(obj,uri):
+    query = f'''
+        INSERT INTO nwessel.cached_travel_times (uri_string, commit_hash, results)
+        VALUES (%(uri)s, %(hash)s, %(results)s)
+    '''
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
+            finally:
+                return obj
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
+
+    # first check the cache
+    cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
+    cachedValue = checkCache(cacheURI)
+    if cachedValue:
+        return cachedValue
 
     holiday_clause = ''
     if not include_holidays:
@@ -61,7 +91,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     map_version = selectMapVersion(start_date, end_date)
 
-    links = get_links(
+    links = get_here_links(
         start_node,
         end_node,
         map_version
@@ -157,7 +187,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     if len(sample) < 1:
         # no travel times or related info to return here
-        return {
+        return cacheAndReturn({
             'results': {
                 'travel_time': None,
                 'observations': [],
@@ -169,7 +199,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 'corridor': {'links': links, 'map_version': map_version},
                 'query_params': query_params
             }
-        }
+        }, cacheURI)
 
     tt_seconds = mean_daily_mean(sample)
 
@@ -183,25 +213,25 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         p95lower, p95upper = numpy.percentile(sample_distribution, [2.5, 97.5])
         reported_intervals = {
             'p=0.95': {
-                'lower': timeFormat(p95lower),
-                'upper': timeFormat(p95upper)
+                'lower': timeFormats(p95lower,1),
+                'upper': timeFormats(p95upper,1)
             }
         }
 
-    return {
+    return cacheAndReturn({
         'results': {
-            'travel_time': timeFormat(tt_seconds),
+            'travel_time': timeFormats(tt_seconds,1),
             'confidence': {
                 'sample': len(sample),
                 'intervals': reported_intervals
             },
-            'observations': [timeFormat(tt) for (dt,tt) in sample]
+            'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
             'corridor': {'links': links, 'map_version': map_version},
             'query_params': query_params
         }
-    }
+    },cacheURI)
 
 def make_bins(links_df, link_speeds_df):
     """Create the smallest temporal bins possible while ensuring at least 80%
