@@ -52,7 +52,13 @@ function DataLayer(){
     const nodeStyle = {
         id:'corridor-nodes',
         type:'circle',
-        paint:{'circle-radius': 5, 'circle-color': 'red'}
+        paint:{
+            'circle-radius': 8, 
+            'circle-color': 'red',
+            'circle-opacity': 0.2,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': 'red'
+        }
     }
     const lineStyle = {
         id:'corridor-links',
