@@ -1,4 +1,4 @@
-import {CircleMarker, Polyline, LayerGroup} from 'react-leaflet'
+import {CircleMarker, LayerGroup} from 'react-leaflet'
 import {Map, useMap, Source, Layer} from 'react-map-gl/maplibre'
 import { useContext, useState } from 'react'
 import { DataContext } from '../Layout'
