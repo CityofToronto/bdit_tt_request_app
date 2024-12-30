@@ -21,9 +21,7 @@ export default function CartoMap(){
 function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
     const activeCorridor = data.activeCorridor
-    const map = useMap()
-    // TODO: should only be set up as needed
-    map.current.once('click', (event) => { // add an intersection
+    useMap().current.once('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
             fetch(`${domain}/nodes-within/50/${event.lngLat.lng}/${event.lngLat.lat}`)
                 .then( resp => resp.json() )
