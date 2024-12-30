@@ -20,6 +20,23 @@ export class Corridor extends Factor {
             return link.source == links[i-1].target
         } )
     }
+    get geojsonFeaturesLinear(){
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'MultiLineString',
+                coordinates: this.links.map(link=>link.geometry.coordinates)
+            },
+            properties: { 'color': this.isComplete ? 'green' : 'red' }
+        }
+    }
+    get geojsonFeaturesPoint(){
+        return this.intersections.map( i => {
+            let feature = i.geojson
+            feature.properties.color = this.isComplete ? 'green' : 'red'
+            return feature
+        } )
+    }
     addIntersection(intersection,logActivity){
         console.assert(intersection instanceof Intersection)
         this.#intersections.set(intersection.id, intersection)
