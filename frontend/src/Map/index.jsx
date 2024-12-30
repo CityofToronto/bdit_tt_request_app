@@ -1,22 +1,20 @@
-import {CircleMarker, LayerGroup} from 'react-leaflet'
-import {Map, useMap, Source, Layer} from 'react-map-gl/maplibre'
-import { useContext, useState } from 'react'
+import { Map as MapGL, useMap, Source, Layer } from 'react-map-gl/maplibre'
+import { useContext, useState, useEffect } from 'react'
 import { DataContext } from '../Layout'
-import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
 import { Intersection } from '../intersection.js'
-import 'leaflet/dist/leaflet.css'
 
 export default function CartoMap(){
     return (
-        <Map
+        <MapGL
             initialViewState={{latitude: 43.65344, longitude: -79.38400, zoom: 14, bearing: -16.5}}
             style={{height:'100vh'}}
             mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
+            doubleClickZoom={false}
         >
             <DataLayer/>
-            {false && <NodeLayer/>}
-        </Map>
+            <NodeLayer/>
+        </MapGL>
     )
 }
 
@@ -24,6 +22,7 @@ function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
     const activeCorridor = data.activeCorridor
     const map = useMap()
+    // TODO: should only be set up as needed
     map.current.once('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
             fetch(`${domain}/nodes-within/50/${event.lngLat.lng}/${event.lngLat.lat}`)
@@ -81,32 +80,47 @@ function DataLayer(){
 function NodeLayer(){
     // briefly shows locations of nearby clickable nodes on double-click
     const [ nodes, setNodes ] = useState( new Map() )
-    useMapEvent('dblclick', (event) => {
-        fetch(`${domain}/nodes-within/1000/${event.latlng.lng}/${event.latlng.lat}`)
-            .then( resp => resp.json() )
-            .then( intersections => {
-                setNodes( n => { // add intersections
-                    intersections.forEach( i => n.set(i.node_id,i) )
-                    return new Map(n)
-                } )
-                setTimeout( // remove them
-                    () => setNodes( n => {
-                        intersections.forEach( i => n.delete(i.node_id) )
+    const map = useMap()
+    useEffect(()=>{
+        map.current.on('dblclick', event => {
+            fetch(`${domain}/nodes-within/1000/${event.lngLat.lng}/${event.lngLat.lat}`)
+                .then( resp => resp.json() )
+                .then( intersections => {
+                    setNodes( n => { // add intersections
+                        intersections.forEach( i => n.set(i.node_id,i) )
                         return new Map(n)
-                    } ),
-                    5000
-                )
-            } )
-    } )
+                    } )
+                    setTimeout( // remove them
+                        () => setNodes( n => {
+                            intersections.forEach( i => n.delete(i.node_id) )
+                            return new Map(n)
+                        } ),
+                        5000
+                    )
+                } )
+        })
+    },[])
+    const nodesGeoJSON = {
+        type: 'FeatureCollection',
+        features: [...nodes.values()].map( node => ({
+            type: 'Feature',
+            geometry: node.geometry
+        }) )
+    }
+    const style = {
+        id:'nodes',
+        type:'circle',
+        paint:{
+            'circle-radius': 3, 
+            'circle-color': 'grey',
+            'circle-opacity': 0.5,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': 'grey'
+        }
+    }
     return (
-        <LayerGroup>
-            {[...nodes.values()].map( (node,i) => (
-                <CircleMarker key={i}
-                    center={{lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0]}}
-                    radius={5}
-                    pathOptions={{color:'grey'}}
-                />
-            ) ) }
-        </LayerGroup>
+        <Source id='nodes' type='geojson'data={nodesGeoJSON}>
+            <Layer {...style}/>
+        </Source>
     )
 }
