@@ -104,16 +104,19 @@ const styles = {
             type:'circle',
             paint:{
                 'circle-radius': 8, 
-                'circle-color': 'red',
+                'circle-color': ['get','color'],
                 'circle-opacity': 0.2,
                 'circle-stroke-width': 2,
-                'circle-stroke-color': 'red'
+                'circle-stroke-color': ['get','color']
             }
         },
         lines: {
             id:'corridor-links',
             type:'line',
-            paint:{'line-width': 3, 'line-color': 'black'},
+            paint:{
+                'line-width': 3,
+                'line-color': ['get','color']
+            },
             layout: {'line-cap': 'round'}
         }
     },
