@@ -1,41 +1,29 @@
-import {
-    MapContainer,
-    TileLayer,
-    CircleMarker,
-    Popup,
-    Polyline,
-    LayerGroup
-} from 'react-leaflet'
-import { useContext, useState } from 'react'
+import { Map as MapGL, useMap, Source, Layer } from 'react-map-gl/maplibre'
+import { useContext, useState, useEffect } from 'react'
 import { DataContext } from '../Layout'
-import { useMapEvent } from 'react-leaflet/hooks'
 import { domain } from '../domain.js'
 import { Intersection } from '../intersection.js'
-import 'leaflet/dist/leaflet.css'
-
-const initialMapCenter = { lat: 43.65344, lng: -79.38400 }
 
 export default function CartoMap(){
     return (
-        <MapContainer
-            center={initialMapCenter}
-            zoom={15}
+        <MapGL
+            initialViewState={{latitude: 43.65344, longitude: -79.38400, zoom: 14, bearing: -16.5}}
             style={{height:'100vh'}}
+            mapStyle="https://api.maptiler.com/maps/streets-v2/style.json?key=0qLDQrWKpxpwWHjpSoeG"
             doubleClickZoom={false}
         >
-            <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'/>
             <DataLayer/>
             <NodeLayer/>
-        </MapContainer>
+        </MapGL>
     )
 }
 
 function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
     const activeCorridor = data.activeCorridor
-    useMapEvent('click', (event) => { // add an intersection
+    useMap().current.once('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
-            fetch(`${domain}/nodes-within/50/${event.latlng.lng}/${event.latlng.lat}`)
+            fetch(`${domain}/nodes-within/50/${event.lngLat.lng}/${event.lngLat.lat}`)
                 .then( resp => resp.json() )
                 .then( node => {
                     const data = node[0]
@@ -50,69 +38,95 @@ function DataLayer(){
                 } )
             }
     } )
-    return data.corridors.filter( c => c.isComplete || c.isActive ).map( (corridor,i) => {
-        // red: active not complete; green: active complete: grey: inactive
-        const color = corridor.isActive ? corridor.isComplete ? 'green' : 'red' : '#0005'
-        return (
-            <LayerGroup key={i}>
-                {corridor.intersections.map( intersection => (
-                    <CircleMarker key={intersection.id}
-                        center={intersection.latlng}
-                        radius={10}
-                        pathOptions={{color}}
-                    >
-                        {corridor.isActive && <Popup>
-                            <h3>{intersection.description}</h3>
-                            <table>
-                                <tbody>
-                                    <tr><th>Intersection ID</th><td>{intersection.id}</td></tr>
-                                </tbody>
-                            </table> 
-                        </Popup>}
-                    </CircleMarker>
-                ) ) }
-                {corridor.links.map( link => {
-                    return (
-                        <Polyline key={link.link_dir} 
-                            positions={link.geometry.coordinates.map( ([lng,lat]) => ({lng,lat}) ) }
-                            pathOptions={{color}}
-                        />
-                    )
-                } ) }
-            </LayerGroup>
-        )
-    } )
+    const corridorsGeojsonLinear = {
+        type: 'FeatureCollection',
+        features: data.corridors.flatMap(c=>c.geojsonFeaturesLinear)
+    }
+    const corridorsGeojsonPoint = {
+        type: 'FeatureCollection',
+        features: data.corridors.flatMap(c=>c.geojsonFeaturesPoint)
+    }
+    return (
+        <>
+            <Source id='corridor-links' type='geojson'data={corridorsGeojsonLinear}>
+                <Layer {...styles.corridors.lines}/>
+            </Source>
+            <Source id='corridor-nodes' type='geojson'data={corridorsGeojsonPoint}>
+                <Layer {...styles.corridors.nodes}/>
+            </Source>
+        </>
+    )
 }
 
 function NodeLayer(){
     // briefly shows locations of nearby clickable nodes on double-click
     const [ nodes, setNodes ] = useState( new Map() )
-    useMapEvent('dblclick', (event) => {
-        fetch(`${domain}/nodes-within/1000/${event.latlng.lng}/${event.latlng.lat}`)
-            .then( resp => resp.json() )
-            .then( intersections => {
-                setNodes( n => { // add intersections
-                    intersections.forEach( i => n.set(i.node_id,i) )
-                    return new Map(n)
-                } )
-                setTimeout( // remove them
-                    () => setNodes( n => {
-                        intersections.forEach( i => n.delete(i.node_id) )
+    const map = useMap()
+    useEffect(()=>{
+        map.current.on('dblclick', event => {
+            fetch(`${domain}/nodes-within/1000/${event.lngLat.lng}/${event.lngLat.lat}`)
+                .then( resp => resp.json() )
+                .then( intersections => {
+                    setNodes( n => { // add intersections
+                        intersections.forEach( i => n.set(i.node_id,i) )
                         return new Map(n)
-                    } ),
-                    5000
-                )
-            } )
-    } )
+                    } )
+                    setTimeout( // remove them
+                        () => setNodes( n => {
+                            intersections.forEach( i => n.delete(i.node_id) )
+                            return new Map(n)
+                        } ),
+                        5000
+                    )
+                } )
+        })
+    },[])
+    const nodesGeoJSON = {
+        type: 'FeatureCollection',
+        features: [...nodes.values()].map( node => ({
+            type: 'Feature',
+            geometry: node.geometry
+        }) )
+    }
     return (
-        <LayerGroup>
-            {[...nodes.values()].map( (node,i) => (
-                <CircleMarker key={i}
-                    center={{lat: node.geometry.coordinates[1], lng: node.geometry.coordinates[0]}}
-                    radius={5}
-                    pathOptions={{color:'grey'}}
-                />
-            ) ) }
-        </LayerGroup>
+        <Source id='nodes' type='geojson'data={nodesGeoJSON}>
+            <Layer {...styles.nodes}/>
+        </Source>
     )
+}
+
+const styles = {
+    corridors: {
+        nodes: {
+            id:'corridor-nodes',
+            type:'circle',
+            paint:{
+                'circle-radius': 8, 
+                'circle-color': ['get','color'],
+                'circle-opacity': 0.2,
+                'circle-stroke-width': 2,
+                'circle-stroke-color': ['get','color']
+            }
+        },
+        lines: {
+            id:'corridor-links',
+            type:'line',
+            paint:{
+                'line-width': 3,
+                'line-color': ['get','color']
+            },
+            layout: {'line-cap': 'round'}
+        }
+    },
+    nodes: {
+        id:'nodes',
+        type:'circle',
+        paint:{
+            'circle-radius': 3, 
+            'circle-color': 'grey',
+            'circle-opacity': 0.5,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': 'grey'
+        }
+    }
 }
