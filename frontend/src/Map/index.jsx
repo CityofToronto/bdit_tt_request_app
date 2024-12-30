@@ -48,30 +48,13 @@ function DataLayer(){
         type: 'FeatureCollection',
         features: data.corridors.flatMap(c=>c.geojsonFeaturesPoint)
     }
-    const nodeStyle = {
-        id:'corridor-nodes',
-        type:'circle',
-        paint:{
-            'circle-radius': 8, 
-            'circle-color': 'red',
-            'circle-opacity': 0.2,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': 'red'
-        }
-    }
-    const lineStyle = {
-        id:'corridor-links',
-        type:'line',
-        paint:{'line-width': 3, 'line-color': 'black'},
-        layout: {'line-cap': 'round'}
-    }
     return (
         <>
             <Source id='corridor-links' type='geojson'data={corridorsGeojsonLinear}>
-                <Layer {...lineStyle}/>
+                <Layer {...styles.corridors.lines}/>
             </Source>
             <Source id='corridor-nodes' type='geojson'data={corridorsGeojsonPoint}>
-                <Layer {...nodeStyle}/>
+                <Layer {...styles.corridors.nodes}/>
             </Source>
         </>
     )
@@ -107,7 +90,34 @@ function NodeLayer(){
             geometry: node.geometry
         }) )
     }
-    const style = {
+    return (
+        <Source id='nodes' type='geojson'data={nodesGeoJSON}>
+            <Layer {...styles.nodes}/>
+        </Source>
+    )
+}
+
+const styles = {
+    corridors: {
+        nodes: {
+            id:'corridor-nodes',
+            type:'circle',
+            paint:{
+                'circle-radius': 8, 
+                'circle-color': 'red',
+                'circle-opacity': 0.2,
+                'circle-stroke-width': 2,
+                'circle-stroke-color': 'red'
+            }
+        },
+        lines: {
+            id:'corridor-links',
+            type:'line',
+            paint:{'line-width': 3, 'line-color': 'black'},
+            layout: {'line-cap': 'round'}
+        }
+    },
+    nodes: {
         id:'nodes',
         type:'circle',
         paint:{
@@ -118,9 +128,4 @@ function NodeLayer(){
             'circle-stroke-color': 'grey'
         }
     }
-    return (
-        <Source id='nodes' type='geojson'data={nodesGeoJSON}>
-            <Layer {...style}/>
-        </Source>
-    )
 }
