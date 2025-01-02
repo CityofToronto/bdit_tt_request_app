@@ -71,8 +71,8 @@ def node(node_id):
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
-
-    return jsonify(get_node(node_id, doConflation))
+    node = get_node(node_id, doConflation)
+    return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend
