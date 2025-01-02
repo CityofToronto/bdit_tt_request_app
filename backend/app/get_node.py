@@ -23,6 +23,8 @@ def get_node(node_id, conflate_with_centreline=False):
     with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {"node_id": node_id})
+            if cursor.rowcount != 1:
+                return None
             geojson, street_names = cursor.fetchone()
             node = {
                 'node_id': node_id,
