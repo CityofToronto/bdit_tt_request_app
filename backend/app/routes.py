@@ -52,18 +52,21 @@ def closest_node(meters, longitude, latitude):
         return jsonify({'error': "all inputs must be decimal numbers"})
     return jsonify(get_nodes_within(meters,longitude,latitude))
 
-# test URL /node/30357505
-@app.route('/node/<node_id>', endpoint='generic')
+# test URL /node/here/30357505
+@app.route('/node/<node_id>', endpoint='generic') # will be deprecated
 @app.route('/node/here/<node_id>', endpoint='here')
 @app.route('/node/centreline/<node_id>', endpoint='centreline')
 def get_node(node_id):
-    """Returns information about a given node in the Here street network.
+    """Returns information about a given node in the either the Here or
+    Centreline street networks.
 
-    This uses the latest map version and may not recognize an older node_id.
+    This uses the latest version of either network and may not recognize an
+    older node_id.
     
     arguments:
     node_id (int): identifier of the node in the latest Here map version
-    optional GET arg ?doConflation will also return the nearest node in the centreline network
+    optional GET arg ?doConflation will also return the nearest node in the other
+        network as well as it's distance in meters from the selected node
     """
     if request.endpoint == 'centreline':
         return {'error': 'centreline network not yet supported'}
