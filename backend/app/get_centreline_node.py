@@ -2,7 +2,7 @@
 
 import json
 from app.db import getConnection
-from app.get_nearest_centreline_node import get_nearest_centreline_node
+from app.get_nearest_here_nodes import get_here_nodes_within
 
 SQL = '''
 SELECT
@@ -31,9 +31,11 @@ def get_centreline_node(node_id, conflate_with_here=False):
             if conflate_with_here:
                 lon = node['geometry']['coordinates'][0]
                 lat = node['geometry']['coordinates'][1]
-                node['conflated'] = {
-                    # TODO should be Here
-                    'centreline': get_nearest_centreline_node(lon, lat)
-                }
+                try:
+                    node['conflated'] = {
+                        'here': get_here_nodes_within(50, lon, lat, 1)[0]
+                    }
+                except:
+                    pass
     connection.close()
     return node

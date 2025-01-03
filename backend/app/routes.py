@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import jsonify, request
 from app import app
 from app.db import getConnection
-from app.get_closest_nodes import get_nodes_within
+from app.get_nearest_here_nodes import get_here_nodes_within
 from app.get_here_node import get_here_node
 from app.get_centreline_node import get_centreline_node
 from app.get_travel_time import get_travel_time
@@ -33,7 +33,7 @@ def version():
         'git-HEAD': getGitHash()
     })
 
-# test URL /closest-node/-79.3400/43.6610
+# test URL /nodes-within/50/-79.3400/43.6610
 @app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
 def closest_node(meters, longitude, latitude):
     """Return up to 20 nodes within a given radius (in meters) of a point.
@@ -51,7 +51,7 @@ def closest_node(meters, longitude, latitude):
         meters = float(meters)
     except:
         return jsonify({'error': "all inputs must be decimal numbers"})
-    return jsonify(get_nodes_within(meters,longitude,latitude))
+    return jsonify(get_here_nodes_within(meters,longitude,latitude))
 
 # test URL /node/here/30357505
 @app.route('/node/<node_id>', endpoint='generic') # will be deprecated
