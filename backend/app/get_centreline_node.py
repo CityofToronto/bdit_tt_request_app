@@ -1,5 +1,3 @@
-"""fetch a specific node by it's ID"""
-
 import json
 from app.db import getConnection
 from app.get_nearest_here_nodes import get_here_nodes_within
@@ -15,6 +13,7 @@ GROUP BY geom;
 '''
 
 def get_centreline_node(node_id, conflate_with_here=False):
+    """fetch a specific centreline node by it's ID"""
     node = {}
     with getConnection() as connection:
         with connection.cursor() as cursor:
