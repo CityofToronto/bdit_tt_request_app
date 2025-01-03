@@ -38,7 +38,8 @@ def get_nearest_centreline_node(longitude, latitude):
             cursor.execute(SQL, {'longitude': longitude, 'latitude': latitude})
             centreline_id, geojson, distance, street_names = cursor.fetchone()
             node = {
-                'centreline_id': centreline_id,
+                'centreline_id': centreline_id, # deprecated
+                'node_id': centreline_id,
                 'street_names': street_names,
                 'geometry': loadJSON(geojson),
                 'distance': distance
