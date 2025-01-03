@@ -18,7 +18,7 @@ GROUP BY
     here_nodes.geom;
 '''
 
-def get_node(node_id, conflate_with_centreline=False):
+def get_here_node(node_id, conflate_with_centreline=False):
     node = {}
     with getConnection() as connection:
         with connection.cursor() as cursor:
@@ -28,6 +28,7 @@ def get_node(node_id, conflate_with_centreline=False):
             geojson, street_names = cursor.fetchone()
             node = {
                 'node_id': node_id,
+                'network': 'here',
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
