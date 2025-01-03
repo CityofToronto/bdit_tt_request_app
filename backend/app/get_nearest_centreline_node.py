@@ -40,6 +40,7 @@ def get_nearest_centreline_node(longitude, latitude):
             node = {
                 'centreline_id': centreline_id, # deprecated
                 'node_id': centreline_id,
+                'network': 'centreline',
                 'street_names': street_names,
                 'geometry': loadJSON(geojson),
                 'distance': distance

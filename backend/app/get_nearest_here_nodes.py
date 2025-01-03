@@ -27,6 +27,7 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
                 if distance <= meters:
                     candidate_nodes.append( {
                         'node_id': node_id,
+                        'network': 'here',
                         'street_names': street_names,
                         'geometry': json.loads(geojson)
                     } )
