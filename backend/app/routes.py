@@ -53,8 +53,9 @@ def closest_node(meters, longitude, latitude):
     return jsonify(get_nodes_within(meters,longitude,latitude))
 
 # test URL /node/30357505
-@app.route('/node/<node_id>')
-@app.route('/node/here/<node_id>')
+@app.route('/node/<node_id>', endpoint='generic')
+@app.route('/node/here/<node_id>', endpoint='here')
+@app.route('/node/centreline/<node_id>', endpoint='centreline')
 def get_node(node_id):
     """Returns information about a given node in the Here street network.
 
@@ -64,6 +65,8 @@ def get_node(node_id):
     node_id (int): identifier of the node in the latest Here map version
     optional GET arg ?doConflation will also return the nearest node in the centreline network
     """
+    if request.endpoint == 'centreline':
+        return {'error': 'centreline network not yet supported'}
     try:
         node_id = int(node_id)
     except:
@@ -74,8 +77,6 @@ def get_node(node_id):
         doConflation = True
     node = get_here_node(node_id, doConflation)
     return jsonify(node if node else {'error': 'node not found'})
-
-
 
 # test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend
