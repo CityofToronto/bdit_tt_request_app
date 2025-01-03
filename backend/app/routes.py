@@ -4,7 +4,7 @@ from flask import jsonify, request
 from app import app
 from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
-from app.get_node import get_node
+from app.get_here_node import get_here_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
@@ -53,7 +53,7 @@ def closest_node(meters, longitude, latitude):
     return jsonify(get_nodes_within(meters,longitude,latitude))
 
 # test URL /node/30357505
-@app.route('/node/<node_id>', methods=['GET'])
+@app.route('/node/<node_id>')
 def node(node_id):
     """Returns information about a given node in the Here street network.
 
@@ -71,7 +71,7 @@ def node(node_id):
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
-    node = get_node(node_id, doConflation)
+    node = get_here_node(node_id, doConflation)
     return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153

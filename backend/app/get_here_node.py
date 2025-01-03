@@ -18,7 +18,7 @@ GROUP BY
     here_nodes.geom;
 '''
 
-def get_node(node_id, conflate_with_centreline=False):
+def get_here_node(node_id, conflate_with_centreline=False):
     node = {}
     with getConnection() as connection:
         with connection.cursor() as cursor:
