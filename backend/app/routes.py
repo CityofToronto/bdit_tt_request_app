@@ -5,6 +5,7 @@ from app import app
 from app.db import getConnection
 from app.get_closest_nodes import get_nodes_within
 from app.get_here_node import get_here_node
+from app.get_centreline_node import get_centreline_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
@@ -68,17 +69,17 @@ def get_node(node_id):
     optional GET arg ?doConflation will also return the nearest node in the other
         network as well as it's distance in meters from the selected node
     """
-    if request.endpoint == 'centreline':
-        return {'error': 'centreline network not yet supported'}
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
-
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
-    node = get_here_node(node_id, doConflation)
+    if request.endpoint == 'centreline':
+        node = get_centreline_node(node_id, doConflation)
+    else: # here network
+        node = get_here_node(node_id, doConflation)
     return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
