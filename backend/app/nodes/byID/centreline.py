@@ -1,6 +1,6 @@
 import json
 from app.db import getConnection
-from app.get_nearest_here_nodes import get_here_nodes_within
+from app.nodes.nearby.here import get_here_nodes_within
 from app.nodes.byID.px import get_px_node
 
 SQL = '''

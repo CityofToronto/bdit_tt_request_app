@@ -2,7 +2,7 @@
 
 import json
 from app.db import getConnection
-from app.get_nearest_centreline_node import get_nearest_centreline_node
+from app.nodes.nearby.centreline import get_nearest_centreline_node
 
 SQL = '''
 SELECT

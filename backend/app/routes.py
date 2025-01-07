@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import jsonify, request
 from app import app
 from app.db import getConnection
-from app.get_nearest_here_nodes import get_here_nodes_within
+from app.nodes.nearby.here import get_here_nodes_within
 from app.nodes.byID.here import get_here_node
 from app.nodes.byID.centreline import get_centreline_node
 from app.get_travel_time import get_travel_time
