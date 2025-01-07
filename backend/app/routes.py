@@ -3,9 +3,9 @@ from datetime import datetime
 from flask import jsonify, request
 from app import app
 from app.db import getConnection
-from app.get_nearest_here_nodes import get_here_nodes_within
-from app.get_here_node import get_here_node
-from app.get_centreline_node import get_centreline_node
+from app.nodes.nearby.here import get_here_nodes_within
+from app.nodes.byID.here import get_here_node
+from app.nodes.byID.centreline import get_centreline_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
@@ -67,7 +67,7 @@ def get_node(node_id):
     arguments:
     node_id (int): identifier of the node in the latest Here map version
     optional GET arg ?doConflation will also return the nearest node in the other
-        network as well as it's distance in meters from the selected node
+        networks as well as their distance in meters from the main selected node
     """
     try:
         node_id = int(node_id)

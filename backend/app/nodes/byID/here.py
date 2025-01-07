@@ -2,7 +2,7 @@
 
 import json
 from app.db import getConnection
-from app.get_nearest_centreline_node import get_nearest_centreline_node
+from app.nodes.conflation import add_conflated_nodes
 
 SQL = '''
 SELECT
@@ -32,11 +32,7 @@ def get_here_node(node_id, conflate_with_centreline=False):
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-            if conflate_with_centreline:
-                lon = node['geometry']['coordinates'][0]
-                lat = node['geometry']['coordinates'][1]
-                node['conflated'] = {
-                    'centreline': get_nearest_centreline_node(lon, lat)
-                }
     connection.close()
+    if conflate_with_centreline:
+        node = add_conflated_nodes(node)
     return node

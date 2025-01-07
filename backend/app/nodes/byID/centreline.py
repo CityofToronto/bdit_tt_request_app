@@ -1,6 +1,6 @@
 import json
 from app.db import getConnection
-from app.get_nearest_here_nodes import get_here_nodes_within
+from app.nodes.conflation import add_conflated_nodes
 
 SQL = '''
 SELECT
@@ -9,10 +9,9 @@ SELECT
 FROM gis_core.intersection_latest
 WHERE intersection_id = %(node_id)s
 GROUP BY geom;
-
 '''
 
-def get_centreline_node(node_id, conflate_with_here=False):
+def get_centreline_node(node_id, doConflation=False):
     """fetch a specific centreline node by it's ID"""
     node = {}
     with getConnection() as connection:
@@ -27,14 +26,7 @@ def get_centreline_node(node_id, conflate_with_here=False):
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-            if conflate_with_here:
-                lon = node['geometry']['coordinates'][0]
-                lat = node['geometry']['coordinates'][1]
-                try:
-                    node['conflated'] = {
-                        'here': get_here_nodes_within(50, lon, lat, 1)[0]
-                    }
-                except:
-                    pass
     connection.close()
+    if doConflation:
+        node = add_conflated_nodes(node)
     return node

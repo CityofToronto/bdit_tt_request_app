@@ -8,3 +8,4 @@ psycopg==3.1.18
 python-dotenv==0.15.0
 numpy==1.26.0
 git+ssh://git@github.com/Toronto-Big-Data-Innovation-Team/traveltimetools.git@v1.0.0
+haversine==2.9.0
