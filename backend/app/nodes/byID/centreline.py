@@ -1,7 +1,7 @@
 import json
 from app.db import getConnection
 from app.get_nearest_here_nodes import get_here_nodes_within
-from app.get_px_node import get_px_node
+from app.nodes.byID.px import get_px_node
 
 SQL = '''
 SELECT

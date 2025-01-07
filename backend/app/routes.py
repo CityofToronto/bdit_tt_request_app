@@ -4,8 +4,8 @@ from flask import jsonify, request
 from app import app
 from app.db import getConnection
 from app.get_nearest_here_nodes import get_here_nodes_within
-from app.get_here_node import get_here_node
-from app.get_centreline_node import get_centreline_node
+from app.nodes.byID.here import get_here_node
+from app.nodes.byID.centreline import get_centreline_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
