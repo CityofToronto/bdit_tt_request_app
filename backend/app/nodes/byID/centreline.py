@@ -1,7 +1,6 @@
 import json
 from app.db import getConnection
-from app.nodes.nearby.here import get_here_nodes_within
-from app.nodes.byID.px import get_px_node
+from app.nodes.conflation import add_conflated_nodes
 
 SQL = '''
 SELECT
@@ -27,14 +26,7 @@ def get_centreline_node(node_id, doConflation=False):
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-            if doConflation:
-                lon = node['geometry']['coordinates'][0]
-                lat = node['geometry']['coordinates'][1]
-                node['conflated'] = {}
-                node['conflated']['px'] = get_px_node(node_id)
-                try:
-                    node['conflated']['here'] = get_here_nodes_within(50, lon, lat, 1)[0]
-                except:
-                    pass
     connection.close()
+    if doConflation:
+        node = add_conflated_nodes(node)
     return node

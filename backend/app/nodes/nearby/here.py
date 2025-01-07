@@ -18,7 +18,11 @@ LIMIT %(limit)s;
 '''
 
 def get_here_nodes_within(meters, longitude, latitude, limit=20):
-    """Return intersection(s) near a provided coordinate"""
+    """
+    Return intersection(s) near a provided coordinate
+    
+    will only give nodes on the congestion network
+    """
     with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {"latitude": latitude, "longitude": longitude, 'limit': limit})

@@ -67,7 +67,7 @@ def get_node(node_id):
     arguments:
     node_id (int): identifier of the node in the latest Here map version
     optional GET arg ?doConflation will also return the nearest node in the other
-        network as well as it's distance in meters from the selected node
+        networks as well as their distance in meters from the main selected node
     """
     try:
         node_id = int(node_id)
