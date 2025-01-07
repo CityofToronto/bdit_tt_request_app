@@ -28,13 +28,16 @@ def add_conflated_nodes(node):
 
     # now get distances between selected and conflated points
     for network, conflatedNode in node['conflated'].items():
-        conflatedNode['distance'] = haversine(
-            (lat, lon),
-            (
-                conflatedNode['geometry']['coordinates'][1],
-                conflatedNode['geometry']['coordinates'][0]
-            ),
-            unit='m'
-        )
+        try:
+            conflatedNode['distance'] = haversine(
+                (lat, lon),
+                (
+                    conflatedNode['geometry']['coordinates'][1],
+                    conflatedNode['geometry']['coordinates'][0]
+                ),
+                unit='m'
+            )
+        except:
+            pass
 
     return node
