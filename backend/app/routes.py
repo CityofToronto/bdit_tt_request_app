@@ -3,8 +3,9 @@ from datetime import datetime
 from flask import jsonify, request
 from app import app
 from app.db import getConnection
-from app.get_closest_nodes import get_nodes_within
-from app.get_node import get_node
+from app.nodes.nearby.here import get_here_nodes_within
+from app.nodes.byID.here import get_here_node
+from app.nodes.byID.centreline import get_centreline_node
 from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
@@ -32,7 +33,7 @@ def version():
         'git-HEAD': getGitHash()
     })
 
-# test URL /closest-node/-79.3400/43.6610
+# test URL /nodes-within/50/-79.3400/43.6610
 @app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
 def closest_node(meters, longitude, latitude):
     """Return up to 20 nodes within a given radius (in meters) of a point.
@@ -50,29 +51,36 @@ def closest_node(meters, longitude, latitude):
         meters = float(meters)
     except:
         return jsonify({'error': "all inputs must be decimal numbers"})
-    return jsonify(get_nodes_within(meters,longitude,latitude))
+    return jsonify(get_here_nodes_within(meters,longitude,latitude))
 
-# test URL /node/30357505
-@app.route('/node/<node_id>', methods=['GET'])
-def node(node_id):
-    """Returns information about a given node in the Here street network.
+# test URL /node/here/30357505
+@app.route('/node/<node_id>', endpoint='generic') # will be deprecated
+@app.route('/node/here/<node_id>', endpoint='here')
+@app.route('/node/centreline/<node_id>', endpoint='centreline')
+def get_node(node_id):
+    """Returns information about a given node in the either the Here or
+    Centreline street networks.
 
-    This uses the latest map version and may not recognize an older node_id.
+    This uses the latest version of either network and may not recognize an
+    older node_id.
     
     arguments:
     node_id (int): identifier of the node in the latest Here map version
-    optional GET arg ?doConflation will also return the nearest node in the centreline network
+    optional GET arg ?doConflation will also return the nearest node in the other
+        networks as well as their distance in meters from the main selected node
     """
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
-
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
-
-    return jsonify(get_node(node_id, doConflation))
+    if request.endpoint == 'centreline':
+        node = get_centreline_node(node_id, doConflation)
+    else: # here network
+        node = get_here_node(node_id, doConflation)
+    return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
 #shell function - outputs json for use on frontend

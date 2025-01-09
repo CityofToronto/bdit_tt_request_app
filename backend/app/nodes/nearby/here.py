@@ -1,5 +1,3 @@
-"""Return intersection(s) near a provided coordinate"""
-
 import json
 from app.db import getConnection
 
@@ -16,18 +14,24 @@ GROUP BY
     cg_nodes.node_id,
     cg_nodes.geom
 ORDER BY distance
-LIMIT 20;
+LIMIT %(limit)s;
 '''
 
-def get_nodes_within(meters,longitude, latitude):
+def get_here_nodes_within(meters, longitude, latitude, limit=20):
+    """
+    Return intersection(s) near a provided coordinate
+    
+    will only give nodes on the congestion network
+    """
     with getConnection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(SQL, {"latitude": latitude, "longitude": longitude})
+            cursor.execute(SQL, {"latitude": latitude, "longitude": longitude, 'limit': limit})
             candidate_nodes = []
             for node_id, geojson, distance, street_names in cursor.fetchall():
                 if distance <= meters:
                     candidate_nodes.append( {
                         'node_id': node_id,
+                        'network': 'here',
                         'street_names': street_names,
                         'geometry': json.loads(geojson)
                     } )

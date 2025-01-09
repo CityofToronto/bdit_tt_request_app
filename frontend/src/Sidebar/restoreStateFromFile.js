@@ -19,7 +19,7 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                     let corridor = stateData.createCorridor()
                     Promise.all(
                         [startNode,endNode].map(node_id => {
-                            return fetch(`${domain}/node/${node_id}`)
+                            return fetch(`${domain}/node/here/${node_id}`)
                             .then( resp => resp.json() )
                             .then( node => new Intersection( {
                                     id: node.node_id,

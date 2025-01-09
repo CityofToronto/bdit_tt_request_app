@@ -2,7 +2,7 @@
 
 import json
 from app.db import getConnection
-from app.get_nearest_centreline_node import get_nearest_centreline_node
+from app.nodes.conflation import add_conflated_nodes
 
 SQL = '''
 SELECT
@@ -18,22 +18,21 @@ GROUP BY
     here_nodes.geom;
 '''
 
-def get_node(node_id, conflate_with_centreline=False):
+def get_here_node(node_id, conflate_with_centreline=False):
     node = {}
     with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {"node_id": node_id})
+            if cursor.rowcount != 1:
+                return None
             geojson, street_names = cursor.fetchone()
             node = {
                 'node_id': node_id,
+                'network': 'here',
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-            if conflate_with_centreline:
-                lon = node['geometry']['coordinates'][0]
-                lat = node['geometry']['coordinates'][1]
-                node['conflated'] = {
-                    'centreline': get_nearest_centreline_node(lon, lat)
-                }
     connection.close()
+    if conflate_with_centreline:
+        node = add_conflated_nodes(node)
     return node
