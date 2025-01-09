@@ -1,4 +1,5 @@
 import { Map as MapGL, useMap, Source, Layer } from 'react-map-gl/maplibre'
+import "maplibre-gl/dist/maplibre-gl.css"
 import { useContext, useState, useEffect } from 'react'
 import { DataContext } from '../Layout'
 import { domain } from '../domain.js'
