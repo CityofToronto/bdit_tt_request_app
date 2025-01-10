@@ -23,7 +23,7 @@ FROM here.street_valid_range
 WHERE valid_range @> NOW()::date;
 """
 
-def selectMapVersion(start_date=None, end_date=None):
+def hereMapVersion(start_date=None, end_date=None):
     connection = getConnection()
     with connection:
         with connection.cursor() as cursor:
