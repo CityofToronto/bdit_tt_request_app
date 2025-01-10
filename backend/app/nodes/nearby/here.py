@@ -8,8 +8,8 @@ SELECT
     cg_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
 FROM congestion.network_nodes AS cg_nodes
-JOIN here.routing_nodes_21_1 AS here_nodes USING (node_id)
-JOIN here_gis.streets_att_21_1 AS streets USING (link_id)
+JOIN here.routing_nodes_23_4 AS here_nodes USING (node_id)
+JOIN here_gis.streets_att_23_4 AS streets USING (link_id)
 GROUP BY
     cg_nodes.node_id,
     cg_nodes.geom
