@@ -63,7 +63,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     holiday_clause = ''
     if not include_holidays:
         holiday_clause = '''AND NOT EXISTS (
-            SELECT 1 FROM ref.holiday WHERE ta.dt = holiday.dt
+            SELECT 1 FROM ref.holiday WHERE ta_path.dt = holiday.dt
         )'''
 
     # if end_time is less than the start_time, then we wrap around midnight
@@ -75,7 +75,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             dt::text,
             extract(HOUR FROM tod)::smallint AS hr,
             mean::real AS speed_kmph
-        FROM here.ta
+        FROM here.ta_path
         WHERE
             link_dir = ANY(%(link_dir_list)s)
             AND (
