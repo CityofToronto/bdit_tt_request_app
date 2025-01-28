@@ -104,13 +104,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     total_corridor_length = links_df['length'].sum()
 
-    links_df = pandas.DataFrame({
-        'link_dir': [l['link_dir'] for l in links],
-        'length': [l['length_m'] for l in links]
-    }).set_index('link_dir')
-
-    total_corridor_length = links_df['length'].sum()
-
     query_params = {
         "link_dir_list": [link['link_dir'] for link in links],
         "node_start": start_node,
