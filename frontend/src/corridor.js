@@ -1,6 +1,7 @@
 import { Factor } from './factor.js'
 import { Intersection } from './intersection.js'
 import { Segment } from './segment.js'
+import { domain } from './domain.js'
 
 // a sequence of segments forming a coherent corridor
 export class Corridor extends Factor {
@@ -11,6 +12,11 @@ export class Corridor extends Factor {
     }
     get isComplete(){
         return this.intersections.length > 1 && this.routeIsValid
+    }
+    get URI(){
+        if( ! this.isComplete ) return
+        let [start, end] = [...this.#intersections.values().map(i => i.id)]
+        return `${domain}/link-nodes/here/${start}/${end}`
     }
     get routeIsValid(){
         if(this.links.length == 0) return false;
@@ -27,7 +33,10 @@ export class Corridor extends Factor {
                 type: 'MultiLineString',
                 coordinates: this.links.map(link=>link.geometry.coordinates)
             },
-            properties: { 'color': this.isComplete ? 'green' : 'red' }
+            properties: {
+                URI: this.URI,
+                color: this.isComplete ? 'green' : 'red'
+            }
         }
     }
     get geojsonFeaturesPoint(){
