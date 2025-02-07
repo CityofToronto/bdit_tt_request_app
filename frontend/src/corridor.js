@@ -43,6 +43,12 @@ export class Corridor extends Factor {
             },
             properties: {
                 URI: this.URI,
+                fromNode: this.fromIntersection?.id,
+                toNode: this.toIntersection?.id,
+                routeStreets: this.viaStreetsString,
+                direction: this.bearing,
+                startCrossStreets: this.startCrossStreetsString,
+                endCrossStreets: this.endCrossStreetsString,
                 color: this.isComplete ? 'green' : 'red'
             }
         }
