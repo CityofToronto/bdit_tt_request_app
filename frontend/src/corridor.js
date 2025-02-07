@@ -49,14 +49,13 @@ export class Corridor extends Factor {
                 direction: this.bearing,
                 startCrossStreets: this.startCrossStreetsString,
                 endCrossStreets: this.endCrossStreetsString,
-                color: this.isComplete ? 'green' : 'red'
-            }
+                status: this.isComplete ? 'valid' : ''             }
         }
     }
     get geojsonFeaturesPoint(){
         return this.intersections.map( i => {
             let feature = i.geojson
-            feature.properties.color = this.isComplete ? 'green' : 'red'
+            feature.properties.status = this.isComplete ? 'valid' : ''
             return feature
         } )
     }
