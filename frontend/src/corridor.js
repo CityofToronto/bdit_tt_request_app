@@ -22,7 +22,7 @@ export class Corridor extends Factor {
         return to
     }
     get URI(){
-        if( ! this.isComplete ) return
+        if( ! this.isComplete ) return undefined
         let [start, end] = [...this.#intersections.values().map(i => i.id)]
         return `${domain}/link-nodes/here/${start}/${end}`
     }
