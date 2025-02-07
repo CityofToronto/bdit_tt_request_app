@@ -39,6 +39,11 @@ export default function ResultsContainer(){
                     >
                         <BigButton>Download results as CSV </BigButton>
                     </a>
+                    <a download='corridors.geojson'
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(corridorsGeoJSON(data.corridors)))}`}
+                    >
+                        <BigButton>Download corridors as GeoJSON</BigButton>
+                    </a>
                 </>
             }
         </div>
@@ -52,4 +57,12 @@ function ProgressBar({percentDone}){
             <rect height='100%' width={percentDone} fill='darkgreen' strokeWidth='1'/>
         </svg>
     )
+}
+
+function corridorsGeoJSON(corridors){
+    let geojson = {
+        type: 'FeatureCollection',
+        features: corridors.map( c => c.geojsonFeaturesLinear )
+    }
+    return geojson
 }
