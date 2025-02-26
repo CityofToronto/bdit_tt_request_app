@@ -83,6 +83,10 @@ export class TravelTimeQuery {
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
         // other stats
         record.set(
+            'num_pseudo_obs',
+            this.#results.observations.length
+        )
+        record.set(
             'max_travel_time_seconds',
             Math.max(...this.#results.observations.map(o => o.seconds))
         )
