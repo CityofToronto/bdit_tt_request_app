@@ -228,22 +228,25 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 def make_bins(links_df, link_speeds_df):
     """Create the smallest temporal bins possible while ensuring at least 80%
     of links, by length, have observations."""
-    # start with an empty set of links
-    links = set()
+    # start with empty list of bins, defined by their ends
     bin_ends = list()
-    total_length = links_df['length'].sum()
-    minimum_length = 0.8 * total_length
-    # iterate over time bins with data, in order of occurence
+    minimum_length = 0.8 * links_df['length'].sum()
+
+    links_per_5mbin = {}
+    # iterate over 5-min time bins with data, in chronological order
     for tx in sorted(list(link_speeds_df.tx.unique())):
         # add links one bin at a time
-        five_min_bin = link_speeds_df[link_speeds_df['tx']==tx]
-        links.update(five_min_bin.link_dir.unique())
-        # measure the length of links in the set
+        bin5m = link_speeds_df[link_speeds_df['tx']==tx]
+        # get the distinct links in this 5-minute bin
+        links_per_5mbin[tx] = bin5m.link_dir.unique()
+        # get all the links in all the 5m bins so far
+        links = set( link for linklist in links_per_5mbin.values() for link in linklist )
+        # measure the length of links in that set
         length_so_far = links_df.loc[list(links),'length'].sum()
-        # define length threshold
+        # compare against length threshold
         if length_so_far >= minimum_length:
             bin_ends.append(tx)
-            links = set() # reset
+            links_per_5mbin = {}
         else:
             pass
     return bin_ends
