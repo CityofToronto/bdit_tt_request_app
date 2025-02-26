@@ -125,9 +125,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             )
     connection.close()
 
-
     # create custom binning
-    bins = make_bins(links_df, link_speeds_df)
+    bins = make_bins(links_df, link_speeds_df, end_time)
 
     # handle the case where there are no observations; return early. 
     if link_speeds_df.empty or len(bins) == 0:
@@ -226,7 +225,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         }
     },cacheURI)
 
-def make_bins(links_df, link_speeds_df):
+def make_bins(links_df, link_speeds_df, end_time):
     """Create the smallest temporal bins possible while ensuring at least 80%
     of links, by length, have observations."""
     # start with an empty set of links
@@ -234,7 +233,8 @@ def make_bins(links_df, link_speeds_df):
     bin_ends = list()
     total_length = links_df['length'].sum()
     minimum_length = 0.8 * total_length
-    for tx in link_speeds_df.tx.unique():
+    # iterate over time bins with data, in order of occurence
+    for tx in link_speeds_df.tx.unique().sort_values():
         # add links one bin at a time
         five_min_bin = link_speeds_df[link_speeds_df['tx']==tx]
         links.update(five_min_bin.link_dir.unique())
