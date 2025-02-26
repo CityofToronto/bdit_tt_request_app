@@ -91,6 +91,10 @@ export class TravelTimeQuery {
             quantile([...this.#results.observations.map(o => o.seconds)], 0.5)
         )
         record.set(
+            'p85_travel_time_seconds',
+            quantile([...this.#results.observations.map(o => o.seconds)], 0.85)
+        )
+        record.set(
             'min_travel_time_seconds',
             Math.min(...this.#results.observations.map(o => o.seconds))
         )
