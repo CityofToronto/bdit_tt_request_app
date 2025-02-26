@@ -1,4 +1,5 @@
 import { domain } from './domain.js'
+import { quantile } from 'd3-array'
 
 export class TravelTimeQuery {
     #corridor
@@ -80,15 +81,20 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
-        // minimum and maximum travel time observations
+        // other stats
         record.set(
             'max_travel_time_seconds',
             Math.max(...this.#results.observations.map(o => o.seconds))
         )
         record.set(
+            'median_travel_time_seconds',
+            quantile([...this.#results.observations.map(o => o.seconds)], 0.5)
+        )
+        record.set(
             'min_travel_time_seconds',
             Math.min(...this.#results.observations.map(o => o.seconds))
         )
+        
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
