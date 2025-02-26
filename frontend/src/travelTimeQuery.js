@@ -98,7 +98,11 @@ export class TravelTimeQuery {
             'min_travel_time_seconds',
             Math.min(...this.#results.observations.map(o => o.seconds))
         )
-        
+        record.set(
+            'corridor_length_meters',
+            this.#corridor.links.reduce((a,l)=>a+l.length_m, 0)
+        )
+
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
