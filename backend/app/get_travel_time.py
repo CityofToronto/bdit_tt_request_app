@@ -73,7 +73,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         SELECT
             link_dir,
             dt::text,
-            tx,
+            EXTRACT('epoch' FROM tx)::bigint AS tx,
             mean::real AS speed_kmph
         FROM here.ta
         WHERE
@@ -229,21 +229,30 @@ def make_bins(links_df, link_speeds_df):
     """Create the smallest temporal bins possible while ensuring at least 80%
     of links, by length, have observations."""
     # start with empty list of bins, defined by their ends
+    # TODO: define bin starts as well
     bin_ends = list()
     minimum_length = 0.8 * links_df['length'].sum()
 
     links_per_5mbin = {}
     # iterate over 5-min time bins with data, in chronological order
     for tx in sorted(list(link_speeds_df.tx.unique())):
-        # add links one bin at a time
+        # get the data for this 5min bin
         bin5m = link_speeds_df[link_speeds_df['tx']==tx]
-        # get the distinct links in this 5-minute bin
+        # add the distinct links from this 5-minute bin
         links_per_5mbin[tx] = bin5m.link_dir.unique()
+        # in case data is very sparse, drop observations more than one hour
+        # prior to the current 5min bin - this window is moving!
+        keys_to_drop = []
+        for tx_key in links_per_5mbin.keys():
+            if tx - tx_key >= 3600: # seconds, i.e. 1 hour
+                keys_to_drop.append(tx_key)
+        for tx_key in keys_to_drop:
+            del links_per_5mbin[tx_key]
         # get all the links in all the 5m bins so far
         links = set( link for linklist in links_per_5mbin.values() for link in linklist )
         # measure the length of links in that set
         length_so_far = links_df.loc[list(links),'length'].sum()
-        # compare against length threshold
+        # compare against length threshold; if met, end the bin
         if length_so_far >= minimum_length:
             bin_ends.append(tx)
             links_per_5mbin = {}
