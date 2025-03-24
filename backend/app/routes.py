@@ -219,3 +219,43 @@ def get_holidays():
             ]
     connection.close()
     return dates
+
+    # test URL /holidays
+@app.route('/raw-data/<date>', methods=['GET'])
+def raw_data(date):
+    """Return raw data from here.ta_path for a given day and supplied list of links.
+
+    Serves diagnostic purposes in the corridor explorer. Requires additional GET param
+    `link_dirs` giving a comma-separated list of link_dirs to get data for.
+    Limited to 1k records.
+    """
+    link_dir_csv = request.args.get('link_dirs')
+    if link_dir_csv is None:
+        return { 'error': 'must supply a comma-separated list of link_dirs' }
+    link_dirs = re.findall(r'(\d+T|\d+F)',link_dir_csv)
+    if not len(link_dirs) >= 1:
+        return { 'error': 'Please supply valid link_dirs (\d+T|\d+F)' } 
+    connection = getConnection()
+    query = f"""
+    SELECT
+        link_dir,
+        tod::text,
+        sample_size
+    FROM here.ta_path
+    WHERE
+        dt = %(date)s
+        AND link_dir = ANY(%(link_dirs)s)
+    LIMIT 1000;
+    """
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query, { 'date': date, 'link_dirs': link_dirs })
+            records = [
+                {
+                    'link_dir': link_dir,
+                    'tod': tod, # as text for jsonification
+                    'sample_size': sample_size
+                } for (link_dir, tod, sample_size) in cursor.fetchall()
+            ]
+    connection.close()
+    return records
