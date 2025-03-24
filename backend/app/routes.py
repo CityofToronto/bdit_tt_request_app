@@ -229,6 +229,8 @@ def raw_data(date):
     `link_dirs` giving a comma-separated list of link_dirs to get data for.
     Limited to 1k records.
     """
+    if not re.fullmatch(r'^\d{4}-\d{2}-\d{2}$',date):
+        return { 'error': 'date should be formatted as YYYY-MM-DD' }
     link_dir_csv = request.args.get('link_dirs')
     if link_dir_csv is None:
         return { 'error': 'must supply a comma-separated list of link_dirs' }
