@@ -220,7 +220,7 @@ def get_holidays():
     connection.close()
     return dates
 
-    # test URL /holidays
+# test URL /raw-data/2025-01-01?link_dirs=29588695T,29588707T
 @app.route('/raw-data/<date>', methods=['GET'])
 def raw_data(date):
     """Return raw data from here.ta_path for a given day and supplied list of links.
