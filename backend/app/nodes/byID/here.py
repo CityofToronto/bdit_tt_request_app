@@ -7,7 +7,9 @@ from app.nodes.conflation import add_conflated_nodes
 SQL = '''
 SELECT
     ST_AsGeoJSON(
-        ST_GeometryN(here_nodes.geom, 1) -- necessary because currently stored as a multi-point
+        -- ST_GeometryN because it's stored as a multi-point
+        -- https://github.com/CityofToronto/bdit_congestion/issues/79
+        ST_GeometryN(here_nodes.geom, 1) 
     ) AS geom,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
 FROM here.routing_nodes_23_4 AS here_nodes
