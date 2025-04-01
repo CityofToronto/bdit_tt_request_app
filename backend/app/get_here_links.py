@@ -1,6 +1,7 @@
 import json
 from app.db import getConnection
 from psycopg import sql
+from app.selectMapVersion import selectMapVersion
 
 links_query = '''
 WITH results as (
@@ -28,7 +29,11 @@ ORDER BY seq;
 '''
 
 # returns a json with geometries of links between two nodes
-def get_here_links(from_node_id, to_node_id, map_version='23_4'):
+def get_here_links(from_node_id, to_node_id, map_version='??_?'):
+    if map_version == '??_?':
+        # defaults to whatever map version covers today
+        map_version = selectMapVersion()
+
     parsed_links_query = sql.SQL(links_query).format(
         routing_function = sql.Identifier(f'get_links_btwn_nodes_{map_version}'),
         street_geoms_table = sql.Identifier(f'routing_streets_{map_version}'),

@@ -154,6 +154,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         return jsonify({'error': "time is not in a valid format, i.e.(H or HH)"}), 400
 
     try:
+        # attempts to parse dates to validate, but leaves them as strings
         datetime.strptime(start_date, "%Y-%m-%d")
         datetime.strptime(end_date, "%Y-%m-%d")
     except:

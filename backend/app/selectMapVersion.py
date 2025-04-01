@@ -1,9 +1,13 @@
 from app.db import getConnection
+from datetime import date, timedelta
 
-# Selects Here map version to use based on dates in the provided query.
-# however the query also has nodes which may or may not be version-specific
+# Selects Here map version to use based on a date range for the travel time
+# query, or today's date if those are not provided
 
-def selectMapVersion(start_date, end_date):
+def selectMapVersion(
+    start_date = date.today().isoformat(),
+    end_date = (date.today() + timedelta(days=1)).isoformat()
+):
     query = """
     WITH coverage AS (
         SELECT
