@@ -24,6 +24,7 @@ GROUP BY
 
 def get_here_node(node_id, conflate_with_centreline=False):
     map_version = selectMapVersion() # current/latest map version
+    map_version = '23_4'
     versioned_node_query = sql.SQL(node_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
@@ -38,6 +39,7 @@ def get_here_node(node_id, conflate_with_centreline=False):
             node = {
                 'node_id': node_id,
                 'network': 'here',
+                'map_version': map_version,
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
