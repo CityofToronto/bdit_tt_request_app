@@ -10,6 +10,8 @@ from app.get_travel_time import get_travel_time
 from app.get_here_links import get_here_links
 from app.get_centreline_links import get_centreline_links
 from app.getGitHash import getGitHash
+from app.dates import currentDateBounds
+
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -177,19 +179,10 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     )
 
 # test URL /date-bounds
-@app.route('/date-range', methods=['GET'])
+@app.route('/date-range')
 def get_date_bounds():
     """Returns the dates of the earliest and latest available travel time data."""
-    connection = getConnection()
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT MIN(dt)::text, MAX(dt)::text FROM here.ta;')
-            ( min_date, max_date ) = cursor.fetchone()
-    connection.close()
-    return {
-        "minDate": min_date,
-        "maxDate": max_date
-    }
+    return currentDateBounds()
 
 # test URL /holidays
 @app.route('/holidays', methods=['GET'])
