@@ -31,7 +31,7 @@ ORDER BY seq;
 # returns a json with geometries of links between two nodes
 def get_here_links(from_node_id, to_node_id, map_version='??_?'):
     if map_version == '??_?':
-        # defaults to whatever map version covers today
+        # defaults to whatever map version covers latest data
         map_version = selectMapVersion()
 
     parsed_links_query = sql.SQL(links_query).format(

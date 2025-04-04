@@ -11,3 +11,6 @@ def currentDateBounds():
         "minDate": min_date,
         "maxDate": max_date
     }
+
+def maxDate():
+    return currentDateBounds()['maxDate']
