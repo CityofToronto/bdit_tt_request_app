@@ -36,6 +36,5 @@ def selectMapVersion(start_date='????-??-??', end_date='????-??-??'):
                     {'start_date':start_date,'end_date':end_date}
                 )
             (map_version,) = cursor.fetchone()
-    print(map_version)
     connection.close()
     return map_version
