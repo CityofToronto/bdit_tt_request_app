@@ -22,7 +22,7 @@ JOIN gis_core.centreline_latest USING (centreline_id)
 '''
 
 # returns a json with geometries of links between two nodes
-def get_centreline_links(from_node_id, to_node_id, map_version='23_4'):
+def get_centreline_links(from_node_id, to_node_id):
     with getConnection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
