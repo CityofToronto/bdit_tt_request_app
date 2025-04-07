@@ -19,8 +19,8 @@ SELECT
     results.seq,
     ST_AsGeoJSON(ST_LineMerge(streets.geom)) AS geojson,
     ST_Length( ST_Transform(streets.geom,2952) ) AS length_m,
-    streets.source,
-    streets.target
+    streets.source::bigint, -- numeric in 24_4; python does not like
+    streets.target::bigint -- ditto
 FROM results
 JOIN here.{street_geoms_table} AS streets USING ( link_dir )
 JOIN here_gis.{street_attributes_table} AS attr 
