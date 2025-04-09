@@ -14,6 +14,29 @@ WHERE
     AND commit_hash = %(hash)s;
 '''
 
+cacheInsert = '''
+INSERT INTO nwessel.cached_tt_routes (node_start, node_end, map_version, commit_hash, results)
+VALUES (%(node_start)s,%(node_end)s,%(map_version)s, %(hash)s, %(results)s)
+'''
+
+def cacheAndReturn(obj,node_start,node_end,map_version):
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(
+                    cacheInsert,
+                    {
+                        'node_start': node_start,
+                        'node_end': node_end,
+                        'map_version': map_version,
+                        'hash': getGitHash(),
+                        'results': json.dumps(obj)
+                    }
+                )
+            finally:
+                return obj
+
 def checkCache(node_start, node_end, map_version):
     connection = getConnection()
     with connection:
@@ -97,4 +120,4 @@ def get_here_links(from_node_id, to_node_id, map_version='??_?'):
             ]
 
     connection.close()
-    return links
+    return cacheAndReturn(links,from_node_id,to_node_id,map_version)
