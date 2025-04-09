@@ -10,3 +10,5 @@ CREATE TABLE nwessel.cached_tt_routes (
 
 GRANT SELECT, INSERT ON nwessel.cached_tt_routes TO tt_request_bot;
 GRANT SELECT ON nwessel.cached_tt_routes TO bdit_humans;
+
+COMMENT ON TABLE nwessel.cached_tt_routes IS 'Optional cache for routed corridors for the Travel Time App';
