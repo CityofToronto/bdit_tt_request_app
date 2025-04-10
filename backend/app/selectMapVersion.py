@@ -1,4 +1,4 @@
-from app.db import getConnection
+from app.db import pool
 from app.dates import maxDate
 
 # Selects Here map version to use based on a date range for the travel time
@@ -25,8 +25,7 @@ WHERE valid_range @> %(maxDate)s::date;
 """
 
 def selectMapVersion(start_date='????-??-??', end_date='????-??-??'):
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             if start_date == '????-??-??':
                 cursor.execute(query_for_latest_date, {'maxDate': maxDate()})
@@ -36,5 +35,4 @@ def selectMapVersion(start_date='????-??-??', end_date='????-??-??'):
                     {'start_date':start_date,'end_date':end_date}
                 )
             (map_version,) = cursor.fetchone()
-    connection.close()
     return map_version

@@ -2,7 +2,7 @@
 
 import json
 from psycopg import sql
-from app.db import getConnection
+from app.db import pool
 from app.nodes.conflation import add_conflated_nodes
 from app.selectMapVersion import selectMapVersion
 
@@ -30,7 +30,7 @@ def get_here_node(node_id, conflate_with_centreline=False):
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
     )
     node = {}
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(versioned_node_query, {"node_id": node_id})
             if cursor.rowcount != 1:
@@ -43,7 +43,6 @@ def get_here_node(node_id, conflate_with_centreline=False):
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-    connection.close()
     if conflate_with_centreline:
         node = add_conflated_nodes(node)
     return node

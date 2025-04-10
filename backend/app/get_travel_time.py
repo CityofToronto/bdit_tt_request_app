@@ -1,6 +1,6 @@
 """Function for returning data from the aggregate-travel-times/ endpoint"""
 
-from app.db import getConnection
+from app.db import pool
 from app.links.here import get_here_links
 from app.selectMapVersion import selectMapVersion
 from traveltimetools.utils import timeFormats
@@ -28,8 +28,7 @@ def checkCache(uri):
         FROM nwessel.cached_travel_times
         WHERE uri_string = %(uri)s AND commit_hash = %(hash)s
     '''
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, {'uri': uri, 'hash': getGitHash()})
@@ -43,8 +42,7 @@ def cacheAndReturn(obj,uri):
         INSERT INTO nwessel.cached_travel_times (uri_string, commit_hash, results)
         VALUES (%(uri)s, %(hash)s, %(results)s)
     '''
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
@@ -114,15 +112,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         "dow_list": dow_list
     }
 
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, query_params)
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
                 columns=['link_dir','dt','hr','speed']
             ).set_index('link_dir')
-    connection.close()
 
     # join previously queried link lengths
     link_speeds_df = link_speeds_df.join(links_df)
