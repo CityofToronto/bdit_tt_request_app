@@ -2,6 +2,59 @@ import json
 from app.db import getConnection
 from psycopg import sql
 from app.selectMapVersion import selectMapVersion
+from app.getGitHash import getGitHash
+
+cacheQuery = '''
+SELECT results
+FROM nwessel.cached_tt_routes
+WHERE
+    node_start = %(node_start)s
+    AND node_end = %(node_end)s
+    AND map_version = %(map_version)s
+    AND commit_hash = %(hash)s;
+'''
+
+cacheInsert = '''
+INSERT INTO nwessel.cached_tt_routes (node_start, node_end, map_version, commit_hash, results)
+VALUES (%(node_start)s,%(node_end)s,%(map_version)s, %(hash)s, %(results)s)
+'''
+
+def cacheAndReturn(obj,node_start,node_end,map_version):
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(
+                    cacheInsert,
+                    {
+                        'node_start': node_start,
+                        'node_end': node_end,
+                        'map_version': map_version,
+                        'hash': getGitHash(),
+                        'results': json.dumps(obj)
+                    }
+                )
+            finally:
+                return obj
+
+def checkCache(node_start, node_end, map_version):
+    connection = getConnection()
+    with connection:
+        with connection.cursor() as cursor:
+            try: # try keeps this loosely coupled - no strict dependency
+                cursor.execute(
+                    cacheQuery,
+                    {
+                        'node_start': node_start,
+                        'node_end': node_end,
+                        'map_version': map_version,
+                        'hash': getGitHash()
+                    }
+                )
+                for (record,) in cursor: # will skip if no records
+                    return record # there could only be one because of constraint
+            except:
+                pass
 
 links_query = '''
 WITH results as (
@@ -33,6 +86,10 @@ def get_here_links(from_node_id, to_node_id, map_version='??_?'):
     if map_version == '??_?':
         # defaults to whatever map version covers latest data
         map_version = selectMapVersion()
+    if map_version != '??_?':
+        cachedLinks = checkCache(from_node_id, to_node_id, map_version)
+        if cachedLinks:
+            return cachedLinks
 
     parsed_links_query = sql.SQL(links_query).format(
         routing_function = sql.Identifier(f'get_links_btwn_nodes_{map_version}'),
@@ -63,4 +120,4 @@ def get_here_links(from_node_id, to_node_id, map_version='??_?'):
             ]
 
     connection.close()
-    return links
+    return cacheAndReturn(links,from_node_id,to_node_id,map_version)
