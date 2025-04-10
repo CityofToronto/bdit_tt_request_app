@@ -113,7 +113,13 @@ def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
     if network == 'here':
-        links = get_here_links(from_node_id, to_node_id)
+        map_version = request.args.get('map_version')
+        if map_version and re.fullmatch(r'^\d{2}_\d$', map_version):
+            # TODO: can pass map versions that match the pattern but don't exist
+            # which will cause database errors
+            links = get_here_links(from_node_id,to_node_id,map_version)
+        else:
+            links = get_here_links(from_node_id,to_node_id)
     elif network == 'centreline':
         links = get_centreline_links(from_node_id, to_node_id)
     else:
