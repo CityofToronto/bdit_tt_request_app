@@ -2,7 +2,7 @@ import json, re
 from datetime import datetime
 from flask import jsonify, request
 from app import app
-from app.db import getConnection
+from app.db import pool
 from app.nodes.nearby.here import get_here_nodes_within
 from app.nodes.byID.here import get_here_node
 from app.nodes.byID.centreline import get_centreline_node
@@ -12,6 +12,7 @@ from app.links.centreline import get_centreline_links
 from app.getGitHash import getGitHash
 from app.dates import currentDateBounds
 
+# test URL: /
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -28,6 +29,7 @@ def index():
         ]
     })
 
+# test URL: /version
 @app.route('/version')
 def version():
     """Return the Git hash of the current application HEAD"""
@@ -56,6 +58,7 @@ def closest_node(meters, longitude, latitude):
     return jsonify(get_here_nodes_within(meters,longitude,latitude))
 
 # test URL /node/here/30357505
+#          /node/centreline/13460901
 @app.route('/node/<node_id>', endpoint='generic') # will be deprecated
 @app.route('/node/here/<node_id>', endpoint='here-nodes')
 @app.route('/node/centreline/<node_id>', endpoint='centreline-nodes')
@@ -85,7 +88,7 @@ def get_node(node_id):
     return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
-#shell function - outputs json for use on frontend
+#          /link-nodes/centreline/13460901/13461051
 @app.route('/link-nodes/here/<from_node_id>/<to_node_id>', endpoint='here-links')
 @app.route('/link-nodes/centreline/<from_node_id>/<to_node_id>', endpoint='centreline-links')
 def get_here_links_between_two_nodes(from_node_id, to_node_id):
@@ -182,7 +185,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         )
     )
 
-# test URL /date-bounds
+# test URL /date-range
 @app.route('/date-range')
 def get_date_bounds():
     """Returns the dates of the earliest and latest available travel time data."""
@@ -195,7 +198,6 @@ def get_holidays():
 
     Holidays will fully cover the range of any available travel time data.
     """
-    connection = getConnection()
     query = f"""
     SELECT
         dt::text,
@@ -205,7 +207,7 @@ def get_holidays():
     WHERE dt >= %(minDate)s AND dt < %(maxDate)s
     ORDER BY dt;
     """
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, get_date_bounds())
             dates = [
@@ -215,7 +217,6 @@ def get_holidays():
                     'name': nm
                 } for (dt, dow, nm) in cursor.fetchall()
             ]
-    connection.close()
     return dates
 
 # test URL /raw-data/2025-01-01?link_dirs=29588695T,29588707T
@@ -235,7 +236,6 @@ def raw_data(date):
     link_dirs = re.findall(r'(\d+T|\d+F)',link_dir_csv)
     if not len(link_dirs) >= 1:
         return { 'error': 'Please supply valid link_dirs (\d+T|\d+F)' } 
-    connection = getConnection()
     query = f"""
     SELECT
         link_dir,
@@ -247,7 +247,7 @@ def raw_data(date):
         AND link_dir = ANY(%(link_dirs)s)
     LIMIT 1000;
     """
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, { 'date': date, 'link_dirs': link_dirs })
             records = [
@@ -257,5 +257,4 @@ def raw_data(date):
                     'sample_size': sample_size
                 } for (link_dir, tod, sample_size) in cursor.fetchall()
             ]
-    connection.close()
     return records

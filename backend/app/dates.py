@@ -1,5 +1,5 @@
 from time import time
-from app.db import getConnection
+from app.db import pool
 
 # This is a very efficient query of a large table (indexes only, really),
 # but because it takes some time, including just connecting, and because it
@@ -15,12 +15,10 @@ cache = {
 def currentDateBounds():
     if time() - cache['time'] < 600: # 600 seconds = 10 minutes
         return cache['results']
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute('SELECT MIN(dt)::text, MAX(dt)::text FROM here.ta;')
             ( min_date, max_date ) = cursor.fetchone()
-    connection.close()
     results = {
         "minDate": min_date,
         "maxDate": max_date

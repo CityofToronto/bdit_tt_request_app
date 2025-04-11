@@ -1,5 +1,5 @@
 import json
-from app.db import getConnection
+from app.db import pool
 
 links_query = '''
 WITH centreline_path AS (
@@ -23,7 +23,7 @@ JOIN gis_core.centreline_latest USING (centreline_id)
 
 # returns a json with geometries of links between two nodes
 def get_centreline_links(from_node_id, to_node_id):
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 links_query,
@@ -44,6 +44,4 @@ def get_centreline_links(from_node_id, to_node_id):
                     'target': target
                 } for centreline_id, st_name, geojson, length_m, source, target in cursor.fetchall()
             ]
-
-    connection.close()
     return links

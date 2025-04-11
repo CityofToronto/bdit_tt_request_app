@@ -1,5 +1,5 @@
 import json
-from app.db import getConnection
+from app.db import pool
 from psycopg import sql
 from app.selectMapVersion import selectMapVersion
 from app.getGitHash import getGitHash
@@ -16,8 +16,7 @@ VALUES (%(uri)s, %(hash)s, %(results)s)
 '''
 
 def cacheAndReturn(obj,uri):
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -28,8 +27,7 @@ def cacheAndReturn(obj,uri):
                 return obj
 
 def checkCache(uri):
-    connection = getConnection()
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             try: # try keeps this loosely coupled - no strict dependency
                 cursor.execute(
@@ -82,7 +80,7 @@ def get_here_links(from_node_id, to_node_id, map_version='??_?'):
         street_geoms_table = sql.Identifier(f'routing_streets_{map_version}'),
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
     )
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 parsed_links_query,
@@ -104,6 +102,4 @@ def get_here_links(from_node_id, to_node_id, map_version='??_?'):
                     'target': target
                 } for link_dir, st_name, seq, geojson, length_m, source, target in cursor.fetchall()
             ]
-
-    connection.close()
     return cacheAndReturn(links,URI)

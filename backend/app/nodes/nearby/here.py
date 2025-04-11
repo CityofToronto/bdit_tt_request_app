@@ -1,6 +1,6 @@
 import json
 from psycopg import sql
-from app.db import getConnection
+from app.db import pool
 from app.selectMapVersion import selectMapVersion
 
 nodes_query = '''
@@ -31,7 +31,7 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
     )
 
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 versioned_nodes_query,
@@ -51,5 +51,4 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
                         'street_names': street_names,
                         'geometry': json.loads(geojson)
                     } )
-    connection.close()
     return candidate_nodes
