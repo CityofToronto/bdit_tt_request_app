@@ -59,7 +59,6 @@ def closest_node(meters, longitude, latitude):
 
 # test URL /node/here/30357505
 #          /node/centreline/13460901
-@app.route('/node/<node_id>', endpoint='generic') # will be deprecated
 @app.route('/node/here/<node_id>', endpoint='here-nodes')
 @app.route('/node/centreline/<node_id>', endpoint='centreline-nodes')
 def get_node(node_id):
