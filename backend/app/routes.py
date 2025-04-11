@@ -12,6 +12,7 @@ from app.links.centreline import get_centreline_links
 from app.getGitHash import getGitHash
 from app.dates import currentDateBounds
 
+# test URL: /
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -28,6 +29,7 @@ def index():
         ]
     })
 
+# test URL: /version
 @app.route('/version')
 def version():
     """Return the Git hash of the current application HEAD"""
@@ -56,6 +58,7 @@ def closest_node(meters, longitude, latitude):
     return jsonify(get_here_nodes_within(meters,longitude,latitude))
 
 # test URL /node/here/30357505
+#          /node/centreline/13460901
 @app.route('/node/<node_id>', endpoint='generic') # will be deprecated
 @app.route('/node/here/<node_id>', endpoint='here-nodes')
 @app.route('/node/centreline/<node_id>', endpoint='centreline-nodes')
@@ -85,7 +88,7 @@ def get_node(node_id):
     return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
-#shell function - outputs json for use on frontend
+#          /link-nodes/centreline/13460901/13461051
 @app.route('/link-nodes/here/<from_node_id>/<to_node_id>', endpoint='here-links')
 @app.route('/link-nodes/centreline/<from_node_id>/<to_node_id>', endpoint='centreline-links')
 def get_here_links_between_two_nodes(from_node_id, to_node_id):
@@ -182,7 +185,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         )
     )
 
-# test URL /date-bounds
+# test URL /date-range
 @app.route('/date-range')
 def get_date_bounds():
     """Returns the dates of the earliest and latest available travel time data."""
