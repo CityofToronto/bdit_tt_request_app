@@ -5,22 +5,13 @@ from app.dates import maxDate
 # query, or latest available date if those are not provided
 
 query_if_dates_provided = """
-WITH coverage AS (
-    SELECT
-        street_version,
-        lower(valid_range)::text AS lower,
-        upper(valid_range)::text AS upper,
-        valid_range * daterange(%(start_date)s, %(end_date)s,'[)') AS overlap
-    FROM here.street_valid_range
-)
-
 SELECT
     street_version,
-    lower,
-    upper
-FROM coverage
-WHERE UPPER(overlap) - LOWER(overlap) IS NOT NULL
-ORDER BY UPPER(overlap) - LOWER(overlap) DESC;
+    lower(valid_range)::text AS lower,
+    upper(valid_range)::text AS upper
+FROM here.street_valid_range
+WHERE valid_range && daterange(%(start_date)s, %(end_date)s,'[)')
+ORDER BY lower
 """
 
 def selectMapVersions(start_date, end_date):
