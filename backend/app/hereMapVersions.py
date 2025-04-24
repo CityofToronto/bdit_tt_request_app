@@ -31,7 +31,7 @@ def selectMapVersions(start_date, end_date):
                 {'start_date':start_date,'end_date':end_date}
             )
             map_versions = [{
-                'mapVersion': mv,
+                'version': mv,
                 'lowerDateInclusive': lower,
                 'upperDateExclusive': upper
             } for (mv,lower,upper) in cursor.fetchall()]

@@ -2,8 +2,10 @@
 
 from app.db import pool
 from app.links.here import get_here_links
+from app.nodes.byID.here import get_here_node
 from app.hereMapVersions import selectMapVersions
 from traveltimetools.utils import timeFormats
+from haversine import haversine, Unit
 import numpy
 import math
 import pandas
@@ -86,14 +88,26 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    map_versions = selectMapVersions(start_date, end_date)
-    bestMapVersion = map_versions[0]['mapVersion']
+    hereMaps = selectMapVersions(start_date, end_date)
+    bestMap = hereMaps[0]
 
-    links = get_here_links(start_node,end_node,bestMapVersion)
+    links = get_here_links(start_node,end_node,bestMap['version'])
     # if this request spans multiple map versions...
-    if len(map_versions) > 1:
-        for map_version in map_versions[1:]:
-            print(map_version)
+    if len(hereMaps) > 1:
+        for altMap in hereMaps[1:]:
+            # check that routing is basically the same on the other maps
+            # first, check that start, end nodes exist and are in the same spot
+            for nodeId in [start_node, end_node]:
+                nodeA = get_here_node(nodeId,hereMapVersion=bestMap['version'])
+                nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
+                assert 10 >= haversine(
+                    tuple(nodeA['geometry']['coordinates'][::-1]),
+                    tuple(nodeA['geometry']['coordinates'][::-1]),
+                    Unit.METERS
+                )
+            altLinks = get_here_links(start_node,end_node,altMap['version'])
+
+            print(altMap)
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
@@ -155,7 +169,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links, 'map_version': bestMapVersion},
+                'corridor': {'links': links, 'map_version': bestMap['version']},
                 'query_params': query_params
             }
         }, cacheURI)
@@ -187,7 +201,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links, 'map_version': bestMapVersion},
+            'corridor': {'links': links, 'map_version': bestMap['version']},
             'query_params': query_params
         }
     },cacheURI)
