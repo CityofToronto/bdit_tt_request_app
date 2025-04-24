@@ -1,7 +1,7 @@
 import json
 from app.db import pool
 from psycopg import sql
-from app.selectMapVersion import latestMapVersion
+from app.hereMapVersions import latestMapVersion
 from app.getGitHash import getGitHash
 
 cacheQuery = '''

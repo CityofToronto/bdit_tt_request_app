@@ -1,7 +1,7 @@
 import json
 from psycopg import sql
 from app.db import pool
-from app.selectMapVersion import latestMapVersion
+from app.hereMapVersions import latestMapVersion
 
 nodes_query = '''
 SELECT 

@@ -4,7 +4,7 @@ import json
 from psycopg import sql
 from app.db import pool
 from app.nodes.conflation import add_conflated_nodes
-from app.selectMapVersion import latestMapVersion
+from app.hereMapVersions import latestMapVersion
 
 node_query = '''
 SELECT

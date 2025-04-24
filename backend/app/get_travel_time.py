@@ -2,7 +2,7 @@
 
 from app.db import pool
 from app.links.here import get_here_links
-from app.selectMapVersion import bestMapVersion
+from app.hereMapVersions import bestMapVersion
 from traveltimetools.utils import timeFormats
 import numpy
 import math
