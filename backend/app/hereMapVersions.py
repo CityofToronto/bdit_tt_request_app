@@ -18,27 +18,28 @@ WHERE UPPER(overlap) - LOWER(overlap) IS NOT NULL
 ORDER BY UPPER(overlap) - LOWER(overlap) DESC;
 """
 
+def selectMapVersions(start_date, end_date):
+    with pool.connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                query_if_dates_provided,
+                {'start_date':start_date,'end_date':end_date}
+            )
+        map_versions = [mv for (mv,) in cursor.fetchall()]
+    return map_versions
+
+def bestMapVersion(start_date,end_date):
+    return selectMapVersions(start_date,end_date)[0]
+
 query_for_latest_date = """
 SELECT street_version
 FROM here.street_valid_range
 WHERE valid_range @> %(maxDate)s::date;
 """
 
-def selectMapVersions(start_date='????-??-??', end_date='????-??-??'):
+def latestMapVersion():
     with pool.connection() as connection:
         with connection.cursor() as cursor:
-            if start_date == '????-??-??':
-                cursor.execute(query_for_latest_date, {'maxDate': maxDate()})
-            else:
-                cursor.execute(
-                    query_if_dates_provided,
-                    {'start_date':start_date,'end_date':end_date}
-                )
-            map_versions = [mv for (mv,) in cursor.fetchall()]
-    return map_versions
-
-def latestMapVersion():
-    return selectMapVersions()[0]
-
-def bestMapVersion(start_date,end_date):
-    return selectMapVersions(start_date,end_date)[0]
+            cursor.execute(query_for_latest_date, {'maxDate': maxDate()})
+            (map_version,) = cursor.fetchone()
+        return map_version
