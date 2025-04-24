@@ -114,7 +114,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
             # length must be < +/- 2% between map versions
             lengthRatio = linksLength/altLength
-            assert lengthRatio > 0.98 and lengthRatio < 1.02 
+            assert lengthRatio > 0.98 and lengthRatio < 1.02
+            # check street names for equality; assures no rerouting
+            namesA = set([link['name'] for link in links])
+            namesB = set([link['name'] for link in altLinks])
+            assert namesA == namesB
+
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
