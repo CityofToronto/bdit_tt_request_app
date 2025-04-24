@@ -25,7 +25,7 @@ def selectMapVersions(start_date, end_date):
                 query_if_dates_provided,
                 {'start_date':start_date,'end_date':end_date}
             )
-        map_versions = [mv for (mv,) in cursor.fetchall()]
+            map_versions = [mv for (mv,) in cursor.fetchall()]
     return map_versions
 
 def bestMapVersion(start_date,end_date):

@@ -2,7 +2,7 @@
 
 from app.db import pool
 from app.links.here import get_here_links
-from app.hereMapVersions import bestMapVersion
+from app.hereMapVersions import selectMapVersions
 from traveltimetools.utils import timeFormats
 import numpy
 import math
@@ -86,12 +86,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    map_version = bestMapVersion(start_date, end_date)
+    map_versions = selectMapVersions(start_date, end_date)
+    bestMapVersion = map_versions[0]
 
     links = get_here_links(
         start_node,
         end_node,
-        map_version
+        bestMapVersion
     )
 
     links_df = pandas.DataFrame({
@@ -154,7 +155,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links, 'map_version': map_version},
+                'corridor': {'links': links, 'map_version': bestMapVersion},
                 'query_params': query_params
             }
         }, cacheURI)
@@ -186,7 +187,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links, 'map_version': map_version},
+            'corridor': {'links': links, 'map_version': bestMapVersion},
             'query_params': query_params
         }
     },cacheURI)
