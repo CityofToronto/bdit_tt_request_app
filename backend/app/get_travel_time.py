@@ -97,6 +97,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     links = get_here_links(start_node,end_node,bestMap['version'])
     linksLength = reduce(lambda a,b:a+b,[l['length_m'] for l in links])
+
     # if this request spans multiple map versions...
     if len(hereMaps) > 1:
         for altMap in hereMaps[1:]:
@@ -119,7 +120,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             namesA = set([link['name'] for link in links])
             namesB = set([link['name'] for link in altLinks])
             assert namesA == namesB
-
+        # if all these assertions have passed, we're doing good!
+        # proceed with the request, but break it up into chunks per map version 
+        
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],

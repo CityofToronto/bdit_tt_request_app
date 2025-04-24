@@ -8,8 +8,8 @@ query_if_dates_provided = """
 WITH coverage AS (
     SELECT
         street_version,
-        lower(valid_range) AS lower,
-        upper(valid_range) AS upper,
+        lower(valid_range)::text AS lower,
+        upper(valid_range)::text AS upper,
         valid_range * daterange(%(start_date)s, %(end_date)s,'[)') AS overlap
     FROM here.street_valid_range
 )
