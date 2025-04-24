@@ -8,11 +8,16 @@ query_if_dates_provided = """
 WITH coverage AS (
     SELECT
         street_version,
+        lower(valid_range) AS lower,
+        upper(valid_range) AS upper,
         valid_range * daterange(%(start_date)s, %(end_date)s,'[)') AS overlap
     FROM here.street_valid_range
 )
 
-SELECT street_version
+SELECT
+    street_version,
+    lower,
+    upper
 FROM coverage
 WHERE UPPER(overlap) - LOWER(overlap) IS NOT NULL
 ORDER BY UPPER(overlap) - LOWER(overlap) DESC;
@@ -25,11 +30,12 @@ def selectMapVersions(start_date, end_date):
                 query_if_dates_provided,
                 {'start_date':start_date,'end_date':end_date}
             )
-            map_versions = [mv for (mv,) in cursor.fetchall()]
+            map_versions = [{
+                'mapVersion': mv,
+                'lowerDateInclusive': lower,
+                'upperDateExclusive': upper
+            } for (mv,lower,upper) in cursor.fetchall()]
     return map_versions
-
-def bestMapVersion(start_date,end_date):
-    return selectMapVersions(start_date,end_date)[0]
 
 query_for_latest_date = """
 SELECT street_version

@@ -87,13 +87,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     '''
 
     map_versions = selectMapVersions(start_date, end_date)
-    bestMapVersion = map_versions[0]
+    bestMapVersion = map_versions[0]['mapVersion']
 
-    links = get_here_links(
-        start_node,
-        end_node,
-        bestMapVersion
-    )
+    links = get_here_links(start_node,end_node,bestMapVersion)
+    # if this request spans multiple map versions...
+    if len(map_versions) > 1:
+        for map_version in map_versions[1:]:
+            print(map_version)
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
