@@ -12,6 +12,7 @@ import pandas
 import random
 import json
 from app.getGitHash import getGitHash
+from functools import reduce
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -50,6 +51,9 @@ def cacheAndReturn(obj,uri):
                 cursor.execute(query, {'uri': uri, 'hash': getGitHash(), 'results': json.dumps(obj)})
             finally:
                 return obj
+
+def addLinkLengths(a,b):
+    return a['length_m'] + b['length_m']
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
@@ -92,6 +96,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     bestMap = hereMaps[0]
 
     links = get_here_links(start_node,end_node,bestMap['version'])
+    linksLength = reduce(lambda a,b:a+b,[l['length_m'] for l in links])
     # if this request spans multiple map versions...
     if len(hereMaps) > 1:
         for altMap in hereMaps[1:]:
@@ -106,8 +111,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                     Unit.METERS
                 )
             altLinks = get_here_links(start_node,end_node,altMap['version'])
-
-            print(altMap)
+            altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
+            # length must be < +/- 2% between map versions
+            lengthRatio = linksLength/altLength
+            assert lengthRatio > 0.98 and lengthRatio < 1.02 
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
