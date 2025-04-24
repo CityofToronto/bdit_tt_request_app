@@ -102,7 +102,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
                 assert 10 >= haversine(
                     tuple(nodeA['geometry']['coordinates'][::-1]),
-                    tuple(nodeA['geometry']['coordinates'][::-1]),
+                    tuple(nodeB['geometry']['coordinates'][::-1]),
                     Unit.METERS
                 )
             altLinks = get_here_links(start_node,end_node,altMap['version'])
