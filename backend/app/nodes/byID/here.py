@@ -4,7 +4,7 @@ import json
 from psycopg import sql
 from app.db import pool
 from app.nodes.conflation import add_conflated_nodes
-from app.selectMapVersion import selectMapVersion
+from app.selectMapVersion import latestMapVersion
 
 node_query = '''
 SELECT
@@ -23,7 +23,7 @@ GROUP BY
 '''
 
 def get_here_node(node_id, conflate_with_centreline=False):
-    map_version = selectMapVersion() # current/latest map version
+    map_version = latestMapVersion() # current/latest map version
     map_version = '23_4'
     versioned_node_query = sql.SQL(node_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),

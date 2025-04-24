@@ -1,7 +1,7 @@
 import json
 from psycopg import sql
 from app.db import pool
-from app.selectMapVersion import selectMapVersion
+from app.selectMapVersion import latestMapVersion
 
 nodes_query = '''
 SELECT 
@@ -25,7 +25,7 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
     
     will only give nodes on the congestion network. Uses latest map version.
     """
-    map_version = selectMapVersion()
+    map_version = latestMapVersion()
     versioned_nodes_query = sql.SQL(nodes_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')

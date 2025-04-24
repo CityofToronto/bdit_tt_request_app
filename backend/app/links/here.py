@@ -1,7 +1,7 @@
 import json
 from app.db import pool
 from psycopg import sql
-from app.selectMapVersion import selectMapVersion
+from app.selectMapVersion import latestMapVersion
 from app.getGitHash import getGitHash
 
 cacheQuery = '''
@@ -68,7 +68,7 @@ ORDER BY seq;
 def get_here_links(from_node_id, to_node_id, map_version='??_?'):
     if map_version == '??_?':
         # defaults to whatever map version covers latest data
-        map_version = selectMapVersion()
+        map_version = latestMapVersion()
     if map_version != '??_?':
         URI = f'/link-nodes/here/{from_node_id}/{to_node_id}?map_version={map_version}'
         cachedLinks = checkCache(URI)

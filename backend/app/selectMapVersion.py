@@ -24,7 +24,7 @@ FROM here.street_valid_range
 WHERE valid_range @> %(maxDate)s::date;
 """
 
-def selectMapVersion(start_date='????-??-??', end_date='????-??-??'):
+def selectMapVersions(start_date='????-??-??', end_date='????-??-??'):
     with pool.connection() as connection:
         with connection.cursor() as cursor:
             if start_date == '????-??-??':
@@ -34,5 +34,11 @@ def selectMapVersion(start_date='????-??-??', end_date='????-??-??'):
                     query_if_dates_provided,
                     {'start_date':start_date,'end_date':end_date}
                 )
-            (map_version,) = cursor.fetchone()
-    return map_version
+            map_versions = [mv for (mv,) in cursor.fetchall()]
+    return map_versions
+
+def latestMapVersion():
+    return selectMapVersions()[0]
+
+def bestMapVersion(start_date,end_date):
+    return selectMapVersions(start_date,end_date)[0]

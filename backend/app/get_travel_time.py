@@ -2,7 +2,7 @@
 
 from app.db import pool
 from app.links.here import get_here_links
-from app.selectMapVersion import selectMapVersion
+from app.selectMapVersion import bestMapVersion
 from traveltimetools.utils import timeFormats
 import numpy
 import math
@@ -86,7 +86,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    map_version = selectMapVersion(start_date, end_date)
+    map_version = bestMapVersion(start_date, end_date)
 
     links = get_here_links(
         start_node,
