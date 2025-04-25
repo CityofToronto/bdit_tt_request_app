@@ -204,7 +204,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links, 'map_version': thisMap['version']},
+                'corridor': {
+                    'links': links, 
+                    'map_versions': [hm['version'] for hm in hereMaps]
+                },
                 'query_params': query_params
             }
         }, cacheURI)
@@ -236,7 +239,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links, 'map_version': thisMap['version']},
+            'corridor': {
+                'links': links,
+                'map_versions': [hm['version'] for hm in hereMaps]
+            },
             'query_params': query_params
         }
     },cacheURI)
