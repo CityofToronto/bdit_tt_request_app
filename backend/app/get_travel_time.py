@@ -57,7 +57,6 @@ def addLinkLengths(a,b):
 
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, subquery=False):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
-    print('func called with dates',start_date,end_date,subquery)
     # first check the cache
     cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
     cachedValue = checkCache(cacheURI)
@@ -127,7 +126,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 end_date,
                 altMap['upperDateExclusive'] if altMap['upperDateExclusive'] else '9999-01-01' # TODO: Y10K problem
             )
-            print('proceeding to subquery for',altMap)
             subqueryObservations.append(get_travel_time(
                 start_node, end_node, start_time, end_time,
                 altMap['lowerDateInclusive'], # truncate date range to map version
