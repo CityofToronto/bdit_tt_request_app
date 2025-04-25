@@ -88,6 +88,11 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND date_part('ISODOW', dt) = ANY(%(dow_list)s)
             AND dt >= %(start_date)s::date
             AND dt < %(end_date)s::date
+            AND dt NOT IN (
+                '2025-02-12', -- much snow
+                '2025-02-13', -- much snow
+                '2025-04-08' -- not sure why
+            )
             {holiday_clause}
     '''
 
