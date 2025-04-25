@@ -91,7 +91,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND dt NOT IN (
                 '2025-02-12', -- much snow
                 '2025-02-13', -- much snow
-                '2025-04-08' -- https://github.com/Toronto-Big-Data-Innovation-Team/data_validation/issues/41
+                '2025-04-08', -- https://github.com/Toronto-Big-Data-Innovation-Team/data_validation/issues/41
+                -- March break, 2025: https://www.ontario.ca/page/school-year-calendars
+                '2025-03-10',
+                '2025-03-11',
+                '2025-03-12',
+                '2025-03-13',
+                '2025-03-14'
             )
             {holiday_clause}
     '''
