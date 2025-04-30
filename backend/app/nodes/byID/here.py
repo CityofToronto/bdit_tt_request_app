@@ -8,11 +8,7 @@ from app.hereMapVersions import latestMapVersion
 
 node_query = '''
 SELECT
-    ST_AsGeoJSON(
-        -- ST_GeometryN because it's stored as a multi-point
-        -- https://github.com/CityofToronto/bdit_congestion/issues/79
-        ST_GeometryN(here_nodes.geom, 1) 
-    ) AS geom,
+    ST_AsGeoJSON(here_nodes.geom) AS geom,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
 FROM here.{routing_nodes} AS here_nodes
 JOIN here_gis.{street_attributes_table} AS streets USING (link_id)
