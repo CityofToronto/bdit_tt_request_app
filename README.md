@@ -45,6 +45,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
+| `notes` | Assorted warnings or error messages, as applicable. If there are notes, they generally require your attention. If all went well, this field should be empty. |
 
 ### By querying the back-end API directly
 
