@@ -9,7 +9,7 @@ SELECT
     street_version,
     lower(valid_range)::text AS lower,
     upper(valid_range)::text AS upper
-FROM here.street_valid_range
+FROM here.street_valid_range_path
 WHERE valid_range && daterange(%(start_date)s, %(end_date)s,'[)')
 ORDER BY lower
 """
@@ -30,7 +30,7 @@ def selectMapVersions(start_date, end_date):
 
 query_for_latest_date = """
 SELECT street_version
-FROM here.street_valid_range
+FROM here.street_valid_range_path
 WHERE valid_range @> %(maxDate)s::date;
 """
 
