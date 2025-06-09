@@ -106,11 +106,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             for nodeId in [start_node, end_node]:
                 nodeA = get_here_node(nodeId,hereMapVersion=thisMap['version'])
                 nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
-                assert 10 >= haversine(
+                nodeDrift = haversine(
                     tuple(nodeA['geometry']['coordinates'][::-1]),
                     tuple(nodeB['geometry']['coordinates'][::-1]),
                     Unit.METERS
-                ), 'A node has moved by >= 10m between map versions'
+                )
+                if nodeDrift >= 10:
+                    return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
             altLinks = get_here_links(start_node,end_node,altMap['version'])
             altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
             # length must be < +/- 2% between map versions
@@ -120,8 +122,9 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             # check street names for equality; assures no rerouting
             namesA = set([link['name'] for link in links])
             namesB = set([link['name'] for link in altLinks])
-            assert namesA == namesB, 'names of streets along corridor differ between map versions'
-            # if all these assertions have passed, we're doing good!
+            if namesA != namesB:
+                return {'error': 'names of streets along corridor differ between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
+            # if all these checks have passed, we're doing good!
             # proceed with the request, but break it up into chunks per map version
             newUpperDateLimit = min(
                 end_date,
