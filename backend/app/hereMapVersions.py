@@ -9,7 +9,7 @@ WITH coverage AS (
     SELECT
         street_version,
         valid_range * daterange(%(start_date)s, %(end_date)s,'[)') AS overlap
-    FROM here.street_valid_range
+    FROM here.street_valid_range_path
 )
 
 SELECT street_version
@@ -33,7 +33,7 @@ def bestMapVersion(start_date,end_date):
 
 query_for_latest_date = """
 SELECT street_version
-FROM here.street_valid_range
+FROM here.street_valid_range_path
 WHERE valid_range @> %(maxDate)s::date;
 """
 
