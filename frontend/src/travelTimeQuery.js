@@ -70,6 +70,25 @@ export class TravelTimeQuery {
         } )
         return holidays.length > 0
     }
+    get caveats(){
+        // offer some basic warnings where things look especially sketchy
+        let warnings = new Set()
+        // check sample size a couple different ways
+        const n = this.#results?.observations?.length
+        if(n > 0 && n <= 5){
+            warnings.add(`times based on only ${n} observations`)
+        }
+        if(n / this.hoursInRange < 0.2){
+            warnings.add(`many periods with insufficient data`)
+        }
+        // check travel time variability
+        // TODO: make this less conservative?
+        const intervals = this.#results?.confidence?.intervals?.['p=0.95']
+        if((intervals?.upper.seconds - intervals?.lower.seconds) >= this.#results?.travel_time?.seconds){
+            warnings.add('travel times are highly variable')
+        }
+        return warnings
+    }
     resultsRecord(type='json'){
         // map used instead of object to preserve insertion order
         const record = new Map()
@@ -88,7 +107,8 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
-        record.set('notes',this.#errorMessage)
+        // print errors if any, else warnings if any
+        record.set('notes', this.#errorMessage ?? [...this.caveats].join('; '))
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
