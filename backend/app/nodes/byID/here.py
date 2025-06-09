@@ -18,8 +18,8 @@ GROUP BY
     here_nodes.geom;
 '''
 
-def get_here_node(node_id, conflate_with_centreline=False):
-    map_version = latestMapVersion() # current/latest map version
+def get_here_node(node_id, conflate_with_centreline=False,hereMapVersion=None):
+    map_version = hereMapVersion if hereMapVersion else latestMapVersion()
     versioned_node_query = sql.SQL(node_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
         street_attributes_table = sql.Identifier(f'streets_att_{map_version}')

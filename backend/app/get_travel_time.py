@@ -2,14 +2,17 @@
 
 from app.db import pool
 from app.links.here import get_here_links
-from app.hereMapVersions import bestMapVersion
+from app.nodes.byID.here import get_here_node
+from app.hereMapVersions import selectMapVersions
+from app.getGitHash import getGitHash
 from traveltimetools.utils import timeFormats
+from haversine import haversine, Unit
+from functools import reduce
 import numpy
 import math
 import pandas
 import random
 import json
-from app.getGitHash import getGitHash
 
 # the way we currently do it
 def mean_daily_mean(obs):
@@ -49,9 +52,11 @@ def cacheAndReturn(obj,uri):
             finally:
                 return obj
 
-def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
-    """Function for returning data from the aggregate-travel-times/ endpoint"""
+def addLinkLengths(a,b):
+    return a['length_m'] + b['length_m']
 
+def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, subquery=False):
+    """Function for returning data from the aggregate-travel-times/ endpoint"""
     # first check the cache
     cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
     cachedValue = checkCache(cacheURI)
@@ -86,13 +91,55 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             {holiday_clause}
     '''
 
-    map_version = bestMapVersion(start_date, end_date)
+    hereMaps = selectMapVersions(start_date, end_date)
+    thisMap = hereMaps[0] # chronologically the first map version
 
-    links = get_here_links(
-        start_node,
-        end_node,
-        map_version
-    )
+    links = get_here_links(start_node,end_node,thisMap['version'])
+    subqueryObservations = [] # store for observations from other map versions, if any
+
+    # if this request spans multiple map versions...
+    if len(hereMaps) > 1:
+        linksLength = reduce(lambda a,b:a+b,[l['length_m'] for l in links])
+        for altMap in hereMaps[1:]:
+            # check that routing is basically the same on the other maps
+            # first, check that start, end nodes exist and are in the same spot
+            for nodeId in [start_node, end_node]:
+                nodeA = get_here_node(nodeId,hereMapVersion=thisMap['version'])
+                nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
+                nodeDrift = haversine(
+                    tuple(nodeA['geometry']['coordinates'][::-1]),
+                    tuple(nodeB['geometry']['coordinates'][::-1]),
+                    Unit.METERS
+                )
+                if nodeDrift >= 10:
+                    return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
+            altLinks = get_here_links(start_node,end_node,altMap['version'])
+            altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
+            # length must be < +/- 2% between map versions
+            lengthRatio = linksLength/altLength
+            if not (lengthRatio > 0.98 and lengthRatio < 1.02):
+                return {'error': 'length of corridors differs between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
+            # check street names for equality; assures no rerouting
+            namesA = set([link['name'] for link in links])
+            namesB = set([link['name'] for link in altLinks])
+            if namesA != namesB:
+                return {'error': 'names of streets along corridor differ between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
+            # if all these checks have passed, we're doing good!
+            # proceed with the request, but break it up into chunks per map version
+            newUpperDateLimit = min(
+                end_date,
+                altMap['upperDateExclusive'] if altMap['upperDateExclusive'] else '9999-01-01' # TODO: Y10K problem
+            )
+            subqueryObservations.append(get_travel_time(
+                start_node, end_node, start_time, end_time,
+                altMap['lowerDateInclusive'], # truncate date range to map version
+                newUpperDateLimit,
+                include_holidays, dow_list,
+                subquery=True
+            ))
+        #pandas.concat(subqueryObservations)
+        # limit the date range of this query to the current map version only
+        end_date = thisMap['upperDateExclusive']
 
     links_df = pandas.DataFrame({
         'link_dir': [l['link_dir'] for l in links],
@@ -137,6 +184,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     observations = observations.assign(
         tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
     )
+    if subquery == True:
+        # these will be incorporated directly into the main/first query
+        return observations
+    elif len(subqueryObservations) > 0:
+        # merge observations from this and any subqueries
+        observations = pandas.concat([observations] + subqueryObservations)
+
     # convert to format that can be used by the same summary function
     sample = []
     for tup in observations.itertuples():
@@ -154,7 +208,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 },
             },
             'query': {
-                'corridor': {'links': links, 'map_version': map_version},
+                'corridor': {
+                    'links': links, 
+                    'map_versions': [hm['version'] for hm in hereMaps]
+                },
                 'query_params': query_params
             }
         }, cacheURI)
@@ -186,7 +243,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
         'query': {
-            'corridor': {'links': links, 'map_version': map_version},
+            'corridor': {
+                'links': links,
+                'map_versions': [hm['version'] for hm in hereMaps]
+            },
             'query_params': query_params
         }
     },cacheURI)

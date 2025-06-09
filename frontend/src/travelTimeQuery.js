@@ -7,6 +7,7 @@ export class TravelTimeQuery {
     #days
     #holidayOption
     #results
+    #errorMessage
     constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
         this.#timeRange = timeRange
@@ -39,10 +40,17 @@ export class TravelTimeQuery {
         }
         return fetch(this.URI)
             .then( response => response.json() )
-            .then( data => this.#results = data.results )
+            .then( data => {
+                this.#results = data?.results
+                this.#errorMessage = data?.error
+            } )
+            .catch( this.#errorMessage = 'unhandled server error' )
     }
     get hasData(){
         return Boolean(this.#results)
+    }
+    get isFinished(){
+        return this.hasData || Boolean(this.#errorMessage)
     }
     get hoursInRange(){ // number of hours covered by query options
         let hoursPerDay = this.timeRange.hoursInRange
@@ -80,6 +88,7 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange)
         record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
         record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
+        record.set('notes',this.#errorMessage)
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
