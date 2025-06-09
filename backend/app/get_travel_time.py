@@ -110,16 +110,17 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                     tuple(nodeA['geometry']['coordinates'][::-1]),
                     tuple(nodeB['geometry']['coordinates'][::-1]),
                     Unit.METERS
-                )
+                ), 'A node has moved by >= 10m between map versions'
             altLinks = get_here_links(start_node,end_node,altMap['version'])
             altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
             # length must be < +/- 2% between map versions
             lengthRatio = linksLength/altLength
-            assert lengthRatio > 0.98 and lengthRatio < 1.02
+            if not (lengthRatio > 0.98 and lengthRatio < 1.02):
+                return {'error': 'length of corridors differs between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
             # check street names for equality; assures no rerouting
             namesA = set([link['name'] for link in links])
             namesB = set([link['name'] for link in altLinks])
-            assert namesA == namesB
+            assert namesA == namesB, 'names of streets along corridor differ between map versions'
             # if all these assertions have passed, we're doing good!
             # proceed with the request, but break it up into chunks per map version
             newUpperDateLimit = min(
