@@ -1,7 +1,8 @@
 import { Intersection } from '../intersection.js'
 import { domain } from '../domain.js'
 
-const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
+const TTURIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
+const CorridorURIpattern = /\/link-nodes\/here\/(?<startNode>\d+)\/(?<endNode>\d+)/g
 
 export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
     fileDropEvent.stopPropagation()
@@ -12,8 +13,11 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
 
     return file.text()
         .then( textData => {
-            // should be a list of objects each with a URI property
-            let URIs = [...textData.matchAll(URIpattern)].map(m=>m.groups)
+            // a list of objects each with a URI property
+            const URIs = [
+                ...textData.matchAll(TTURIpattern),
+                ...textData.matchAll(CorridorURIpattern)
+            ].map(m=>m.groups)
             distinctPairs(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
                     let corridor = stateData.createCorridor()
@@ -67,7 +71,11 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
 // get distinct value pairs from a list of objects by their property names
 // all are strings
 function distinctPairs(list, prop1, prop2){
-    let distinctKeys = new Set( list.map(o => `${o[prop1]} | ${o[prop2]}`) )
+    let distinctKeys = new Set(
+        list
+            .filter(o => Object.hasOwn(o,prop1) && Object.hasOwn(o,prop2))
+            .map(o => `${o[prop1]} | ${o[prop2]}`)
+    )
     return [...distinctKeys].map( k => {
         let vals = k.split(' | ')
         return { [prop1]: vals[0], [prop2]: vals[1] }
