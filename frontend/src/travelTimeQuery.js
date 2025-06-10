@@ -75,14 +75,14 @@ export class TravelTimeQuery {
         let warnings = new Set()
         // check sample size a couple different ways
         const n = this.#results?.observations?.length
-        if(n > 0 && n <= 5){
-            warnings.add(`times based on only ${n} observations`)
-        }
-        if(n / this.hoursInRange < 0.2){
-            warnings.add(`many periods with insufficient data`)
+        if(n == 0){
+            warnings.add('no data available')
+        }else if(n <= 5){
+            warnings.add(`mean is based on only ${n} observation(s)`)
+        }else if(n / this.hoursInRange < 0.2){
+            warnings.add(`many time periods with missing or insufficient data`)
         }
         // check travel time variability
-        // TODO: make this less conservative?
         const intervals = this.#results?.confidence?.intervals?.['p=0.95']
         if((intervals?.upper.seconds - intervals?.lower.seconds) >= this.#results?.travel_time?.seconds){
             warnings.add('travel times are highly variable')
