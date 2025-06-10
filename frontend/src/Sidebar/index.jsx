@@ -73,7 +73,11 @@ export function CorridorsContainer(){
             <BigButton onClick={addACorridor}>
                 Create a new corridor
             </BigButton>
+            {data.corridors.some(c => c.isComplete) &&
+                <BigButton>Download mapped corridors</BigButton>
+            }
             <FactorList factors={data.corridors}/>
+            
         </FactorContainer>
     )
 }
