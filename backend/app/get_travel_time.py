@@ -113,7 +113,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 )
                 if nodeDrift >= 10:
                     return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
-            altLinks = get_here_links(start_node,end_node,altMap['version'])
+            altLinks, altURI = get_here_links(start_node,end_node,altMap['version'])
             altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
             # length must be < +/- 2% between map versions
             lengthRatio = linksLength/altLength
