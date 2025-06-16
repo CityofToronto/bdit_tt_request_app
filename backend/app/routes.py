@@ -121,7 +121,7 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
             # which will expose database errors
             links, URI = get_here_links(from_node_id,to_node_id,map_version)
         else:
-            links = get_here_links(from_node_id,to_node_id)
+            links, URI = get_here_links(from_node_id,to_node_id)
     elif request.endpoint == 'centreline-links':
         links = get_centreline_links(from_node_id, to_node_id)
 
