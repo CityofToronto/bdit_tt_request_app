@@ -119,9 +119,9 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
         if map_version and re.fullmatch(r'^\d{2}_\d$', map_version):
             # TODO: can pass map versions that match the pattern but don't exist
             # which will expose database errors
-            links = get_here_links(from_node_id,to_node_id,map_version)
+            links, URI = get_here_links(from_node_id,to_node_id,map_version)
         else:
-            links = get_here_links(from_node_id,to_node_id)
+            links, URI = get_here_links(from_node_id,to_node_id)
     elif request.endpoint == 'centreline-links':
         links = get_centreline_links(from_node_id, to_node_id)
 

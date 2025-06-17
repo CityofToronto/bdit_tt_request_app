@@ -24,7 +24,7 @@ def cacheAndReturn(obj,uri):
                     {'uri': uri,'hash':getGitHash(),'results':json.dumps(obj)}
                 )
             finally:
-                return obj
+                return obj, uri
 
 def checkCache(uri):
     with pool.connection() as connection:
@@ -35,7 +35,7 @@ def checkCache(uri):
                     {'uri':uri,'hash':getGitHash()}
                 )
                 for (record,) in cursor: # will skip if no records
-                    return record # there could only be one because of constraint
+                    return record, uri # there could only be one because of constraint
             except:
                 pass
 

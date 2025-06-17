@@ -94,7 +94,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     hereMaps = selectMapVersions(start_date, end_date)
     thisMap = hereMaps[0] # chronologically the first map version
 
-    links = get_here_links(start_node,end_node,thisMap['version'])
+    links, corridorURI = get_here_links(start_node,end_node,thisMap['version'])
     subqueryObservations = [] # store for observations from other map versions, if any
 
     # if this request spans multiple map versions...
@@ -113,7 +113,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 )
                 if nodeDrift >= 10:
                     return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
-            altLinks = get_here_links(start_node,end_node,altMap['version'])
+            altLinks, altURI = get_here_links(start_node,end_node,altMap['version'])
             altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
             # length must be < +/- 2% between map versions
             lengthRatio = linksLength/altLength
@@ -209,7 +209,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             },
             'query': {
                 'corridor': {
-                    'links': links, 
+                    'links': corridorURI, 
                     'map_versions': [hm['version'] for hm in hereMaps]
                 },
                 'query_params': query_params
@@ -244,7 +244,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         },
         'query': {
             'corridor': {
-                'links': links,
+                'links': corridorURI,
                 'map_versions': [hm['version'] for hm in hereMaps]
             },
             'query_params': query_params
