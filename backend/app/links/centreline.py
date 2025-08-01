@@ -22,13 +22,13 @@ FROM centreline_path
 JOIN gis_core.centreline_latest USING (centreline_id)
 '''
 
-# pop from a list my a match function
+# pop from a list by a match function
 def findPop(aList, matchFunc):
     item = next(filter(matchFunc, aList))
     index = aList.index(item)
     return aList.pop(index)
 
-# returns a json with ordered, directed geometries of links between two nodes
+# returns a list with ordered, directed geometries of links between two nodes
 def get_centreline_links(from_node_id, to_node_id):
     with pool.connection() as connection:
         with connection.cursor() as cursor:
@@ -49,7 +49,7 @@ def get_centreline_links(from_node_id, to_node_id):
                     'nodes': [source, target]
                 } for centreline_id, st_name, geojson, length_m, source, target in cursor.fetchall()
             ]
-    # sort by hopping down the route from node to node
+    # sort by hopping down the route sequentially from node to node
     sorted_links = []
     activeNode = from_node_id
     while len(links) > 0:
