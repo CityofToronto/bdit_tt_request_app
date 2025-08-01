@@ -49,14 +49,16 @@ def get_centreline_links(from_node_id, to_node_id):
                     'nodes': [source, target]
                 } for centreline_id, st_name, geojson, length_m, source, target in cursor.fetchall()
             ]
-    # sort by hopping from node to node
+    # sort by hopping down the route from node to node
     sorted_links = []
-    start_node = from_node_id
+    activeNode = from_node_id
     while len(links) > 0:
-        next_link = findPop(links, lambda link: start_node in link['nodes'] )
-        next_link['source'] = start_node
-        next_link['target'] = next(n for n in next_link['nodes'] if n != start_node)
-        start_node = next_link['target']
-        del next_link['nodes']
-        sorted_links.append(next_link)
+        link = findPop(links, lambda link: activeNode in link['nodes'] )
+        if link['nodes'][0] != activeNode:
+            link['nodes'].reverse()
+            link['geometry']['coordinates'].reverse()
+        link['source'] = link['nodes'][0]
+        activeNode = link['target'] = link['nodes'][1]
+        del link['nodes']
+        sorted_links.append(link)
     return sorted_links
