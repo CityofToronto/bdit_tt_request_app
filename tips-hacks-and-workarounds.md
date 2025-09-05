@@ -6,7 +6,7 @@ We do not have the resources at this time to provide a nice, intuitive UI for al
 
 App crashed? Need to review or check someone else's results from the App?
 
-If you've saved the output from a previous use of the app, then you have everything you need to recreate the whole request verbatim. This could be either a GeoJSON of the corridors of the CSV or JSON of the travel times.
+If you've saved the output from a previous use of the app, then you have everything you need to recreate the whole request verbatim. This could be either a GeoJSON of the corridors or the CSV or JSON of the travel times.
 
 1. Open up the folder where you have that file saved
 2. Start a fresh version of the app (refresh your browser or open the page)
@@ -15,6 +15,10 @@ If you've saved the output from a previous use of the app, then you have everyth
 (You may need to drop the file in the top portion of the side panel)
 
 The app will restore it's previous state by parsing the `URI` field(s) from the previously saved outputs. Or really, it will parse the file you dropped in as a general text file and search it for patterns matching the URI field. All combinations of the various selectable fields will be recreated in the App.
+
+If the URI it finds is a corridor URI like `https://trans-bdit.intra.prod-toronto.ca/tt-request-backend/link-nodes/here/30415282/30415237` then just a corridor will be added.
+
+If it's a full travel time URI like `https://trans-bdit.intra.prod-toronto.ca/tt-request-backend/aggregate-travel-times/30415282/30415237/12/15/2025-09-01/2025-09-03/true/1234567` then all of those query parameters (corridor + dates + times + days-of-week + holidays) will be added.
 
 ## Help! The intersection I want to select isn't selectable!
 
