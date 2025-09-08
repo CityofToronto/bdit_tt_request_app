@@ -1,4 +1,4 @@
-from app.db import getConnection
+from app.db import pool
 from json import loads as loadJSON
 
 SQL = '''
@@ -33,16 +33,17 @@ def get_nearest_centreline_node(longitude, latitude):
     latitude (float): latitude of the point to search around
     """
     node = {}
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {'longitude': longitude, 'latitude': latitude})
             centreline_id, geojson, distance, street_names = cursor.fetchone()
             node = {
-                'centreline_id': centreline_id,
+                'centreline_id': centreline_id, # deprecated
+                'node_id': centreline_id,
+                'network': 'centreline',
                 'street_names': street_names,
                 'geometry': loadJSON(geojson),
                 'distance': distance
             }
-    connection.close()
     return node
 

@@ -2,13 +2,17 @@ import json, re
 from datetime import datetime
 from flask import jsonify, request
 from app import app
-from app.db import getConnection
-from app.get_closest_nodes import get_nodes_within
-from app.get_node import get_node
+from app.db import pool
+from app.nodes.nearby.here import get_here_nodes_within
+from app.nodes.byID.here import get_here_node
+from app.nodes.byID.centreline import get_centreline_node
 from app.get_travel_time import get_travel_time
-from app.get_here_links import get_here_links
-from app.get_centreline_links import get_centreline_links
+from app.links.here import get_here_links
+from app.links.centreline import get_centreline_links
 from app.getGitHash import getGitHash
+from app.dates import currentDateBounds
+
+# test URL: /
 @app.route('/')
 def index():
     """Provide basic documentation about the available resources.
@@ -25,6 +29,7 @@ def index():
         ]
     })
 
+# test URL: /version
 @app.route('/version')
 def version():
     """Return the Git hash of the current application HEAD"""
@@ -32,7 +37,7 @@ def version():
         'git-HEAD': getGitHash()
     })
 
-# test URL /closest-node/-79.3400/43.6610
+# test URL /nodes-within/50/-79.3400/43.6610
 @app.route('/nodes-within/<meters>/<longitude>/<latitude>', methods=['GET'])
 def closest_node(meters, longitude, latitude):
     """Return up to 20 nodes within a given radius (in meters) of a point.
@@ -50,34 +55,42 @@ def closest_node(meters, longitude, latitude):
         meters = float(meters)
     except:
         return jsonify({'error': "all inputs must be decimal numbers"})
-    return jsonify(get_nodes_within(meters,longitude,latitude))
+    return jsonify(get_here_nodes_within(meters,longitude,latitude))
 
-# test URL /node/30357505
-@app.route('/node/<node_id>', methods=['GET'])
-def node(node_id):
-    """Returns information about a given node in the Here street network.
+# test URL /node/here/30357505
+#          /node/centreline/13460901
+@app.route('/node/here/<node_id>', endpoint='here-nodes')
+@app.route('/node/centreline/<node_id>', endpoint='centreline-nodes')
+def get_node(node_id):
+    """Returns information about a given node in the either the Here or
+    Centreline street networks.
 
-    This uses the latest map version and may not recognize an older node_id.
+    This uses the latest version of either network and may not recognize an
+    older node_id.
     
     arguments:
     node_id (int): identifier of the node in the latest Here map version
-    optional GET arg ?doConflation will also return the nearest node in the centreline network
+    optional GET arg ?doConflation will also return the nearest node in the other
+        networks as well as their distance in meters from the main selected node
     """
     try:
         node_id = int(node_id)
     except:
         return jsonify({'error': "node_id should be an integer"})
-
     doConflation = False
     if request.args.get('doConflation') is not None:
         doConflation = True
-
-    return jsonify(get_node(node_id, doConflation))
+    if request.endpoint == 'centreline-nodes':
+        node = get_centreline_node(node_id, doConflation)
+    else: # here network
+        node = get_here_node(node_id, doConflation)
+    return jsonify(node if node else {'error': 'node not found'})
 
 # test URL /link-nodes/here/30421154/30421153
-#shell function - outputs json for use on frontend
-@app.route('/link-nodes/<network>/<from_node_id>/<to_node_id>')
-def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
+#          /link-nodes/centreline/13460901/13461051
+@app.route('/link-nodes/here/<from_node_id>/<to_node_id>', endpoint='here-links')
+@app.route('/link-nodes/centreline/<from_node_id>/<to_node_id>', endpoint='centreline-links')
+def get_here_links_between_two_nodes(from_node_id, to_node_id):
     """Returns a list of links/edges defining the shortest path between two nodes.
 
     Each link has 
@@ -86,12 +99,11 @@ def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
         * a length in meters
         * the name of the street
         * source and target nodes in the reference network
-    Routing is done in PostgreSQL using `here_gis.get_links_btwn_nodes_{map_version}`
 
     arguments:
-    network (str): reference network to use; either 'here' or 'centreline'
     from_node_id (int): origin node ID on the reference network
     to_node_id (int): destination node ID on the reference network
+    optional GET param map_version applies only to Here network
     """
     try:
         from_node_id = int(from_node_id)
@@ -102,12 +114,16 @@ def get_here_links_between_two_nodes(network, from_node_id, to_node_id):
     if from_node_id == to_node_id:
         return jsonify({'error': "Source node can not be the same as target node."}), 400
 
-    if network == 'here':
-        links = get_here_links(from_node_id, to_node_id)
-    elif network == 'centreline':
+    if request.endpoint == 'here-links':
+        map_version = request.args.get('map_version')
+        if map_version and re.fullmatch(r'^\d{2}_\d$', map_version):
+            # TODO: can pass map versions that match the pattern but don't exist
+            # which will expose database errors
+            links, URI = get_here_links(from_node_id,to_node_id,map_version)
+        else:
+            links, URI = get_here_links(from_node_id,to_node_id)
+    elif request.endpoint == 'centreline-links':
         links = get_centreline_links(from_node_id, to_node_id)
-    else:
-        return jsonify({'error': "Network should be one of ['here','centreline']"}), 400
 
     return jsonify({
         "source": from_node_id, 
@@ -146,6 +162,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         return jsonify({'error': "time is not in a valid format, i.e.(H or HH)"}), 400
 
     try:
+        # attempts to parse dates to validate, but leaves them as strings
         datetime.strptime(start_date, "%Y-%m-%d")
         datetime.strptime(end_date, "%Y-%m-%d")
     except:
@@ -167,20 +184,11 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
         )
     )
 
-# test URL /date-bounds
-@app.route('/date-range', methods=['GET'])
+# test URL /date-range
+@app.route('/date-range')
 def get_date_bounds():
     """Returns the dates of the earliest and latest available travel time data."""
-    connection = getConnection()
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT MIN(dt)::text, MAX(dt)::text FROM here.ta;')
-            ( min_date, max_date ) = cursor.fetchone()
-    connection.close()
-    return {
-        "minDate": min_date,
-        "maxDate": max_date
-    }
+    return currentDateBounds()
 
 # test URL /holidays
 @app.route('/holidays', methods=['GET'])
@@ -189,7 +197,6 @@ def get_holidays():
 
     Holidays will fully cover the range of any available travel time data.
     """
-    connection = getConnection()
     query = f"""
     SELECT
         dt::text,
@@ -199,7 +206,7 @@ def get_holidays():
     WHERE dt >= %(minDate)s AND dt < %(maxDate)s
     ORDER BY dt;
     """
-    with connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(query, get_date_bounds())
             dates = [
@@ -209,5 +216,4 @@ def get_holidays():
                     'name': nm
                 } for (dt, dow, nm) in cursor.fetchall()
             ]
-    connection.close()
     return dates

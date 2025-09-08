@@ -1,4 +1,5 @@
 import { Map as MapGL, useMap, Source, Layer } from 'react-map-gl/maplibre'
+import "maplibre-gl/dist/maplibre-gl.css"
 import { useContext, useState, useEffect } from 'react'
 import { DataContext } from '../Layout'
 import { domain } from '../domain.js'
@@ -95,6 +96,8 @@ function NodeLayer(){
     )
 }
 
+const colorLogic = [ 'match', ['get','status'], 'valid', 'green', 'red' ]
+
 const styles = {
     corridors: {
         nodes: {
@@ -102,10 +105,10 @@ const styles = {
             type:'circle',
             paint:{
                 'circle-radius': 8, 
-                'circle-color': ['get','color'],
+                'circle-color': colorLogic,
                 'circle-opacity': 0.2,
                 'circle-stroke-width': 2,
-                'circle-stroke-color': ['get','color']
+                'circle-stroke-color': colorLogic
             }
         },
         lines: {
@@ -113,7 +116,7 @@ const styles = {
             type:'line',
             paint:{
                 'line-width': 3,
-                'line-color': ['get','color']
+                'line-color': colorLogic
             },
             layout: {'line-cap': 'round'}
         }
