@@ -28,7 +28,7 @@ The App only lets the user select from a limited list of intersections (for now)
 
 What the app is actually doing is just routing between nodes in the Here network identified by a `node_id`. If you can supply it with the `node_id` of a different intersection it won't know that it's one of the ones you couldn't select. 
 
-You can find Here `node_id`s in the `bigdata` database at `here.routing_nodes_24_4` (or whatever the latest numbered version is). I like to just put these on a map in QGIS over some basemap to find the ones I want. 
+You can find Here `node_id`s in the `bigdata` database in the view `here.routing_nodes_24_4` (or whatever the latest numbered version is). I like to just put these on a map in QGIS over some basemap to find the ones I want.
 
 The `node_id`s for a corridor are the first two integers in the `URI` field, in the order `from/to`.  
 
