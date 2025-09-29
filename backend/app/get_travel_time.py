@@ -181,9 +181,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             'results': {
                 'travel_time': None,
                 'observations': [],
-                'confidence': {
-                    'sample': 0
-                },
+                'confidence': {'sample': 0},
             },
             'query': {
                 'corridor': {'links': links},
@@ -220,13 +218,13 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # removing it just to prevent any confusion around averaging
     link_speeds_df.drop('speed',axis='columns',inplace=True)
     # get average travel times per link / date / bin
-    hr_means = link_speeds_df.groupby(['link_dir','dt','bin']).mean()
+    bin_means = link_speeds_df.groupby(['link_dir','dt','bin']).mean()
     # sum lengths and travel times of available links per date / bin
-    bin_sums = hr_means.groupby(['dt','bin']).sum()
-    # filter out hours with too much missing data
+    bin_sums = bin_means.groupby(['dt','bin']).sum()
+    # filter out bins with too much missing data
     # i.e. incomplete bins
     observations = bin_sums[ bin_sums['length'] / total_corridor_length >= 0.8 ]
-    # extrapolate over missing data within each bin
+    # extrapolate speeds over missing data within corridor for each bin
     observations = observations.assign(
         tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
     )
@@ -240,7 +238,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # convert to format that can be used by the same summary function
     sample = []
     for tup in observations.itertuples():
-        (dt, hr), tt = tup.Index, tup.tt_extrapolated
+        (dt, bin_end), tt = tup.Index, tup.tt_extrapolated
         sample.append((dt, tt))
 
     if len(sample) < 1:
