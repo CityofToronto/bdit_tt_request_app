@@ -73,9 +73,24 @@ export function CorridorsContainer(){
             <BigButton onClick={addACorridor}>
                 Create a new corridor
             </BigButton>
+            {data.corridors.some(c => c.isComplete) &&
+                <a download='corridors.geojson'
+                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(corridorsGeoJSON(data.corridors)))}`}
+                    >
+                    <BigButton>Download mapped corridors</BigButton>
+                </a>
+            }
             <FactorList factors={data.corridors}/>
         </FactorContainer>
     )
+}
+
+function corridorsGeoJSON(corridors){
+    let geojson = {
+        type: 'FeatureCollection',
+        features: corridors.map( c => c.geojsonFeaturesLinear )
+    }
+    return geojson
 }
 
 function DaysContainer(){

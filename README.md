@@ -25,7 +25,7 @@ The app will combine these factors together to request travel times for all vali
 
 Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON.
 
-If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process.
+If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process. You can also take a look at some of the documented [tips, hacks, and workarounds](./tips-hacks-and-workarounds.md) to see if they can address your issues. 
 
 #### Outputs
 
@@ -45,6 +45,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
 | `mean_travel_time_minutes` | The mean travel time in minutes is given as a floating point number rounded to three decimal places. Where insufficient data was available to complete the request, the value will be null. |
 | `mean_travel_time_seconds` | Same as above, but measured in seconds. |
+| `notes` | Assorted warnings or error messages, as applicable. If there are notes, they generally require your attention. If all went well, this field should be empty. |
 
 ### By querying the back-end API directly
 
@@ -56,7 +57,7 @@ Generally, the API returns much more data than is available through the UI and t
 
 Data for travel time estimation through the app are sourced from [HERE](https://github.com/CityofToronto/bdit_data-sources/tree/master/here)'s [traffic API](https://developer.here.com/documentation/traffic-api/api-reference.html) and are available back to 2017-09-01. HERE collects data from motor vehicles that report their speed and position to HERE, most likely as a by-poduct of the driver making use of an in-car navigation system connected to the Internet.
 
-The number of vehicles within the City of Toronto reporting their position to HERE in this way has been [estimated](./analysis/total-fleet-size.r) to be around 2,000 to 3,000 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.  
+The number of vehicles within the City of Toronto reporting their position to HERE in this way has been [estimated](./analysis/total-fleet-size.r) to be around 2,000 to 3,000 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.
 
 Travel times are provided to us in the form of _average speeds_ along links of the street network in 5-minute time bins. Given the sparseness of the vehicle probe data, most links, in most time bins are empty. The scond most common sample size is a single vehicle observation.
 
