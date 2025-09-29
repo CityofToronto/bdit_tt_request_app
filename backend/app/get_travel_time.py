@@ -166,7 +166,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_speeds_df = pandas.DataFrame(
                 cursor.fetchall(),
                 columns=['link_dir','dt','tx','speed']
-            ).set_index('link_dir')
+            )
 
     # create custom binning
     bins = make_bins(links_df, link_speeds_df)
@@ -284,7 +284,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 def make_bins(links_df, link_speeds_df):
     """Create the smallest temporal bins possible while ensuring at least 80%
     of links, by length, have observations."""
-    # start with empty list of bins, defined by their ends
+    # start with empty list of bins, defined by their end times
     bin_ends = list()
     minimum_length = 0.8 * links_df['length'].sum()
 
