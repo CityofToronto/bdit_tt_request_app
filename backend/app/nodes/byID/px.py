@@ -1,5 +1,5 @@
 import json
-from app.db import getConnection
+from app.db import pool
 
 SQL = '''
 SELECT
@@ -20,7 +20,7 @@ WHERE tts."centrelineId" = %(centreline_id)s;
 
 def get_px_node(centreline_id):
     node = {}
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(SQL, {"centreline_id": centreline_id})
             if cursor.rowcount != 1:

@@ -1,38 +1,43 @@
 """fetch a specific node by it's ID"""
 
 import json
-from app.db import getConnection
+from psycopg import sql
+from app.db import pool
 from app.nodes.conflation import add_conflated_nodes
+from app.hereMapVersions import latestMapVersion
 
-SQL = '''
+node_query = '''
 SELECT
-    ST_AsGeoJSON(
-        ST_GeometryN(here_nodes.geom, 1) -- necessary because currently stored as a multi-point
-    ) AS geom,
+    ST_AsGeoJSON(here_nodes.geom) AS geom,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
-FROM here.routing_nodes_23_4 AS here_nodes
-JOIN here_gis.streets_att_23_4 AS streets USING (link_id)
+FROM here.{routing_nodes} AS here_nodes
+JOIN here_gis.{street_attributes_table} AS streets USING (link_id)
 WHERE here_nodes.node_id = %(node_id)s
 GROUP BY
     here_nodes.node_id,
     here_nodes.geom;
 '''
 
-def get_here_node(node_id, conflate_with_centreline=False):
+def get_here_node(node_id, conflate_with_centreline=False,hereMapVersion=None):
+    map_version = hereMapVersion if hereMapVersion else latestMapVersion()
+    versioned_node_query = sql.SQL(node_query).format(
+        routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
+        street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
+    )
     node = {}
-    with getConnection() as connection:
+    with pool.connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(SQL, {"node_id": node_id})
+            cursor.execute(versioned_node_query, {"node_id": node_id})
             if cursor.rowcount != 1:
                 return None
             geojson, street_names = cursor.fetchone()
             node = {
                 'node_id': node_id,
                 'network': 'here',
+                'map_version': map_version,
                 'street_names': street_names,
                 'geometry': json.loads(geojson)
             }
-    connection.close()
     if conflate_with_centreline:
         node = add_conflated_nodes(node)
     return node

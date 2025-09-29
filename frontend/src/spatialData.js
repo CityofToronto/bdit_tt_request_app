@@ -164,6 +164,6 @@ export class SpatialData {
     }
     get queryCount(){ return this.#queries.size }
     get queryCountFinished(){
-        return [...this.#queries.values()].filter(q=>q.hasData).length
+        return [...this.#queries.values()].filter(q=>q.isFinished).length
     }
 }

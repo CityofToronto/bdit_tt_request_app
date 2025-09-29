@@ -1,6 +1,7 @@
 import { Factor } from './factor.js'
 import { Intersection } from './intersection.js'
 import { Segment } from './segment.js'
+import { domain } from './domain.js'
 
 // a sequence of segments forming a coherent corridor
 export class Corridor extends Factor {
@@ -11,6 +12,19 @@ export class Corridor extends Factor {
     }
     get isComplete(){
         return this.intersections.length > 1 && this.routeIsValid
+    }
+    get fromIntersection(){
+        let from = this.intersections.length > 0 ? this.intersections[0] : undefined
+        return from
+    }
+    get toIntersection(){
+        let to = this.intersections.length > 1 ? this.intersections[1] : undefined
+        return to
+    }
+    get URI(){
+        if( ! this.isComplete ) return undefined
+        let [start, end] = [...this.#intersections.values().map(i => i.id)]
+        return `${domain}/link-nodes/here/${start}/${end}`
     }
     get routeIsValid(){
         if(this.links.length == 0) return false;
@@ -27,13 +41,21 @@ export class Corridor extends Factor {
                 type: 'MultiLineString',
                 coordinates: this.links.map(link=>link.geometry.coordinates)
             },
-            properties: { 'color': this.isComplete ? 'green' : 'red' }
+            properties: {
+                URI: this.URI,
+                fromNode: this.fromIntersection?.id,
+                toNode: this.toIntersection?.id,
+                routeStreets: this.viaStreetsString,
+                direction: this.bearing,
+                startCrossStreets: this.startCrossStreetsString,
+                endCrossStreets: this.endCrossStreetsString,
+                status: this.isComplete ? 'valid' : ''             }
         }
     }
     get geojsonFeaturesPoint(){
         return this.intersections.map( i => {
             let feature = i.geojson
-            feature.properties.color = this.isComplete ? 'green' : 'red'
+            feature.properties.status = this.isComplete ? 'valid' : ''
             return feature
         } )
     }
@@ -72,34 +94,35 @@ export class Corridor extends Factor {
         return [...this.viaStreets].join(' & ')
     }
     get startCrossStreets(){
-        try { return difference(this.intersections[0].streetNames,this.viaStreets) }
-        catch (e) { return new Set() }
+        if( ! this.fromIntersection ) return new Set()
+        return difference(this.fromIntersection.streetNames,this.viaStreets)
     }
     get startCrossStreetsString(){
         if(this.startCrossStreets.size > 0){
             return [...this.startCrossStreets].join(' & ')
-        }else if(this.#intersections.size > 0){
-            return this.intersections[0].displayCoords
+        }else if(this.fromIntersection){
+            return this.fromIntersection.displayCoords
         }
         return ''
     }
     get endCrossStreets(){
-        try { return difference(this.intersections[1].streetNames,this.viaStreets) }
-        catch (e) { return new Set() }
+        if( ! this.toIntersection ) return new Set()
+        return difference(this.toIntersection.streetNames,this.viaStreets)
     }
     get endCrossStreetsString(){
         if(this.endCrossStreets.size > 0){
             return [...this.endCrossStreets].join(' & ')
-        }else if(this.#intersections.size > 1){
-            return this.intersections[1].displayCoords
+        }else if(this.toIntersection){
+            return this.toIntersection.displayCoords
         }
         return ''
     }
     get bearing(){
         // azimuth calculation borrowed from:
         // http://www.movable-type.co.uk/scripts/latlong.html
-        if( ! this.#intersections.size == 2 ) return undefined;
-        const [A, B] = this.intersections
+        const A = this.fromIntersection
+        const B = this.toIntersection
+        if( ! (A && B) ) return undefined;
         const x = Math.cos(d2r(A.lat)) * Math.sin(d2r(B.lat))
             - Math.sin(d2r(A.lat)) * Math.cos(d2r(B.lat)) * Math.cos(d2r(B.lng - A.lng))
         const y = Math.sin(d2r(B.lng - A.lng)) * Math.cos(d2r(B.lat))

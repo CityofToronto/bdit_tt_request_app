@@ -1,7 +1,8 @@
 import { Intersection } from '../intersection.js'
 import { domain } from '../domain.js'
 
-const URIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
+const TTURIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
+const CorridorURIpattern = /\/link-nodes\/here\/(?<startNode>\d+)\/(?<endNode>\d+)/g
 
 export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
     fileDropEvent.stopPropagation()
@@ -12,9 +13,12 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
 
     return file.text()
         .then( textData => {
-            // should be a list of objects each with a URI property
-            let URIs = [...textData.matchAll(URIpattern)].map(m=>m.groups)
-            distinctPairs(URIs,'startNode','endNode')
+            // a list of objects each with a URI property
+            const URIs = [
+                ...textData.matchAll(TTURIpattern),
+                ...textData.matchAll(CorridorURIpattern)
+            ].map(m=>m.groups)
+            distinctPerProps(URIs,'startNode','endNode')
                 .forEach( ({startNode,endNode}) => {
                     let corridor = stateData.createCorridor()
                     Promise.all(
@@ -34,13 +38,13 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                         corridor.addIntersection(intersections[1],logActivity)
                     })
                 } )
-            distinctPairs(URIs,'startTime','endTime')
+            distinctPerProps(URIs,'startTime','endTime')
                 .forEach( ({startTime,endTime}) => {
                     let timeRange = stateData.createTimeRange()
                     timeRange.setStartTime(startTime)
                     timeRange.setEndTime(endTime)
                 } )
-            distinctPairs(URIs,'startDate','endDate')
+            distinctPerProps(URIs,'startDate','endDate')
                 .forEach( ({startDate,endDate}) => {
                     let dateRange = stateData.createDateRange()
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
@@ -57,19 +61,22 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
             }
             // days of week
             // TODO: drop the default selection?
-            [... new Set(URIs.map(uri=>uri.dow))].forEach( dowsString => {
+            distinctPerProps(URIs,'dow').forEach( ({dow}) => {
                 let daysFactor = stateData.createDays()
-                daysFactor.setFromSet(new Set(dowsString.split('').map(Number)))
+                daysFactor.setFromSet(new Set(dow.split('').map(Number)))
             } )
         } )
 }
 
-// get distinct value pairs from a list of objects by their property names
-// all are strings
-function distinctPairs(list, prop1, prop2){
-    let distinctKeys = new Set( list.map(o => `${o[prop1]} | ${o[prop2]}`) )
-    return [...distinctKeys].map( k => {
-        let vals = k.split(' | ')
-        return { [prop1]: vals[0], [prop2]: vals[1] }
+// get distinct sets of values from a list of objects by their property name(s)
+function distinctPerProps(list, ...props){
+    let distinctValues = new Set(
+        list.filter(o => props.every(prop=> Object.hasOwn(o,prop)))
+            .map(o => props.map(p=>o[p]).join(' // '))
+    )
+    return [...distinctValues].map( dk => {
+        return Object.fromEntries(
+            new Map(dk.split(' // ').map((value,i)=>[props[i],value]))
+        )
     } )
 }
