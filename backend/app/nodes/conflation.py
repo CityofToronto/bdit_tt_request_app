@@ -1,7 +1,7 @@
 from app.nodes.nearby.here import get_here_nodes_within
 from app.nodes.byID.px import get_px_node
 from app.nodes.nearby.centreline import get_nearest_centreline_node
-from haversine import haversine
+from haversine import haversine, Unit
 
 def add_conflated_nodes(node):
     """adds "conflated" field to node objects"""
@@ -29,15 +29,16 @@ def add_conflated_nodes(node):
     # now get distances between selected and conflated points
     for network, conflatedNode in node['conflated'].items():
         try:
-            conflatedNode['distance'] = haversine(
-                (lat, lon),
-                (
-                    conflatedNode['geometry']['coordinates'][1],
-                    conflatedNode['geometry']['coordinates'][0]
-                ),
-                unit='m'
-            )
+            conflatedNode['distance'] = metersBetweenNodes(node,conflatedNode)
         except:
             pass
 
     return node
+
+def metersBetweenNodes(nodeA, nodeB):
+    print('distance measured')
+    return haversine(
+        tuple(nodeA['geometry']['coordinates'][::-1]),
+        tuple(nodeB['geometry']['coordinates'][::-1]),
+        unit=Unit.METERS
+    )

@@ -8,7 +8,7 @@ from traveltimetools.utils import timeFormats
 from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
 from app.travel_times.daily_aggregation import mean_daily_mean
-from haversine import haversine, Unit
+from app.nodes.conflation import metersBetweenNodes
 from functools import reduce
 import pandas
 import json
@@ -67,11 +67,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             for nodeId in [start_node, end_node]:
                 nodeA = get_here_node(nodeId,hereMapVersion=thisMap['version'])
                 nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
-                nodeDrift = haversine(
-                    tuple(nodeA['geometry']['coordinates'][::-1]),
-                    tuple(nodeB['geometry']['coordinates'][::-1]),
-                    Unit.METERS
-                )
+                nodeDrift = metersBetweenNodes(nodeA, nodeB)
                 if nodeDrift >= 10:
                     return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
             altLinks, altURI = get_here_links(start_node,end_node,altMap['version'])
