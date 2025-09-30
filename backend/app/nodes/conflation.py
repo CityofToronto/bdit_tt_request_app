@@ -36,8 +36,8 @@ def add_conflated_nodes(node):
     return node
 
 def metersBetweenNodes(nodeA, nodeB):
-    print('distance measured')
     return haversine(
+        # coordinate order must be reversed
         tuple(nodeA['geometry']['coordinates'][::-1]),
         tuple(nodeB['geometry']['coordinates'][::-1]),
         unit=Unit.METERS
