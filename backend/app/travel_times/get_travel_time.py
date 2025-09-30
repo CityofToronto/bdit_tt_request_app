@@ -9,12 +9,9 @@ from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
 from app.travel_times.daily_aggregation import mean_daily_mean
 from app.nodes.conflation import metersBetweenNodes
-from functools import reduce
+from app.corridors.conflateMapVersions import corridorsAreTheSame
 import pandas
 import json
-
-def addLinkLengths(a,b):
-    return a['length_m'] + b['length_m']
 
 def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     URI = f'/{start_node}/{end_node}'
@@ -23,7 +20,7 @@ def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, in
     URI += f'/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
     return URI
 
-def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, subquery=False):
+def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
     # first check the cache
     cacheURI = makeURI(
@@ -61,106 +58,75 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND dt < %(end_date)s::date
             {holiday_clause}
     '''
-
+    # always possible that this spans a map vrsion change
     hereMaps = selectMapVersions(start_date, end_date)
-    thisMap = hereMaps[0] # chronologically the first map version
+    # if this request does span multiple map versions, check that the corridor
+    # is not meaningfully changed
+    if len(hereMaps) > 1 and not corridorsAreTheSame(start_node, end_node, hereMaps):
+        return {'error': 'corridor changed somehow between map versions'}
 
-    links, corridorURI = get_here_links(start_node,end_node,thisMap['version'])
-    subqueryObservations = [] # store for observations from other map versions, if any
+    for hereMap in hereMaps:
+        links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
+        links_df = pandas.DataFrame({
+            'link_dir': [l['link_dir'] for l in links],
+            'length': [l['length_m'] for l in links]
+        }).set_index('link_dir')
+        total_corridor_length = links_df['length'].sum()
 
-    # if this request spans multiple map versions...
-    if len(hereMaps) > 1:
-        linksLength = reduce(lambda a,b:a+b,[l['length_m'] for l in links])
-        for altMap in hereMaps[1:]:
-            # check that routing is basically the same on the other maps
-            # first, check that start, end nodes exist and are in the same spot
-            for nodeId in [start_node, end_node]:
-                nodeA = get_here_node(nodeId,hereMapVersion=thisMap['version'])
-                nodeB = get_here_node(nodeId,hereMapVersion=altMap['version'])
-                nodeDrift = metersBetweenNodes(nodeA, nodeB)
-                if nodeDrift >= 10:
-                    return {'error': f'Node {nodeId} moved by ({nodeDrift}m) between map versions '+ thisMap['version'] + ' & ' + altMap['version']}
-            altLinks, altURI = get_here_links(start_node,end_node,altMap['version'])
-            altLength = reduce(lambda a,b:a+b,[l['length_m'] for l in altLinks])
-            # length must be < +/- 2% between map versions
-            lengthRatio = linksLength/altLength
-            if not (lengthRatio > 0.98 and lengthRatio < 1.02):
-                return {'error': 'length of corridors differs between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
-            # check street names for equality; assures no rerouting
-            namesA = set([link['name'] for link in links])
-            namesB = set([link['name'] for link in altLinks])
-            if namesA != namesB:
-                return {'error': 'names of streets along corridor differ between map versions ' + thisMap['version'] + ' & ' + altMap['version']}
-            # if all these checks have passed, we're doing good!
-            # proceed with the request, but break it up into chunks per map version
-            newUpperDateLimit = min(
+        query_params = {
+            "link_dir_list": [link['link_dir'] for link in links],
+            "node_start": start_node,
+            "node_end": end_node,
+            "start_time": f'{start_time:02d}:00:00',
+            "end_time": f'{end_time:02d}:00:00',
+            "start_date": max(
+                start_date,
+                hereMap['lowerDateInclusive'] if hereMap['lowerDateInclusive'] else '2017-01-01'
+            ),
+            "end_date": min(
                 end_date,
-                altMap['upperDateExclusive'] if altMap['upperDateExclusive'] else '9999-01-01' # TODO: Y10K problem
+                # TODO: Y3K problem
+                hereMap['upperDateExclusive'] if hereMap['upperDateExclusive'] else '3000-01-01'
+            ),
+            "dow_list": dow_list
+        }
+        with pool.connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, query_params)
+                link_speeds_df = pandas.DataFrame(
+                    cursor.fetchall(),
+                    columns=['link_dir','dt','hr','speed']
+                ).set_index('link_dir')
+        # join link lengths
+        link_speeds_df = link_speeds_df.join(links_df)
+        # calculate link travel times from speed and length (in seconds)
+        link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
+        # no longer need speeds now that this is measured in terms of travel time
+        # removing it just to prevent any confusion around averaging
+        link_speeds_df.drop('speed',axis='columns',inplace=True)
+        # get average travel times per link / date / hour
+        hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
+        # sum lengths and travel times of available links per date / hour
+        hr_sums = hr_means.groupby(['dt','hr']).sum()
+        # filter out hours with too much missing data
+        observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
+        # extrapolate over missing data within each hour
+        observations = observations.assign(
+            tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
+        )
+        try:
+            # append observations from this map version
+            # (try, because it's not defined yet on the first pass)
+            observationsAllVersions = pandas.concat(
+                [observations, observationsAllVersions]
             )
-            subqueryObservations.append(get_travel_time(
-                start_node, end_node, start_time, end_time,
-                altMap['lowerDateInclusive'], # truncate date range to map version
-                newUpperDateLimit,
-                include_holidays, dow_list,
-                subquery=True
-            ))
-        #pandas.concat(subqueryObservations)
-        # limit the date range of this query to the current map version only
-        end_date = thisMap['upperDateExclusive']
 
-    links_df = pandas.DataFrame({
-        'link_dir': [l['link_dir'] for l in links],
-        'length': [l['length_m'] for l in links]
-    }).set_index('link_dir')
-
-    total_corridor_length = links_df['length'].sum()
-
-    query_params = {
-        "link_dir_list": [link['link_dir'] for link in links],
-        "node_start": start_node,
-        "node_end": end_node,
-        "start_time": f'{start_time:02d}:00:00',
-        "end_time": f'{end_time:02d}:00:00',
-        "start_date": start_date,
-        "end_date": end_date,
-        "dow_list": dow_list
-    }
-
-    with pool.connection() as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(query, query_params)
-            link_speeds_df = pandas.DataFrame(
-                cursor.fetchall(),
-                columns=['link_dir','dt','hr','speed']
-            ).set_index('link_dir')
-
-    # join previously queried link lengths
-    link_speeds_df = link_speeds_df.join(links_df)
-    # calculate link travel times from speed and length (in seconds)
-    link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
-    # no longer need speeds now that this is measured in terms of travel time
-    # removing it just to prevent any confusion around averaging
-    link_speeds_df.drop('speed',axis='columns',inplace=True)
-    # get average travel times per link / date / hour
-    hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
-    # sum lengths and travel times of available links per date / hour
-    hr_sums = hr_means.groupby(['dt','hr']).sum()
-    # filter out hours with too much missing data
-    observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
-    # extrapolate over missing data within each hour
-    observations = observations.assign(
-        tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
-    )
-    if subquery == True:
-        # these will be incorporated directly into the main/first query
-        return observations
-    elif len(subqueryObservations) > 0:
-        # merge observations from this and any subqueries
-        observations = pandas.concat([observations] + subqueryObservations)
+        except:
+            observationsAllVersions = observations
 
     # convert to format that can be used by the same summary function
     sample = []
-    for tup in observations.itertuples():
+    for tup in observationsAllVersions.itertuples():
         (dt, hr), tt = tup.Index, tup.tt_extrapolated
         sample.append((dt, tt))
 
@@ -183,16 +149,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             }
         }, cacheURI)
 
-    tt_seconds = mean_daily_mean(sample)
-
-    reported_intervals = bootstrap(sample)
-
     return cacheAndReturn({
         'results': {
-            'travel_time': timeFormats(tt_seconds,1),
+            'travel_time': timeFormats(mean_daily_mean(sample),1),
             'confidence': {
                 'sample': len(sample),
-                'intervals': reported_intervals
+                'intervals': bootstrap(sample)
             },
             'observations': [timeFormats(tt,1) for (dt,tt) in sample]
         },
