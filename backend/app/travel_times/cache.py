@@ -1,5 +1,6 @@
 from app.db import pool
 from app.getGitHash import getGitHash
+import json
 
 def checkCache(uri):
     query = f'''
