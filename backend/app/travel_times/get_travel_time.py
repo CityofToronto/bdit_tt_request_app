@@ -16,10 +16,20 @@ import json
 def addLinkLengths(a,b):
     return a['length_m'] + b['length_m']
 
+def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
+    URI = f'/{start_node}/{end_node}'
+    URI += f'/{start_time}/{end_time}'
+    URI += f'/{start_date}/{end_date}'
+    URI += f'/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
+    return URI
+
 def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, subquery=False):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
     # first check the cache
-    cacheURI = f'/{start_node}/{end_node}/{start_time}/{end_time}/{start_date}/{end_date}/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
+    cacheURI = makeURI(
+        start_node, end_node, start_time, end_time,
+        start_date, end_date, include_holidays, dow_list
+    )
     cachedValue = checkCache(cacheURI)
     if cachedValue:
         return cachedValue
