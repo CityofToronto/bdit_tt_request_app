@@ -42,6 +42,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_dir,
             dt::text,
             extract(HOUR FROM tod)::smallint AS hr,
+            (extract('EPOCH' FROM tod)::int / (5 * 60))::smallint AS bin_num,
             mean::real AS speed_kmph
         FROM here.ta_path
         WHERE
@@ -92,7 +93,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 cursor.execute(query, query_params)
                 link_speeds_df = pandas.DataFrame(
                     cursor.fetchall(),
-                    columns=['link_dir','dt','hr','speed']
+                    columns=['link_dir','dt','hr','bin_num','speed']
                 ).set_index('link_dir')
         # join link lengths
         link_speeds_df = link_speeds_df.join(links_df)
