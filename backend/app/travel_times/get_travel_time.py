@@ -113,9 +113,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             polars.col('tt').sum().alias('total_tt'),
             polars.col('length').sum().alias('total_length')
         )
-
-        print(hr_sums)
-
         # filter out hours with too much missing data
         observations = hr_sums.filter(
             polars.col('total_length') / total_corridor_length >= 0.8
@@ -127,23 +124,19 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 polars.col('total_tt') * total_corridor_length / polars.col('total_length')
             ).alias('tt_extrapolated')
         ] )
-
-        print(observations)
-
+        
         try:
             # append observations from this map version
             # (try, because it's not defined yet on the first pass)
-            observationsAllVersions = pandas.concat(
+            observationsAllVersions = polars.concat(
                 [observations, observationsAllVersions]
             )
-
         except:
             observationsAllVersions = observations
 
     # convert to format that can be used by the same summary function
     sample = []
-    for tup in observationsAllVersions.itertuples():
-        (dt, hr), tt = tup.Index, tup.tt_extrapolated
+    for dt, hr, tt in observationsAllVersions.iter_rows():
         sample.append((dt, tt))
 
     if len(sample) < 1:
