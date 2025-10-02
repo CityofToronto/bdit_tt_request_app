@@ -8,6 +8,7 @@ from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
 from app.travel_times.daily_aggregation import mean_daily_mean
 from app.corridors.conflateMapVersions import corridorsAreTheSame
+from app.travel_times.dynamic_bins import createDynamicBins
 import pandas
 
 def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
@@ -94,9 +95,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 link_speeds_df = pandas.DataFrame(
                     cursor.fetchall(),
                     columns=['link_dir','dt','hr','bin_num','speed']
-                ).set_index('link_dir')
+                )
+
+        bins = createDynamicBins(link_speeds_df[['dt','bin_num','link_dir']], links_df)
+
         # join link lengths
-        link_speeds_df = link_speeds_df.join(links_df)
+        link_speeds_df = link_speeds_df.join(links_df,on='link_dir')
         # calculate link travel times from speed and length (in seconds)
         link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
         # no longer need speeds now that this is measured in terms of travel time
