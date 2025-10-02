@@ -63,7 +63,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         return {'error': 'corridor changed somehow between map versions'}
 
     for hereMap in hereMaps:
-        print(hereMap)
         links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
         links_df = polars.DataFrame({
             'link_dir': [l['link_dir'] for l in links],
@@ -97,34 +96,29 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                     orient='row',
                     schema=['link_dir','dt','hr','speed']
                 )
-        # join link lengths
-        link_speeds_df = link_speeds_df.join(links_df, on='link_dir')
+        # join link lengths and
         # calculate link travel times from speed and length (in seconds)
-        link_speeds_df = link_speeds_df.select( [
+        link_speeds_df = link_speeds_df.join(
+            links_df, on='link_dir'
+        ).select( [
             'link_dir', 'dt', 'hr', 'length',
-            (polars.col('length') / polars.col('speed') * 3.6).alias('tt')
+            (polars.col('length') / polars.col('speed') * 3.6).alias('link_tt')
         ] )
         # get average travel times per link / date / hour
-        hr_means = link_speeds_df.group_by(['link_dir','dt','hr','length']).agg(
-            polars.col('tt').mean().alias('tt')
-        )
-        # sum lengths and travel times of available links per date / hour
-        hr_sums = hr_means.group_by(['dt', 'hr']).agg(
-            polars.col('tt').sum().alias('total_tt'),
+        observations = link_speeds_df.group_by(['link_dir','dt','hr','length']).agg(
+            polars.col('link_tt').mean().alias('link_avg_tt')
+        ).group_by(['dt', 'hr']).agg( # sum lengths and times of available links per bin
+            polars.col('link_avg_tt').sum().alias('total_tt'),
             polars.col('length').sum().alias('total_length')
-        )
-        # filter out hours with too much missing data
-        observations = hr_sums.filter(
+        ).filter( # filter out hours with too much missing data
             polars.col('total_length') / total_corridor_length >= 0.8
-        )
-        # extrapolate over missing data within each hour
-        observations = observations.select( [
+        ).select( [
             'dt', 'hr',
-            (
+            ( # extrapolate over missing data within each hour
                 polars.col('total_tt') * total_corridor_length / polars.col('total_length')
             ).alias('tt_extrapolated')
         ] )
-        
+
         try:
             # append observations from this map version
             # (try, because it's not defined yet on the first pass)
