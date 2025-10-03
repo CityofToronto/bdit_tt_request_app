@@ -1,5 +1,3 @@
-import pandas
-
 # arbitrary number we've been using for at least a few years
 # specifies that at least 80% of corridor by length must have _some_ data
 minimumCoverageThreshold = 0.8
@@ -21,7 +19,7 @@ def createDynamicBins(obs_df, links_df):
     # start with empty list of bins
     bins = list()
 
-    print(obs_df[['dt','bin_num']].drop_duplicates().sort_values(['dt','bin_num']))
+    print(obs_df.select(['dt','bin_num']).unique().sort(['dt','bin_num']))
 
 
     return None
