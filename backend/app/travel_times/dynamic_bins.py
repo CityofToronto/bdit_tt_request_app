@@ -17,9 +17,49 @@ def createDynamicBins(obs_df, links_df):
     minLength = links_df['length'].sum() * minimumCoverageThreshold
 
     # start with empty list of bins
-    bins = list()
+    dynamicBins = list()
 
-    print(obs_df.select(['dt','bin_num']).unique().sort(['dt','bin_num']))
+    bins5min = obs_df.sql("""
+        SELECT
+            dt,
+            bin_num,
+            ARRAY_AGG(DISTINCT link_dir)
+        FROM self
+        GROUP BY dt, bin_num
+    """)
 
+    dynamicBin = DynamicBin(links_df)
 
-    return None
+    for dt, binNum, linkdirs in bins5min.iter_rows():
+        dynamicBin.extendTo(
+            FiveMinBin(dt, binNum, linkdirs)
+        )
+        if dynamicBin.isComplete:
+            # stash the current one and start a new dynamic bin
+            dynamicBins.append(dynamicBin)
+            dynamicBin = DynamicBin(links_df)
+    return dynamicBins
+
+class FiveMinBin:
+    def _init__(self, dt, binNum, linkdirs):
+        self.dt = dt
+        self.binNum = binNum
+        self.linkdirs = set(linkdirs)
+
+class DynamicBin:
+    def __init__(self, links):
+        self.corridorLinks = links
+        self.subBins = list()
+    
+    def extendTo(self, newBin):
+        # remove any prior bins from a different date
+        self.subBins = [ b for b in self.subBins if b.dt == newBin.dt ]
+        # remove any prior bins from too long ago
+        self.subBins = [ b for b in self.subBins if b.binNum >= newBin.binNum - maxBinsPerDynamicBin ]
+        # finally, add the new bin
+        self.subBins.append(newBin)
+
+    @property
+    def isComplete(self):
+        pass
+        # TODO: check length of the distinct links in subBins against threshold
