@@ -8,7 +8,7 @@ from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
 from app.travel_times.daily_aggregation import mean_daily_mean
 from app.corridors.conflateMapVersions import corridorsAreTheSame
-import pandas
+import polars
 
 def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
     URI = f'/{start_node}/{end_node}'
@@ -55,7 +55,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND dt < %(end_date)s::date
             {holiday_clause}
     '''
-    # always possible that this spans a map vrsion change
+    # always possible that this spans a map version change
     hereMaps = selectMapVersions(start_date, end_date)
     # if this request does span multiple map versions, check that the corridor
     # is not meaningfully changed
@@ -64,10 +64,11 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     for hereMap in hereMaps:
         links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
-        links_df = pandas.DataFrame({
+        links_df = polars.DataFrame({
             'link_dir': [l['link_dir'] for l in links],
             'length': [l['length_m'] for l in links]
-        }).set_index('link_dir')
+        })
+
         total_corridor_length = links_df['length'].sum()
 
         query_params = {
@@ -90,41 +91,46 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         with pool.connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(query, query_params)
-                link_speeds_df = pandas.DataFrame(
+                link_speeds_df = polars.DataFrame(
                     cursor.fetchall(),
-                    columns=['link_dir','dt','hr','speed']
-                ).set_index('link_dir')
-        # join link lengths
-        link_speeds_df = link_speeds_df.join(links_df)
+                    orient='row',
+                    schema=['link_dir','dt','hr','speed']
+                )
+        # join link lengths and
         # calculate link travel times from speed and length (in seconds)
-        link_speeds_df['tt'] = link_speeds_df['length'] / link_speeds_df['speed'] * 3.6
-        # no longer need speeds now that this is measured in terms of travel time
-        # removing it just to prevent any confusion around averaging
-        link_speeds_df.drop('speed',axis='columns',inplace=True)
+        link_speeds_df = link_speeds_df.join(
+            links_df, on='link_dir'
+        ).select( [
+            'link_dir', 'dt', 'hr', 'length',
+            (polars.col('length') / polars.col('speed') * 3.6).alias('link_tt')
+        ] )
         # get average travel times per link / date / hour
-        hr_means = link_speeds_df.groupby(['link_dir','dt','hr']).mean()
-        # sum lengths and travel times of available links per date / hour
-        hr_sums = hr_means.groupby(['dt','hr']).sum()
-        # filter out hours with too much missing data
-        observations = hr_sums[ hr_sums['length'] / total_corridor_length >= 0.8 ]
-        # extrapolate over missing data within each hour
-        observations = observations.assign(
-            tt_extrapolated = lambda r: r.tt * total_corridor_length / r.length
-        )
+        observations = link_speeds_df.group_by(['link_dir','dt','hr','length']).agg(
+            polars.col('link_tt').mean().alias('link_avg_tt')
+        ).group_by(['dt', 'hr']).agg( # sum lengths and times of available links per bin
+            polars.col('link_avg_tt').sum().alias('total_tt'),
+            polars.col('length').sum().alias('total_length')
+        ).filter( # filter out hours with too much missing data
+            polars.col('total_length') / total_corridor_length >= 0.8
+        ).select( [
+            'dt', 'hr',
+            ( # extrapolate over missing data within each hour
+                polars.col('total_tt') * total_corridor_length / polars.col('total_length')
+            ).alias('tt_extrapolated')
+        ] )
+
         try:
             # append observations from this map version
             # (try, because it's not defined yet on the first pass)
-            observationsAllVersions = pandas.concat(
+            observationsAllVersions = polars.concat(
                 [observations, observationsAllVersions]
             )
-
         except:
             observationsAllVersions = observations
 
     # convert to format that can be used by the same summary function
     sample = []
-    for tup in observationsAllVersions.itertuples():
-        (dt, hr), tt = tup.Index, tup.tt_extrapolated
+    for dt, hr, tt in observationsAllVersions.iter_rows():
         sample.append((dt, tt))
 
     if len(sample) < 1:
