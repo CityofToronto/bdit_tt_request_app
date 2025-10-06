@@ -128,9 +128,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             observationsAllVersions = observations
 
     # convert to format that can be used by the same summary function
-    sample = []
-    for dt, tt in observationsAllVersions.iter_rows():
-        sample.append((dt, tt))
+    sample = [ (dt, tt) for dt, tt in observationsAllVersions.iter_rows() ]
 
     if len(sample) < 1:
         # no travel times or related info to return here
