@@ -38,29 +38,33 @@ def createDynamicBins(obs_df, links_df):
             # stash the current one and start a new dynamic bin
             dynamicBins.append(dynamicBin)
             dynamicBin = DynamicBin(links_df)
-    #print([(bin.length, bin.dates) for bin in dynamicBins])
-
     return dynamicBins
 
 class FiveMinBin:
-    def __init__(self, dt, binNum, speeds_df):
+    def __init__(self, dt, binNum, times_df):
         self.dt = dt
         self.binNum = binNum
-        self.linkdirs = set(speeds_df['link_dir'])
-        self.speeds = speeds_df
-
+        self.linkdirs = set(times_df['link_dir'])
+        self.times = times_df
     @property
     def date(self):
         return self.dt
     @property
     def linksdirs(self):
         return self.linkdirs
+    @property
+    def linkTravelTimes(self):
+        return self.times
 
 class DynamicBin:
     def __init__(self, links):
         self.corridorLinks = links
         self.subBins = list()
-        self.minLength = links['length'].sum() * minimumCoverageThreshold
+        self.totalLength = links['length'].sum()
+
+    @property
+    def minLength(self):
+        return self.totalLength * minimumCoverageThreshold
 
     def extendTo(self, newBin):
         # remove any prior bins from a different date
@@ -89,6 +93,28 @@ class DynamicBin:
         )
         lengthSoFar = links['length'].sum()
         return lengthSoFar >= self.minLength
+
+    @property
+    def travelTime(self):
+        extrapolatedTravelTime = polars.concat(
+            [bin.linkTravelTimes for bin in self.subBins]
+        ).join(
+            self.corridorLinks,
+            on='link_dir'
+        ).group_by(
+            ['link_dir','length']
+        ).agg(
+            polars.col('travelTime').mean().alias('link_avg_tt')
+        ).select(
+            polars.col('link_avg_tt').sum().alias('totalObservedTravelTime'),
+            polars.col('length').sum().alias('totalObservedLength')
+        ).select(
+            ( # extrapolate over missing data within each hour
+                polars.col('totalObservedTravelTime') * self.totalLength / polars.col('totalObservedLength')
+            ).alias('extrapolatedTravelTime')
+        ).item()
+
+        return extrapolatedTravelTime
 
     @property
     def dates(self):
