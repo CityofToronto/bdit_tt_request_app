@@ -42,7 +42,6 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         SELECT
             link_dir,
             dt::text,
-            extract(HOUR FROM tod)::smallint AS hr,
             EXTRACT('EPOCH' FROM dt + tod)::int / (5 * 60) AS bin_num,
             mean::real AS speed_kmph
         FROM here.ta_path
@@ -96,7 +95,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 link_speeds_df = polars.DataFrame(
                     cursor.fetchall(),
                     orient='row',
-                    schema=['link_dir','dt','hr','bin_num','speed']
+                    schema=['link_dir','dt','bin_num','speed']
                 )
 
         # join link lengths and
@@ -104,7 +103,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         link_times_df = link_speeds_df.join(
             links_df, on='link_dir'
         ).select( [
-            'link_dir', 'dt', 'hr', 'bin_num', 'length',
+            'link_dir', 'dt', 'bin_num', 'length',
             (polars.col('length') / polars.col('speed') * 3.6).alias('travelTime')
         ] )
 
