@@ -26,6 +26,7 @@ def createDynamicBins(obs_df, links_df):
             ARRAY_AGG(DISTINCT link_dir)
         FROM self
         GROUP BY dt, bin_num
+        ORDER BY bin_num
     """)
 
     dynamicBin = DynamicBin(links_df)
@@ -85,3 +86,11 @@ class DynamicBin:
         )
         lengthSoFar = links['length'].sum()
         return lengthSoFar >= self.minLength
+
+    @property
+    def dates(self):
+        return set( bin.date for bin in self.subBins)
+    
+    @property
+    def length(self):
+        return len(self.subBins)
