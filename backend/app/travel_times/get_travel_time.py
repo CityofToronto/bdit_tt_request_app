@@ -99,19 +99,23 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                     schema=['link_dir','dt','hr','bin_num','speed']
                 )
 
-        bins = createDynamicBins(link_speeds_df[['dt','bin_num','link_dir']], links_df)
-
         # join link lengths and
         # calculate link travel times from speed and length (in seconds)
-        link_speeds_df = link_speeds_df.join(
+        link_times_df = link_speeds_df.join(
             links_df, on='link_dir'
         ).select( [
-            'link_dir', 'dt', 'hr', 'length',
-            (polars.col('length') / polars.col('speed') * 3.6).alias('link_tt')
+            'link_dir', 'dt', 'hr', 'bin_num', 'length',
+            (polars.col('length') / polars.col('speed') * 3.6).alias('travelTime')
         ] )
+
+        dynamicBins = createDynamicBins(
+            link_times_df.select(['link_dir','dt','bin_num','travelTime']),
+            links_df
+        )
+
         # get average travel times per link / date / hour
-        observations = link_speeds_df.group_by(['link_dir','dt','hr','length']).agg(
-            polars.col('link_tt').mean().alias('link_avg_tt')
+        observations = link_times_df.group_by(['link_dir','dt','hr','length']).agg(
+            polars.col('travelTime').mean().alias('link_avg_tt')
         ).group_by(['dt', 'hr']).agg( # sum lengths and times of available links per bin
             polars.col('link_avg_tt').sum().alias('total_tt'),
             polars.col('length').sum().alias('total_length')

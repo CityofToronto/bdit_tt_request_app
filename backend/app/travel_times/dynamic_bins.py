@@ -20,32 +20,35 @@ def createDynamicBins(obs_df, links_df):
     dynamicBins = list()
 
     bins5min = obs_df.sql("""
-        SELECT
+        SELECT DISTINCT
             dt,
-            bin_num,
-            ARRAY_AGG(DISTINCT link_dir)
+            bin_num
         FROM self
-        GROUP BY dt, bin_num
         ORDER BY bin_num
     """)
 
     dynamicBin = DynamicBin(links_df)
 
-    for dt, binNum, linkdirs in bins5min.iter_rows():
+    for dt, binNum in bins5min.iter_rows():
+        binData = obs_df.filter(polars.col('bin_num') == binNum).select(['link_dir','travelTime'])
         dynamicBin.extendTo(
-            FiveMinBin(dt, binNum, linkdirs)
+            FiveMinBin(dt, binNum, binData)
         )
         if dynamicBin.isComplete:
             # stash the current one and start a new dynamic bin
             dynamicBins.append(dynamicBin)
             dynamicBin = DynamicBin(links_df)
+    #print([(bin.length, bin.dates) for bin in dynamicBins])
+
     return dynamicBins
 
 class FiveMinBin:
-    def __init__(self, dt, binNum, linkdirs):
+    def __init__(self, dt, binNum, speeds_df):
         self.dt = dt
         self.binNum = binNum
-        self.linkdirs = set(linkdirs)
+        self.linkdirs = set(speeds_df['link_dir'])
+        self.speeds = speeds_df
+
     @property
     def date(self):
         return self.dt
@@ -90,7 +93,7 @@ class DynamicBin:
     @property
     def dates(self):
         return set( bin.date for bin in self.subBins)
-    
+
     @property
     def length(self):
         return len(self.subBins)
