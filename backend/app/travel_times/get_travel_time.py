@@ -43,7 +43,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             link_dir,
             dt::text,
             extract(HOUR FROM tod)::smallint AS hr,
-            (extract('EPOCH' FROM tod)::int / (5 * 60))::smallint AS bin_num,
+            EXTRACT('EPOCH' FROM dt + tod)::int / (5 * 60) AS bin_num,
             mean::real AS speed_kmph
         FROM here.ta_path
         WHERE
