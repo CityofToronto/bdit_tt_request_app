@@ -118,7 +118,13 @@ class DynamicBin:
 
     @property
     def dates(self):
+        # intending this to wrap dates eventually, thus allowing mutliples 
         return set( bin.date for bin in self.subBins)
+    
+    @property
+    def date(self):
+        # simple implementation for now
+        return self.subBins[0].date
 
     @property
     def length(self):

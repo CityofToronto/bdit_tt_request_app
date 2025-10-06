@@ -113,20 +113,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             links_df
         )
 
-        # get average travel times per link / date / hour
-        observations = link_times_df.group_by(['link_dir','dt','hr','length']).agg(
-            polars.col('travelTime').mean().alias('link_avg_tt')
-        ).group_by(['dt', 'hr']).agg( # sum lengths and times of available links per bin
-            polars.col('link_avg_tt').sum().alias('total_tt'),
-            polars.col('length').sum().alias('total_length')
-        ).filter( # filter out hours with too much missing data
-            polars.col('total_length') / total_corridor_length >= 0.8
-        ).select( [
-            'dt', 'hr',
-            ( # extrapolate over missing data within each hour
-                polars.col('total_tt') * total_corridor_length / polars.col('total_length')
-            ).alias('tt_extrapolated')
-        ] )
+        observations = polars.DataFrame({
+            'dt': [bin.date for bin in dynamicBins],
+            'tt': [bin.travelTime for bin in dynamicBins]
+        })
 
         try:
             # append observations from this map version
@@ -139,7 +129,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     # convert to format that can be used by the same summary function
     sample = []
-    for dt, hr, tt in observationsAllVersions.iter_rows():
+    for dt, tt in observationsAllVersions.iter_rows():
         sample.append((dt, tt))
 
     if len(sample) < 1:
