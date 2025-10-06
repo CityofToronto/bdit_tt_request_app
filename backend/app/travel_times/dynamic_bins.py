@@ -1,3 +1,5 @@
+import polars
+
 # arbitrary number we've been using for at least a few years
 # specifies that at least 80% of corridor by length must have _some_ data
 minimumCoverageThreshold = 0.8
@@ -13,8 +15,6 @@ def createDynamicBins(obs_df, links_df):
         [starting bin number, ending bin number] ... i.e. both are inclusive
     returns a list of bins
     """
-
-    minLength = links_df['length'].sum() * minimumCoverageThreshold
 
     # start with empty list of bins
     dynamicBins = list()
@@ -41,25 +41,47 @@ def createDynamicBins(obs_df, links_df):
     return dynamicBins
 
 class FiveMinBin:
-    def _init__(self, dt, binNum, linkdirs):
+    def __init__(self, dt, binNum, linkdirs):
         self.dt = dt
         self.binNum = binNum
         self.linkdirs = set(linkdirs)
+    @property
+    def date(self):
+        return self.dt
+    @property
+    def linksdirs(self):
+        return self.linkdirs
 
 class DynamicBin:
     def __init__(self, links):
         self.corridorLinks = links
         self.subBins = list()
-    
+        self.minLength = links['length'].sum() * minimumCoverageThreshold
+
     def extendTo(self, newBin):
         # remove any prior bins from a different date
-        self.subBins = [ b for b in self.subBins if b.dt == newBin.dt ]
+        self.subBins = [
+            b for b in self.subBins
+            if b.date == newBin.date
+        ]
         # remove any prior bins from too long ago
-        self.subBins = [ b for b in self.subBins if b.binNum >= newBin.binNum - maxBinsPerDynamicBin ]
+        self.subBins = [ 
+            b for b in self.subBins
+            if b.binNum >= newBin.binNum - maxBinsPerDynamicBin
+        ]
         # finally, add the new bin
         self.subBins.append(newBin)
 
     @property
     def isComplete(self):
-        pass
-        # TODO: check length of the distinct links in subBins against threshold
+        # check length of the distinct links in sub-bins against threshold
+        uniqueLinkdirs = set(
+            linkdir
+            for bin in self.subBins
+            for linkdir in bin.linkdirs
+        )
+        links = self.corridorLinks.filter(
+            polars.col('link_dir').is_in(uniqueLinkdirs)
+        )
+        lengthSoFar = links['length'].sum()
+        return lengthSoFar >= self.minLength
