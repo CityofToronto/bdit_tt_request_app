@@ -75,3 +75,11 @@ class DynamicBin:
     def singleDate(self):
         # simple implementation for now
         return self.subBins[0].date
+
+    @property
+    def startTime(self):
+        return self.subBins[0].startTime
+
+    @property
+    def endTime(self):
+        return self.subBins[-1].endTime
