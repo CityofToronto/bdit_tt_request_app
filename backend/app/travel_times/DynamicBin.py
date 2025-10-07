@@ -80,7 +80,3 @@ class DynamicBin:
     def date(self):
         # simple implementation for now
         return self.subBins[0].date
-
-    @property
-    def length(self):
-        return len(self.subBins)
