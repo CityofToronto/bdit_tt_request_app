@@ -1,7 +1,8 @@
 import polars
+from app.travel_times.FiveMinBin import FiveMinBin
 
 # arbitrary number we've been using for at least a few years
-# specifies that at least 80% of corridor by length must have _some_ data
+# specifies that at least 80% of corridor by length must have *some* data
 minimumCoverageThreshold = 0.8
 
 # how long can a dynamic bin get?
@@ -20,6 +21,7 @@ class DynamicBin:
         return self.totalLength * minimumCoverageThreshold
 
     def extendTo(self, newBin):
+        assert isinstance(newBin, FiveMinBin) 
         # remove any prior bins from a different date
         self.subBins = [
             b for b in self.subBins
