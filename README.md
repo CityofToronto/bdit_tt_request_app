@@ -15,7 +15,7 @@ When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-req
 
 | Factor | Description |
 | ----- | ----------- |
-| Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. |
+| Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. Be cautious about drawing corridors longer than a couple of kilometers, as the aggregation methods are not well tested for very long corridors. |
 | Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight[^1]. |
 | Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. |
 | Day of Week | Identify the days of week to include in the aggregation. |
