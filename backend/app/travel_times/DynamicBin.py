@@ -21,7 +21,7 @@ class DynamicBin:
         return self.totalLength * minimumCoverageThreshold
 
     def extendTo(self, newBin):
-        assert isinstance(newBin, FiveMinBin) 
+        assert isinstance(newBin, FiveMinBin)
         # remove any prior bins from too long ago
         self.subBins = [ 
             b for b in self.subBins
@@ -29,6 +29,11 @@ class DynamicBin:
         ]
         # finally, add the new bin
         self.subBins.append(newBin)
+        # bust the cached value, if it exists
+        try:
+            del self.extrapolatedTravelTime
+        except:
+            pass
 
     @property
     def isComplete(self):
@@ -46,7 +51,13 @@ class DynamicBin:
 
     @property
     def travelTime(self):
-        extrapolatedTravelTime = polars.concat(
+        # this can be requested a lot for bootstrapping, etc, so cache in memory
+        try:
+            return self.extrapolatedTravelTime
+        except:
+            pass
+
+        self.extrapolatedTravelTime = polars.concat(
             [bin.linkTravelTimes for bin in self.subBins]
         ).join(
             self.corridorLinks,
@@ -64,7 +75,7 @@ class DynamicBin:
             ).alias('extrapolatedTravelTime')
         ).item()
 
-        return extrapolatedTravelTime
+        return self.extrapolatedTravelTime
 
     @property
     def dates(self):

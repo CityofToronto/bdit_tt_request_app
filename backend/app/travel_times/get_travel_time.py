@@ -62,6 +62,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     if len(hereMaps) > 1 and not corridorsAreTheSame(start_node, end_node, hereMaps):
         return {'error': 'corridor changed somehow between map versions'}
 
+    observations = list()
+
     for hereMap in hereMaps:
         links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
         links_df = polars.DataFrame({
@@ -111,31 +113,16 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             links_df
         )
 
-        observations = polars.DataFrame({
-            'dt': [bin.singleDate for bin in dynamicBins],
-            'tt': [bin.travelTime for bin in dynamicBins]
-        })
+        observations += dynamicBins
 
-        try:
-            # append observations from this map version
-            # (try, because it's not defined yet on the first pass)
-            observationsAllVersions = polars.concat(
-                [observations, observationsAllVersions]
-            )
-        except:
-            observationsAllVersions = observations
-
-    # convert to format that can be used by the same summary function
-    sample = [ (dt, tt) for dt, tt in observationsAllVersions.iter_rows() ]
-
-    if len(sample) < 1:
+    if len(observations) < 1:
         # no travel times or related info to return here
         return cacheAndReturn({
             'results': {
                 'travel_time': None,
                 'observations': [],
                 'confidence': {
-                    'sample': len(sample) # 0
+                    'sample': len(observations) # 0
                 },
             },
             'query': {
@@ -149,12 +136,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     return cacheAndReturn({
         'results': {
-            'travel_time': timeFormats(mean_daily_mean(sample),1),
+            'travel_time': timeFormats(mean_daily_mean(observations),1),
             'confidence': {
-                'sample': len(sample),
-                'intervals': bootstrap(sample)
+                'sample': len(observations),
+                'intervals': bootstrap(observations)
             },
-            'observations': [timeFormats(tt,1) for (dt,tt) in sample]
+            'observations': [timeFormats(bin.travelTime,1) for bin in observations]
         },
         'query': {
             'corridor': {
