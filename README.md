@@ -25,7 +25,7 @@ The app will combine these factors together to request travel times for all vali
 
 Once each factor type has been validly entered it will turn from red to green. Once one or more of each type of factor is ready, a button will appear allowing you to submit the query. Once the data is returned from the server (this can take a while when there are many combinations to process) you will be prompted to download the data as either CSV or JSON.
 
-If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process.
+If you have any trouble using the app, please send an email to Nate Wessel (nate.wessel@toronto.ca) or feel free to open an issue in this repository if you are at all familiar with that process. You can also take a look at some of the documented [tips, hacks, and workarounds](./tips-hacks-and-workarounds.md) to see if they can address your issues. 
 
 #### Outputs
 
