@@ -22,11 +22,6 @@ class DynamicBin:
 
     def extendTo(self, newBin):
         assert isinstance(newBin, FiveMinBin) 
-        # remove any prior bins from a different date
-        self.subBins = [
-            b for b in self.subBins
-            if b.date == newBin.date
-        ]
         # remove any prior bins from too long ago
         self.subBins = [ 
             b for b in self.subBins
@@ -73,10 +68,10 @@ class DynamicBin:
 
     @property
     def dates(self):
-        # intending this to wrap dates eventually, thus allowing mutliples 
-        return set( bin.date for bin in self.subBins)
-    
+        # dynamic bins may cross midnight
+        return set(bin.date for bin in self.subBins)
+
     @property
-    def date(self):
+    def singleDate(self):
         # simple implementation for now
         return self.subBins[0].date

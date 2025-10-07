@@ -113,7 +113,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         )
 
         observations = polars.DataFrame({
-            'dt': [bin.date for bin in dynamicBins],
+            'dt': [bin.singleDate for bin in dynamicBins],
             'tt': [bin.travelTime for bin in dynamicBins]
         })
 
