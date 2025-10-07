@@ -59,15 +59,13 @@ Data for travel time estimation through the app are sourced from [HERE](https://
 
 The number of vehicles within the City of Toronto reporting their position to HERE in this way has been [estimated](./analysis/total-fleet-size.r) to be around 2,000 to 3,000 vehicles during the AM and PM peak periods, with lower numbers in the off hours. While this may seem like a lot, in practice many of these vehicles are on the highways and the coverage of any particular city street within a several hour time window can be very minimal if not nil. For this reason, we are currently restricting travel time estimates to "arterial" streets and highways.
 
-Travel times are provided to us in the form of _average speeds_ along links of the street network in 5-minute time bins. Given the sparseness of the vehicle probe data, most links, in most time bins are empty. The scond most common sample size is a single vehicle observation.
+Travel times are provided to us in the form of _average speeds_ along links of the street network in 5-minute time bins. Given the sparseness of the vehicle probe data, most links, in most time bins are empty. The scond most common sample size is a single vehicle observation. This means the "average speed" we get it typically just the actual speed of a single vehicle.
 
-Before generating an averaged travel time, we do several steps to aggregate and average this sparse data into larger units. 
+Before generating an averaged travel time, we do several steps to aggregate and average this sparse data into larger units.
 * We aggregate _links_ spatially into longer _corridors_ between major intersections
-* We aggregate _corridors_ temporally into one-hour bins
+* We aggregate _corridors_ temporally into bins having data coverage over 80% or more of the corridor by length. These bins can't be longer than 30 minutes (6 consecutive 5-minute bins)
 
-We generate averaged travel times from these one-hour-corridor bin units where one or more vehicles has travelled 80% or more of the length of the corridor.
-
-We aggregate corridors together spatially as necessary into larger corridors where 80% or more of segments have met the criteria above. Where data is missing it is extrapolated at the average speed over the rest of the length.
+Where data is missing it is extrapolated at the average speed over the 80%+ of the length which did have data.
 
 ### Other means of estimating travel times
 
