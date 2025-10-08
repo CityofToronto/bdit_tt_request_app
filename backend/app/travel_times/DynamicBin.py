@@ -25,7 +25,7 @@ class DynamicBin:
         # remove any prior bins from too long ago
         self.subBins = [ 
             b for b in self.subBins
-            if b.binNum >= newBin.binNum - maxBinsPerDynamicBin
+            if b.binNum > newBin.binNum - maxBinsPerDynamicBin
         ]
         # finally, add the new bin
         self.subBins.append(newBin)
