@@ -8,6 +8,7 @@ from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
 from app.travel_times.daily_aggregation import mean_daily_mean
 from app.corridors.conflateMapVersions import corridorsAreTheSame
+from app.travel_times.dynamic_bins import createDynamicBins
 import polars
 
 def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
@@ -40,8 +41,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     query = f'''
         SELECT
             link_dir,
-            dt::text,
-            extract(HOUR FROM tod)::smallint AS hr,
+            EXTRACT('EPOCH' FROM dt + tod)::int / (5 * 60) AS bin_num,
             mean::real AS speed_kmph
         FROM here.ta_path
         WHERE
@@ -61,6 +61,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     # is not meaningfully changed
     if len(hereMaps) > 1 and not corridorsAreTheSame(start_node, end_node, hereMaps):
         return {'error': 'corridor changed somehow between map versions'}
+
+    observations = list()
 
     for hereMap in hereMaps:
         links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
@@ -94,53 +96,33 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 link_speeds_df = polars.DataFrame(
                     cursor.fetchall(),
                     orient='row',
-                    schema=['link_dir','dt','hr','speed']
+                    schema=['link_dir','bin_num','speed']
                 )
+
         # join link lengths and
         # calculate link travel times from speed and length (in seconds)
-        link_speeds_df = link_speeds_df.join(
+        link_times_df = link_speeds_df.join(
             links_df, on='link_dir'
         ).select( [
-            'link_dir', 'dt', 'hr', 'length',
-            (polars.col('length') / polars.col('speed') * 3.6).alias('link_tt')
-        ] )
-        # get average travel times per link / date / hour
-        observations = link_speeds_df.group_by(['link_dir','dt','hr','length']).agg(
-            polars.col('link_tt').mean().alias('link_avg_tt')
-        ).group_by(['dt', 'hr']).agg( # sum lengths and times of available links per bin
-            polars.col('link_avg_tt').sum().alias('total_tt'),
-            polars.col('length').sum().alias('total_length')
-        ).filter( # filter out hours with too much missing data
-            polars.col('total_length') / total_corridor_length >= 0.8
-        ).select( [
-            'dt', 'hr',
-            ( # extrapolate over missing data within each hour
-                polars.col('total_tt') * total_corridor_length / polars.col('total_length')
-            ).alias('tt_extrapolated')
+            'link_dir', 'bin_num', 'length',
+            (polars.col('length') / polars.col('speed') * 3.6).alias('travelTime')
         ] )
 
-        try:
-            # append observations from this map version
-            # (try, because it's not defined yet on the first pass)
-            observationsAllVersions = polars.concat(
-                [observations, observationsAllVersions]
-            )
-        except:
-            observationsAllVersions = observations
+        dynamicBins = createDynamicBins(
+            link_times_df.select(['link_dir','bin_num','travelTime']),
+            links_df
+        )
 
-    # convert to format that can be used by the same summary function
-    sample = []
-    for dt, hr, tt in observationsAllVersions.iter_rows():
-        sample.append((dt, tt))
+        observations += dynamicBins
 
-    if len(sample) < 1:
+    if len(observations) < 1:
         # no travel times or related info to return here
         return cacheAndReturn({
             'results': {
                 'travel_time': None,
                 'observations': [],
                 'confidence': {
-                    'sample': len(sample) # 0
+                    'sample': len(observations) # 0
                 },
             },
             'query': {
@@ -154,12 +136,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     return cacheAndReturn({
         'results': {
-            'travel_time': timeFormats(mean_daily_mean(sample),1),
+            'travel_time': timeFormats(mean_daily_mean(observations),1),
             'confidence': {
-                'sample': len(sample),
-                'intervals': bootstrap(sample)
+                'sample': len(observations),
+                'intervals': bootstrap(observations)
             },
-            'observations': [timeFormats(tt,1) for (dt,tt) in sample]
+            'observations': [timeFormats(bin.travelTime,1) for bin in observations]
         },
         'query': {
             'corridor': {
