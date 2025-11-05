@@ -5,16 +5,23 @@ from app.hereMapVersions import latestMapVersion
 
 nodes_query = '''
 SELECT 
-    cg_nodes.node_id::int,
-    ST_AsGeoJSON(cg_nodes.geom, 5) AS geom,
-    cg_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance,
+    here_nodes.node_id::int,
+    ST_AsGeoJSON(here_nodes.geom, 5) AS geom,
+    here_nodes.geom::geography <-> ST_MakePoint(%(longitude)s, %(latitude)s)::geography AS distance,
     array_agg(DISTINCT InitCap(streets.st_name)) FILTER (WHERE streets.st_name IS NOT NULL) AS street_names
-FROM congestion.network_nodes AS cg_nodes
-JOIN here.{routing_nodes} AS here_nodes USING (node_id)
+FROM here.{routing_nodes} AS here_nodes
 JOIN here_gis.{street_attributes_table} AS streets USING (link_id)
+-- pure filter-join
+JOIN here_gis.{traffic_streets} USING (link_id)
+LEFT JOIN congestion.network_nodes AS cg_nodes USING (node_id)
 GROUP BY
-    cg_nodes.node_id,
-    cg_nodes.geom
+    here_nodes.node_id,
+    here_nodes.geom
+HAVING
+    COUNT(*) > 2
+    -- necessary to include some mid-block traffic signals
+    -- often at large residential/commercial garage entrances
+    OR COUNT(*) FILTER (WHERE cg_nodes.node_id IS NOT NULL) = 2
 ORDER BY distance
 LIMIT %(limit)s;
 '''
@@ -28,7 +35,8 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
     map_version = latestMapVersion()
     versioned_nodes_query = sql.SQL(nodes_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
-        street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
+        street_attributes_table = sql.Identifier(f'streets_att_{map_version}'),
+        traffic_streets = sql.Identifier(f'traffic_streets_{map_version}')
     )
 
     with pool.connection() as connection:
