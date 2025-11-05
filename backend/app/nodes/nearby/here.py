@@ -12,7 +12,7 @@ SELECT
 FROM here.{routing_nodes} AS here_nodes
 JOIN here_gis.{street_attributes_table} AS streets USING (link_id)
 -- pure filter-join
-JOIN here_gis.traffic_streets_24_4 USING (link_id)
+JOIN here_gis.{traffic_streets} USING (link_id)
 LEFT JOIN congestion.network_nodes AS cg_nodes USING (node_id)
 GROUP BY
     here_nodes.node_id,
@@ -35,7 +35,8 @@ def get_here_nodes_within(meters, longitude, latitude, limit=20):
     map_version = latestMapVersion()
     versioned_nodes_query = sql.SQL(nodes_query).format(
         routing_nodes = sql.Identifier(f'routing_nodes_{map_version}'),
-        street_attributes_table = sql.Identifier(f'streets_att_{map_version}')
+        street_attributes_table = sql.Identifier(f'streets_att_{map_version}'),
+        traffic_streets = sql.Identifier(f'traffic_streets_{map_version}')
     )
 
     with pool.connection() as connection:
