@@ -2,6 +2,11 @@
 
 We do not have the resources at this time to provide a nice, intuitive UI for all the features of the Travel Time App. Often we'll extend its functionally with a quick hack or undocumented/undisclosed feature.
 
+## I'm clicking the map, but the intersection I want isn't selected
+
+Not all intersections are available to select from the map at this time.
+To see which ones _are_ selectable, double-click on the map and a selection of available nearby intersections will be displayed briefly.
+
 ## Do I really have to draw all these corridors again?
 
 App crashed? Need to review or check someone else's results from the App?
@@ -20,7 +25,7 @@ If the URI it finds is a corridor URI like `https://trans-bdit.intra.prod-toront
 
 If it's a full travel time URI like `https://trans-bdit.intra.prod-toronto.ca/tt-request-backend/aggregate-travel-times/30415282/30415237/12/15/2025-09-01/2025-09-03/true/1234567` then all of those query parameters (corridor + dates + times + days-of-week + holidays) will be added.
 
-## Help! The intersection I want to select isn't selectable!
+## Help! The intersection I need to select isn't selectable!
 
 This hack makes use of the one described above. 
 
