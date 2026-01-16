@@ -122,10 +122,10 @@ export class TravelTimeQuery {
             )
         )
         record.set(
-            '5th percentile (seconds)',
+            '85th percentile (seconds)',
             quantile(
                 this.#results.observations.map(obs => obs.seconds),
-                0.05
+                0.85
             )
         )
         if(type=='json'){
