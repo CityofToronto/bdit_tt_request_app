@@ -1,4 +1,5 @@
 import { domain } from './domain.js'
+import { quantile } from 'd3-array'
 
 export class TravelTimeQuery {
     #corridor
@@ -112,7 +113,21 @@ export class TravelTimeQuery {
         // turning these off in the frontend until they're ready for production
         //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
         //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
-
+        record.set('n', this.#results.observations.length)
+        record.set(
+            '95th percentile (seconds)',
+            quantile(
+                this.#results.observations.map(obs => obs.seconds),
+                0.95
+            )
+        )
+        record.set(
+            '5th percentile (seconds)',
+            quantile(
+                this.#results.observations.map(obs => obs.seconds),
+                0.05
+            )
+        )
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps
         }else if(type=='csv'){
