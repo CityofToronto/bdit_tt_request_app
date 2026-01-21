@@ -5,7 +5,6 @@ library('dbplyr')
 con <- DBI::dbConnect(
     RPostgres::Postgres(), 
     host = 'insert DB host here',
-    user = 'nwessel',
     dbname = 'bigdata',
     password = rstudioapi::askForPassword("Database password")
 )
@@ -14,7 +13,7 @@ con <- DBI::dbConnect(
 # The total amount of time spent traveling by vehicles in a given unit of time
 # just is the average total number of vehicles reporting their locations to Here
 tbl( con, in_schema('here','ta_path') ) %>%
-    filter( dt == '2024-07-18' ) %>%
+    filter( dt == '2026-01-14' ) %>%
     mutate( hours = sample_size * ((length / 1000) / mean) ) %>%
     group_by( tod ) %>% 
     summarize(
