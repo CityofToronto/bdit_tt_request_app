@@ -20,8 +20,7 @@ Production code is located in `/data/web` on the EC2 server.
 
 1. switch to user `tt_request_app` with `su tt_request_app`; you'll be asked for a password
 2. pull any updates from the `deploy` branch
-
-3) Ports should already be assigned for back-end (8070) and for front-end (8071)
+3. Port should already be assigned for back-end (8070) 
 
 ```bash
 sudo nano /etc/nginx/sites-available/default
@@ -33,8 +32,8 @@ location /tt-request-backend/ {
 }
 
 location /traveltime-request/ {
-    proxy_pass http://localhost:8071/;
-    alias /web/bdit_tt_request_app/frontend/build/static;
+    alias /data/web/bdit_tt_request_app/frontend/dist;
+    index index.html index.htm;
 }
 ```
 
@@ -70,12 +69,7 @@ There is a dev deployment available at [https://trans-bdit.intra.prod-toronto.ca
 
 3. `npm run build` to create an optimized production build
 
-4. `pm2 serve dist 8071 -spa` to deploy the production build, where `8071` is the port number assigned to the frontend application. This will also be the port to access the project application with.
-
-### Things to figure out:
-
-- make it restart if EC2 fails
-- [https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398](https://askubuntu.com/questions/930589/running-upstart-script-on-17-04/1010398#1010398)
+NGINX will serve up the latest files in `/data/web/bdit_tt_request_app/frontend/dist` 
 
 ## Development
 
