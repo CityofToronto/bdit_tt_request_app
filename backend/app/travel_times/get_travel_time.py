@@ -18,7 +18,7 @@ def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, in
     URI += f'/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
     return URI
 
-def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list):
+def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, noCache=False):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
     # first check the cache
     cacheURI = makeURI(
