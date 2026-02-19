@@ -25,9 +25,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
         start_node, end_node, start_time, end_time,
         start_date, end_date, include_holidays, dow_list
     )
-    cachedValue = checkCache(cacheURI)
-    if cachedValue:
-        return cachedValue
+    if not noCache:
+        cachedValue = checkCache(cacheURI)
+        if cachedValue:
+            return cachedValue
 
     holiday_clause = ''
     if not include_holidays:
