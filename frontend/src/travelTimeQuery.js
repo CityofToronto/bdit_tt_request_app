@@ -27,7 +27,7 @@ export class TravelTimeQuery {
         path += `/${this.#holidayOption.holidaysIncluded}`
         // days of week
         path += `/${this.#days.apiString}`
-        // pass an arg to bypass the cache
+        // pass an arg to bypass the cache (development builds only)
         path += process.env.NODE_ENV === 'development' ? '?noCache' : ''
         return path
     }
