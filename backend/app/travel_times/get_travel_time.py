@@ -66,7 +66,12 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     observations = list()
 
     for hereMap in hereMaps:
-        links, corridorURI = get_here_links(start_node, end_node, hereMap['version'])
+        links, corridorURI = get_here_links(
+            start_node,
+            end_node,
+            map_version = hereMap['version'],
+            noCache = noCache
+        )
         links_df = polars.DataFrame({
             'link_dir': [l['link_dir'] for l in links],
             'length': [l['length_m'] for l in links]
