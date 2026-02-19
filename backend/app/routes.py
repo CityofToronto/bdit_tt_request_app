@@ -116,12 +116,22 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
 
     if request.endpoint == 'here-links':
         map_version = request.args.get('map_version')
+        noCache = request.args.get('noCache') is not None
         if map_version and re.fullmatch(r'^\d{2}_\d$', map_version):
             # TODO: can pass map versions that match the pattern but don't exist
             # which will expose database errors
-            links, URI = get_here_links(from_node_id,to_node_id,map_version)
+            links, URI = get_here_links(
+                from_node_id,
+                to_node_id,
+                map_version = map_version,
+                noCache = noCache
+            )
         else:
-            links, URI = get_here_links(from_node_id,to_node_id)
+            links, URI = get_here_links(
+                from_node_id,
+                to_node_id,
+                noCache = noCache
+            )
     elif request.endpoint == 'centreline-links':
         links = get_centreline_links(from_node_id, to_node_id)
 

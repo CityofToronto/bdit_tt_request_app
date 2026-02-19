@@ -65,15 +65,16 @@ ORDER BY seq;
 '''
 
 # returns a json with geometries of links between two nodes
-def get_here_links(from_node_id, to_node_id, map_version='??_?'):
+def get_here_links(from_node_id, to_node_id, map_version='??_?',noCache=False):
     if map_version == '??_?':
         # defaults to whatever map version covers latest data
         map_version = latestMapVersion()
     if map_version != '??_?':
         URI = f'/link-nodes/here/{from_node_id}/{to_node_id}?map_version={map_version}'
-        cachedLinks = checkCache(URI)
-        if cachedLinks:
-            return cachedLinks
+        if not noCache:
+            cachedLinks = checkCache(URI)
+            if cachedLinks:
+                return cachedLinks
 
     parsed_links_query = sql.SQL(links_query).format(
         routing_function = sql.Identifier(f'get_links_btwn_nodes_{map_version}'),
