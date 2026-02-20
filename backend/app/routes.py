@@ -104,6 +104,7 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
     from_node_id (int): origin node ID on the reference network
     to_node_id (int): destination node ID on the reference network
     optional GET param map_version applies only to Here network
+    optional GET arg 'noCache' bypasses any cached results
     """
     try:
         from_node_id = int(from_node_id)
@@ -165,6 +166,7 @@ def aggregate_travel_times(
     start_date, end_date (str, YYYY-MM-DD): start (inclusive), end (exclusive) dates. end_date must be greater than start_date.
     include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
     dow_list (str): concatenated list of integers representing days of week to be included; ISODOW specification. E.g. [6,7] -> '67' for Saturday and Sunday only.
+    optional GET arg 'noCache' bypasses any cached results
     """
     try:
         start_node = int(start_node)
