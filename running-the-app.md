@@ -11,6 +11,8 @@ DB_USER='tt_request_bot'
 DB_USER_PASSWORD='wouldntyouliketoknow'
 ```
 
+Production builds default to checking a cache in the database for requested results that have been previously computed. Development builds will not check the cache.
+
 ## Production
 The app is available to users inside the City network at [https://trans-bdit.intra.prod-toronto.ca/traveltime-request/](https://trans-bdit.intra.prod-toronto.ca/traveltime-request/) 
 

@@ -104,6 +104,7 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
     from_node_id (int): origin node ID on the reference network
     to_node_id (int): destination node ID on the reference network
     optional GET param map_version applies only to Here network
+    optional GET arg 'noCache' bypasses any cached results
     """
     try:
         from_node_id = int(from_node_id)
@@ -116,12 +117,22 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
 
     if request.endpoint == 'here-links':
         map_version = request.args.get('map_version')
+        noCache = request.args.get('noCache') is not None
         if map_version and re.fullmatch(r'^\d{2}_\d$', map_version):
             # TODO: can pass map versions that match the pattern but don't exist
             # which will expose database errors
-            links, URI = get_here_links(from_node_id,to_node_id,map_version)
+            links, URI = get_here_links(
+                from_node_id,
+                to_node_id,
+                map_version = map_version,
+                noCache = noCache
+            )
         else:
-            links, URI = get_here_links(from_node_id,to_node_id)
+            links, URI = get_here_links(
+                from_node_id,
+                to_node_id,
+                noCache = noCache
+            )
     elif request.endpoint == 'centreline-links':
         links = get_centreline_links(from_node_id, to_node_id)
 
@@ -134,7 +145,14 @@ def get_here_links_between_two_nodes(from_node_id, to_node_id):
 
 # test URL /aggregate-travel-times/30310940/30310942/9/12/2020-05-01/2020-06-01/true/2
 @app.route('/aggregate-travel-times/<start_node>/<end_node>/<start_time>/<end_time>/<start_date>/<end_date>/<include_holidays>/<dow_str>')
-def aggregate_travel_times(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_str):
+def aggregate_travel_times(
+        start_node, end_node,
+        start_time, end_time,
+        start_date, end_date,
+        include_holidays,
+        dow_str,
+        methods=['GET']
+    ):
     """
     Return averaged travel times given the specified parameters.
 
@@ -148,6 +166,7 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
     start_date, end_date (str, YYYY-MM-DD): start (inclusive), end (exclusive) dates. end_date must be greater than start_date.
     include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
     dow_list (str): concatenated list of integers representing days of week to be included; ISODOW specification. E.g. [6,7] -> '67' for Saturday and Sunday only.
+    optional GET arg 'noCache' bypasses any cached results
     """
     try:
         start_node = int(start_node)
@@ -180,7 +199,8 @@ def aggregate_travel_times(start_node, end_node, start_time, end_time, start_dat
             start_time, end_time,
             start_date, end_date,
             include_holidays,
-            dow_list
+            dow_list,
+            noCache = request.args.get('noCache') is not None
         )
     )
 
