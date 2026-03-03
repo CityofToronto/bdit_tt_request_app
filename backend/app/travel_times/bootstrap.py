@@ -1,4 +1,4 @@
-from app.travel_times.daily_aggregation import mean_daily_mean
+from app.travel_times.measures import mean_daily_mean
 from traveltimetools.utils import timeFormats
 import random
 import numpy

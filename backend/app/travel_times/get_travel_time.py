@@ -6,7 +6,7 @@ from app.hereMapVersions import selectMapVersions
 from traveltimetools.utils import timeFormats
 from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
-from app.travel_times.daily_aggregation import mean_daily_mean
+from app.travel_times.measures import mean_daily_mean
 from app.corridors.conflateMapVersions import corridorsAreTheSame
 from app.travel_times.dynamic_bins import createDynamicBins
 import polars
