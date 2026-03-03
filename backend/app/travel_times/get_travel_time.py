@@ -6,7 +6,7 @@ from app.hereMapVersions import selectMapVersions
 from traveltimetools.utils import timeFormats
 from app.travel_times.cache import checkCache, cacheAndReturn
 from app.travel_times.bootstrap import bootstrap
-from app.travel_times.measures import mean_daily_mean
+from app.travel_times.measures import mean_daily_mean, median
 from app.corridors.conflateMapVersions import corridorsAreTheSame
 from app.travel_times.dynamic_bins import createDynamicBins
 import polars
@@ -142,7 +142,10 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     return cacheAndReturn({
         'results': {
-            'travel_time': timeFormats(mean_daily_mean(observations),1),
+            'travel_time': {
+                'mean': timeFormats(mean_daily_mean(observations), 1),
+                'median': timeFormats(median(observations))
+            },
             'confidence': {
                 'sample': len(observations),
                 'intervals': bootstrap(observations)
