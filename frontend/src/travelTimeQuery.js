@@ -80,7 +80,7 @@ export class TravelTimeQuery {
         if(n == 0){
             warnings.add('no data available')
         }else if(n <= 5){
-            warnings.add(`mean is based on only ${n} observation(s)`)
+            warnings.add(`estimate is based on only ${n} observation(s)`)
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
         }
