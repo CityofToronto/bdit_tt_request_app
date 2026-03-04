@@ -27,7 +27,8 @@ def median(observations):
 def thirdQuartile(observations):
     return quantile([obs.travelTime for obs in observations], 0.75)
 
-functions = {
+# parameters to be estimated from the sample
+paramFunctions = {
     'mean': mean_daily_mean,
     'firstQuartile': firstQuartile,
     'median': median,
@@ -35,12 +36,12 @@ functions = {
 }
 
 def estimateParameters(sample):
-    """returns bootstrapped confidence intervals for the sample"""
+    """return estimates with bootstrapped confidence intervals"""
     if len(sample) == 0:
         return None
     data = {}
 
-    for funcName, func in functions.items():
+    for funcName, func in paramFunctions.items():
         data[funcName] = {
             'estimate': timeFormats(func(sample), 1),
             'bootstrapDistribution': []
@@ -50,7 +51,7 @@ def estimateParameters(sample):
         # resample with replacement
         bootstrapSample = choices( sample, k = len(sample) )
         # estimate functions from resampled distribution
-        for funcName, func in functions.items():
+        for funcName, func in paramFunctions.items():
             data[funcName]['bootstrapDistribution'].append(func(bootstrapSample))
 
     for estimate in data.values():
@@ -62,6 +63,7 @@ def estimateParameters(sample):
             'lower': timeFormats(lowerCI, 1),
             'upper': timeFormats(upperCI, 1)
         }
+        # no one needs this
         del estimate['bootstrapDistribution']
 
     return data
