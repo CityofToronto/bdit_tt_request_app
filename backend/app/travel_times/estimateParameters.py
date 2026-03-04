@@ -36,9 +36,6 @@ def thirdQuartile(observations):
         0.75
     )
 
-# this is a quite low, but quick
-resamples = 100
-
 functions = {
     'mean': mean_daily_mean,
     'median': median,
@@ -58,7 +55,7 @@ def estimateParameters(sample):
             'bootstrapDistribution': []
         }
 
-    for i in range(0, resamples):
+    for i in range(0, 300): # number of bootstrap resamples
         # resample with replacement
         bootstrapSample = choices( sample, k = len(sample) )
         # estimate functions from resampled distribution
