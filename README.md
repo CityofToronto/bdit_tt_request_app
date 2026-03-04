@@ -33,7 +33,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 
 | Field | Description |
 |----|----|
-| `URI` | The URI is the API endpoint that corresponds to the travel time request for each record. It can serve as a unique ID for each record. The URI allows us to reconstruct a request precisely and gather additional information to diagnose issues and verify data quality. |
+| `URI` | The URI is the API endpoint that corresponds to the travel time request for each record. It can serve as a unique ID for each record. The URI allows us to reconstruct a request precisely and gather additional information to diagnose issues and verify data quality. There is a lot of useful information at this endpoint that is not included in the CSV or JSON outputs.|
 | `routeStreets` | The names of the streets along the corridor. I.e. the path between A and B. |
 | `direction` | The approximate compass direction of travel for a corridor e.g. "Westbound". |
 | `startCrossStreets` | The names of any cross-street(s) at the start of the corridor. If the corridor starts mid-block then coordinates of that point will be returned instead. |
@@ -67,6 +67,8 @@ Before generating an averaged travel time, we do several steps to aggregate and 
 * We aggregate _corridors_ temporally into bins having data coverage over 80% or more of the corridor by length. These bins can't be longer than 30 minutes (6 consecutive 5-minute bins)
 
 Where data is missing it is extrapolated at the average speed over the 80%+ of the length which did have data.
+
+These aggregated corridors form the basic unit of observation for an aggregated corridor travel time. From these we provide estimates of the mean and the three quartiles. While the mean should be fairly unbiased, it must be noted that because there is averaging in the first step, there will be some potential reversion toward the mean within our basic unit of observation. As a result, we will tend to underestimate variability within the travel time distribution.
 
 ### Other means of estimating travel times
 
