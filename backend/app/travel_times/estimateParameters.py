@@ -18,28 +18,19 @@ def mean_daily_mean(observations):
         polars.col('travelTime').mean()
     ).item()
 
-def median(observations):
-    return quantile(
-        [obs.travelTime for obs in observations],
-        0.5
-    )
-
 def firstQuartile(observations):
-    return quantile(
-        [obs.travelTime for obs in observations],
-        0.25
-    )
+    return quantile([obs.travelTime for obs in observations], 0.25)
+
+def median(observations):
+    return quantile([obs.travelTime for obs in observations], 0.5)
 
 def thirdQuartile(observations):
-    return quantile(
-        [obs.travelTime for obs in observations],
-        0.75
-    )
+    return quantile([obs.travelTime for obs in observations], 0.75)
 
 functions = {
     'mean': mean_daily_mean,
-    'median': median,
     'firstQuartile': firstQuartile,
+    'median': median,
     'thirdQuartile': thirdQuartile
 }
 
