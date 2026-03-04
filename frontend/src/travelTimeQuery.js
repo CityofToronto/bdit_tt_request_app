@@ -84,9 +84,13 @@ export class TravelTimeQuery {
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
         }
-        // check travel time variability
-        const intervals = this.#results?.confidence?.intervals?.['p=0.95']
-        if((intervals?.upper.seconds - intervals?.lower.seconds) >= this.#results?.travel_time?.seconds){
+        // check travel time variability / skew
+        const intervals = this.#results?.estimates?.mean?.confidenceInterval
+        if(
+            (
+                intervals?.upper.seconds - intervals?.lower.seconds
+            ) >= 0.5 * this.#results?.estimates?.mean?.estimate?.seconds
+        ){
             warnings.add('travel times are highly variable')
         }
         return warnings
@@ -107,6 +111,7 @@ export class TravelTimeQuery {
             this.holidaysAreRelevant ? this.#holidayOption.holidaysIncluded : 'NA'
         )
         record.set('hoursInRange', this.hoursInRange);
+        // structure is the same for each of the parameter estimates and their CIs
         ['mean','firstQuartile','median','thirdQuartile'].map( param => {
             record.set(`time_${param}`, this.#results?.estimates?.[param]?.estimate?.seconds)
             record.set(
