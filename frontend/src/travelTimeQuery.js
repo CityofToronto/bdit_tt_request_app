@@ -106,16 +106,18 @@ export class TravelTimeQuery {
             'holidaysIncluded',
             this.holidaysAreRelevant ? this.#holidayOption.holidaysIncluded : 'NA'
         )
-        record.set('hoursInRange', this.hoursInRange)
-        record.set('time_mean', this.#results?.estimates?.mean?.estimate?.seconds)
-        record.set(
-            'time_mean_ci_lower',
-            this.#results?.estimates?.mean?.confidenceInterval?.lower?.seconds
-        )
-        record.set(
-            'time_mean_ci_upper',
-            this.#results?.estimates?.mean?.confidenceInterval?.upper?.seconds
-        )
+        record.set('hoursInRange', this.hoursInRange);
+        ['mean','firstQuartile','median','thirdQuartile'].map( param => {
+            record.set(`time_${param}`, this.#results?.estimates?.[param]?.estimate?.seconds)
+            record.set(
+                `time_${param}_ci_lower`,
+                this.#results?.estimates?.[param]?.confidenceInterval?.lower?.seconds
+            )
+            record.set(
+                `time_${param}_ci_upper`,
+                this.#results?.estimates?.[param]?.confidenceInterval?.upper?.seconds
+            )
+        })
         // print errors if any, else warnings if any
         record.set('notes', this.#errorMessage ?? [...this.caveats].join('; '))
 
