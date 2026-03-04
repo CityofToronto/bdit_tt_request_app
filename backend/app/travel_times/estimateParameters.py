@@ -51,7 +51,7 @@ def estimateParameters(sample):
 
     for funcName, func in functions.items():
         data[funcName] = {
-            'estimate': timeFormats(func(sample)),
+            'estimate': timeFormats(func(sample), 1),
             'bootstrapDistribution': []
         }
 
@@ -68,8 +68,8 @@ def estimateParameters(sample):
             [0.025, 0.975] # 95% confidence interval
         )
         estimate['confidenceInterval'] = {
-            'lower': timeFormats(lowerCI),
-            'upper': timeFormats(upperCI)
+            'lower': timeFormats(lowerCI, 1),
+            'upper': timeFormats(upperCI, 1)
         }
         del estimate['bootstrapDistribution']
 
