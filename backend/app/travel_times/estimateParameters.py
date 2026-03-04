@@ -1,6 +1,6 @@
 from traveltimetools.utils import timeFormats
 from random import choices
-from numpy import percentile, quantile
+from numpy import quantile
 import polars
 
 # Q: Is this the ideal way to do this? 
@@ -24,16 +24,26 @@ def median(observations):
         0.5
     )
 
+def firstQuartile(observations):
+    return quantile(
+        [obs.travelTime for obs in observations],
+        0.25
+    )
+
+def thirdQuartile(observations):
+    return quantile(
+        [obs.travelTime for obs in observations],
+        0.75
+    )
+
 # this is a quite low, but quick
 resamples = 100
 
-# 95% confidence interval
-pctLower = 2.5
-pctUpper = 97.5
-
 functions = {
     'mean': mean_daily_mean,
-    'median': median
+    'median': median,
+    'firstQuartile': firstQuartile,
+    'thirdQuartile': thirdQuartile
 }
 
 def estimateParameters(sample):
@@ -41,7 +51,7 @@ def estimateParameters(sample):
     if len(sample) == 0:
         return None
     data = {}
-    
+
     for funcName, func in functions.items():
         data[funcName] = {
             'estimate': timeFormats(func(sample)),
@@ -56,9 +66,9 @@ def estimateParameters(sample):
             data[funcName]['bootstrapDistribution'].append(func(bootstrapSample))
 
     for estimate in data.values():
-        lowerCI, upperCI = percentile(
+        lowerCI, upperCI = quantile(
             estimate['bootstrapDistribution'],
-            [pctLower, pctUpper]
+            [0.025, 0.975] # 95% confidence interval
         )
         estimate['ci'] = {
             'lower': timeFormats(lowerCI),
