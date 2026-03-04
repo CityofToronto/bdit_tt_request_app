@@ -79,14 +79,18 @@ export class TravelTimeQuery {
         const n = this.#results?.observations?.length
         if(n == 0){
             warnings.add('no data available')
-        }else if(n <= 5){
-            warnings.add(`mean is based on only ${n} observation(s)`)
+        }else if(n <= 10){
+            warnings.add(`estimate is based on only ${n} observation(s)`)
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
         }
-        // check travel time variability
-        const intervals = this.#results?.confidence?.intervals?.['p=0.95']
-        if((intervals?.upper.seconds - intervals?.lower.seconds) >= this.#results?.travel_time?.seconds){
+        // check travel time variability / skew
+        const intervals = this.#results?.estimates?.mean?.confidenceInterval
+        if(
+            (
+                intervals?.upper.seconds - intervals?.lower.seconds
+            ) >= 0.5 * this.#results?.estimates?.mean?.estimate?.seconds
+        ){
             warnings.add('travel times are highly variable')
         }
         return warnings
@@ -106,14 +110,21 @@ export class TravelTimeQuery {
             'holidaysIncluded',
             this.holidaysAreRelevant ? this.#holidayOption.holidaysIncluded : 'NA'
         )
-        record.set('hoursInRange', this.hoursInRange)
-        record.set('mean_travel_time_minutes', this.#results?.travel_time?.minutes)
-        record.set('mean_travel_time_seconds', this.#results?.travel_time?.seconds)
+        record.set('hoursInRange', this.hoursInRange);
+        // structure is the same for each of the parameter estimates and their CIs
+        ['mean','firstQuartile','median','thirdQuartile'].map( param => {
+            record.set(`time_${param}`, this.#results?.estimates?.[param]?.estimate?.seconds)
+            record.set(
+                `time_${param}_ci_lower`,
+                this.#results?.estimates?.[param]?.confidenceInterval?.lower?.seconds
+            )
+            record.set(
+                `time_${param}_ci_upper`,
+                this.#results?.estimates?.[param]?.confidenceInterval?.upper?.seconds
+            )
+        })
         // print errors if any, else warnings if any
         record.set('notes', this.#errorMessage ?? [...this.caveats].join('; '))
-        // turning these off in the frontend until they're ready for production
-        //record.set('moe_lower_p95', this.#results?.confidence?.intervals?.['p=0.95']?.lower?.seconds)
-        //record.set('moe_upper_p95', this.#results?.confidence?.intervals?.['p=0.95']?.upper?.seconds)
 
         if(type=='json'){
             return Object.fromEntries(record) // can't JSONify maps

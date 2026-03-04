@@ -5,8 +5,7 @@ from app.links.here import get_here_links
 from app.hereMapVersions import selectMapVersions
 from traveltimetools.utils import timeFormats
 from app.travel_times.cache import checkCache, cacheAndReturn
-from app.travel_times.bootstrap import bootstrap
-from app.travel_times.daily_aggregation import mean_daily_mean
+from app.travel_times.estimateParameters import estimateParameters
 from app.corridors.conflateMapVersions import corridorsAreTheSame
 from app.travel_times.dynamic_bins import createDynamicBins
 import polars
@@ -124,13 +123,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     if len(observations) < 1:
         # no travel times or related info to return here
         return cacheAndReturn({
-            'results': {
-                'travel_time': None,
-                'observations': [],
-                'confidence': {
-                    'sample': len(observations) # 0
-                },
-            },
+            'results': { 'estimates': None, 'observations': [] },
             'query': {
                 'corridor': {
                     'links': corridorURI, 
@@ -142,12 +135,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
 
     return cacheAndReturn({
         'results': {
-            'travel_time': timeFormats(mean_daily_mean(observations),1),
-            'confidence': {
-                'sample': len(observations),
-                'intervals': bootstrap(observations)
-            },
-            'observations': [timeFormats(bin.travelTime,1) for bin in observations]
+            'estimates': estimateParameters(observations),
+            'observations': [timeFormats(bin.travelTime, 1) for bin in observations]
         },
         'query': {
             'corridor': {
