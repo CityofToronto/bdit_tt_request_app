@@ -123,13 +123,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     if len(observations) < 1:
         # no travel times or related info to return here
         return cacheAndReturn({
-            'results': {
-                'travel_time': None,
-                'observations': [],
-                'confidence': {
-                    'sample': len(observations) # 0
-                },
-            },
+            'results': { 'estimates': None, 'observations': [] },
             'query': {
                 'corridor': {
                     'links': corridorURI, 
@@ -142,7 +136,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
     return cacheAndReturn({
         'results': {
             'estimates': estimateParameters(observations),
-            'observations': [timeFormats(bin.travelTime,1) for bin in observations]
+            'observations': [timeFormats(bin.travelTime) for bin in observations]
         },
         'query': {
             'corridor': {

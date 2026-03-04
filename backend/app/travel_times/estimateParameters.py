@@ -67,7 +67,7 @@ def estimateParameters(sample):
             estimate['bootstrapDistribution'],
             [0.025, 0.975] # 95% confidence interval
         )
-        estimate['ci'] = {
+        estimate['confidenceInterval'] = {
             'lower': timeFormats(lowerCI),
             'upper': timeFormats(upperCI)
         }
