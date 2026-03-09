@@ -101,7 +101,11 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 link_speeds_df = polars.DataFrame(
                     cursor.fetchall(),
                     orient='row',
-                    schema=['link_dir','bin_num','speed']
+                    schema={
+                        'link_dir': polars.String,
+                        'bin_num': polars.Int32,
+                        'speed': polars.Float32
+                    }
                 )
 
         # join link lengths and
