@@ -10,14 +10,23 @@
 .user-created-factor-container {
     border: 1px solid lightgrey;
     border-radius: 5px;
-    padding: 5px;
+    padding: 0px;
     margin-bottom: 8px;
     max-height: 300px;
     overflow: scroll;
 }
 
 .user-created-factor-container > * {
-    margin: 5px 0;
+    margin: 5px;
+}
+
+.user-created-factor-container .stickyHeader {
+    position: sticky;
+    top: 0px;
+    background: white;
+    padding-bottom: 3px;
+    padding-top: 5px;
+    margin-top: 0px;
 }
 
 .factor {

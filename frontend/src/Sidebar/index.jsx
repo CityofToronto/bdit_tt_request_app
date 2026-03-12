@@ -38,9 +38,11 @@ function TimeRangesContainer(){
     }
     return (
         <FactorContainer>
-            <BigButton onClick={addATimeRange}>
-                Create a new time range
-            </BigButton>
+            <div className='stickyHeader'>
+                <BigButton onClick={addATimeRange}>
+                    Create a new time range
+                </BigButton>
+            </div>
             <FactorList factors={data.timeRanges}/>
         </FactorContainer>
     )
@@ -54,9 +56,11 @@ function DateRangesContainer(){
     }
     return (
         <FactorContainer>
-            <BigButton onClick={addADateRange}>
-                Create a new date range
-            </BigButton>
+            <div className='stickyHeader'>
+                <BigButton onClick={addADateRange}>
+                    Create a new date range
+                </BigButton>
+            </div>
             <FactorList factors={data.dateRanges}/>
         </FactorContainer>
     )
@@ -70,16 +74,18 @@ export function CorridorsContainer(){
     }
     return (
         <FactorContainer>
-            <BigButton onClick={addACorridor}>
-                Create a new corridor
-            </BigButton>
-            {data.corridors.some(c => c.isComplete) &&
-                <a download='corridors.geojson'
-                        href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(corridorsGeoJSON(data.corridors)))}`}
-                    >
-                    <BigButton>Download mapped corridors</BigButton>
-                </a>
-            }
+            <div className='stickyHeader'>
+                <BigButton onClick={addACorridor}>
+                    Create a new corridor
+                </BigButton>
+                {data.corridors.some(c => c.isComplete) &&
+                    <a download='corridors.geojson'
+                            href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(corridorsGeoJSON(data.corridors)))}`}
+                        >
+                        <BigButton>Download mapped corridors</BigButton>
+                    </a>
+                }
+            </div>
             <FactorList factors={data.corridors}/>
         </FactorContainer>
     )
@@ -101,9 +107,11 @@ function DaysContainer(){
     }
     return (
         <FactorContainer>
-            <BigButton onClick={addDays}>
-                Create a new day-of-week selection
-            </BigButton>
+            <div className='stickyHeader'>
+                <BigButton onClick={addDays}>
+                    Create a new day-of-week selection
+                </BigButton>
+            </div>
             <FactorList factors={data.days}/>
         </FactorContainer>
     )
