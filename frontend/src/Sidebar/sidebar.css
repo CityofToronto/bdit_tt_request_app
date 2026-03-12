@@ -13,7 +13,7 @@
     padding: 0px;
     margin-bottom: 8px;
     max-height: 500px;
-    overflow: scroll;
+    overflow: auto;
 }
 
 .user-created-factor-container > * {
