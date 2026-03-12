@@ -119,15 +119,21 @@ export class SpatialData {
                 this.dateRanges.filter(dr=>dr.isComplete).forEach( dateRange => {
                     this.days.filter(d=>d.isComplete).forEach( days => {
                         this.holidayOptions.forEach( holidayOption => {
-                            crossProduct.push(
-                                new TravelTimeQuery({
-                                    corridor,
-                                    timeRange,
-                                    dateRange,
-                                    days,
-                                    holidayOption
-                                })
-                            )
+                            const ttq = new TravelTimeQuery({
+                                corridor,
+                                timeRange,
+                                dateRange,
+                                days,
+                                holidayOption
+                            })
+                            if(
+                                this.holidayOptions.length > 1 // "do it both ways"
+                                && holidayOption.holidaysIncluded // included for this one
+                                && !ttq.holidaysAreRelevant // but it's not relevant
+                            ){ // only the no-holidays version of this will be queried
+                                return
+                            }
+                            crossProduct.push(ttq)
                         } )
                     } )
                 } )
