@@ -88,7 +88,7 @@ export class Corridor extends Factor {
     get segments(){ return this.#segments }
     get links(){ return this.segments.flatMap( seg => seg.links ) }
     get viaStreets(){
-        return new Set( this.links.map( link => link.name ) )
+        return new Set( this.links.map( link => link.name ).filter(v=>v) )
     }
     get viaStreetsString(){
         return [...this.viaStreets].join(' & ')
