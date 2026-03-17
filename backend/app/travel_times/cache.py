@@ -5,7 +5,7 @@ import json
 def checkCache(uri):
     query = f'''
         SELECT results
-        FROM nwessel.cached_travel_times
+        FROM here_agg.tt_app_cached_travel_times
         WHERE uri_string = %(uri)s AND commit_hash = %(hash)s
     '''
     with pool.connection() as connection:
@@ -19,7 +19,7 @@ def checkCache(uri):
 
 def cacheAndReturn(obj,uri):
     query = f'''
-        INSERT INTO nwessel.cached_travel_times (uri_string, commit_hash, results)
+        INSERT INTO here_agg.tt_app_cached_travel_times (uri_string, commit_hash, results)
         VALUES (%(uri)s, %(hash)s, %(results)s)
     '''
     with pool.connection() as connection:
