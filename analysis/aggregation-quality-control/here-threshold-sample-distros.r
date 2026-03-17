@@ -23,14 +23,35 @@ sampled_aggs = tbl( con, in_schema('gwolofs','congestion_segments_monthly_bootst
     arrange(random()) %>%
     head(30)
 
-tbl( con, in_schema('here_agg','raw_segments') ) %>%
+# this table has ~1B rows; select carefully!
+obs = tbl( con, in_schema('gwolofs','congestion_raw_segments') ) %>%
     mutate(
         mnth = date(floor_date(dt,unit='month')),
         is_wkdy = wday(dt, week_start=1) %in% c(1, 2, 3, 4, 5)
     ) %>%
     inner_join( sampled_aggs ) %>% 
     collect() %>%
-    mutate( i = factor(i) ) %>%
+    mutate( i = factor(i) )
+
+obs_summary = obs %>%
+    group_by(i) %>%
+    summarize(
+        median_tt = median(tt),
+        mean_tt = mean(tt)
+    )
+
+obs %>%
     ggplot( aes(x=tt) ) +
     geom_histogram() +
-    facet_wrap(vars(i), scales='free')
+    geom_vline(
+        data = obs_summary,
+        aes(xintercept=mean_tt),
+        color='red'
+    ) +
+    geom_vline(
+        data = obs_summary,
+        aes(xintercept=median_tt),
+        color='blue'
+    ) +
+    facet_wrap(vars(i), scales='free') +
+    xlim(0,NA)
