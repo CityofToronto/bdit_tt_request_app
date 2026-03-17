@@ -6,12 +6,12 @@ from app.getGitHash import getGitHash
 
 cacheQuery = '''
 SELECT results
-FROM nwessel.cached_tt_routes
+FROM here_agg.tt_app_cached_routes
 WHERE uri_string = %(uri)s AND commit_hash = %(hash)s;
 '''
 
 cacheInsert = '''
-INSERT INTO nwessel.cached_tt_routes (uri_string, commit_hash, results)
+INSERT INTO here_agg.tt_app_cached_routes (uri_string, commit_hash, results)
 VALUES (%(uri)s, %(hash)s, %(results)s)
 '''
 
