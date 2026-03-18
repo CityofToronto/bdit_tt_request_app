@@ -5,15 +5,17 @@ library('dbplyr')
 con <- DBI::dbConnect(
     RPostgres::Postgres(), 
     host = 'trans-bdit-db-prod0-rds-smkrfjrhhbft.cpdcqisgj1fj.ca-central-1.rds.amazonaws.com',
-    dbname = 'bigdata'
+    dbname = 'bigdata',
+    # for those without .pgpass configured
+    #password = rstudioapi::askForPassword("Database password") 
 )
 
 sampled_aggs = tbl( con, in_schema('gwolofs','congestion_segments_monthly_bootstrap') ) %>%
     filter(
-        n >= 20,
-        n <= 50,
-        ((ci_upper - ci_lower) / avg_tt) > 0.1,
-        ((ci_upper - ci_lower) / avg_tt) < 0.11    
+        n >= 50,
+        #n <= 50,
+        ((ci_upper - ci_lower) / avg_tt) > 0.005,
+        ((ci_upper - ci_lower) / avg_tt) < 0.015    
     ) %>%
     mutate(
         i = row_number(),
@@ -24,6 +26,7 @@ sampled_aggs = tbl( con, in_schema('gwolofs','congestion_segments_monthly_bootst
     head(30)
 
 # this table has ~1B rows; select carefully!
+# also, this join can take a lil while
 obs = tbl( con, in_schema('gwolofs','congestion_raw_segments') ) %>%
     mutate(
         mnth = date(floor_date(dt,unit='month')),
