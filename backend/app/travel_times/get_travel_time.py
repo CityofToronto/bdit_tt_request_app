@@ -17,7 +17,7 @@ def makeURI(start_node, end_node, start_time, end_time, start_date, end_date, in
     URI += f'/{str(include_holidays).lower()}/{"".join(map(str,dow_list))}'
     return URI
 
-def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, noCache=False, excludedDates=[]):
+def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_date, include_holidays, dow_list, noCache=False, excludeDates=[]):
     """Function for returning data from the aggregate-travel-times/ endpoint"""
     # first check the cache
     cacheURI = makeURI(
@@ -53,6 +53,7 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
             AND date_part('ISODOW', dt) = ANY(%(dow_list)s)
             AND dt >= %(start_date)s::date
             AND dt < %(end_date)s::date
+            AND dt != ANY(%(excludedDates)s)
             {holiday_clause}
     '''
     # always possible that this spans a map version change
@@ -93,7 +94,8 @@ def get_travel_time(start_node, end_node, start_time, end_time, start_date, end_
                 # TODO: Y3K problem
                 hereMap['upperDateExclusive'] if hereMap['upperDateExclusive'] else '3000-01-01'
             ),
-            "dow_list": dow_list
+            "dow_list": dow_list,
+            "excludedDates": excludeDates
         }
         with pool.connection() as connection:
             with connection.cursor() as cursor:

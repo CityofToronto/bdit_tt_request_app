@@ -194,9 +194,15 @@ def aggregate_travel_times(
     if len(dow_list) == 0:
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
 
-    if request.args.get('excludeDates') is not None:
-        excludeDates = re.findall(r"\d{4}-\d{2}-\d{2}", request.args.get('excludeDates'))
-        print(excludeDates)
+    excludeDates = []
+    if request.args.get('excludeDates') is not None: 
+        for dateString in re.findall(r"\d{4}-\d{2}-\d{2}", request.args.get('excludeDates')):
+            try:
+                # parse date to verify but then just store the string
+                datetime.strptime(dateString, "%Y-%m-%d")
+                excludeDates.append(dateString)
+            except:
+                pass
 
     return jsonify(
         get_travel_time(
@@ -205,7 +211,8 @@ def aggregate_travel_times(
             start_date, end_date,
             include_holidays,
             dow_list,
-            noCache = request.args.get('noCache') is not None
+            noCache = request.args.get('noCache') is not None,
+            excludeDates = excludeDates
         )
     )
 
