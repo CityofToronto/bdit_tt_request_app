@@ -167,6 +167,7 @@ def aggregate_travel_times(
     include_holidays (str, boolean): 'true' will include holidays, 'false' will exclude them if applicable
     dow_list (str): concatenated list of integers representing days of week to be included; ISODOW specification. E.g. [6,7] -> '67' for Saturday and Sunday only.
     optional GET arg 'noCache' bypasses any cached results
+    optional GET arg 'excludeDates' gives dates in YYYY-MM-DD format to exclude
     """
     try:
         start_node = int(start_node)
@@ -192,6 +193,10 @@ def aggregate_travel_times(
     dow_list = list(set([int(numstr) for numstr in re.findall(r"[1-7]", dow_str)]))
     if len(dow_list) == 0:
         return jsonify({'error': "dow list does not contain valid characters, i.e. [1-7]"})
+
+    if request.args.get('excludeDates') is not None:
+        excludeDates = re.findall(r"\d{4}-\d{2}-\d{2}", request.args.get('excludeDates'))
+        print(excludeDates)
 
     return jsonify(
         get_travel_time(
