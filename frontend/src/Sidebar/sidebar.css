@@ -70,3 +70,19 @@
     float: right;
     margin-left: 10px;
 }
+
+.factor .corridorName.Northbound::before {
+    content: '\2191';
+}
+
+.factor .corridorName.Southbound::before {
+    content: '\2193';
+}
+
+.factor .corridorName.Eastbound::before {
+    content: '\2192';
+}
+
+.factor .corridorName.Westbound::before {
+    content: '\2190';
+}
