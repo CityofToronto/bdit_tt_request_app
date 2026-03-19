@@ -154,7 +154,7 @@ function CorridorElement({corridor}){
     return (
         <div>
             <div className={`corridorName ${corridor.bearing}`}>
-                {corridor.name}
+                <div>{corridor.name}</div>
             </div>
             {corridor.isActive && <>
                 <div className='instructions'>
