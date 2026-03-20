@@ -94,17 +94,19 @@ function formatISODate(dt){ // this is waaay too complicated... alas
 function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
     const [ selectedRange, setSelectedRange ] = useState(undefined)
+    const [ editing, setEditing ] = useState(true)
     useEffect(()=>{
         if(!selectedRange) return;
         let [ start, end ] = selectedRange
         dateRange.setStartDate(start)
         dateRange.setEndDate(end)
+        setEditing(false)
         logActivity('dateRange selected/updated')
     },[selectedRange])
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
-            {dateRange.isActive && ! dateRange.isComplete && <>
+            {dateRange.isActive && (editing || ! dateRange.isComplete)&& <>
                 <Calendar
                     value={selectedRange}
                     selectRange={true}
@@ -114,6 +116,11 @@ function DateRangeElement({dateRange}){
                     minDate={dateRange.minDate}
                 />
             </> }
+            {dateRange.isActive && dateRange.isComplete && <div>
+                <small><a onClick={()=>{setEditing(true)}}>
+                    Edit date range
+                </a></small>
+            </div>}
         </div>
     )
 }
