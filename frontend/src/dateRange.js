@@ -11,6 +11,7 @@ export class DateRange extends Factor {
     constructor(dataContext){
         super(dataContext)
         this.#dataContext = dataContext
+
     }
     get isComplete(){
         return this.#startDate && this.#endDate && this.#startDate < this.#endDate
@@ -103,7 +104,7 @@ function DateRangeElement({dateRange}){
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
-            {dateRange.isActive && <>
+            {dateRange.isActive && ! dateRange.isComplete && <>
                 <Calendar
                     value={selectedRange}
                     selectRange={true}
