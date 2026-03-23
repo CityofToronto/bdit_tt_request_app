@@ -81,6 +81,10 @@ export class TravelTimeQuery {
     get caveats(){
         // offer some basic warnings where things look especially sketchy
         let warnings = new Set()
+        // mention any date exclusions first
+        if(this.#dateRange.hasExclusions){
+            warnings.add(`excludes the following dates: ${this.#dateRange.excludedDates.join(', ')}`)
+        }
         // check sample size a couple different ways
         const n = this.#results?.observations?.length
         if(n == 0){
