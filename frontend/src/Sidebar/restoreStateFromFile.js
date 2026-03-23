@@ -46,10 +46,20 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                 } )
             distinctPerProps(URIs,'startDate','endDate','excludedDates')
                 .forEach( ({startDate,endDate,excludedDates}) => {
-                    console.log(excludedDates)
+                    console.log('sd',startDate)
                     let dateRange = stateData.createDateRange()
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
                     dateRange.setEndDate(new Date(Date.parse(endDate)))
+                    if(excludedDates){
+                        excludedDates.split(',').map( dateString => {
+                            try {
+                                dateRange.addExcludedDate(                            
+                                    new Date(Date.parse(dateString))
+                                )
+                            } catch { /*do nothing if not parsed as date*/ }
+                        } )
+                        dateRange
+                    }
                 } )
             // holiday inclusion
             let holidays = new Set(URIs.map(uri => uri.holidays))
