@@ -41,7 +41,11 @@ export class DateRange extends Factor {
         this.#excludedDates.set(DateRange.dateFormatted(date), date)
     }
     removeExcludedDate(date){
-        this.#excludedDates.delete(DateRange.dateFormatted(date))
+        if(date instanceof Date){
+            this.#excludedDates.delete(DateRange.dateFormatted(date))
+        } else {
+            this.#excludedDates.delete(date)
+        }
     }
     get excludedDates(){
         return [...this.#excludedDates.values().map(DateRange.dateFormatted)]
@@ -116,7 +120,6 @@ function DateRangeElement({dateRange}){
         setEditing(false)
         logActivity('dateRange selected/updated')
     },[selectedRange])
-    console.log(dateRange.excludedDates)
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
@@ -132,6 +135,19 @@ function DateRangeElement({dateRange}){
                 />
             </> }
             {dateRange.isActive && dateRange.isComplete && <div>
+                {dateRange.hasExclusions && <div>
+                    Excluding
+                    <ul>
+                        {dateRange.excludedDates.map((d,i)=>(
+                            <li key={i}>
+                                {d} <span onClick={()=>{
+                                    logActivity('removed date Exclusion')
+                                    dateRange.removeExcludedDate(d)
+                                }}>&#x2716;</span>
+                            </li>
+                        )) }
+                    </ul>
+                </div>}
                 <small><a onClick={()=>{setEditing(true)}}>
                     Edit date range
                 </a></small>
