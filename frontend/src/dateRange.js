@@ -7,6 +7,7 @@ import { DataContext } from './Layout'
 export class DateRange extends Factor {
     #startDate
     #endDate
+    #excludedDates = new Map()
     #dataContext
     constructor(dataContext){
         super(dataContext)
@@ -19,7 +20,7 @@ export class DateRange extends Factor {
         if(this.#startDate || this.#endDate){
             let start = DateRange.dateFormatted(this.#startDate) ?? '???'
             let end = DateRange.dateFormatted(this.#endDate) ?? '???'
-            return `From ${start} to ${end}`
+            return `From ${start} to ${end}${this.hasExclusions ? '*':''}`
         }
         return 'New Date Range'
     }
@@ -35,6 +36,18 @@ export class DateRange extends Factor {
         this.#endDate = inputDate
         this.hasUpdated()
         return this.#endDate
+    }
+    addExcludedDate(date){
+        this.#excludedDates.set(DateRange.dateFormatted(date), date)
+    }
+    removeExcludedDate(date){
+        this.#excludedDates.delete(DateRange.dateFormatted(date))
+    }
+    get excludedDates(){
+        return [...this.#excludedDates.values().map(DateRange.dateFormatted)]
+    }
+    get hasExclusions(){
+        return this.#excludedDates.size > 0
     }
     static dateFormatted(datetime){
         if(datetime){
@@ -94,7 +107,6 @@ function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
     const [ selectedRange, setSelectedRange ] = useState(undefined)
     const [ editing, setEditing ] = useState(true)
-    const [ excludedDates, setExcludedDates ] = useState( [] )
     const [ addingDateExclusion, setAddingDateExclusion ] = useState(false)
     useEffect(()=>{
         if(!selectedRange) return;
@@ -104,18 +116,19 @@ function DateRangeElement({dateRange}){
         setEditing(false)
         logActivity('dateRange selected/updated')
     },[selectedRange])
-    console.log(excludedDates)
+    console.log(dateRange.excludedDates)
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
+
             {dateRange.isActive && (editing || ! dateRange.isComplete)&& <>
                 <Calendar
                     value={selectedRange}
                     selectRange={true}
                     allowPartialRange={true}
                     onChange={setSelectedRange}
-                    maxDate={dateRange.maxDate}
                     minDate={dateRange.minDate}
+                    maxDate={dateRange.maxDate}
                 />
             </> }
             {dateRange.isActive && dateRange.isComplete && <div>
@@ -129,7 +142,10 @@ function DateRangeElement({dateRange}){
             </div>}
             {addingDateExclusion && <>
                 <Calendar
-                    onChange={(date)=>{console.log(date);setAddingDateExclusion(false)}}
+                    onChange={(date)=>{
+                        dateRange.addExcludedDate(date)
+                        setAddingDateExclusion(false)
+                    }}
                     minDate={selectedRange[0]}
                     maxDate={selectedRange[1]}
                 />
