@@ -11,7 +11,6 @@ export class DateRange extends Factor {
     constructor(dataContext){
         super(dataContext)
         this.#dataContext = dataContext
-
     }
     get isComplete(){
         return this.#startDate && this.#endDate && this.#startDate < this.#endDate
@@ -95,6 +94,8 @@ function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
     const [ selectedRange, setSelectedRange ] = useState(undefined)
     const [ editing, setEditing ] = useState(true)
+    const [ excludedDates, setExcludedDates ] = useState( [] )
+    const [ addingDateExclusion, setAddingDateExclusion ] = useState(false)
     useEffect(()=>{
         if(!selectedRange) return;
         let [ start, end ] = selectedRange
@@ -103,6 +104,7 @@ function DateRangeElement({dateRange}){
         setEditing(false)
         logActivity('dateRange selected/updated')
     },[selectedRange])
+    console.log(excludedDates)
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
@@ -120,7 +122,18 @@ function DateRangeElement({dateRange}){
                 <small><a onClick={()=>{setEditing(true)}}>
                     Edit date range
                 </a></small>
+                <br/>
+                <small><a onClick={()=>{setAddingDateExclusion(true)}}>
+                    Add date exclusion
+                </a></small>
             </div>}
+            {addingDateExclusion && <>
+                <Calendar
+                    onChange={(date)=>{console.log(date);setAddingDateExclusion(false)}}
+                    minDate={selectedRange[0]}
+                    maxDate={selectedRange[1]}
+                />
+            </>}
         </div>
     )
 }
