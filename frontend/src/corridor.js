@@ -153,8 +153,8 @@ export class Corridor extends Factor {
 function CorridorElement({corridor}){
     return (
         <div>
-            <div className='corridorName'>
-                {corridor.name}
+            <div className={`corridorName ${corridor.bearing}`}>
+                <div>{corridor.name}</div>
             </div>
             {corridor.isActive && <>
                 <div className='instructions'>

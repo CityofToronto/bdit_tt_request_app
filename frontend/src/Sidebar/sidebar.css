@@ -70,3 +70,35 @@
     float: right;
     margin-left: 10px;
 }
+
+.factor .corridorName {
+    display: flex;
+}
+
+.factor .corridorName.Northbound::before {
+    content: '\2191';
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-right: 5px;
+}
+
+.factor .corridorName.Southbound::before {
+    content: '\2193';
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-right: 5px;
+}
+
+.factor .corridorName.Eastbound::before {
+    content: '\2192';
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-right: 5px;
+}
+
+.factor .corridorName.Westbound::before {
+    content: '\2190';
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-right: 5px;
+}
