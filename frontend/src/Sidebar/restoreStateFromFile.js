@@ -1,7 +1,7 @@
 import { Intersection } from '../intersection.js'
 import { domain } from '../domain.js'
 
-const TTURIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)/g
+const TTURIpattern = /\/(?<startNode>\d+)\/(?<endNode>\d+)\/(?<startTime>\d+)\/(?<endTime>\d+)\/(?<startDate>\d{4}-\d{2}-\d{2})\/(?<endDate>\d{4}-\d{2}-\d{2})\/(?<holidays>true|false)\/(?<dow>\d+)\??(noCache)?&?(excludeDates=(?<excludedDates>(\d{4}-\d{2}-\d{2},?)+))?/g
 const CorridorURIpattern = /\/link-nodes\/here\/(?<startNode>\d+)\/(?<endNode>\d+)/g
 
 export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
@@ -44,8 +44,9 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                     timeRange.setStartTime(startTime)
                     timeRange.setEndTime(endTime)
                 } )
-            distinctPerProps(URIs,'startDate','endDate')
-                .forEach( ({startDate,endDate}) => {
+            distinctPerProps(URIs,'startDate','endDate','excludedDates')
+                .forEach( ({startDate,endDate,excludedDates}) => {
+                    console.log(excludedDates)
                     let dateRange = stateData.createDateRange()
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
                     dateRange.setEndDate(new Date(Date.parse(endDate)))
