@@ -136,7 +136,7 @@ function DateRangeElement({dateRange}){
             </> }
             {dateRange.isActive && dateRange.isComplete && <div>
                 {dateRange.hasExclusions && <div>
-                    Excluding
+                    *Excluding:
                     <ul>
                         {dateRange.excludedDates.map((d,i)=>(
                             <li key={i}>
@@ -162,6 +162,7 @@ function DateRangeElement({dateRange}){
                         dateRange.addExcludedDate(date)
                         setAddingDateExclusion(false)
                     }}
+                    activeStartDate={selectedRange[0]}
                     minDate={selectedRange[0]}
                     maxDate={selectedRange[1]}
                 />
