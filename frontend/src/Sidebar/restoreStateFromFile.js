@@ -46,7 +46,6 @@ export async function restoreStateFromFile(fileDropEvent,stateData,logActivity){
                 } )
             distinctPerProps(URIs,'startDate','endDate','excludedDates')
                 .forEach( ({startDate,endDate,excludedDates}) => {
-                    console.log('sd',startDate)
                     let dateRange = stateData.createDateRange()
                     dateRange.setStartDate(new Date(Date.parse(startDate)))
                     dateRange.setEndDate(new Date(Date.parse(endDate)))
