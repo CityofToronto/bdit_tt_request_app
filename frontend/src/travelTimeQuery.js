@@ -27,8 +27,14 @@ export class TravelTimeQuery {
         path += `/${this.#holidayOption.holidaysIncluded}`
         // days of week
         path += `/${this.#days.apiString}`
-        // pass an arg to bypass the cache (development builds only)
-        path += process.env.NODE_ENV === 'development' ? '?noCache' : ''
+        let getArgs = []
+        if(process.env.NODE_ENV === 'development'){ getArgs.push('noCache') }
+        if(this.#dateRange.hasExclusions){
+            getArgs.push(
+                `excludeDates=${this.#dateRange.excludedDates.join(',')}`
+            )
+        }
+        if(getArgs.length > 0){ path += '?' + getArgs.join('&') }
         return path
     }
     get corridor(){ return this.#corridor }
