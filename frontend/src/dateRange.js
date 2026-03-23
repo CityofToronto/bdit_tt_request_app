@@ -110,7 +110,7 @@ function formatISODate(dt){ // this is waaay too complicated... alas
 function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
     const [ selectedRange, setSelectedRange ] = useState(undefined)
-    const [ editing, setEditing ] = useState(true)
+    const [ editing, setEditing ] = useState(! dateRange.isComplete)
     const [ addingDateExclusion, setAddingDateExclusion ] = useState(false)
     useEffect(()=>{
         if(!selectedRange) return;
@@ -123,7 +123,6 @@ function DateRangeElement({dateRange}){
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
-
             {dateRange.isActive && (editing || ! dateRange.isComplete)&& <>
                 <Calendar
                     value={selectedRange}
