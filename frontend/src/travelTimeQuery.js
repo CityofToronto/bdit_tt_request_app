@@ -6,7 +6,7 @@ export class TravelTimeQuery {
     #dateRange
     #days
     #holidayOption
-    #results
+    #results = new Map()
     #errorMessage
     constructor({corridor,timeRange,dateRange,days,holidayOption}){
         this.#corridor = corridor
@@ -44,18 +44,19 @@ export class TravelTimeQuery {
     async fetchData(){
         if( this.hoursInRange < 1 ){
             // no possible data to fetch
-            return this.#results = undefined
+            this.#results.delete(this.URI)
+            return undefined
         }
         return fetch(this.URI)
             .then( response => response.json() )
             .then( data => {
-                this.#results = data?.results
+                this.#results.set(this.URI, data?.results)
                 this.#errorMessage = data?.error
             } )
             .catch( this.#errorMessage = 'unhandled server error' )
     }
     get hasData(){
-        return Boolean(this.#results)
+        return Boolean(this.#results.get(this.URI))
     }
     get isFinished(){
         return this.hasData || Boolean(this.#errorMessage)
@@ -86,7 +87,7 @@ export class TravelTimeQuery {
             warnings.add(`excludes the following dates: ${this.#dateRange.excludedDates.join(', ')}`)
         }
         // check sample size a couple different ways
-        const n = this.#results?.observations?.length
+        const n = this.#results.get(this.URI)?.observations?.length
         if(n == 0){
             warnings.add('no data available')
         }else if(n <= 10){
@@ -95,11 +96,11 @@ export class TravelTimeQuery {
             warnings.add(`many time periods with missing or insufficient data`)
         }
         // check travel time variability / skew
-        const intervals = this.#results?.estimates?.mean?.confidenceInterval
+        const intervals = this.#results.get(this.URI)?.estimates?.mean?.confidenceInterval
         if(
             (
                 intervals?.upper.seconds - intervals?.lower.seconds
-            ) >= 0.5 * this.#results?.estimates?.mean?.estimate?.seconds
+            ) >= 0.5 * this.#results.get(this.URI)?.estimates?.mean?.estimate?.seconds
         ){
             warnings.add('travel times are highly variable')
         }
@@ -122,15 +123,19 @@ export class TravelTimeQuery {
         )
         record.set('hoursInRange', this.hoursInRange);
         // structure is the same for each of the parameter estimates and their CIs
+        const results = this.#results.get(this.URI);
         ['mean','firstQuartile','median','thirdQuartile'].map( param => {
-            record.set(`time_${param}`, this.#results?.estimates?.[param]?.estimate?.seconds)
+            record.set(
+                `time_${param}`,
+                results?.estimates?.[param]?.estimate?.seconds
+            )
             record.set(
                 `time_${param}_ci_lower`,
-                this.#results?.estimates?.[param]?.confidenceInterval?.lower?.seconds
+                results?.estimates?.[param]?.confidenceInterval?.lower?.seconds
             )
             record.set(
                 `time_${param}_ci_upper`,
-                this.#results?.estimates?.[param]?.confidenceInterval?.upper?.seconds
+                results?.estimates?.[param]?.confidenceInterval?.upper?.seconds
             )
         })
         // print errors if any, else warnings if any
