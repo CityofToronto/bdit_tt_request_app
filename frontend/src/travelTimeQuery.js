@@ -56,7 +56,7 @@ export class TravelTimeQuery {
             .catch( this.#errorMessage = 'unhandled server error' )
     }
     get hasData(){
-        return Boolean(this.#results.get(this.URI))
+        return this.#results.has(this.URI)
     }
     get isFinished(){
         return this.hasData || Boolean(this.#errorMessage)
@@ -81,6 +81,7 @@ export class TravelTimeQuery {
     }
     get caveats(){
         // offer some basic warnings where things look especially sketchy
+        // and also flag excluded dates
         let warnings = new Set()
         // mention any date exclusions first
         if(this.#dateRange.hasExclusions){
