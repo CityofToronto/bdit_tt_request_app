@@ -80,8 +80,12 @@ export class DateRange extends Factor {
             let dow = d.getUTCDay()
             let isodow = dow == 0 ? 7 : dow
             if( daysOptions.hasDay(isodow) ){
-                // if holidays are NOT included, check the date isn't a holiday
-                if( ! ( holidaysExcluded && holidayDates.has(formatISODate(d)) ) ){
+                if(
+                    // if dates are excluded check this isn't one of them
+                    !(this.hasExclusions && this.#excludedDates.has(DateRange.dateFormatted(d)))
+                    // if holidays are NOT included, check the date isn't a holiday
+                    && !(holidaysExcluded && holidayDates.has(formatISODate(d)))
+                ){
                     dayCount ++
                 }
             }
