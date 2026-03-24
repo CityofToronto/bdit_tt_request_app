@@ -17,7 +17,7 @@ When you [visit the app](https://trans-bdit.intra.prod-toronto.ca/traveltime-req
 | ----- | ----------- |
 | Corridor | Drawn on the map, it is a shortest path between two intersections of your choice. Draw it in both directions if you need both directions of travel. Be cautious about drawing corridors longer than a couple of kilometers, as the aggregation methods are not well tested for very long corridors. |
 | Time Range | Times must start and end on the hour and the app accepts integer values between 0 and 24. The final hour is _exclusive_, meaning that a range of 7am to 9am covers two hours, not three. Values of 0 and 24 both interchangeably represent midnight; a time range of 0 - 24 will return all hours of the day. A time range starting after it ends (e.g. 10pm to 4am) will wrap around midnight[^1]. |
-| Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. |
+| Date Range | Use the calendar widget to select a date range. Note that selected ranges are displayed with an exclusive end date. Once created, there is an option to exclude one or more specific dates from the range. |
 | Day of Week | Identify the days of week to include in the aggregation. |
 | Holiday Inclusion | Decide whether to include or exclude Ontario's statutory holidays if applicable. You can also opt to do it both ways. |
 
@@ -39,7 +39,7 @@ The app can return results in either CSV or JSON format. The fields in either ca
 | `startCrossStreets` | The names of any cross-street(s) at the start of the corridor. If the corridor starts mid-block then coordinates of that point will be returned instead. |
 | `endCrossStreets` | The names of any cross-street(s) at the end of the corridor. If the corridor ends mid-block then coordinates of that point will be returned instead. |
 | `timeRange` | Text description of the time-of-day range included in the query. |
-| `dateRange` | Text description of the range of dates included in the query. |
+| `dateRange` | Text description of the range of dates included in the query. If this includes an asterisk, please see the `notes` field for excluded dates. |
 | `daysOfWeek` | Text description of the days of week included in the query.  |
 | `holidaysIncluded` | Boolean, indicating if statutory holidays where (True) or were not (False) included in the query. If there are no holidays within the date range, will return `NA`. |
 | `hoursInRange` | The total number of hours that are theoretically within the scope of the query's various parameters. This does not imply that data is/was available at all times. It's possible to construct requests with zero hours in range such as e.g `2023-01-01` to `2023-01-02`, Mondays only (There's only one Sunday in that range). Impossible combinations are included in the output for clarity and completeness but are not actually executed against the API and should return an error. |
