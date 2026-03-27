@@ -49,7 +49,9 @@ export class Corridor extends Factor {
                 direction: this.bearing,
                 startCrossStreets: this.startCrossStreetsString,
                 endCrossStreets: this.endCrossStreetsString,
-                status: this.isComplete ? 'valid' : ''             }
+                status: this.isComplete ? 'valid' : '',
+                focus: this.isActive
+            }
         }
     }
     get geojsonFeaturesPoint(){
