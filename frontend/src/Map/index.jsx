@@ -115,7 +115,7 @@ const styles = {
             id:'corridor-links',
             type:'line',
             paint:{
-                'line-width': 3,
+                'line-width': ['case', ['get','focus'], 5, 3],
                 'line-color': colorLogic
             },
             layout: {'line-cap': 'round'}
