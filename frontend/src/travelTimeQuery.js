@@ -86,17 +86,14 @@ export class TravelTimeQuery {
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
         }
-        // check range of sampling variability relative to estimated parameter
+        // check range of sampling variability relative to estimated parameters
         if(n <= 20) return warnings
         // but only if N is past our threshold
         estimatedParameters.forEach( param => {
             const intervals = this.#results?.estimates?.[param]?.confidenceInterval
             const estimate = this.#results?.estimates?.[param]?.estimate
-            if( // "range relative to travel time" AKA rrttt
-                (
-                    intervals?.upper.seconds - intervals?.lower.seconds
-                ) >= 0.5 * estimate?.seconds
-            ){
+            const intervalRange = intervals?.upper.seconds - intervals?.lower.seconds
+            if(intervalRange >= 0.5 * estimate?.seconds){
                 warnings.add(`${param} travel times may be unreliable`)
             }
         } )
