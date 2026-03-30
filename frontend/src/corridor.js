@@ -58,6 +58,7 @@ export class Corridor extends Factor {
         return this.intersections.map( i => {
             let feature = i.geojson
             feature.properties.status = this.isComplete ? 'valid' : ''
+            feature.properties.focus = this.isActive
             return feature
         } )
     }
