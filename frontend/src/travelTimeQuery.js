@@ -79,7 +79,7 @@ export class TravelTimeQuery {
         const n = this.#results?.observations?.length
         if(n == 0){
             warnings.add('no data available')
-        }else if(n <= 10){
+        }else if(n <= 20){
             warnings.add(`estimate is based on only ${n} observation(s)`)
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
