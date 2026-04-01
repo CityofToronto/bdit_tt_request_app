@@ -51,6 +51,7 @@ function DataLayer(){
         <>
             <Source id='corridor-links' type='geojson'data={corridorsGeojsonLinear}>
                 <Layer {...styles.corridors.lines}/>
+                <Layer {...styles.corridors.activeLines}/>
             </Source>
             <Source id='corridor-nodes' type='geojson'data={corridorsGeojsonPoint}>
                 <Layer {...styles.corridors.nodes}/>
@@ -104,7 +105,7 @@ const styles = {
             id:'corridor-nodes',
             type:'circle',
             paint:{
-                'circle-radius': 8, 
+                'circle-radius': [ 'case', ['get','focus'], 8, 4 ],
                 'circle-color': colorLogic,
                 'circle-opacity': 0.2,
                 'circle-stroke-width': 2,
@@ -117,6 +118,17 @@ const styles = {
             paint:{
                 'line-width': 3,
                 'line-color': colorLogic
+            },
+            layout: {'line-cap': 'round'}
+        },
+        activeLines: {
+            id:'activeCorridor',
+            type:'line',
+            filter: ['get','focus'],
+            paint:{
+                'line-width': 20,
+                'line-color': colorLogic,
+                'line-opacity': 0.1
             },
             layout: {'line-cap': 'round'}
         }

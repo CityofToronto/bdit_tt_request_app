@@ -1,5 +1,7 @@
 import { domain } from './domain.js'
 
+const estimatedParameters = ['mean','firstQuartile','median','thirdQuartile']
+
 export class TravelTimeQuery {
     #corridor
     #timeRange
@@ -91,20 +93,23 @@ export class TravelTimeQuery {
         const n = this.#results.get(this.URI)?.observations?.length
         if(n == 0){
             warnings.add('no data available')
-        }else if(n <= 10){
+        }else if(n <= 20){
             warnings.add(`estimate is based on only ${n} observation(s)`)
         }else if(n / this.hoursInRange < 0.2){
             warnings.add(`many time periods with missing or insufficient data`)
         }
-        // check travel time variability / skew
-        const intervals = this.#results.get(this.URI)?.estimates?.mean?.confidenceInterval
-        if(
-            (
-                intervals?.upper.seconds - intervals?.lower.seconds
-            ) >= 0.5 * this.#results.get(this.URI)?.estimates?.mean?.estimate?.seconds
-        ){
-            warnings.add('travel times are highly variable')
-        }
+        // check range of sampling variability relative to estimated parameters
+        if(n <= 20) return warnings
+        // but only if N is past our threshold
+        const estimates = this.#results.get(this.URI)?.estimates
+        estimatedParameters.forEach( param => {
+            const intervals = estimates?.[param]?.confidenceInterval
+            const estimate = estimates?.[param]?.estimate
+            const intervalRange = intervals?.upper.seconds - intervals?.lower.seconds
+            if(intervalRange >= 0.5 * estimate?.seconds){
+                warnings.add(`${param} travel times may be unreliable`)
+            }
+        } )
         return warnings
     }
     resultsRecord(type='json'){
@@ -125,7 +130,7 @@ export class TravelTimeQuery {
         record.set('hoursInRange', this.hoursInRange);
         // structure is the same for each of the parameter estimates and their CIs
         const results = this.#results.get(this.URI);
-        ['mean','firstQuartile','median','thirdQuartile'].map( param => {
+        estimatedParameters.map( param => {
             record.set(
                 `time_${param}`,
                 results?.estimates?.[param]?.estimate?.seconds

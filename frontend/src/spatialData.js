@@ -133,6 +133,7 @@ export class SpatialData {
                             ){ // only the no-holidays version of this will be queried
                                 return
                             }
+                            if(ttq.hoursInRange == 0){ return }
                             crossProduct.push(ttq)
                         } )
                     } )

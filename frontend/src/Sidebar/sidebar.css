@@ -41,7 +41,9 @@
 .factor.complete {
     background: #0f03;
 }
-
+.factor.active.complete {
+    background: #0f06;
+}
 .factor.inactive:hover {
     background: #00F5;
 }
