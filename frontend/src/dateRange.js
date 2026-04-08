@@ -7,6 +7,7 @@ import { DataContext } from './Layout'
 export class DateRange extends Factor {
     #startDate
     #endDate
+    #excludedDates = new Map()
     #dataContext
     constructor(dataContext){
         super(dataContext)
@@ -19,7 +20,7 @@ export class DateRange extends Factor {
         if(this.#startDate || this.#endDate){
             let start = DateRange.dateFormatted(this.#startDate) ?? '???'
             let end = DateRange.dateFormatted(this.#endDate) ?? '???'
-            return `From ${start} to ${end}`
+            return `From ${start} to ${end}${this.hasExclusions ? '*':''}`
         }
         return 'New Date Range'
     }
@@ -35,6 +36,22 @@ export class DateRange extends Factor {
         this.#endDate = inputDate
         this.hasUpdated()
         return this.#endDate
+    }
+    addExcludedDate(date){
+        this.#excludedDates.set(DateRange.dateFormatted(date), date)
+    }
+    removeExcludedDate(date){
+        if(date instanceof Date){
+            this.#excludedDates.delete(DateRange.dateFormatted(date))
+        } else {
+            this.#excludedDates.delete(date)
+        }
+    }
+    get excludedDates(){
+        return [...this.#excludedDates.values().map(DateRange.dateFormatted)]
+    }
+    get hasExclusions(){
+        return this.#excludedDates.size > 0
     }
     static dateFormatted(datetime){
         if(datetime){
@@ -63,8 +80,12 @@ export class DateRange extends Factor {
             let dow = d.getUTCDay()
             let isodow = dow == 0 ? 7 : dow
             if( daysOptions.hasDay(isodow) ){
-                // if holidays are NOT included, check the date isn't a holiday
-                if( ! ( holidaysExcluded && holidayDates.has(formatISODate(d)) ) ){
+                if(
+                    // if dates are excluded check this isn't one of them
+                    !(this.hasExclusions && this.#excludedDates.has(DateRange.dateFormatted(d)))
+                    // if holidays are NOT included, check the date isn't a holiday
+                    && !(holidaysExcluded && holidayDates.has(formatISODate(d)))
+                ){
                     dayCount ++
                 }
             }
@@ -93,26 +114,62 @@ function formatISODate(dt){ // this is waaay too complicated... alas
 function DateRangeElement({dateRange}){
     const { logActivity } = useContext(DataContext)
     const [ selectedRange, setSelectedRange ] = useState(undefined)
+    const [ editing, setEditing ] = useState(! dateRange.isComplete)
+    const [ addingDateExclusion, setAddingDateExclusion ] = useState(false)
     useEffect(()=>{
         if(!selectedRange) return;
         let [ start, end ] = selectedRange
         dateRange.setStartDate(start)
         dateRange.setEndDate(end)
+        setEditing(false)
         logActivity('dateRange selected/updated')
     },[selectedRange])
     return (
         <div>
             <div className='dateRangeName'>{dateRange.name}</div>
-            {dateRange.isActive && <>
+            {dateRange.isActive && (editing || ! dateRange.isComplete)&& <>
                 <Calendar
                     value={selectedRange}
                     selectRange={true}
                     allowPartialRange={true}
                     onChange={setSelectedRange}
-                    maxDate={dateRange.maxDate}
                     minDate={dateRange.minDate}
+                    maxDate={dateRange.maxDate}
                 />
             </> }
+            {dateRange.isActive && dateRange.isComplete && <div>
+                {dateRange.hasExclusions && <div>
+                    *Excluding:
+                    <ul>
+                        {dateRange.excludedDates.map((d,i)=>(
+                            <li key={i}>
+                                {d} <span onClick={()=>{
+                                    logActivity('removed date Exclusion')
+                                    dateRange.removeExcludedDate(d)
+                                }}>&#x2716;</span>
+                            </li>
+                        )) }
+                    </ul>
+                </div>}
+                <small><a onClick={()=>{setEditing(true)}}>
+                    Edit date range
+                </a></small>
+                <br/>
+                <small><a onClick={()=>{setAddingDateExclusion(true)}}>
+                    Add date exclusion
+                </a></small>
+            </div>}
+            {addingDateExclusion && <>
+                <Calendar
+                    onChange={(date)=>{
+                        dateRange.addExcludedDate(date)
+                        setAddingDateExclusion(false)
+                    }}
+                    activeStartDate={selectedRange[0]}
+                    minDate={selectedRange[0]}
+                    maxDate={selectedRange[1]}
+                />
+            </>}
         </div>
     )
 }
