@@ -22,19 +22,23 @@ export default function CartoMap(){
 function DataLayer(){
     const { logActivity, data } = useContext(DataContext)
     const activeCorridor = data.activeCorridor
-    useMap().current.once('click', (event) => { // add an intersection
+    useMap().current.on('click', (event) => { // add an intersection
         if( activeCorridor?.intersections?.length < 2 ){
             fetch(`${domain}/nodes-within/50/${event.lngLat.lng}/${event.lngLat.lat}`)
                 .then( resp => resp.json() )
-                .then( node => {
-                    const data = node[0]
+                .then(nodes => {
+                    if (nodes.length == 0) {
+                        console.warn('No nodes found within 50m of click')
+                        return
+                    }
+                    const node = nodes[0]
                     const intersection = new Intersection( {
-                        id: data.node_id,
-                        lat: data.geometry.coordinates[1],
-                        lng: data.geometry.coordinates[0],
-                        streetNames: data.street_names
+                        id: node.node_id,
+                        lat: node.geometry.coordinates[1],
+                        lng: node.geometry.coordinates[0],
+                        streetNames: node.street_names
                     } )
-                    activeCorridor.addIntersection(intersection,logActivity)
+                    activeCorridor.addIntersection(intersection, logActivity)
                     logActivity('added intersection')
                 } )
             }
@@ -137,7 +141,7 @@ const styles = {
         id:'nodes',
         type:'circle',
         paint:{
-            'circle-radius': 3, 
+            'circle-radius': 3,
             'circle-color': 'grey',
             'circle-opacity': 0.5,
             'circle-stroke-width': 2,
