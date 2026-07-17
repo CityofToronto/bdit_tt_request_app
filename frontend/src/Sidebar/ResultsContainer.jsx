@@ -24,11 +24,8 @@ export default function ResultsContainer(){
                 }}>Submit Query</BigButton>
             }
             {isFetchingData && <>
-                <p>Finished fetching {data.queryCountFinished}/{data.queryCount} results</p>
-                <ProgressBar
-                    totalCount={data.queryCount}
-                    queue={data.queue}
-                />
+                <p>Fetching {data.queryCount} travel times</p>
+                <ProgressBar totalCount={data.queryCount} queue={data.queue} />
             </>}
             {data.allQueriesHaveData && <>
                     <a download='results.json'
