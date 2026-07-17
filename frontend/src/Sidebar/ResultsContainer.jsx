@@ -26,7 +26,10 @@ export default function ResultsContainer(){
             }
             {isFetchingData && <>
                 <p>Finished fetching {data.queryCountFinished}/{data.queryCount} results</p>
-                <ProgressBar percentDone={progress}/>
+                <ProgressBar
+                    totalCount={data.queryCount}
+                    queue={data.queue}
+                />
             </>}
             {data.allQueriesHaveData && <>
                     <a download='results.json'
@@ -45,11 +48,20 @@ export default function ResultsContainer(){
     )
 }
 
-function ProgressBar({percentDone}){
+function ProgressBar({totalCount, queue}) {
+    let percentRequested = 100 * (totalCount - queue.size) / totalCount
+    let percentResolved = 100 * (totalCount - queue.size - queue.pending) / totalCount
     return (
         <svg viewBox='0 0 100 7'>
-            <rect height='100%' width='100%' fill='white' stroke='black' strokeWidth='1'/>
-            <rect height='100%' width={percentDone} fill='darkgreen' strokeWidth='1'/>
+            <rect height='100%' width={percentRequested} fill='lightgreen'>
+                <title>In progress</title>
+            </rect>
+            <rect height='100%' width={percentResolved} fill='darkgreen'>
+                <title>Completed</title>
+            </rect>
+            <rect height='100%' width='100%' fill='none' stroke='black' strokeWidth='1'>
+                <title>Pending</title>
+            </rect>
         </svg>
     )
 }
