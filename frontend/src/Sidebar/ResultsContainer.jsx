@@ -4,12 +4,11 @@ import BigButton from './BigButton'
 
 export default function ResultsContainer(){
     const [ isFetchingData, setIsFetchingData ] = useState(false)
-    const [ progress, setProgress ] = useState(-1)
+    const [ progress, setProgress ] = useState(0)
     const { data } = useContext(DataContext)
     useEffect(()=>{
-        data.queue.on('active',()=>{
-            setProgress( 100 * data.queryCountFinished / data.queryCount )
-        })
+        data.queue.on('active',()=>setProgress(p=>p+1))
+        data.queue.on('completed',()=>setProgress(p=>p+1))
     },[])
     return (
         <div>
