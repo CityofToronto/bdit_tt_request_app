@@ -4,11 +4,13 @@ import BigButton from './BigButton'
 
 export default function ResultsContainer(){
     const [ isFetchingData, setIsFetchingData ] = useState(false)
-    const [ progress, setProgress ] = useState(0)
     const { data } = useContext(DataContext)
+    // _p var isn't used directly, but is necessary to make
+    // the component rerender with updated queue progress
+    const [ _p, setProgress ] = useState(0)
     useEffect(()=>{
-        data.queue.on('active',()=>setProgress(p=>p+1))
-        data.queue.on('completed',()=>setProgress(p=>p+1))
+        data.queue.on('active',()=>setProgress(_p=>_p+1))
+        data.queue.on('completed',()=>setProgress(_p=>_p+1))
     },[])
     return (
         <div>
