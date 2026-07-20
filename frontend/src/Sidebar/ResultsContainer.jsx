@@ -13,7 +13,7 @@ export default function ResultsContainer(){
     return (
         <div>
             {!isFetchingData && <>
-                {data.queryCount} travel time{data.queryCount == 1 ? '' : 's'} to be queried
+                {data.queryCount} travel time{data.queryCount==1?'':'s'} to be queried
             </>}
             {data.queryCount > 0 && !isFetchingData && !data.allQueriesHaveData &&
                 <BigButton onClick={()=>{
@@ -24,7 +24,10 @@ export default function ResultsContainer(){
                 }}>Submit Query</BigButton>
             }
             {isFetchingData && <>
-                <p>Fetching {data.queryCount} travel times</p>
+                <p>
+                    {data.queue.size} travel time{data.queue.size==1?'':'s'} waiting<br/>
+                    {data.queue.pending} travel time{data.queue.pending==1?'':'s'} calculating
+                </p>
                 <ProgressBar totalCount={data.queryCount} queue={data.queue} />
             </>}
             {data.allQueriesHaveData && data.queue.size == 0 && data.queue.pending == 0 && <>
