@@ -27,7 +27,7 @@ export default function ResultsContainer(){
                 <p>Fetching {data.queryCount} travel times</p>
                 <ProgressBar totalCount={data.queryCount} queue={data.queue} />
             </>}
-            {data.allQueriesHaveData && <>
+            {data.allQueriesHaveData && data.queue.size == 0 && data.queue.pending == 0 && <>
                     <a download='results.json'
                         href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(data.travelTimeQueries.map(r=>r.resultsRecord('json'))))}`}
                     >
