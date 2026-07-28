@@ -44,7 +44,7 @@
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "express": "^4.18.2",
-        "maplibre-gl": "4.x",
+        "maplibre-gl": "5.x",
         "p-queue": "9.x",
         "react": "18.x",
         "react-calendar": "6.x",
