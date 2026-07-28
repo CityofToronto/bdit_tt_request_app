@@ -36,9 +36,9 @@
         "less-loader": "11.x",
         "style-loader": "3.x",
         "webpack": "5.x",
-        "webpack-cli": "4.x",
+        "webpack-cli": "7.x",
         "webpack-deadcode-plugin": "^0.1.x",
-        "webpack-merge": "5.x"
+        "webpack-merge": "6.x"
     },
     "dependencies": {
         "@emotion/react": "^11.10.6",
