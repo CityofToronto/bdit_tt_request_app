@@ -49,7 +49,6 @@
         "p-queue": "9.x",
         "react": "18.x",
         "react-calendar": "6.x",
-        "react-date-picker": "^8.4.0",
         "react-dom": "18.x",
         "react-map-gl": "7.x"
     }
