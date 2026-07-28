@@ -26,7 +26,7 @@
         "@babel/preset-react": "7.x",
         "babel-loader": "^10.0.0",
         "clean-webpack-plugin": "4.x",
-        "css-loader": "6.x",
+        "css-loader": "7.x",
         "dotenv": "^17.x",
         "eslint": "9.x",
         "eslint-plugin-css-modules": "2.x",
