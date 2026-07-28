@@ -29,8 +29,8 @@
         "css-loader": "6.x",
         "dotenv": "^17.x",
         "eslint": "9.x",
-        "eslint-plugin-css-modules": "^2.12.0",
-        "eslint-plugin-react": "^7.37.0",
+        "eslint-plugin-css-modules": "2.x",
+        "eslint-plugin-react": "7.x",
         "html-webpack-plugin": "5.x",
         "less": "4.x",
         "less-loader": "11.x",
@@ -43,7 +43,6 @@
     "dependencies": {
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
-        "@mui/material": "5.x",
         "express": "^4.18.2",
         "maplibre-gl": "4.x",
         "p-queue": "9.x",
