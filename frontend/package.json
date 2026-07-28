@@ -46,9 +46,9 @@
         "express": "5.x",
         "maplibre-gl": "5.x",
         "p-queue": "9.x",
-        "react": "18.x",
+        "react": "19.x",
         "react-calendar": "6.x",
-        "react-dom": "18.x",
+        "react-dom": "19.x",
         "react-map-gl": "8.x"
     }
 }
