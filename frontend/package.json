@@ -27,7 +27,7 @@
         "babel-loader": "^10.0.0",
         "clean-webpack-plugin": "4.x",
         "css-loader": "6.x",
-        "dotenv": "^16.x",
+        "dotenv": "^17.x",
         "eslint": "9.x",
         "eslint-plugin-css-modules": "^2.12.0",
         "eslint-plugin-react": "^7.37.0",
