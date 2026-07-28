@@ -4,17 +4,18 @@ import BigButton from './BigButton'
 
 export default function ResultsContainer(){
     const [ isFetchingData, setIsFetchingData ] = useState(false)
-    const [ progress, setProgress ] = useState(-1)
     const { data } = useContext(DataContext)
+    // _p var isn't used directly, but is necessary to make
+    // the component rerender with updated queue progress
+    const [ _p, setProgress ] = useState(0)
     useEffect(()=>{
-        data.queue.on('active',()=>{
-            setProgress( 100 * data.queryCountFinished / data.queryCount )
-        })
+        data.queue.on('active',()=>setProgress(_p=>_p+1))
+        data.queue.on('completed',()=>setProgress(_p=>_p+1))
     },[])
     return (
         <div>
             {!isFetchingData && <>
-                {data.queryCount} travel time{data.queryCount == 1 ? '' : 's'} to be queried
+                {data.queryCount} travel time{data.queryCount==1?'':'s'} to be queried
             </>}
             {data.queryCount > 0 && !isFetchingData && !data.allQueriesHaveData &&
                 <BigButton onClick={()=>{
@@ -25,10 +26,13 @@ export default function ResultsContainer(){
                 }}>Submit Query</BigButton>
             }
             {isFetchingData && <>
-                <p>Finished fetching {data.queryCountFinished}/{data.queryCount} results</p>
-                <ProgressBar percentDone={progress}/>
+                <p>
+                    {data.queue.size} travel time{data.queue.size==1?'':'s'} waiting<br/>
+                    {data.queue.pending} travel time{data.queue.pending==1?'':'s'} calculating
+                </p>
+                <ProgressBar totalCount={data.queryCount} queue={data.queue} />
             </>}
-            {data.allQueriesHaveData && <>
+            {data.allQueriesHaveData && data.queue.size == 0 && data.queue.pending == 0 && <>
                     <a download='results.json'
                         href={`data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(data.travelTimeQueries.map(r=>r.resultsRecord('json'))))}`}
                     >
@@ -45,11 +49,20 @@ export default function ResultsContainer(){
     )
 }
 
-function ProgressBar({percentDone}){
+function ProgressBar({totalCount, queue}) {
+    let percentRequested = 100 * (totalCount - queue.size) / totalCount
+    let percentResolved = 100 * (totalCount - queue.size - queue.pending) / totalCount
     return (
         <svg viewBox='0 0 100 7'>
-            <rect height='100%' width='100%' fill='white' stroke='black' strokeWidth='1'/>
-            <rect height='100%' width={percentDone} fill='darkgreen' strokeWidth='1'/>
+            <rect height='100%' width={percentRequested} fill='lightgreen'>
+                <title>In progress</title>
+            </rect>
+            <rect height='100%' width={percentResolved} fill='darkgreen'>
+                <title>Completed</title>
+            </rect>
+            <rect height='100%' width='100%' fill='none' stroke='black' strokeWidth='1'>
+                <title>Pending</title>
+            </rect>
         </svg>
     )
 }
