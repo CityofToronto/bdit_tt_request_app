@@ -33,7 +33,7 @@
         "eslint-plugin-react": "7.x",
         "html-webpack-plugin": "5.x",
         "less": "4.x",
-        "less-loader": "11.x",
+        "less-loader": "13.x",
         "style-loader": "3.x",
         "webpack": "5.x",
         "webpack-cli": "7.x",
